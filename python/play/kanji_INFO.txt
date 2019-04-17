@@ -1,0 +1,12 @@
+https://jisho.org/
+https://jisho.org/about
+
+KanjiVG
+http://kanjivg.tagaini.net/
+
+kanji.json seems to be obtained from the SVG files in KanjiVG.
+kanjivg-20160426-main.zip
+https://github.com/KanjiVG/kanjivg/releases
+
+Although kanji.json does not contain hiragana (e.g. あ), KanjiVG has the data.
+We will be able to merge them.

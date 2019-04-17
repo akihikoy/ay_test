@@ -1,0 +1,9 @@
+<launch>
+  <node cwd="node" type="gripper_node" pkg="ode1" name="gripper_sim">
+    <param name="texture_path" value="$(find ode1)/config/textures" />
+<!--     <param name="winx" value="854" /> -->
+<!--     <param name="winy" value="480" /> -->
+    <param name="winx" value="400" />
+    <param name="winy" value="400" />
+  </node>
+</launch>

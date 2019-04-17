@@ -1,0 +1,37 @@
+1. add /etc/apt/sources.list
+
+deb http://ppa.launchpad.net/openrave/release/ubuntu maverick main
+deb-src http://ppa.launchpad.net/openrave/release/ubuntu maverick main
+
+2. sudo apt-get update
+3. sudo apt-get -f install openrave
+
+>||
+以下の特別パッケージがインストールされます:
+  global ipython libassimp2 libboost-date-time-dev libboost-thread-dev libcoin60 libcollada15dom libcollada15dom-dev
+  libcolladadom-dev libode1 libpcrecpp0 libsoqt4-20 openrave0.4-dp openrave0.4-dp-base openrave0.4-dp-data openrave0.4-dp-dev
+  openrave0.4-dp-ikfast openrave0.4-dp-matlab openrave0.4-dp-octave openrave0.4-dp-plugin-bulletrave
+  openrave0.4-dp-plugin-dualmanipulation openrave0.4-dp-plugin-grasper openrave0.4-dp-plugin-ikfastsolvers
+  openrave0.4-dp-plugin-logging openrave0.4-dp-plugin-oderave openrave0.4-dp-plugin-qtcoinrave
+  openrave0.4-dp-plugin-textserver openrave0.4-dp-plugins-all openrave0.4-dp-plugins-base openrave0.4-dp-python
+  python-foolscap python-mpmath python-openssl python-pam python-serial python-sympy python-twisted-bin python-twisted-core
+  python-twisted-names python-twisted-web python-wxgtk2.8 python-wxversion python-zope.interface
+提案パッケージ:
+  doxygen apache httpd id-utils python-profiler python-matplotlib libjs-jquery libsimage-dev libopenal0a python-gmpy
+  python-mpmath-doc python-openssl-doc python-openssl-dbg python-twisted-bin-dbg python-tk python-glade2 python-qt3 wx2.8-doc
+  wx2.8-examples python-xml editra python-z3c.recipe.sphinxdoc
+以下のパッケージが新たにインストールされます:
+  global ipython libassimp2 libboost-date-time-dev libboost-thread-dev libcoin60 libcollada15dom libcollada15dom-dev
+  libcolladadom-dev libode1 libpcrecpp0 libsoqt4-20 openrave openrave0.4-dp openrave0.4-dp-base openrave0.4-dp-data
+  openrave0.4-dp-dev openrave0.4-dp-ikfast openrave0.4-dp-matlab openrave0.4-dp-octave openrave0.4-dp-plugin-bulletrave
+  openrave0.4-dp-plugin-dualmanipulation openrave0.4-dp-plugin-grasper openrave0.4-dp-plugin-ikfastsolvers
+  openrave0.4-dp-plugin-logging openrave0.4-dp-plugin-oderave openrave0.4-dp-plugin-qtcoinrave
+  openrave0.4-dp-plugin-textserver openrave0.4-dp-plugins-all openrave0.4-dp-plugins-base openrave0.4-dp-python
+  python-foolscap python-mpmath python-openssl python-pam python-serial python-sympy python-twisted-bin python-twisted-core
+  python-twisted-names python-twisted-web python-wxgtk2.8 python-wxversion python-zope.interface
+アップグレード: 0 個、新規インストール: 44 個、削除: 0 個、保留: 817 個。
+42.4MB のアーカイブを取得する必要があります。
+この操作後に追加で 167MB のディスク容量が消費されます。
+続行しますか [Y/n]?
+||<
+

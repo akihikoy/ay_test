@@ -1,0 +1,20 @@
+<package>
+  <description brief="ode1">
+
+     ode1
+
+  </description>
+  <author>Akihiko Y</author>
+  <license>???</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ode1</url>
+
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="std_srvs"/>
+  <depend package="geometry_msgs"/>
+
+</package>
+
+

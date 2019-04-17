@@ -1,0 +1,19 @@
++ yaml-cpp
+- Download
+yaml-cpp is obtained from:
+  https://code.google.com/p/yaml-cpp/
+via hg:
+  $ hg clone https://code.google.com/p/yaml-cpp/
+
+- Install
+  $ cd yaml-cpp
+  $ mkdir build
+  $ cd build
+  $ ccmake ..
+    BUILD_SHARED_LIBS = ON or OFF
+  $ make
+
+- Usage
+See the tutorial:
+  https://code.google.com/p/yaml-cpp/wiki/Tutorial
+

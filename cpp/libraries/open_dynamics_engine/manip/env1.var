@@ -1,0 +1,26 @@
+finclude(this,"arm1.var")
+finclude(this,"cup1.var")
+
+StaticObjects={
+    ["Floor"]={
+        Links={["Floor"]={Geometry={Type= "gtPlane"; A=0; B=0; C=1; D=0;};};}
+      }  // StaticObject[]
+
+  }  // StaticObjects
+
+DefaultSurface={
+    // ContactMu2= true
+    ContactBounce= true
+    ContactSoftCFM= true
+    Mu = 0.1
+    Mu2 = 0.0
+    Bounce = 0.1
+    BounceVel = 0.1
+    SoftCFM = 0.01
+  }
+
+TimeStep= 0.001
+DisplayFPS= 50
+// Gravity=(0,0,-9.8)
+ViewPoint= (0.0225,0.7948,0.8100,-89.5000,-32.5000,0.0000)
+

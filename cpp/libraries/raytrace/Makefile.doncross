@@ -1,0 +1,96 @@
+##-------------------------------------------------------------------------------------------
+# \author  Akihiko Yamaguchi, akihiko-y@is.naist.jp / ay@akiyam.sakura.ne.jp
+# \version 0.1
+# \date    Feb.02, 2015
+##-------------------------------------------------------------------------------------------
+# EXEC := EXEC_NAME
+ARC := libdoncross.a
+LIBOBJS :=
+CXX := g++
+AR := ar
+ifeq ($(DEBUG),true)
+  CXXFLAGS := -g -Wall -rdynamic
+else
+  CXXFLAGS := -g -Wall -rdynamic -O2
+endif
+LDFLAGS  := $(CXXFLAGS)
+RMFLAGS  :=  -vf
+##-------------------------------------------------------------------------------------------
+BASEPREFIX := $(wildcard ~/prg)
+##-------------------------------------------------------------------------------------------
+# Other than main.cpp
+FILES := \
+	doncross/raytrace/raytrace/algebra.cpp           \
+	doncross/raytrace/raytrace/binary.cpp            \
+	doncross/raytrace/raytrace/chessboard.cpp        \
+	doncross/raytrace/raytrace/cuboid.cpp            \
+	doncross/raytrace/raytrace/cylinder.cpp          \
+	doncross/raytrace/raytrace/debug.cpp             \
+	doncross/raytrace/raytrace/dodecahedron.cpp      \
+	doncross/raytrace/raytrace/icosahedron.cpp       \
+	doncross/raytrace/raytrace/optics.cpp            \
+	doncross/raytrace/raytrace/planet.cpp            \
+	doncross/raytrace/raytrace/reorient.cpp          \
+	doncross/raytrace/raytrace/scene.cpp             \
+	doncross/raytrace/raytrace/setcompl.cpp          \
+	doncross/raytrace/raytrace/setisect.cpp          \
+	doncross/raytrace/raytrace/setunion.cpp          \
+	doncross/raytrace/raytrace/solid.cpp             \
+	doncross/raytrace/raytrace/sphere.cpp            \
+	doncross/raytrace/raytrace/spheroid.cpp          \
+	doncross/raytrace/raytrace/thinring.cpp          \
+	doncross/raytrace/raytrace/torus.cpp             \
+	doncross/raytrace/raytrace/triangle.cpp          \
+	doncross/raytrace/lodepng/lodepng.cpp
+##-------------------------------------------------------------------------------------------
+## make  *.o  from  *.cpp
+OBJS := $(patsubst %.cpp,%.o,$(FILES))
+OBJS := $(subst doncross/raytrace/raytrace/,build/, $(OBJS))
+OBJS := $(subst doncross/raytrace/lodepng/,build/, $(OBJS))
+# OBJS    := \
+#       $(patsubst %.c,%.o,$(wildcard *.c)) \
+#       $(patsubst %.cpp,%.o,$(wildcard *.cpp)) #
+##-------------------------------------------------------------------------------------------
+LIBS    := -I/usr/include -I/usr/local/include
+LDLIBS  := -lm -L/usr/local/lib
+##-------------------------------------------------------------------------------------------
+LIBS   += -Idoncross/raytrace/raytrace
+# LIBOBJS+=
+# LDLIBS +=
+##-------------------------------------------------------------------------------------------
+# all : libobjs $(EXEC)
+all : libobjs $(ARC)
+##-------------------------------------------------------------------------------------------
+## additional make
+libobjs :
+# 	@(set -e; make -C $(LIBLORA)/src std oct ode)
+# 	@(set -e; make -C $(LIBSKYAI)/src)
+##-------------------------------------------------------------------------------------------
+## generic make rules
+
+clean   :
+	@rm $(RMFLAGS) *.o *.a *.il $(OBJS) $(EXEC) $(ARC) $(EXTRA_CLEAN)
+	@find -name '*.d' -type f | xargs rm $(RMFLAGS)
+
+$(ARC) : $(OBJS) $(LIBOBJS)
+	$(AR) r $(ARC) $(OBJS) $(LIBOBJS)
+	@(becho "$(ARC) is generated")
+
+build/%.o : doncross/raytrace/raytrace/%.cpp
+	$(CXX) -o $@ $(LIBS) $(CXXFLAGS) -c $<
+
+build/%.o : doncross/raytrace/lodepng/%.cpp
+	$(CXX) -o $@ $(LIBS) $(CXXFLAGS) -c $<
+
+# DEPOPT  ?= -MM
+#
+# %.d: %.cpp
+# 	@(rm -f $@; \
+# 	$(CXX) $(DEPOPT) $(LIBS) $(CXXFLAGS) $< > $@.$$$$; \
+# 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+# 	[ -s $@ ] || rm -f $@; \
+# 	rm -f $@.$$$$; \
+# 	)
+##-------------------------------------------------------------------------------------------
+# include $(OBJ:.o=.d) $(OBJS:.o=.d) $(objects:.o=.d) $(addsuffix .d, $(BINARY))
+##-------------------------------------------------------------------------------------------

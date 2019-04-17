@@ -1,0 +1,41 @@
+Robots={
+    ["Robot"]={
+        RootLink= "L1"
+        Position= (0.0,0.0,0.05)
+        Links={
+            ["L1"]={
+                Geometry={Type= "gtBox"; Lx=0.3; Ly=0.2; Lz=0.1; Color=(1,0,0,0.7);}
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0,0,0)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+          }  // Links
+        // ForceSensors
+      }
+
+  }
+
+StaticObjects={
+    ["Floor"]={
+        Links={["Floor"]={Geometry={Type= "gtPlane"; A=0; B=0; C=1; D=0;};};}
+      }  // StaticObject[]
+
+  }  // StaticObjects
+
+DefaultSurface={
+    // ContactMu2= true
+    ContactBounce= true
+    ContactSoftCFM= true
+    Mu = 0.0
+    Mu2 = 0.0
+    Bounce = 0.1
+    BounceVel = 0.1
+    SoftCFM = 0.01
+  }
+
+TimeStep= 0.0001
+DisplayFPS= 50
+// Gravity=(0,0,-9.8)
+ViewPoint= (0.0,1.21,1.8, -90,-60,0)
+

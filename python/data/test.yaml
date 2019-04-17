@@ -1,0 +1,20 @@
+g_width: 0.1
+models:
+- kind: Sphere
+  p: [0, 0, 0]
+  radius: 3
+#Set of grab primitives:
+grab_primitives:
+- kind: gpkCylinder
+  p1: [0.00227746, 0.0068991, 0.028494]
+  p2: [0.00153953, 0.00437533, 0.0996679]
+  width: 0.0670488
+p_set:
+- [1, 2, 3]
+- [2, 3, 4]
+- [1, 2, 3]
+- [2, 3, 4]
+r_dict:
+  aaa: 1.25
+  bbb: 3.14
+  ddd: [0, 0, 0]

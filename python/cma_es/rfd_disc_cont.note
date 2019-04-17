@@ -1,0 +1,49 @@
+discrete parameter d?
+continuous parameter c?
+
+simplest grasping optimization
+  cylindrical parameter c1,c2,c3 (height, orientation-1, orientation-2)
+
+  optimizer: TContOpt(c1,c2,c3)
+  param structure: [c,c,c]
+
+simplified grasping optimization
+  primitive d1 in D1 (primitive type: cylinder)
+  cylindrical parameter c1,c2,c3 (height, orientation-1, orientation-2)
+
+  optimizer: TDiscContOpt([TContOpt(c1,c2,c3)] * |D1|)
+  param structure: { [c,c,c]*D1 }
+
+grasping optimization
+  primitive d1 in D1 (primitive type: cylinder, box)
+  cylindrical parameter c1,c2,c3 (height, orientation-1, orientation-2)
+  box parameter d2,c4,c5 (orientation-1: D2=4, height, orientation-2)
+
+  optimizer: TDiscContOpt([TContOpt(c1,c2,c3)] * |D1_kind=cyl|, TDiscContOpt([TContOpt(c4,c5)]*|D2|) * |D1_kind=box|)
+  param structure: { [c,c,c]*D1_kind=cyl + { [c,c]*D2 }*D1_kind=box }
+
+pouring order optimization (pour to multiple cup)
+  order d1 (encoding e.g. 1-2-3,1-3-2,2-1-3,2-3-1,3-1-2,3-2-1)
+
+  optimizer: TProbDiscOpt(d1)
+
+
+Change:
+TDiscContOpt --> CompOpt or CompositeOpt
+
+Parameter structure representation:
+>|python|
+  class TParamStruct:
+    class TDisc:
+      Size= <int>
+      #Options
+    class TCont:
+      NDim= <int>
+      #Options like CMA-ES
+    class TComp:
+      Disc= <TDisc>  #Necessary? (Size is obviously equal to len(Param))
+      Param= [<TParamStruct>]
+    Kind= {TDisc,TCont,TComp}
+    Entity= {<TDisc>,<TCont>,<TComp>}
+||<
+

@@ -1,0 +1,26 @@
+<!--
+Setup kinematics simulation of Universal Robots UR3.
+-->
+
+<launch>
+
+  <include file="$(find ur_description)/launch/ur3_upload.launch"/>
+
+  <rosparam param="controller_joint_names">
+  ["shoulder_pan_joint","shoulder_lift_joint","elbow_joint",
+  "wrist_1_joint","wrist_2_joint","wrist_3_joint"]
+  </rosparam>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher"
+        name="robot_state_publisher" output="screen" />
+  <!--<node pkg="tf2_ros" type="static_transform_publisher"
+        name="tf_base_base_link" output="screen"
+        args="0 0 0 0 0 0 1 base base_link" />-->
+
+  <!--<node pkg="ay_util" type="dummy_robot.py"
+        name="ur_dummy" output="screen"
+        args="100" />-->
+
+  <node pkg="rviz" type="rviz" name="rviz"/>
+
+</launch>

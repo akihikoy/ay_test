@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"  standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="1200" height="780" viewBox="0 0 1200 780"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+
+<desc>Produced by GNUPLOT 4.4 patchlevel 3 </desc>
+
+<defs>
+
+	<circle id='gpDot' r='0.5' stroke-width='0.5'/>
+	<path id='gpPt0' stroke-width='0.111' stroke='currentColor' d='M-1,0 h2 M0,-1 v2'/>
+	<path id='gpPt1' stroke-width='0.111' stroke='currentColor' d='M-1,-1 L1,1 M1,-1 L-1,1'/>
+	<path id='gpPt2' stroke-width='0.111' stroke='currentColor' d='M-1,0 L1,0 M0,-1 L0,1 M-1,-1 L1,1 M-1,1 L1,-1'/>
+	<rect id='gpPt3' stroke-width='0.111' stroke='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<rect id='gpPt4' stroke-width='0.111' stroke='currentColor' fill='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<circle id='gpPt5' stroke-width='0.111' stroke='currentColor' cx='0' cy='0' r='1'/>
+	<use xlink:href='#gpPt5' id='gpPt6' fill='currentColor' stroke='none'/>
+	<path id='gpPt7' stroke-width='0.111' stroke='currentColor' d='M0,-1.33 L-1.33,0.67 L1.33,0.67 z'/>
+	<use xlink:href='#gpPt7' id='gpPt8' fill='currentColor' stroke='none'/>
+	<use xlink:href='#gpPt7' id='gpPt9' stroke='currentColor' transform='rotate(180)'/>
+	<use xlink:href='#gpPt9' id='gpPt10' fill='currentColor' stroke='none'/>
+	<use xlink:href='#gpPt3' id='gpPt11' stroke='currentColor' transform='rotate(45)'/>
+	<use xlink:href='#gpPt11' id='gpPt12' fill='currentColor' stroke='none'/>
+</defs>
+<g style="fill:none; color:white; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+</g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path  d='M331.5,664.8 L349.5,664.8 M962.8,664.8 L944.8,664.8 '></path>
+	<g transform="translate(314.8,673.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>-1</text>
+	</g>
+	<path  d='M331.5,601.7 L349.5,601.7 M962.8,601.7 L944.8,601.7 '></path>
+	<g transform="translate(314.8,610.7)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>-0.8</text>
+	</g>
+	<path  d='M331.5,538.5 L349.5,538.5 M962.8,538.5 L944.8,538.5 '></path>
+	<g transform="translate(314.8,547.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>-0.6</text>
+	</g>
+	<path  d='M331.5,475.4 L349.5,475.4 M962.8,475.4 L944.8,475.4 '></path>
+	<g transform="translate(314.8,484.4)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>-0.4</text>
+	</g>
+	<path  d='M331.5,412.3 L349.5,412.3 M962.8,412.3 L944.8,412.3 '></path>
+	<g transform="translate(314.8,421.3)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>-0.2</text>
+	</g>
+	<path  d='M331.5,349.2 L349.5,349.2 M962.8,349.2 L944.8,349.2 '></path>
+	<g transform="translate(314.8,358.2)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 0</text>
+	</g>
+	<path  d='M331.5,286.0 L349.5,286.0 M962.8,286.0 L944.8,286.0 '></path>
+	<g transform="translate(314.8,295.0)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 0.2</text>
+	</g>
+	<path  d='M331.5,222.9 L349.5,222.9 M962.8,222.9 L944.8,222.9 '></path>
+	<g transform="translate(314.8,231.9)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 0.4</text>
+	</g>
+	<path  d='M331.5,159.8 L349.5,159.8 M962.8,159.8 L944.8,159.8 '></path>
+	<g transform="translate(314.8,168.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 0.6</text>
+	</g>
+	<path  d='M331.5,96.6 L349.5,96.6 M962.8,96.6 L944.8,96.6 '></path>
+	<g transform="translate(314.8,105.6)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 0.8</text>
+	</g>
+	<path  d='M331.5,33.5 L349.5,33.5 M962.8,33.5 L944.8,33.5 '></path>
+	<g transform="translate(314.8,42.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 1</text>
+	</g>
+	<path  d='M331.5,664.8 L331.5,646.8 M331.5,33.5 L331.5,51.5 '></path>
+	<g transform="translate(331.5,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>-1</text>
+	</g>
+	<path  d='M394.6,664.8 L394.6,646.8 M394.6,33.5 L394.6,51.5 '></path>
+	<g transform="translate(394.6,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>-0.8</text>
+	</g>
+	<path  d='M457.8,664.8 L457.8,646.8 M457.8,33.5 L457.8,51.5 '></path>
+	<g transform="translate(457.8,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>-0.6</text>
+	</g>
+	<path  d='M520.9,664.8 L520.9,646.8 M520.9,33.5 L520.9,51.5 '></path>
+	<g transform="translate(520.9,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>-0.4</text>
+	</g>
+	<path  d='M584.0,664.8 L584.0,646.8 M584.0,33.5 L584.0,51.5 '></path>
+	<g transform="translate(584.0,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>-0.2</text>
+	</g>
+	<path  d='M647.1,664.8 L647.1,646.8 M647.1,33.5 L647.1,51.5 '></path>
+	<g transform="translate(647.1,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 0</text>
+	</g>
+	<path  d='M710.3,664.8 L710.3,646.8 M710.3,33.5 L710.3,51.5 '></path>
+	<g transform="translate(710.3,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 0.2</text>
+	</g>
+	<path  d='M773.4,664.8 L773.4,646.8 M773.4,33.5 L773.4,51.5 '></path>
+	<g transform="translate(773.4,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 0.4</text>
+	</g>
+	<path  d='M836.5,664.8 L836.5,646.8 M836.5,33.5 L836.5,51.5 '></path>
+	<g transform="translate(836.5,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 0.6</text>
+	</g>
+	<path  d='M899.7,664.8 L899.7,646.8 M899.7,33.5 L899.7,51.5 '></path>
+	<g transform="translate(899.7,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 0.8</text>
+	</g>
+	<path  d='M962.8,664.8 L962.8,646.8 M962.8,33.5 L962.8,51.5 '></path>
+	<g transform="translate(962.8,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 1</text>
+	</g>
+	<path  d='M331.5,33.5 L331.5,664.8 L962.8,664.8 L962.8,33.5 L331.5,33.5 Z '></path>
+	<g transform="translate(222.3,349.2) rotate(270)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>y</text>
+	</g>
+	<g transform="translate(647.1,763.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>x</text>
+	</g>
+</g>
+	<a xlink:title="Plot #1">
+<g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g style = 'stroke:none; shape-rendering:crispEdges'>
+		<polygon fill = 'currentColor' points = '489.3,507.0 489.3,191.3 805.0,191.3 805.0,507.0 '/>
+	</g>
+</g>
+	</a>
+	<a xlink:title="Plot #2">
+<g style="fill:none; color:white; stroke:currentColor; stroke-width:2.00; stroke-linecap:butt; stroke-linejoin:miter">
+</g>
+<g style="fill:none; color:blue; stroke:currentColor; stroke-width:2.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(671.5,358.2)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>"path.dat"</text>
+	</g>
+	<path  d='M688.2,349.2 L773.0,349.2 M363.1,633.2 L428.5,373.1 L494.0,112.9 L712.6,89.0 L931.2,65.1 '></path>
+	<use xlink:href='#gpPt0' transform='translate(363.1,633.2) scale(9.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(428.5,373.1) scale(9.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(494.0,112.9) scale(9.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(712.6,89.0) scale(9.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(931.2,65.1) scale(9.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(730.6,349.2) scale(9.00)'/>
+</g>
+	</a>
+<g style="fill:none; color:white; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+</g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path  d='M331.5,33.5 L331.5,664.8 L962.8,664.8 L962.8,33.5 L331.5,33.5 Z '></path>
+</g>
+</svg>
+

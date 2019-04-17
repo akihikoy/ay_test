@@ -1,0 +1,18 @@
+<package>
+  <description brief="test1">
+
+     test1
+
+  </description>
+  <author>Akihiko Yamaguchi</author>
+  <license>GPL v3</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/test1</url>
+
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="nao_ctrl"/>
+
+</package>
+
+

@@ -1,0 +1,13 @@
+参考：
+- Shogun web: http://www.shogun-toolbox.org/
+- マニュアル: http://www.shogun-toolbox.org/doc/
+- 例: http://www.shogun-toolbox.org/doc/examples.html
+- C++の例: http://www.shogun-toolbox.org/doc/libshogun_examples.html
+
+インストール：
+- libshogun-dev libshogun8 をインストール (C++)
+- liblzo2-dev をインストール (C++)
+- shogun-python or shogun-python-modular をインストール (python)
+
+
+

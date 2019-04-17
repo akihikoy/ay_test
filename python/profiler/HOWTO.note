@@ -1,0 +1,15 @@
+ref. http://docs.python.jp/2/library/profile.html
+
+1. Run (output to stdout):
+$ python -m cProfile sample1.py
+
+2. Run (output to a file):
+$ python -m cProfile -o stat.dat sample1.py
+
+3. How to see stat.dat (1):
+python -m pstats stat.dat
+stat.dat% help
+stat.dat% stats
+
+4. How to see stat.dat (2):
+python -c "import pstats; p=pstats.Stats('stat.dat'); p.sort_stats('module','line'); p.print_stats()"

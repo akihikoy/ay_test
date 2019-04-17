@@ -1,0 +1,71 @@
+操作PCの準備：
+1. アーカイブを解凍（NAO-DVDのソフトウェアディレクトリにある）
+tar zxvf aldebaran-sdk-1.6.13-linux-i386.tar.gz
+
+/home/akihiko/prg/aldebaran/aldebaran-sdk-1.6.13-linux-i386 に解凍されたとする．
+Linux の場合，Choregraphe や SDK などがすべて解凍される．
+
+実験の準備：
+1. NAOをLANに接続．
+  電源ケーブルもつなぐ（バッテリで動かす場合は不要）
+2. PC もLANに接続（有線で robotics 講座のLANに接続）
+3. NAOをしゃがみ姿勢にする（転倒させないように！）
+  sitting-NAO.JPG
+4. NAOを起動（胸のボタンを押す）
+  起動にはしばらく時間がかかる．1,2分くらい．起動したら，何か喋る．
+
+Choregraphe を使ったプログラミング
+1. インストールディレクトリに行き， ./choregraphe を実行
+  snap01.jpeg
+2. 緑のアンテナマーク（接続）をクリック
+3. 一覧からつなぎたいNAOを選んで「接続」をクリック
+  snap02.jpeg
+  右のビューに現在の姿勢が反映される
+4. 右端のツールボタン（すべてのモータのon/offを制御）をクリック
+  ボタンが赤に変わり，サーボがonになる
+5. プログラムを書く
+  左のツールパレットからボックスをドラッグ＆ドロップし，中央のパネルに配置．
+  小さな矢印をドラッグしてボックス間を接続．
+  例：Hello の動作をし，Taichii を実演するデモ
+  snap07.jpeg
+6. 緑の三角ボタン（再生）をクリック
+  ロボットが動き始める
+  途中で止めるときは，赤いバツボタン（停止）をクリック
+
+終了（Choregraphe を使っている場合）：
+1. ロボットを手で支えならが，Choregraphe の右端のツールボタン（すべてのモータのon/offを制御）をクリック
+  サーボがoffになるので，ロボットを安定に置く（寝かせたりしゃがませたり）
+2. 「接続」メニューの「切断」をクリック
+3. ロボットの胸のボタンを長押しする（5秒）
+  ロボットが Byebye と言って終了モードに入る（数十秒でシャットダウンする）
+
+
+ブラウザからNAOにアクセス
+NAOが起動した状態で，胸のボタンを押すと，IPアドレス，バッテリー残量などをしゃべる．
+このIPアドレスにブラウザでアクセスし，ユーザ名 nao, パスワード xxxxxx でアクセスすると，各種情報，ワイヤレスLAN，音量などを見ることができる．
+
+SDK を使ったプログラミング
+NAOは充実したプログラム環境も提供しており，C++やPythonでプログラムを作成できる．
+詳しくは，NAO-DVDに収録されているドキュメントを参照のこと．
+
+
+-------------------------------------------------------
+
+sudo apt-get -f install cmake
+sudo apt-get -f install cmake-qt-gui
+
+cmake-gui
+
+where is source code:  /home/akihiko/prg/aldebaran/aldebaran-sdk-1.6.13-linux-i386/modules/src/examples/
+where to build the binaries: /home/akihiko/prg/aldebaran/aldebaran-sdk-1.6.13-linux-i386/modules/src/examples/build/
+click: Configure
+Specify the generator: Unix Makefiles
+  Choose: Specify toolchain file for cross-compiling
+Specify the Toolchain file: /home/akihiko/prg/aldebaran/aldebaran-sdk-1.6.13-linux-i386/toolchain-pc.cmake
+click: Finish
+
+リストに赤いのがあったら Configure をクリック
+Generate をクリック
+/home/akihiko/prg/aldebaran/aldebaran-sdk-1.6.13-linux-i386/modules/src/examples/build に移動
+make
+

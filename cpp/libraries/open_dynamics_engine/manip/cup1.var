@@ -1,0 +1,91 @@
+Robots={
+    ["Cup"]={
+        RootLink= "L1"
+        Position= (0.55, 0.0, 0.2)
+        Links={
+            ["L1"]={
+                Geometry={Type= "gtBox"; Lx=0.15; Ly=0.15; Lz=0.02; }
+                Position= (0, 0, 0.01)
+              }
+            ["L2"]={
+                Geometry={Type= "gtBox"; Lx=0.02; Ly=0.15; Lz=0.15; }
+                Position= (0.065, 0, 0.095)
+              }
+            ["L3"]={
+                Geometry={Type= "gtBox"; Lx=0.02; Ly=0.15; Lz=0.15; }
+                Position= (-0.065, 0, 0.095)
+              }
+            ["L4"]={
+                Geometry={Type= "gtBox"; Lx=0.11; Ly=0.02; Lz=0.15; }
+                Position= (0, 0.065, 0.095)
+              }
+            ["L5"]={
+                Geometry={Type= "gtBox"; Lx=0.11; Ly=0.02; Lz=0.15; }
+                Position= (0, -0.065, 0.095)
+              }
+            // ["L1"]={
+                // Geometry={
+                    // Type= "gtTriMesh"
+                    // Vertices=(
+                        // 0.3,0,0,
+                        // 0,0.3,0,
+                        // 0,0,0.3,
+                        // -0.3,0,0,
+                        // 0,-0.3,0,
+                        // 0,0,-0.3
+                      // )
+                    // Indices=(
+                        // 0,1,2,
+                        // 1,3,2,
+                        // 3,4,2,
+                        // 4,0,2,
+                        // 0,4,5,
+                        // 4,3,5,
+                        // 3,1,5,
+                        // 1,0,5
+                      // )
+                  // }
+                // Position= (0, 0, 0.01)
+              // }
+            [@]={
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Geometry={Color= (1,0,1,0.8);}
+              }
+          }  // Links
+        Joints={
+            ["J12" ]={Type="jtFixed"; Body1="L1" ; Body2="L2" ; }
+            ["J13" ]={Type="jtFixed"; Body1="L1" ; Body2="L3" ; }
+            ["J14" ]={Type="jtFixed"; Body1="L1" ; Body2="L4" ; }
+            ["J15" ]={Type="jtFixed"; Body1="L1" ; Body2="L5" ; }
+          }
+      }  // ["Cup"]
+  }  // Robots
+
+
+Robots={
+    ["Balls"]={
+        RootLink= "1"
+        Position= (0.0,0.0, 0.0)
+        Links={
+            [1]={Position= (0.55+0.01, 0.01, 0.2+0.2); }
+            [2]={Position= (0.55+0.02, 0.01, 0.2+0.25); }
+            [3]={Position= (0.55+0.03, 0.02, 0.2+0.3); }
+            [4]={Position= (0.55+0.02, 0.03, 0.2+0.35); }
+            [5]={Position= (0.55+0.01, 0.02, 0.2+0.4); }
+            [6]={Position= (0.55+0.02, 0.01, 0.2+0.45); }
+            [7]={Position= (0.55+0.03, 0.02, 0.2+0.5); }
+            [8]={Position= (0.55+0.02, 0.03, 0.2+0.55); }
+            [9]={Position= (0.55+0.01, 0.02, 0.2+0.6); }
+            [10]={Position= (0.55+0.02, 0.01, 0.2+0.65); }
+            [11]={Position= (0.55+0.03, 0.02, 0.2+0.7); }
+            [12]={Position= (0.55+0.02, 0.03, 0.2+0.75); }
+            [@]={
+                Geometry={Type= "gtSphere"; Radius=0.02; };
+                Geometry={Color= (0,1,1,0.8);}
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+              }
+          }  // Links
+      }  // ["Balls"]
+  }  // Robots

@@ -1,0 +1,115 @@
+#!/usr/bin/python
+#\file    intplcalc
+#\brief   Calculating user-defined functions f(y) from interpolations of data files {t,y}.
+#\author  Akihiko Yamaguchi, info@akihikoy.net
+#\version 0.1
+#\date    Jul.13, 2016
+import os,sys
+from scipy.interpolate import interp1d
+
+#Float version of range
+def FRange1(x1,x2,num_div):
+  return [x1+(x2-x1)*x/float(num_div) for x in range(num_div+1)]
+
+if __name__=='__main__':
+  usage='''Calculating user-defined functions f(y) from interpolations of data files {t,y}.
+    usage: intplcalc [OPTION] EXPR1 EXPR2 ...
+      OPTION:
+        -f ID FILE KEYS data file and keys to be used.
+                        FILE: file name of space or tab separated values.
+                        KEYS: column indexes starting from 1, separated by comma.
+                          The first one should be an t value for interpolation.
+                        ID: identifier to be used in the expressions (EXPR).
+                        You may use multiple -f options that are distinguished by ID.
+        EXPR            Expression in Python format.
+                        You can refer to i-th value of a file ID by ID[i] at t
+                        (i starts from 0, according to keys. ID[0] is always t).
+                        See examples below.
+        -from T         lower bound of output
+                        (default: max {lower bound of t of each file}).
+        -to T           upper bound of output
+                        (default: min {upper bound of t of each file}).
+        -div N          number of division of output (default: use max number of data in files).
+        -help           show help.
+    example:
+      intplcalc -f a a.dat 1,2 -f b b.dat 1,2,3 'a[1]*b[1]+b[2]'
+        Read 1st, 2nd columns from a.dat and interpolate (t: 1st, y: 2nd).
+        Read 1st, 2nd, 3rd columns from b.dat and interpolate (t: 1st, y1: 2nd, y2: 3rd).
+        For t = t_min to t_max step (t_max-t_min)/n_div, output
+              t 'a[1]*b[1]+b[2]'
+          where a[1]: 2nd column of a.dat interpolated at t,
+          b[1]: 2nd column of b.dat interpolated at t,
+          b[2]: 3rd column of b.dat interpolated at t.
+          a[0] and b[0] are t.
+    '''
+
+  n_div= None
+  t_min= None
+  t_max= None
+  files= {}
+  sexprs= []
+
+  it= iter(sys.argv)
+  it.next() # skip exec name
+  while True:
+    try:
+      a= it.next()
+      if a=='-help' or a=='--help': print usage; sys.exit(0)
+      elif a=='-from': t_min=float(it.next())
+      elif a=='-to': t_max=float(it.next())
+      elif a=='-div': n_div=int(it.next())
+      elif a=='-f':
+        fid= it.next()
+        fname= it.next()
+        keys= map(int, (it.next()).split(',') )
+        files[fid]= (fname,keys)
+      else:
+        sexprs.append(a)
+    except StopIteration:
+      break
+
+  if len(files)==0 or len(sexprs)==0:
+    print usage; sys.exit(0)
+
+  #Build lambda expressions
+  exprs= []
+  fids= ','.join(files.iterkeys())
+  for sexpr in sexprs:
+    print 'expr:','lambda '+fids+':'+sexpr
+    exprs.append(eval('lambda '+fids+':'+sexpr))
+
+  #Build interpolators
+  fintpl= {}  #Dict of interpolators; [id]= [f1,f2,...]
+  XX= {}
+  for fid,(fname,keys) in files.iteritems():
+    if len(keys)<=1:
+      fintpl[fid]= []
+      continue
+    X= []
+    YY= [[] for k in keys[1:]]
+    fp= open(fname)
+    while True:
+      line= fp.readline()
+      if not line: break
+      values= line.split()
+      X.append(float(values[keys[0]-1]))
+      for ik,key in enumerate(keys[1:]):
+        YY[ik].append(float(values[key-1]))
+    fp.close()
+    fintpl[fid]= [interp1d(X, Y) for Y in YY]
+    XX[fid]= X  #For later use
+
+  if n_div is None:  n_div= max(map(len,XX.itervalues()))
+  if t_min is None:  t_min= max(map(min,XX.itervalues()))
+  if t_max is None:  t_max= min(map(max,XX.itervalues()))
+
+  for t in FRange1(t_min,t_max,n_div):
+    values= {}
+    for fid in files.iterkeys():
+      values[fid]= [t]+[float(f(t)) for f in fintpl[fid]]
+    #print 'values=',values
+    print t,
+    for expr in exprs:
+      print expr(**values),
+    print ''
+

@@ -1,0 +1,22 @@
+**インストール
+
+* SDK-1.6 の場合
+
+1. アーカイブを解凍（NAO-DVDのソフトウェアディレクトリにある）
+tar zxvf aldebaran-sdk-1.6.13-linux-i386.tar.gz
+
+/home/akihiko/prg/aldebaran/aldebaran-sdk-1.6.13-linux-i386 に解凍されたとする．
+Linux の場合，Choregraphe や SDK などがすべて解凍される．
+
+
+* SDK-1.10 の場合
+
+- SDK と Choregraphe が別々のアーカイブで提供されている
+- 両方ともインストールしておいた方がよい
+- アーカイブは http://users.aldebaran-robotics.com/ に行き，ログイン後，Software / Download ページからダウンロードする
+- ロボティクス講座の場合は，/ext-data/share/Material/Drivers_Manuals/Nao/linux に置かれているコピーを利用するとよい
+
+1. アーカイブを解凍
+tar zxvf choregraphe-suite-1.10.44-linux.tar.gz
+tar zxvf naoqi-sdk-1.10.44-linux.tar.gz
+

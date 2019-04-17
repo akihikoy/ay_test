@@ -1,0 +1,16 @@
+[To see documents]
+- From command line:
+python -c 'import cma;help(cma.fmin)'
+python -c 'import cma;help(cma.CMAEvolutionStrategy)'
+
+- From script:
+>|python|
+#!/usr/bin/python
+import cma
+help(cma)
+help(cma.fmin)
+help(cma.CMAEvolutionStrategy)
+help(cma.CMAOptions)
+for k,v in cma.CMAOptions().items():
+  print '[%s]=%s'%(k,v)
+||<

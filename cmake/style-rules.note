@@ -1,0 +1,20 @@
++ now
+_INCLUDE_DIRS
+_LINK_DIRS
+_LIBS
+
+
++ standard
+see /usr/share/cmake-2.8/Modules/readme.txt
+
+_FOUND ... library found
+_INCLUDE_DIRS ... final set. should not be a cache entry
+_LIBRARY_DIRS ... final set. should not be a cache entry
+_LIBRARIES ... final set. should not be a cache entry
+_DEFINITIONS
+
+_INCLUDE_DIR ... where to find (cache entry)
+_YY_INCLUDE_DIR ... where to find (cache entry)
+_LIBRARY ... name of library (cache entry)
+_YY_LIBRARY ... name of library (cache entry)
+

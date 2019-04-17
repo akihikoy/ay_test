@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"  standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="1200" height="780" viewBox="0 0 1200 780"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+
+<desc>Produced by GNUPLOT 4.4 patchlevel 0 </desc>
+
+<defs>
+
+	<circle id='gpDot' r='0.5' stroke-width='0.5'/>
+	<path id='gpPt0' stroke-width='0.111' stroke='currentColor' d='M-1,0 h2 M0,-1 v2'/>
+	<path id='gpPt1' stroke-width='0.111' stroke='currentColor' d='M-1,-1 L1,1 M1,-1 L-1,1'/>
+	<path id='gpPt2' stroke-width='0.111' stroke='currentColor' d='M-1,0 L1,0 M0,-1 L0,1 M-1,-1 L1,1 M-1,1 L1,-1'/>
+	<rect id='gpPt3' stroke-width='0.111' stroke='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<rect id='gpPt4' stroke-width='0.111' stroke='currentColor' fill='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<circle id='gpPt5' stroke-width='0.111' stroke='currentColor' cx='0' cy='0' r='1'/>
+	<use xlink:href='#gpPt5' id='gpPt6' fill='currentColor' stroke='none'/>
+	<path id='gpPt7' stroke-width='0.111' stroke='currentColor' d='M0,-1.33 L-1.33,0.67 L1.33,0.67 z'/>
+	<use xlink:href='#gpPt7' id='gpPt8' fill='currentColor' stroke='none'/>
+	<use xlink:href='#gpPt7' id='gpPt9' stroke='currentColor' transform='rotate(180)'/>
+	<use xlink:href='#gpPt9' id='gpPt10' fill='currentColor' stroke='none'/>
+	<use xlink:href='#gpPt3' id='gpPt11' stroke='currentColor' transform='rotate(45)'/>
+	<use xlink:href='#gpPt11' id='gpPt12' fill='currentColor' stroke='none'/>
+</defs>
+<g style="fill:none; color:white; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+</g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path  d='M161.2,664.8 L179.2,664.8 M1158.1,664.8 L1140.1,664.8 '></path>
+	<g transform="translate(144.5,673.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 0.1</text>
+	</g>
+	<path  d='M161.2,569.8 L170.2,569.8 M1158.1,569.8 L1149.1,569.8 M161.2,514.2 L170.2,514.2 M1158.1,514.2 L1149.1,514.2 
+		M161.2,474.8 L170.2,474.8 M1158.1,474.8 L1149.1,474.8 M161.2,444.2 L170.2,444.2 M1158.1,444.2 L1149.1,444.2 
+		M161.2,419.2 L170.2,419.2 M1158.1,419.2 L1149.1,419.2 M161.2,398.0 L170.2,398.0 M1158.1,398.0 L1149.1,398.0 
+		M161.2,379.7 L170.2,379.7 M1158.1,379.7 L1149.1,379.7 M161.2,363.6 L170.2,363.6 M1158.1,363.6 L1149.1,363.6 
+		M161.2,349.1 L179.2,349.1 M1158.1,349.1 L1140.1,349.1 '></path>
+	<g transform="translate(144.5,358.1)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 1</text>
+	</g>
+	<path  d='M161.2,254.1 L170.2,254.1 M1158.1,254.1 L1149.1,254.1 M161.2,198.5 L170.2,198.5 M1158.1,198.5 L1149.1,198.5 
+		M161.2,159.1 L170.2,159.1 M1158.1,159.1 L1149.1,159.1 M161.2,128.5 L170.2,128.5 M1158.1,128.5 L1149.1,128.5 
+		M161.2,103.5 L170.2,103.5 M1158.1,103.5 L1149.1,103.5 M161.2,82.4 L170.2,82.4 M1158.1,82.4 L1149.1,82.4 
+		M161.2,64.1 L170.2,64.1 M1158.1,64.1 L1149.1,64.1 M161.2,47.9 L170.2,47.9 M1158.1,47.9 L1149.1,47.9 
+		M161.2,33.5 L179.2,33.5 M1158.1,33.5 L1140.1,33.5 '></path>
+	<g transform="translate(144.5,42.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text> 10</text>
+	</g>
+	<path  d='M189.3,664.8 L189.3,655.8 M189.3,33.5 L189.3,42.5 M248.5,664.8 L248.5,655.8 M248.5,33.5 L248.5,42.5 
+		M276.5,664.8 L276.5,646.8 M276.5,33.5 L276.5,51.5 '></path>
+	<g transform="translate(276.5,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 10</text>
+	</g>
+	<path  d='M363.8,664.8 L363.8,655.8 M363.8,33.5 L363.8,42.5 M479.1,664.8 L479.1,655.8 M479.1,33.5 L479.1,42.5 
+		M538.3,664.8 L538.3,655.8 M538.3,33.5 L538.3,42.5 M566.4,664.8 L566.4,646.8 M566.4,33.5 L566.4,51.5 
+		'></path>
+	<g transform="translate(566.4,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 100</text>
+	</g>
+	<path  d='M653.7,664.8 L653.7,655.8 M653.7,33.5 L653.7,42.5 M769.0,664.8 L769.0,655.8 M769.0,33.5 L769.0,42.5 
+		M828.2,664.8 L828.2,655.8 M828.2,33.5 L828.2,42.5 M856.2,664.8 L856.2,646.8 M856.2,33.5 L856.2,51.5 
+		'></path>
+	<g transform="translate(856.2,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 1000</text>
+	</g>
+	<path  d='M943.5,664.8 L943.5,655.8 M943.5,33.5 L943.5,42.5 M1058.8,664.8 L1058.8,655.8 M1058.8,33.5 L1058.8,42.5 
+		M1118.0,664.8 L1118.0,655.8 M1118.0,33.5 L1118.0,42.5 M1146.1,664.8 L1146.1,646.8 M1146.1,33.5 L1146.1,51.5 
+		'></path>
+	<g transform="translate(1146.1,709.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text> 10000</text>
+	</g>
+	<path  d='M161.2,33.5 L161.2,664.8 L1158.1,664.8 L1158.1,33.5 L161.2,33.5 Z '></path>
+	<g transform="translate(52.0,349.2) rotate(270)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>RMSE</text>
+	</g>
+	<g transform="translate(659.6,763.8)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:middle">
+		<text>Number of samples</text>
+	</g>
+</g>
+	<a xlink:title="Plot #1">
+<g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(1023.2,78.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>"res-func1/res-LS-25.dat" u 1:2</text>
+	</g>
+	<use xlink:href='#gpPt0' transform='translate(189.3,293.7) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(276.5,357.8) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(363.8,409.3) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(479.1,448.4) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(566.4,483.5) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(856.2,537.1) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(1058.8,540.2) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(1146.1,540.2) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(189.3,303.1) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(276.5,324.1) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(363.8,374.8) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(479.1,438.3) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(566.4,486.9) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(856.2,536.5) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(1058.8,538.3) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(1146.1,539.6) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(189.3,316.8) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(276.5,316.5) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(363.8,381.5) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(479.1,430.7) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(566.4,501.3) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(856.2,537.0) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(1058.8,538.4) scale(27.00)'/>
+	<use xlink:href='#gpPt0' transform='translate(1082.3,69.5) scale(27.00)'/>
+</g>
+	</a>
+	<a xlink:title="Plot #2">
+<g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(1023.2,114.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>"res-func1/res-LS-100.dat" u 1:2</text>
+	</g>
+	<use xlink:href='#gpPt1' transform='translate(189.3,263.7) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(276.5,280.6) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(363.8,309.7) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(479.1,348.8) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(566.4,366.4) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(856.2,401.9) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(1058.8,403.4) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(1146.1,403.6) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(189.3,265.5) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(276.5,282.3) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(363.8,305.8) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(479.1,338.0) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(566.4,374.2) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(856.2,401.0) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(1058.8,403.0) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(1146.1,403.5) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(189.3,266.0) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(276.5,285.3) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(363.8,313.4) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(479.1,346.2) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(566.4,369.4) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(856.2,400.5) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(1058.8,403.6) scale(27.00)'/>
+	<use xlink:href='#gpPt1' transform='translate(1082.3,105.5) scale(27.00)'/>
+</g>
+	</a>
+	<a xlink:title="Plot #3">
+<g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(1023.2,150.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>"res-func1/res-LS-1000.dat" u 1:2</text>
+	</g>
+	<use xlink:href='#gpPt2' transform='translate(189.3,250.0) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(276.5,251.7) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(363.8,255.9) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(479.1,265.8) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(566.4,283.9) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(856.2,332.0) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(1058.8,335.5) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(1146.1,335.7) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(189.3,249.8) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(276.5,251.9) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(363.8,255.7) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(479.1,264.7) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(566.4,279.0) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(856.2,332.3) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(1058.8,335.4) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(1146.1,335.7) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(189.3,249.5) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(276.5,253.2) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(363.8,256.9) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(479.1,265.1) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(566.4,281.9) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(856.2,331.6) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(1058.8,335.4) scale(27.00)'/>
+	<use xlink:href='#gpPt2' transform='translate(1082.3,141.5) scale(27.00)'/>
+</g>
+	</a>
+	<a xlink:title="Plot #4">
+<g style="fill:none; color:blue; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(1023.2,186.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>"res-func1/res-SVD-25.dat" u 1:2</text>
+	</g>
+	<use xlink:href='#gpPt3' transform='translate(189.3,316.9) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(276.5,331.5) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(363.8,408.2) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(479.1,533.7) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(566.4,535.5) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(856.2,538.8) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(1058.8,539.7) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(1146.1,539.3) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(189.3,326.8) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(276.5,330.6) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(363.8,403.2) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(479.1,525.1) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(566.4,533.6) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(856.2,537.5) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(1058.8,538.5) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(1146.1,540.0) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(189.3,303.0) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(276.5,339.9) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(363.8,281.3) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(479.1,438.9) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(566.4,534.4) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(856.2,537.1) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(1058.8,539.6) scale(18.00)'/>
+	<use xlink:href='#gpPt3' transform='translate(1082.3,177.5) scale(18.00)'/>
+</g>
+	</a>
+	<a xlink:title="Plot #5">
+<g style="fill:none; color:blue; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(1023.2,222.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>"res-func1/res-SVD-100.dat" u 1:2</text>
+	</g>
+	<use xlink:href='#gpPt5' transform='translate(189.3,270.1) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(276.5,286.3) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(363.8,316.7) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(479.1,367.1) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(566.4,370.0) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(856.2,403.7) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(1058.8,403.5) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(1146.1,403.4) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(189.3,271.8) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(276.5,285.8) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(363.8,303.3) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(479.1,344.8) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(566.4,391.5) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(856.2,401.5) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(1058.8,403.5) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(1146.1,403.3) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(189.3,264.8) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(276.5,280.1) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(363.8,306.9) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(479.1,345.6) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(566.4,368.2) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(856.2,402.5) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(1058.8,403.0) scale(18.00)'/>
+	<use xlink:href='#gpPt5' transform='translate(1082.3,213.5) scale(18.00)'/>
+</g>
+	</a>
+	<a xlink:title="Plot #6">
+<g style="fill:none; color:blue; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(1023.2,258.5)" style="stroke:none; fill:black; font-family:Trebuchet MS; font-size:24.00pt; text-anchor:end">
+		<text>"res-func1/res-SVD-1000.dat" u 1:2</text>
+	</g>
+	<use xlink:href='#gpPt7' transform='translate(189.3,249.4) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(276.5,252.1) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(363.8,255.7) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(479.1,267.4) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(566.4,279.2) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(856.2,324.7) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(1058.8,335.8) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(1146.1,335.8) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(189.3,249.6) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(276.5,251.6) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(363.8,254.8) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(479.1,265.4) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(566.4,282.8) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(856.2,326.5) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(1058.8,335.7) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(1146.1,335.7) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(189.3,250.0) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(276.5,252.8) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(363.8,257.0) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(479.1,265.6) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(566.4,282.3) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(856.2,324.9) scale(18.00)'/>
+	<use xlink:href='#gpPt7' transform='translate(1082.3,249.5) scale(18.00)'/>
+</g>
+	</a>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path  d='M161.2,33.5 L161.2,664.8 L1158.1,664.8 L1158.1,33.5 L161.2,33.5 Z '></path>
+</g>
+</svg>
+

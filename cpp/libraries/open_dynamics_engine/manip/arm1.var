@@ -1,0 +1,127 @@
+Robots={
+    ["Robot"]={
+        RootLink= "L0"
+        Position= (0.0,0.0, 0.025)
+        Links={
+            ["L0"]={
+                Geometry={Type= "gtBox"; Lx=0.3; Ly=0.3; Lz=0.05; }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0,0, 0.025)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+            ["L1"]={
+                Geometry={Type= "gtBox"; Lx=0.3; Ly=0.3; Lz=0.05; }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0,0, 0.075)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+            ["L2"]={
+                Geometry={Type= "gtCylinder"; Radius=0.05; Length=0.3; }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0,0, 0.25)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+            ["L3"]={
+                Geometry={Type= "gtCylinder"; Radius=0.05; Length=0.1; }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0,0, 0.45)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+            ["L4"]={
+                Geometry={Type= "gtCylinder"; Radius=0.05; Length=0.1; }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0,0, 0.55)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+            ["L5"]={
+                Geometry={Type= "gtCylinder"; Radius=0.05; Length=0.1; }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0,0, 0.65)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+            ["L6"]={
+                Geometry={Type= "gtBox"; Lx=0.2; Ly=0.2; Lz=0.1; }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0,0, 0.75)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+            // ["L6"]={
+                // Geometry={Type= "gtBox"; Lx=0.2; Ly=0.2; Lz=0.3; }
+                // InertiaType= "itFromGeometryWithDensity"
+                // Density= 0.3
+                // Position= (0,0, 0.85)
+                // // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              // }
+
+            ["H1"]={
+                Geometry={Type= "gtBox"; Lx=0.2; Ly=0.01; Lz=0.2; Color=(1,0,0); }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0, 0.1, 0.9)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+            ["H2"]={
+                Geometry={Type= "gtBox"; Lx=0.2; Ly=0.01; Lz=0.2; Color=(1,0,0); }
+                InertiaType= "itFromGeometryWithDensity"
+                Density= 1.0
+                Position= (0, -0.1, 0.9)
+                // Rotation= RFromAxisAndAngle(0,1,0, pi()/12.0)
+              }
+          }  // Links
+        Joints={
+            ["J0" ]={Type="jtFixed"; Body1="-" ; Body2="L0" ; }
+            //
+            ["J1" ]={Type="jtHinge"; Body1="L0" ; Body2="L1" ; Axis1=(0,0,1); Anchor= (0,0, 0.05) ; AParam1={LoStop=-0.99*pi() ; HiStop=+0.99*pi() ;}; }
+            ["J2" ]={Type="jtHinge"; Body1="L1" ; Body2="L2" ; Axis1=(0,1,0); Anchor= (0,0, 0.1)  ; AParam1={LoStop=-0.49*pi() ; HiStop=+0.49*pi() ;}; }
+            ["J3" ]={Type="jtHinge"; Body1="L2" ; Body2="L3" ; Axis1=(0,1,0); Anchor= (0,0, 0.4)  ; AParam1={LoStop=-0.99*pi() ; HiStop=+0.99*pi() ;}; }
+            ["J4" ]={Type="jtHinge"; Body1="L3" ; Body2="L4" ; Axis1=(1,0,0); Anchor= (0,0, 0.5)  ; AParam1={LoStop=-0.99*pi() ; HiStop=+0.99*pi() ;}; }
+            ["J5" ]={Type="jtHinge"; Body1="L4" ; Body2="L5" ; Axis1=(0,1,0); Anchor= (0,0, 0.6)  ; AParam1={LoStop=-0.99*pi() ; HiStop=+0.99*pi() ;}; }
+            ["J6" ]={Type="jtHinge"; Body1="L5" ; Body2="L6" ; Axis1=(0,0,1); Anchor= (0,0, 0.7)  ; AParam1={LoStop=-0.99*pi() ; HiStop=+0.99*pi() ;}; }
+            [@]= {VizType="jvtCylinder"; VizRadius=0.05; VizLength=0.14; VizColor=(0.8);}
+            ["J6"]= {VizRadius=0.07; VizLength=0.04;}
+
+            ["JH1" ]={Type="jtSlider"; Body1="L6" ; Body2="H1" ; Axis1=(0,1,0); AParam1={LoStop=-0.1 ; HiStop=+0.1;}; }
+            ["JH2" ]={Type="jtSlider"; Body1="L6" ; Body2="H2" ; Axis1=(0,-1,0); AParam1={LoStop=-0.1 ; HiStop=+0.1;}; }
+          }
+        JointAngleObserver={
+            []={Name="J1" ;}
+            []={Name="J2" ;}
+            []={Name="J3" ;}
+            []={Name="J4" ;}
+            []={Name="J5" ;}
+            []={Name="J6" ;}
+            []={Name="JH1" ;}
+            []={Name="JH2" ;}
+          }
+        JointAngVelObserver={
+            []={Name="J1" ;}
+            []={Name="J2" ;}
+            []={Name="J3" ;}
+            []={Name="J4" ;}
+            []={Name="J5" ;}
+            []={Name="J6" ;}
+            []={Name="JH1" ;}
+            []={Name="JH2" ;}
+          }
+        JointTorqueAdder={
+            []={Name="J1" ;}
+            []={Name="J2" ;}
+            []={Name="J3" ;}
+            []={Name="J4" ;}
+            []={Name="J5" ;}
+            []={Name="J6" ;}
+            []={Name="JH1" ;}
+            []={Name="JH2" ;}
+          }
+        LinkContactObserver= ("L0","L1","L2","L3","L4","L5","L6","H1","H2")
+        // InitialJointAngles= (-1.15913e-10, -0.479567, -2.07016, -2.52345e-10, 0.977742, -2.16108e-10, 0,0)
+        InitialJointAngles= (-2.75596e-05, -0.479501, -2.07012, -5.99852e-05, 0.977496, -6.10384e-05, 0,0)
+      }  // ["Robot"]
+  }  // Robots

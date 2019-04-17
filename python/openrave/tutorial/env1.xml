@@ -1,0 +1,59 @@
+<Environment>
+  <camtrans>0.930986 -1.233453 2.412977</camtrans>
+  <camrotaxis>0.862911 0.351364 0.363220 68</camrotaxis>
+
+  <Robot name="SimpleBot">
+    <kinbody name="SimpleBotKin">
+      <body name="base" type="dynamic">
+        <mass type="box">
+          <total>50</total>
+          <extents>0.1 0.2 0.25</extents>
+        </mass>
+        <geom type="box">
+          <extents>0.1 0.2 0.25</extents>
+          <translation>0 0 0.25</translation>
+          <diffuseColor>0.6 0.6 1.0</diffuseColor>
+          <ambientColor>0.6 0.6 1.0</ambientColor>
+        </geom>
+      </body>
+    </kinbody>
+    <translation>-0.6 0.0 0.0</translation>
+  </Robot>
+
+  <KinBody name="FloorWalls">
+    <Body type="static">
+      <Translation>0 0 0</Translation>
+      <Geom type="box">
+        <extents>2.5 2.5 0.005</extents>
+        <translation>0 0 -0.005</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>2.5 0.01 0.2</extents>
+        <translation>0 -2.5 0.2</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>2.5 0.01 0.2</extents>
+        <translation>0 2.5 0.2</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>0.01 2.5 0.2</extents>
+        <translation>2.5 0 0.2</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>0.01 2.5 0.2</extents>
+        <translation>-2.5 0 0.2</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+    </Body>
+  </KinBody>
+
+</Environment>

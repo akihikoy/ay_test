@@ -1,0 +1,321 @@
+** OpenRAVE Quick Tutorial
+
+* 自分でロボット・環境モデルを作る
+
+OpenRAVE では，ロボットのモデルは XML 形式のファイルに書く．以下は，単純なボックス型の1リンクロボットの例．
+>||
+<Robot name="SimpleBot">
+  <kinbody name="SimpleBotKin">
+    <body name="base" type="dynamic">
+      <mass type="box">
+        <total>50</total>
+        <extents>0.1 0.2 0.25</extents>
+      </mass>
+      <geom type="box">
+        <extents>0.1 0.2 0.25</extents>
+        <translation>0 0 0.25</translation>
+        <diffuseColor>0.6 0.6 1.0</diffuseColor>
+        <ambientColor>0.6 0.6 1.0</ambientColor>
+      </geom>
+    </body>
+  </kinbody>
+  <translation>-0.6 0.0 0.0</translation>
+</Robot>
+||<
+extents はボックスの長さ (X, Y, Z)，translation は初期位置 (X, Y, Z)，diffuseColor と ambientColor は色を設定する．
+
+次の例は，上で作ったロボットを環境（四方の壁と床）に配置するXML (env1.xml)．
+>||
+<Environment>
+  <camtrans>0.930986 -1.233453 2.412977</camtrans>
+  <camrotaxis>0.862911 0.351364 0.363220 68</camrotaxis>
+
+  <Robot name="SimpleBot">
+    <kinbody name="SimpleBotKin">
+      <body name="base" type="dynamic">
+        <mass type="box">
+          <total>50</total>
+          <extents>0.1 0.2 0.25</extents>
+        </mass>
+        <geom type="box">
+          <extents>0.1 0.2 0.25</extents>
+          <translation>0 0 0.25</translation>
+          <diffuseColor>0.6 0.6 1.0</diffuseColor>
+          <ambientColor>0.6 0.6 1.0</ambientColor>
+        </geom>
+      </body>
+    </kinbody>
+    <translation>-0.6 0.0 0.0</translation>
+  </Robot>
+
+  <KinBody name="FloorWalls">
+    <Body type="static">
+      <Translation>0 0 0</Translation>
+      <Geom type="box">
+        <extents>2.5 2.5 0.005</extents>
+        <translation>0 0 -0.005</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>2.5 0.01 0.2</extents>
+        <translation>0 -2.5 0.2</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>2.5 0.01 0.2</extents>
+        <translation>0 2.5 0.2</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>0.01 2.5 0.2</extents>
+        <translation>2.5 0 0.2</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>0.01 2.5 0.2</extents>
+        <translation>-2.5 0 0.2</translation>
+        <diffuseColor>0.6 0.6 0.6</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+    </Body>
+  </KinBody>
+
+</Environment>
+||<
+
+参考：
+- OpenRAVE 付属のロボットの定義ファイル: /usr/share/openrave-0.4/robots
+- OpenRAVE 付属の環境の定義ファイル: /usr/share/openrave-0.4/data
+
+
+* ロボット・環境モデルの読み込み
+
+以下の Python スクリプトでは，OpenRAVE で環境モデルの XML を読み込み，表示する．
+>|python|
+#!/usr/bin/python
+import openravepy
+
+env = openravepy.Environment()
+env.SetViewer('qtcoin')
+env.Load('env1.xml')
+#robot= env.GetRobots()[0]
+robot= env.GetRobot('SimpleBot')
+
+raw_input("Press Enter to exit...")
+env.Destroy()
+||<
+端末で Enter キーを押すと終了する．ここで，
+>|python|
+robot= env.GetRobots()[0]
+||<
+は（複数のロボットが定義されている場合に）最初のロボットを取得する関数であり，
+>|python|
+robot= env.GetRobot('SimpleBot')
+||<
+は SimpleBot という名称のロボットを取得する関数．今使っている環境では，両者は同じロボットを返す．
+
+* 物体の追加
+
+ボックスを追加する例：
+>|python|
+body = openravepy.RaveCreateKinBody(env,'')
+body.SetName('obstacle'+str(i))
+boxinfo= numpy.array([[0,0,0.3, 0.1,0.15,0.3]])
+boxinfo[0,0]= 4.5*(numpy.random.rand()-0.5)
+boxinfo[0,1]= 4.5*(numpy.random.rand()-0.5)
+render= True
+print boxinfo
+body.InitFromBoxes(boxinfo,render)
+env.AddKinBody(body)
+||<
+SetName は追加するボックスの名前．boxinfo は1x6次元の配列であり，最初の3要素は初期位置，残りの3要素はボックスのサイズを表す．InitFromBoxes 関数はリンクをボックスとして初期化する関数で，render パラメタは，描画するかどうかを表す．
+
+次のプログラムは，環境中にランダムな位置にボックスを10個追加する例 (obstacles1.py)：
+>|python|
+#!/usr/bin/python
+
+import openravepy
+import numpy,time
+
+env = openravepy.Environment()
+env.SetViewer('qtcoin')
+env.Load('env1.xml')
+#robot= env.GetRobots()[0]
+robot= env.GetRobot('SimpleBot')
+
+raw_input("Press Enter to start...")
+
+for i in range(0,10):
+  body = openravepy.RaveCreateKinBody(env,'')
+  body.SetName('obstacle'+str(i))
+  boxinfo= numpy.array([[0,0,0.3, 0.1,0.15,0.3]])
+  boxinfo[0,0]= 4.5*(numpy.random.rand()-0.5)
+  boxinfo[0,1]= 4.5*(numpy.random.rand()-0.5)
+  render= True
+  print boxinfo
+  body.InitFromBoxes(boxinfo,render)
+  env.AddKinBody(body)
+
+raw_input("Press Enter to exit...")
+env.Destroy()
+||<
+エンターキーを押すとボックスが描画され，もう一度押すと終了する．
+
+ボックスの姿勢を指定する場合は，SetTransform 関数を使う．この場合，初期位置もこの関数で指定した方がよい（boxinfo で指定する方法だと原点を中心に回転させてしまう）．使用法は以下の例を参照 (obstacles2.py)：
+>|python|
+#!/usr/bin/python
+
+import openravepy
+import numpy,time
+
+env = openravepy.Environment()
+env.SetViewer('qtcoin')
+env.Load('env1.xml')
+robot= env.GetRobot('SimpleBot')
+
+raw_input("Press Enter to start...")
+
+for i in range(0,10):
+  body = openravepy.RaveCreateKinBody(env,'')
+  body.SetName('obstacle'+str(i))
+  boxinfo= numpy.array([[0,0,0.0, 0.1,0.15,0.3]])
+  render= True
+  body.InitFromBoxes(boxinfo,render)
+  R = openravepy.matrixFromAxisAngle([0,0,2.0*numpy.pi*numpy.random.rand()])
+  R[0,3]= 4.5*(numpy.random.rand()-0.5)
+  R[1,3]= 4.5*(numpy.random.rand()-0.5)
+  R[2,3]= 0.3
+  print R
+  body.SetTransform(R)
+  env.AddKinBody(body)
+
+raw_input("Press Enter to exit...")
+env.Destroy()
+||<
+エンターキーを押すとボックスが描画され，もう一度押すと終了する．
+
+* ナビゲーション
+
+OpenRAVE の example として付属しているナビゲーションプログラムを使って，ボックスの移動をプラニングする例 (simplenavigation.py)：
+>|python|
+#!/usr/bin/python
+
+import openravepy
+import numpy,time
+
+env = openravepy.Environment()
+env.SetViewer('qtcoin')
+env.Load('env1.xml')
+#robot= env.GetRobots()[0]
+robot= env.GetRobot('SimpleBot')
+
+raw_input("Press Enter to start...")
+
+for i in range(0,10):
+  body = openravepy.RaveCreateKinBody(env,'')
+  body.SetName('obstacle'+str(i))
+  boxinfo= numpy.array([[0,0,0.0, 0.1,0.15,0.3]])
+  render= True
+  body.InitFromBoxes(boxinfo,render)
+  R = openravepy.matrixFromAxisAngle([0,0,2.0*numpy.pi*numpy.random.rand()])
+  R[0,3]= 4.5*(numpy.random.rand()-0.5)
+  R[1,3]= 4.5*(numpy.random.rand()-0.5)
+  R[2,3]= 0.3
+  print R
+  body.SetTransform(R)
+  env.AddKinBody(body)
+
+env.UpdatePublishedBodies()
+time.sleep(0.1)
+nav = openravepy.examples.simplenavigation.SimpleNavigationPlanning(robot)
+nav.performNavigationPlanning()
+
+raw_input("Press Enter to exit...")
+env.Destroy()
+||<
+エンターキーを押すとボックスが描画され，プラニングが始まる．目標位置にたどり着くと，別の目標位置が設定され，移動し続ける．終了は Ctrl+C．
+
+目標位置を指定してプラニングする方法の例．まず，以下のようなクラスを作る (mynavigation.py)：
+>|python|
+#!/usr/bin/python
+import openravepy
+import time,numpy
+class MyNavigationPlanning:
+  def __init__(self,robot):
+    self.env = robot.GetEnv()
+    self.robot = robot
+    self.cdmodel = openravepy.databases.convexdecomposition.ConvexDecompositionModel(self.robot)
+    if not self.cdmodel.load():
+      self.cdmodel.autogenerate()
+    self.basemanip = openravepy.interfaces.BaseManipulation(self.robot)
+  def moveTo(self,goal,envmin=[-2.5,-2.5,0],envmax=[2.5,2.5,1]):
+    with self.env:
+      self.robot.SetAffineTranslationLimits(envmin,envmax)
+      self.robot.SetAffineTranslationMaxVels([0.5,0.5,0.5])
+      self.robot.SetAffineRotationAxisMaxVels(numpy.ones(4))
+      self.robot.SetActiveDOFs([],openravepy.Robot.DOFAffine.X|openravepy.Robot.DOFAffine.Y|openravepy.Robot.DOFAffine.RotationAxis,[0,0,1])
+    with self.env:
+      with self.robot:
+        self.robot.SetActiveDOFValues(goal)
+        if self.env.CheckCollision(self.robot):
+          print 'invalid goal is specified: ',goal
+          return False
+    print 'planning to: ',goal
+    # draw the marker
+    center = numpy.r_[goal[0:2],0.2]
+    xaxis = 0.5*numpy.array((numpy.cos(goal[2]),numpy.sin(goal[2]),0))
+    yaxis = 0.25*numpy.array((-numpy.sin(goal[2]),numpy.cos(goal[2]),0))
+    h = self.env.drawlinelist(numpy.transpose(numpy.c_[center-xaxis,center+xaxis,center-yaxis,center+yaxis,center+xaxis,center+0.5*xaxis+0.5*yaxis,center+xaxis,center+0.5*xaxis-0.5*yaxis]),linewidth=5.0,colors=numpy.array((0,1,0)))
+    # start to move
+    if self.basemanip.MoveActiveJoints(goal=goal,maxiter=3000,steplength=0.1) is None:
+      print 'failed to plan to the goal: ',goal
+      return False
+    print 'waiting for controller'
+    self.robot.WaitForController(0)
+    return True
+||<
+
+このクラスを使って，プラニングする (navigation.py)：
+>|python|
+#!/usr/bin/python
+import openravepy
+import numpy,time
+
+env = openravepy.Environment()
+env.SetViewer('qtcoin')
+env.Load('env1.xml')
+robot= env.GetRobot('SimpleBot')
+
+raw_input("Press Enter to start...")
+
+for i in range(0,10):
+  body = openravepy.RaveCreateKinBody(env,'')
+  body.SetName('obstacle'+str(i))
+  boxinfo= numpy.array([[0,0,0.0, 0.1,0.15,0.3]])
+  render= True
+  body.InitFromBoxes(boxinfo,render)
+  R = openravepy.matrixFromAxisAngle([0,0,2.0*numpy.pi*numpy.random.rand()])
+  R[0,3]= 4.5*(numpy.random.rand()-0.5)
+  R[1,3]= 4.5*(numpy.random.rand()-0.5)
+  R[2,3]= 0.3
+  print R
+  body.SetTransform(R)
+  env.AddKinBody(body)
+
+from mynavigation import MyNavigationPlanning
+env.UpdatePublishedBodies()
+time.sleep(0.1)
+nav = MyNavigationPlanning(robot)
+nav.moveTo([1.5,1.5,numpy.pi*0.25])
+nav.moveTo([1.0,-1.5,-numpy.pi*0.5])
+
+raw_input("Press Enter to exit...")
+env.Destroy()
+||<
+エンターキーを押すとボックスが描画され，移動が始まる．最初は 1.5, 1.5, 45度 の位置・姿勢に移動し，次に 1.0,-1.5, -90度 の位置・姿勢に移動する．
+
+

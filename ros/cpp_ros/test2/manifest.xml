@@ -1,0 +1,24 @@
+<package>
+  <description brief="test2">
+
+     test2
+
+  </description>
+  <author>akihikoy</author>
+  <license>???</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/test2</url>
+  <depend package="roscpp"/>
+  <!--<depend package="std_msgs"/>-->
+  <!--<depend package="std_srvs"/>-->
+  <depend package="sensor_msgs"/>
+  <!--<depend package="cv_bridge"/>-->
+    <!--NOTE: Do not put cv_bridge here
+    since we want to use not standard version of opencv.
+    If we put cv_bridge as a dependency here,
+    both opencv 2.4.8 and 2.4.13 will be linked simultaneously,
+    which causes a compile issue.-->
+
+</package>
+
+

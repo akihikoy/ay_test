@@ -1,0 +1,554 @@
+** NAO STK Tutorial
+
+NAOQi はNAO用に開発されたロボットのためのソフトウェアプラットフォームである．ロボットを動作させる様々な機能を「モジュール」という形で実装しておき，モジュールを組み合わせたり，モジュールの機能をAPIを通して呼び出したりすることで，ロボットの動作を実装する．
+
+ここでは，Python を用いて NAOQi 上のモジュール群を呼び出し，NAO を動作させる方法について解説する．
+
+* 環境変数の設定
+
+Python のライブラリパスなどを設定しておく必要がある．
+環境変数の設定は使っているシェルによって異なる．使用中のシェルの確認は，ターミナルで
+>|sh|
+echo $SHELL
+||<
+と実行すれば調べられる．
+
+Bash (/bin/bash) の場合，以下を setup.bash などとして保存しておき，
+>|sh|
+# Path of NAO SDK
+export NAO_SDK_DIR=/home/akihiko/prg/aldebaran/naoqi-sdk-1.10.44-linux
+
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${NAO_SDK_DIR}/lib"
+# export PYTHONHOME="${NAO_SDK_DIR}"
+export PYTHONPATH="${NAO_SDK_DIR}/lib"
+||<
+プログラムを実行するターミナルで，
+>|sh|
+source setup.bash
+||<
+と実行する．この設定は，各ターミナルで1回行えば良い．
+
+Tcsh (/bin/tcsh) の場合は，以下を setup.tcsh として保存して，
+>|sh|
+# Path of NAO SDK
+setenv NAO_SDK_DIR /home/akihiko/prg/aldebaran/naoqi-sdk-1.10.44-linux
+
+setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${NAO_SDK_DIR}/lib"
+# setenv PYTHONHOME "${NAO_SDK_DIR}"
+setenv PYTHONPATH "${NAO_SDK_DIR}/lib"
+||<
+以下を実行して設定する．
+>|sh|
+source setup.tcsh
+||<
+
+
+* Hello World
+
+ALTextToSpeech モジュール（テキストから音声を生成するモジュール）を使って，"Hello world" としゃべらせるプログラム (./sayhello.py)：
+>|python|
+#!/usr/bin/python
+from naoqi import ALProxy
+
+robot_IP='163.221.xxx.yyy'
+robot_port=9559
+proxyAudio = ALProxy("ALTextToSpeech",robot_IP,robot_port)
+proxyAudio.say("Hello world")
+||<
+robot_IP には NAO のIPアドレスを設定する．
+
+sayhello.py に実行権限を与え，実行する：
+>|sh|
+chmod 755 sayhello.py
+./sayhello.py
+||<
+NAO がしゃべる．
+
+ALProxy("ALTextToSpeech",robot_IP,robot_port) は，アドレス robot_IP にある NAO の ALTextToSpeech モジュールへアクセスする Proxy オブジェクトを生成する．Proxy とは，モジュールが提供するさまざまなメソッド（関数）にアクセスするための手段だ．なお robot_port はポート番号を表す．
+
+上の例では，ALTextToSpeech モジュールの say メソッドを呼び出している．
+
+NOTE:
+Proxy オブジェクトとメソッドの間に .post を挿入すると，メソッドを別スレッドで実行する（つまり，並列で実行される）．
+>|python|
+proxyAudio.post.say("Hello world!")
+||<
+しゃべりながら動作をさせる場合などに使う．say メソッドの後に print "test" などと書いておき，.post がある場合とない場合で test が表示されるタイミングの違いを調べよう．
+
+参考：
+Home - Advanced - Framework - Quick tutorial:
+http://users.aldebaran-robotics.com/docs/site_en/reddoc/framework/quick_tuto.html
+
+
+* サーボのオン・オフ
+
+次に，ロボットを動かそう．ロボットを動かすには，サーボ（モータ，アクチュエータ）をオンにする必要がある．
+
+実際には，関節のスティフネス（堅さ）を 1 に設定することによって行われる．この操作は，ALMotion モジュールの stiffnessInterpolation メソッドを使う．interpolation とは「補間する」という意味だが，これは，急激にスティフネスを変化させるのではなく，少し時間を掛けてなめらかに変化させるため．
+
+以下のコードを，前述の proxyAudio から始まる行の変わりに書く（servo-on.py という新しいファイルを作ろう）．
+>|python|
+proxyMo = ALProxy('ALMotion',robot_IP,robot_port)
+proxyMo.stiffnessInterpolation('Body', 1.0, 1.0)
+||<
+このコードを実行すると，すべてのサーボがオンになる．
+
+stiffnessInterpolation の引数は，順に，対象の関節名（Body は全関節），目標スティフネス値（0〜1），変化時間，である．
+
+目標スティフネス値をゼロにすると，サーボがオフになる．サーボをオフにするプログラム servo-off.py を書いてみよう．
+>|python|
+proxyMo.stiffnessInterpolation('Body', 0.0, 1.0)
+||<
+
+NOTE:
+ロボットを使っていない間は，なるべくサーボをオフにしよう．オンにしたままだと，サーボに負荷が掛かっている．
+
+参考：
+Home - Advanced - Motion - Stiffness:
+http://users.aldebaran-robotics.com/docs/site_en/reddoc/motion/presentation_stiffness.html
+Home - API - ALMotion:
+http://users.aldebaran-robotics.com/docs/site_en/bluedoc/ALMotion.html
+
+
+* 関節角の制御
+
+関節角を直接制御する方法について述べる．
+
+関節角の制御は ALMotion モジュールのメソッドで行う．関節角を制御するメソッドは多数用意されており，angleInterpolation, angleInterpolationWithSpeed, setAngles などを状況・目的に応じて使い分ける（目標点・経由点・到達時間を指定し補間する，関節角速度を指定する，など）．
+
+angleInterpolation メソッドの定義は
+>|python|
+void angleInterpolation (const AL::ALValue& names, const AL::ALValue& angleLists, const AL::ALValue& timeLists, const bool& isAbsolute)
+||<
+となっており，引数は以下を表す．
+- names : 関節の名称（ひとつ，または複数），関節チェーン，'Body', 'BodyJoints', または 'BodyActuators'．
+- angleLists : 関節角（ひとつ，複数，または複数の関節角のリスト）．関節角は，終端の値だけでなく，経由点も指定できる．単位はラジアン．
+- timeLists : 終端または経由点の時間（ひとつ，複数，または複数の時間のリスト）．単位は秒．
+- isAbsolute : 関節角の表現が絶対関節角か (True)，現在の関節角からの相対関節角か (False)．
+
+以下は angleInterpolation メソッドを使った例（joint-ctrl1.py）．
+>|python|
+proxyMo.angleInterpolation('HeadYaw', 1.2, 1.0, True)
+||<
+proxyMo は ALMotion の Proxy オブジェクト．サーボオンにしてから実行する．'HeadYaw' は頭リンクをヨー軸（z軸）まわりに回転させる関節を表し，1.0 秒かけて頭リンクを 1.2 [rad] の角度まで動かす．
+
+次の例は，同じ関節を，0.5 [rad] を 0.5 秒のときに経由し，1.2 [rad] に 1.0 秒のときに到達するように動かす．
+>|python|
+proxyMo.angleInterpolation('HeadYaw', [0.5,1.2], [0.5,1.0], True)
+||<
+
+複数の関節を同時に動かす例．
+>|python|
+names = ['HeadYaw','HeadPitch']
+angleLists = [[1.2], [-0.3]]
+timeLists = [[1.0], [1.0]]
+proxyMo.angleInterpolation(names, angleLists, timeLists, True)
+||<
+見やすくするため，引数を変数に代入している．'HeadPitch' は頭リンクをピッチ軸（y軸）まわりに回転させる関節を表す．angleLists, timeLists の要素数は，names の要素数と同じでなければならない．また，angleLists や timeLists の要素は実数のリストでなければならない．もし，
+>|python|
+angleLists = [1.2, -0.3]
+timeLists = [1.0, 1.0]
+||<
+として実行すると（angleLists や timeLists それ自体が実数のリスト），
+>||
+RuntimeError: modulename: 'ALMotion' method: 'SOAP error:modulename: 'ALBroker' method: 'methodCall: method: angleInterpolation, params: [["HeadYaw", "HeadPitch"], [1.2, -0.3], [1, 1], true]'
+Desc: 'modulename: 'ALMotion' method: 'angleInterpolation'
+Desc: 'modulename: 'ALMotion' method: 'angleInterpolation'
+Desc: 'Expected the time series to be of the same size as the joint names'
+from file: (null):0'
+from file: /home/opennao/opennao-1-9-x/build/tmp/work/geode-linux/naoqi-1.10.44-r241+gitr17f46cca30865093ddbbc2f73262976b8ecfc469-r241/git/src/lib/alcommon/alcommon/almodulecore.cpp:288'
+from file: /home/opennao/opennao-1-9-x/build/tmp/work/geode-linux/naoqi-1.10.44-r241+gitr17f46cca30865093ddbbc2f73262976b8ecfc469-r241/git/src/lib/alcommon/alcommon/albroker.cpp:1198'
+Desc: 'SOAP detail: ALMotion'
+from file: (null):0
+||<
+というエラーが出る．
+
+複数の関節を同時に動かす例（経由点も指定）．
+>|python|
+names = ['HeadYaw','HeadPitch']
+angleLists = [[0.0,1.2], [0.0,-0.3]]
+timeLists = [[0.5,1.0], [0.5,1.0]]
+proxyMo.angleInterpolation(names, angleLists, timeLists, True)
+||<
+'HeadYaw' 関節を 0.5 秒で 0.0 [rad] で経由して 1.0 秒で 1.2 [rad] に到達，'HeadPitch' を 0.5 秒で 0.0 [rad] で経由して 1.0 秒で -0.5 [rad] に到達するように動かす．
+
+関節チェーンを使うと，頭部，右腕，左腕，右足，左足の関節群をまとめて指定できる．以下は，左腕と右腕をそれぞれまとめて動かす例．
+>|python|
+#!/usr/bin/python
+from naoqi import ALProxy
+from naoconfig import *
+
+proxyMo = ALProxy('ALMotion',robot_IP,robot_port)
+proxyMo.stiffnessInterpolation('Body', 1.0, 1.0)
+
+angleLists = [[0.0,1.0], [0.0,1.0], [0.0,-1.0], [0.0,-1.0], [0.0,-1.0], [0.0,1.0]]
+timeLists = [[1.0,2.0]]*6
+proxyMo.post.angleInterpolation('LArm', angleLists, timeLists, True)
+
+angleLists = [[0.0,-1.0], [0.0,-1.0], [0.0,1.0], [0.0,1.0], [0.0,1.0], [0.0,1.0]]
+timeLists = [[1.0,2.0]]*6
+proxyMo.angleInterpolation('RArm', angleLists, timeLists, True)
+||<
+最初の angleInterpolation メソッドの実行では post を使っている．このため左腕の制御は別スレッドで実行され，左腕と右腕が同時に動く．この例ではまずまっすぐのばし，次に手を広げるように動作する．
+
+なお，'LArm' や 'RArm' はハンドの関節も含む（最後の要素）．また，
+>|python|
+[[1.0,2.0]]*6
+||<
+は，
+>|python|
+[[1.0, 2.0], [1.0, 2.0], [1.0, 2.0], [1.0, 2.0], [1.0, 2.0], [1.0, 2.0]]
+||<
+と同じである（すべての関節角を動かすタイミングを同期させる）．
+
+関節，関節チェーンなどの名称は，下記参考ドキュメントを調べよう．
+
+参考：
+Home - API - ALMotion:
+http://users.aldebaran-robotics.com/docs/site_en/bluedoc/ALMotion.html
+Home - Advanced - Motion - Joints:
+http://users.aldebaran-robotics.com/docs/site_en/reddoc/motion/presentation_joints.html
+Home - Advanced - Hardware - Joints information:
+http://users.aldebaran-robotics.com/docs/site_en/reddoc/hardware/joints-names.html
+
+NOTE:
+NAO にはいくつかバージョンがあり，バージョンに合わせて見るドキュメントを変える必要がある．例えば Home - Advanced - Hardware には Kinematics 3.2 および Kinematics 3.3 のデータが記載されているため，実機に該当する方を選択する必要がある．
+
+
+* ハンドの制御
+
+ハンドには，左右それぞれ1自由度しかない．つまり，開閉のみ可能．
+
+ハンドの制御には，ALMotion モジュールの openHand/closeHand メソッドを利用する方法と，angleInterpolation などで直接関節に値を送る方法がある．
+
+openHand/closeHand を使った開閉．
+>|python|
+proxyMo = ALProxy('ALMotion',robot_IP,robot_port)
+
+proxyMo.post.openHand('LHand')
+proxyMo.openHand('RHand')
+
+proxyMo.post.closeHand('LHand')
+proxyMo.closeHand('RHand')
+||<
+左右のハンドを同時に開き，同時に閉じる．一部に post を使っているのは，同時に（並列に）開く，または同時に閉じるため．
+
+angleInterpolation を使った開閉．
+>|python|
+proxyMo = ALProxy('ALMotion',robot_IP,robot_port)
+proxyMo.stiffnessInterpolation('Body', 1.0, 1.0)
+
+proxyMo.angleInterpolation(['LHand','RHand'], [[1.0],[1.0]], [[1.0],[1.0]], True)
+proxyMo.angleInterpolation(['LHand','RHand'], [[0.0],[0.0]], [[1.0],[1.0]], True)
+proxyMo.angleInterpolation(['LHand','RHand'], [[0.5],[0.5]], [[1.0],[1.0]], True)
+||<
+openHand/closeHand を使う場合はサーボがオフでもよかったが，angleInterpolation を使う場合は，サーボをオンにしておく必要がある．上の例は，左右のハンドを同時に開き，同時に閉じ，そして同時に半分開く動作をする．それぞれの動作は1秒掛けて行う．このように，angleInterpolation を使った方がきめ細かな制御ができる．
+
+
+* カメラ
+
+NAO の頭部（額）に付いているカメラの使用法を説明する．
+
+ALVideoDevice モジュールを使う．このモジュールの操作は，「初期化」「キャプチャ」「終了」の3つの処理からなる．
+
+初期化．
+>|python|
+proxyCam = ALProxy('ALVideoDevice',robot_IP,robot_port)
+gvmName = 'my_GVM'
+resolution = 1
+colorSpace = 13
+fps = 15
+nameId = proxyCam.subscribe(gvmName, resolution, colorSpace, fps)
+||<
+ALVideoDevice モジュールの Proxy オブジェクト proxyCam を生成し，subscribe メソッドで画像の撮影を始める．subscribe の引数は，以下の通り．
+- gvmName: ビデオモジュールの登録名．
+- resolution: 解像度．0: kQQVGA, 1: kQVGA, 2: kVGA から選ぶ．
+- colorSpace: 色空間．0: kYuv, 9: kYUV422, 10: kYUV, 11: kRGB, 12: kHSY, 13: kBGR から選ぶ．
+- fps: 1秒あたりの撮影数（frame per second）．5, 10, 15, 30 から選ぶ．
+subscribe メソッドの戻り値は，実際の登録名で，これを使ってキャプチャなどを行う．
+
+なお，unsubscribe メソッドを実行せずにプログラムを終了した場合，ビデオモジュールが登録されたままになり，エラーが出る場合がある．このようなときは，subscribe メソッドの実行前に
+>|python|
+proxyCam.unsubscribe('my_GVM')
+||<
+を実行し，登録を解除するとよい．
+
+キャプチャ（リモートPCからの場合）．
+>|python|
+results = proxyCam.getImageRemote(nameId)
+||<
+によってキャプチャする．nameId は subscribe で取得したもの．getImageRemote の戻り値は，以下のような配列．
+- [0] : 幅．
+- [1] : 高さ．
+- [2] : レイヤの数．
+- [3] : 色空間．
+- [4] : タイムスタンプ（上位32ビット）．
+- [5] : タイムスタンプ（下位32ビット）．
+- [6] : 画像データ．高さ x 幅 x レイヤ数 の配列．
+- [7] : カメラID．
+
+終了．
+>|python|
+proxyCam.unsubscribe(nameId)
+||<
+によってキャプチャを終了する．
+
+以下の例では，画像を連続で撮影したものを OpenCV の画像データとして扱い，描画している．実行には python-opencv パッケージが必要．
+>|python|
+#!/usr/bin/python
+from naoqi import ALProxy
+from naoconfig import *
+import cv
+
+proxyCam = ALProxy('ALVideoDevice',robot_IP,robot_port)
+#proxyCam.unsubscribe('my_GVM')
+
+gvmName = 'my_GVM'
+resolution = 1 # {0 = kQQVGA, 1 = kQVGA, 2 = kVGA}
+colorSpace = 13 # {0 = kYuv, 9 = kYUV422, 10 = kYUV, 11 = kRGB, 12 = kHSY, 13 = kBGR}
+fps = 15 # {5, 10, 15, 30}
+nameId = proxyCam.subscribe(gvmName, resolution, colorSpace, fps)
+
+cv.NamedWindow("camera", 1)
+
+while True:
+  print 'capture..'
+  results = proxyCam.getImageRemote(nameId)
+  width = results[0]
+  height = results[1]
+  img = cv.CreateImageHeader((width,height), cv.IPL_DEPTH_8U, 3)
+  cv.SetData(img, results[6])
+  cv.ShowImage("camera", img)
+  k = cv.WaitKey(10);
+  if k==ord('q'):  break;
+
+proxyCam.unsubscribe(nameId)
+||<
+実行すると，NAO が見ている画像がディスプレイされる．終了は q キー．
+
+参考：
+Home - API - ALVideoDevice:
+http://users.aldebaran-robotics.com/docs/site_en/bluedoc/ALMotion.html
+
+
+* レーザレンジファインダ
+
+頭部にレーザレンジファインダ (LRF, Hokuyo URG) が付属している NAO の使い方について説明する．
+
+まず，ノーマルの NAO の頭部を，LRF 付きの頭部に置き換える作業をする．頭部の底面の，首の左右に，押し込みスイッチがある．これらふたつを同時に押しながら，NAO の頭部を持ち上げると，頭部が取り外せる．取り付けは，この逆を行う．
+
+NAO の，正面から見て右側の目（左目）の裏あたり（やや上側）に，USB キーが挿入されている．ノーマルの NAO の場合は，頭部のカバー（色付き）をネジを外して開かないと見えない．LRF 付きの NAO の場合は，正面カバーを外せば，USB の端子が見える．LRF 付きの頭部に USB キーが挿入されていない場合，ノーマル頭部から挿し換えるか，スペア USB キーを挿入する必要がある．
+
+LRF 付き頭部のセットアップが終わったら，通常どおりに起動する．
+
+LRF の制御は ALLaser モジュールで行う．データの取得は，ALMemory モジュールに書き込まれたデータを読む．カメラ同様，「初期化」「データの取得」「終了」の3ステップからなる．
+
+初期化．
+>|python|
+proxyLRF = ALProxy('ALLaser',robot_IP,robot_port)
+proxyLRF.laserON()
+proxyMem = ALProxy('ALMemory',robot_IP,robot_port)
+||<
+ALLaser モジュールの Proxy と ALMemory の Proxy を生成する．ALLaser モジュールの laserON メソッドで，LRF を起動する．
+
+データの取得．
+>|python|
+urgdata = proxyMem.getData('Device/Laser/Value')
+||<
+ALMemory モジュールの getData メソッドを使って，LRF のデータを取得する．ここで取得されたデータは，サンプル数 x 4 の配列で，各行には以下のようなデータが格納されている．
+- urgdata[i][0] : Length （障害物までの距離）
+- urgdata[i][1] : Angle （サンプル i の角度．インデックスから計算された値）
+- urgdata[i][2] : X （障害物のX座標．X は正面方向）
+- urgdata[i][3] : Y （障害物のY座標．Y は横方向）
+なお，サンプル数は約700．
+
+終了．
+>|python|
+proxyLRF.laserOFF()
+||<
+LRF をオフにする．
+
+以下の例は，OpenCV の画像上に取得したデータ点をプロットするもの．実行には python-opencv パッケージが必要．
+>|python|
+#!/usr/bin/python
+from naoqi import ALProxy
+from naoconfig import *
+import cv
+
+proxyLRF = ALProxy('ALLaser',robot_IP,robot_port)
+proxyLRF.laserON()
+
+proxyMem = ALProxy('ALMemory',robot_IP,robot_port)
+
+cv.NamedWindow("urg", 1)
+
+width=500
+height=500
+scale=0.08
+col_black=cv.Scalar(0,0,0)
+col_blue=cv.Scalar(255,0,0)
+col_red=cv.Scalar(0,0,255)
+while True:
+  print 'capture..'
+  urgdata = proxyMem.getData('Device/Laser/Value')
+  img = cv.CreateImage((width,height),cv.IPL_DEPTH_8U,3)
+  cv.Rectangle(img,(0,0),(width-1,height-1),cv.Scalar(255,255,200),cv.CV_FILLED)
+  cv.Circle(img,(width/2,height/2),10,col_blue,3)
+  for p in urgdata:
+    if p[0]==0:  continue;
+    px = p[2]*scale
+    py = p[3]*scale
+    x = width/2+py
+    y = height/2+px
+    col = col_black
+    if x>=width: x=width-1; col=col_red
+    if x<0:      x=0; col=col_red
+    if y>=height: y=height-1; col=col_red
+    if y<0:       y=0; col=col_red
+    cv.Circle(img,(x,y),3,col,cv.CV_FILLED)
+  cv.ShowImage("urg", img)
+  k = cv.WaitKey(10);
+  if k==ord('q'):  break;
+
+proxyLRF.laserOFF()
+||<
+実行すると，現在の LRF のデータがプロットされる．終了は q キー．青の円は中心（NAO がいる位置），黒い点が障害物，赤い点は画面からはみ出した点を示す．
+
+参考：
+Home - Advanced - ALLaser:
+http://users.aldebaran-robotics.com/docs/site_en/reddoc/allaser/allaser.html
+Home - API - ALLaser
+http://users.aldebaran-robotics.com/docs/site_en/bluedoc/ALLaser.html
+Home - API - ALMemory
+http://users.aldebaran-robotics.com/docs/site_en/bluedoc/ALMemory.html
+
+
+* 歩行と旋回
+
+NAO を歩行・旋回させるメソッド群について解説する．
+
+NAO には，現在の位置・向きから相対位置・向きを指定して歩行するメソッド，速度・回転速度を指定して歩行するメソッドが用意されている．これらのメソッドは ALMotion モジュールに収録されている．
+
+相対位置・向きを指定して歩行．
+>|python|
+proxyMo.walkTo(x, y, theta)
+||<
+- x : 現在位置からのX座標（前方）．単位はメートル．
+- y : 現在位置からのY座標（前方）．単位はメートル．
+- theta : 現在の向きからの回転角（Z軸まわり）．単位はラジアン．-3.1415 から 3.1415 の間の値．
+proxyMo は ALMotion モジュールの Proxy オブジェクト．このコマンドはサーボがオンになった状態で実行する必要がある．
+
+速度・回転速度を指定して歩行．
+>|python|
+proxyMo.setWalkTargetVelocity(x, y, theta, frequency)
+||<
+- x : X方向の最大歩幅に対する割合．-1 から 1 の間の値．負なら後退．
+- y : Y方向の最大歩幅に対する割合．-1 から 1 の間の値．正は左．
+- theta : 1歩あたりの最大回転角に対する割合．-1 から 1 の間の値．正は左回転．
+- frequency :
+proxyMo は ALMotion モジュールの Proxy オブジェクト．このコマンドはサーボがオンになった状態で実行する必要がある．
+
+walkTo メソッドを使った例．
+>|python|
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+from naoqi import ALProxy
+from naoconfig import *
+
+proxyMo = ALProxy('ALMotion',robot_IP,robot_port)
+proxyMo.stiffnessInterpolation('Body', 1.0, 1.0)
+
+x = 0.2
+y = 0.2
+theta = 1.5709
+proxyMo.walkTo(x, y, theta)
+# (0.2 [m], 0.2 [m]) の位置に左を90度向くように到達
+
+x = -0.2
+y = 0.0
+theta  = 0.0
+proxyMo.walkTo(x, y, theta)
+# 後ろに 0.2 [m] 下がる
+
+x = 0.0
+y = 0.0
+theta  = -1.5709
+proxyMo.walkTo(x, y, theta)
+# 右に90度回転
+||<
+広い場所で動作させること．転倒しそうになったら NAO を手で支えるか持ち上げる．最終的には最初と同じ向きになる．
+
+setWalkTargetVelocity メソッドを使った例．
+>|python|
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+from naoqi import ALProxy
+from naoconfig import *
+import time
+
+proxyMo = ALProxy('ALMotion',robot_IP,robot_port)
+proxyMo.stiffnessInterpolation('Body', 1.0, 1.0)
+
+x  = 1.0
+y  = 0.0
+theta  = 0.0
+frequency  = 0.6
+proxyMo.setWalkTargetVelocity(x, y, theta, frequency)
+time.sleep(2)
+# 前方に歩行(2秒間)
+
+x = 0.0
+theta = 0.5
+proxyMo.setWalkTargetVelocity(x, y, theta, frequency)
+time.sleep(2)
+# 左方向に回転(2秒間)
+
+x = 1.0
+theta = -0.5
+proxyMo.setWalkTargetVelocity(x, y, theta, frequency)
+time.sleep(5)
+# 前進しながら右方向に回転(5秒間)
+
+x  = 1.0
+theta  = 0.0
+frequency  = 1.0
+proxyMo.setWalkTargetVelocity(x, y, theta, frequency)
+time.sleep(5)
+# やや早く前進(5秒間)
+
+proxyMo.setWalkTargetVelocity(0.0, 0.0, 0.0, frequency)
+# 速度ゼロ(ストップ)
+||<
+広い場所で動作させること．転倒しそうになったら NAO を手で支えるか持ち上げる．
+
+NOTE:
+setWalkTargetVelocity を使っている場合，プログラムを中断（Ctrl+C で）しても NAO が歩き続けることがある．そこで，walk-stop.py という名称で以下のようなプログラムを作っておき，プログラムを中断した場合に実行する．
+>|python|
+#!/usr/bin/python
+from naoqi import ALProxy
+from naoconfig import *
+proxyMo = ALProxy('ALMotion',robot_IP,robot_port)
+proxyMo.setWalkTargetVelocity(0.0, 0.0, 0.0, 1.0)
+||<
+
+参考：
+Home - API - ALMotion:
+http://users.aldebaran-robotics.com/docs/site_en/bluedoc/ALMotion.html
+Home - Advanced - Motion - Omni-directional walk
+http://users.aldebaran-robotics.com/docs/site_en/reddoc/motion/presentation_walk_omni.html
+Home - Advanced - Motion - Velocity Control
+http://users.aldebaran-robotics.com/docs/site_en/reddoc/motion/presentation_walk_velocity.html
+
+
+
+* バランサ
+
+ALMotion モジュールの wbEnable, wbFootState メソッドなどを参照．
+
+参考：
+Home - Advanced - Motion - Balance:
+http://users.aldebaran-robotics.com/docs/site_en/reddoc/motion/presentation_balance.html
+Home - API - ALMotion - wbEnable:
+http://users.aldebaran-robotics.com/docs/site_en/bluedoc/ALMotion.html#wbEnable
+
+
