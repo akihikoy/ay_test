@@ -10,13 +10,16 @@
 #\version 0.3
 #\date    Nov.20, 2018
 #         Added RH-P12-RN (Thormang3 gripper) protocol.
+#\version 0.4
+#\date    Apr.18, 2019
+#         Modified for the latest SDK which no longer uses the shared object implemented in C.
 
-#This code is based on DynamixelSDK/python/protocol2_0/sync_read_write.py
+#cf. DynamixelSDK/python/tests/protocol2_0/read_write.py
 #DynamixelSDK: https://github.com/ROBOTIS-GIT/DynamixelSDK
 #Dynamixel XM430-W350: http://support.robotis.com/en/product/actuator/dynamixel_x/xm_series/xm430-w350.htm
 #Dynamixel XH430-V350: http://support.robotis.com/en/product/actuator/dynamixel_x/xh_series/xh-430-v350.htm
 
-import dxl_funcs as dynamixel  #Using Dynamixel SDK
+import dynamixel_sdk as dynamixel  #Using Dynamixel SDK
 import math, time, threading
 
 class TDynamixelPortHandler(object):
@@ -24,15 +27,15 @@ class TDynamixelPortHandler(object):
     #Callback in the reopen thread.  If this function returns False, the thread ends.
     self.ReopenCallback= None
 
-    #List of {'dev':DEVICE_NAME, 'port_num':PORT_NUMBER, 'baudrate':BAUD_RATE}
+    #List of {'dev':DEVICE_NAME, 'port':PORT_HANDLER, 'baudrate':BAUD_RATE}
     self.opened= []
     #Reopen thread state:
     self.thread_reopen= [False,None]
 
-  #Return port number from device name.
+  #Return port handler from device name.
   def Port(self, dev):
     try:
-      return next(value for value in self.opened if value['dev']==dev)['port_num']
+      return next(value for value in self.opened if value['dev']==dev)['port']
     except StopIteration:  return None
 
   #Open the device dev and set the baudrate if baudrate is not None.
@@ -44,92 +47,90 @@ class TDynamixelPortHandler(object):
     try:
       #Check if dev is already opened.
       info= next(value for value in self.opened if value['dev']==dev)
-      port_num= info['port_num']
+      port_handler= info['port']
       if all((baudrate is None, reopen, info['baudrate']>0)):
         baudrate= info['baudrate']
         #info['baudrate']= 0
         set_baudrate= True
 
     except StopIteration:
-      info= {'port_num':None, 'dev':dev, 'baudrate':0}
+      info= {'port':None, 'dev':dev, 'baudrate':0}
       self.opened.append(info)
 
-    if info['port_num'] is None:
+    if info['port'] is None:
       # Initialize PortHandler Structs
       # Set the port path
       # Get methods and members of PortHandlerLinux or PortHandlerWindows
-      port_num= dynamixel.portHandler(dev)
-      # Initialize PacketHandler Structs
-      dynamixel.packetHandler()
+      port_handler= dynamixel.PortHandler(dev)
 
       #Open port
-      if dynamixel.openPort(port_num):
-        print 'Opened a port:', dev, port_num
+      if port_handler.openPort():
+        print 'Opened a port:', dev, port_handler
       else:
-        print 'Failed to open a port:', dev, port_num
-        dynamixel.closePort(port_num)
+        print 'Failed to open a port:', dev, port_handler
+        port_handler.closePort()
         return None
-      info['port_num']= port_num
+      info['port']= port_handler
 
     if (baudrate is not None and info['baudrate']!=baudrate) or set_baudrate:
       #Set port baudrate
-      if dynamixel.setBaudRate(port_num, int(baudrate)):
-        print 'Changed the baud rate:', dev, port_num, baudrate
+      if port_handler.setBaudRate(int(baudrate)):
+        print 'Changed the baud rate:', dev, port_handler, baudrate
       else:
-        print 'Failed to change the baud rate to:', dev, port_num, baudrate
+        print 'Failed to change the baud rate to:', dev, port_handler, baudrate
         return None
       info['baudrate']= baudrate
 
-    return port_num
+    return port_handler
 
-  #Close the port.  Specify the port by device name (dev) OR port number (port_num).
-  def Close(self, dev=None, port_num=None):
+  #Close the port.  Specify the port by device name (dev) OR port handler (port).
+  def Close(self, dev=None, port=None):
     i,info= -1,None
-    pnum= None
+    port_handler= None
     if dev is not None:
       try:
         i,info= next((i,value) for i,value in enumerate(self.opened) if value['dev']==dev)
-        pnum= info['port_num']
+        port_handler= info['port']
       except StopIteration:
         pass
-    elif port_num is not None:
+    elif port is not None:
       try:
-        i,info= next((i,value) for i,value in enumerate(self.opened) if value['port_num']==port_num)
-        pnum= port_num
+        i,info= next((i,value) for i,value in enumerate(self.opened) if value['port']==port)
+        port_handler= port
       except StopIteration:
         pass
     #else:
       #raise Exception('TDynamixelPortHandler.Close: dev or port must be specified.')
-    if pnum is not None:
-      dynamixel.closePort(pnum)
-      print 'Closed the port:',info['dev'],pnum
+    if port_handler is not None:
+      port_handler.closePort()
+      print 'Closed the port:',info['dev'],port_handler
     if i>=0:  del self.opened[i]
 
   #Mark the device or port to be an error state.
-  #Specify the port by device name (dev) OR port number (port_num).
-  def MarkError(self, dev=None, port_num=None):
+  #Specify the port by device name (dev) OR port handler (port).
+  def MarkError(self, dev=None, port=None):
     info= None
-    pnum= None
+    port_handler= None
     if dev is not None:
       try:
         info= next(value for value in self.opened if value['dev']==dev)
-        pnum= info['port_num']
+        port_handler= info['port']
       except StopIteration:
         pass
-    elif port_num is not None:
+    elif port is not None:
       try:
-        info= next(value for value in self.opened if value['port_num']==port_num)
-        pnum= port_num
+        info= next(value for value in self.opened if value['port']==port)
+        port_handler= port
       except StopIteration:
         pass
     #else:
       #raise Exception('TDynamixelPortHandler.MarkError: dev or port must be specified.')
-    if pnum is not None:
-      dynamixel.closePort(pnum)
-      print 'Closed the port:',info['dev'],pnum
-    if info is not None:  info['port_num']= None
+    if port_handler is not None:
+      port_handler.closePort()
+      print 'Closed the port:',info['dev'],port_handler
+    if info is not None:  info['port']= None
 
-  #Start reopen thread to reopen all devices whose port_num is None.
+  #Start reopen thread to reopen all devices whose port is None.
   def StartReopen(self, interval=1.0):
     self.StopReopen()
     th_func= lambda:self.ReopenLoop(interval)
@@ -152,9 +153,9 @@ class TDynamixelPortHandler(object):
         if not self.ReopenCallback():  break
       success= True
       for info in self.opened:
-        if info['port_num'] is not None:  continue
-        port_num= self.Open(dev=info['dev'], reopen=True)
-        if port_num is None:  success= False
+        if info['port'] is not None:  continue
+        port_handler= self.Open(dev=info['dev'], reopen=True)
+        if port_handler is None:  success= False
       time.sleep(interval)
     self.thread_reopen[0]= False
 
@@ -164,9 +165,6 @@ DxlPortHandler= TDynamixelPortHandler()
 
 class TDynamixel1(object):
   def __init__(self, type, dev='/dev/ttyUSB0'):
-    self.WriteFuncs= (None, dynamixel.write1ByteTxRx, dynamixel.write2ByteTxRx, None, dynamixel.write4ByteTxRx)
-    self.ReadFuncs= (None, dynamixel.read1ByteTxRx, dynamixel.read2ByteTxRx, None, dynamixel.read4ByteTxRx)
-
     # For Dynamixel PRO 54-200
     if type=='PRO54-200':  #FIXME: Correct name?
       #ADDR[NAME]=(ADDRESS,SIZE)
@@ -297,9 +295,6 @@ class TDynamixel1(object):
       self.CURRENT_UNIT= 4.02
       self.VELOCITY_UNIT= 0.114*(2.0*math.pi)/60.0
 
-    self.COMM_SUCCESS = 0      # Communication Success result value
-    self.COMM_TX_FAIL = -1001  # Communication Tx Failed
-
     # Configurable variables
     self.Id= 1  # Dynamixel ID
     self.Baudrate= 57600
@@ -320,7 +315,8 @@ class TDynamixel1(object):
     self.GoalThreshold= 20
 
     # Status variables
-    self.port_num= lambda self=self:DxlPortHandler.Port(self.DevName)
+    self.port_handler= lambda self=self:DxlPortHandler.Port(self.DevName)
+    self.packet_handler= None
     self.dxl_result= None
     self.dxl_err= None
 
@@ -373,14 +369,14 @@ class TDynamixel1(object):
     if addr is None:
       print '{address} is not available with this Dynamixel.'.format(address=address)
       return
-    self.WriteFuncs[size](self.port_num(), self.PROTOCOL_VERSION, self.Id, addr, value)
+    self.dxl_result,self.dxl_err= self.WriteFuncs[size](self.port_handler(), self.Id, addr, value)
 
   def Read(self, address):
     addr,size= self.ADDR[address]
     if addr is None:
       print '{address} is not available with this Dynamixel.'.format(address=address)
       return None
-    value= self.ReadFuncs[size](self.port_num(), self.PROTOCOL_VERSION, self.Id, addr)
+    value,self.dxl_result,self.dxl_err= self.ReadFuncs[size](self.port_handler(), self.Id, addr)
     if size==2:
       #value= value & 255
       #if value>127:  value= -(256-value)
@@ -396,9 +392,13 @@ class TDynamixel1(object):
 
   def Setup(self):
     DxlPortHandler.Open(dev=self.DevName, baudrate=self.Baudrate)
-    if self.port_num() is None:
-      #self.port_num = None
+    if self.port_handler() is None:
       return False
+
+    # Initialize PacketHandler
+    self.packet_handler= dynamixel.PacketHandler(self.PROTOCOL_VERSION)
+    self.WriteFuncs= (None, self.packet_handler.write1ByteTxRx, self.packet_handler.write2ByteTxRx, None, self.packet_handler.write4ByteTxRx)
+    self.ReadFuncs= (None, self.packet_handler.read1ByteTxRx, self.packet_handler.read2ByteTxRx, None, self.packet_handler.read4ByteTxRx)
 
     self.SetOpMode(self.OP_MODE[self.OpMode])
     #self.EnableTorque()
@@ -408,24 +408,20 @@ class TDynamixel1(object):
     #self.DisableTorque()
     # Close port
     DxlPortHandler.Close(dev=self.DevName)
-    #self.port_num = None
 
   #Check the result of sending a command.
   #Print the error message if quiet is False.
   #If reopen is True, we start the port reopen thread.
   def CheckTxRxResult(self, quiet=False, reopen=True):
-    self.dxl_result= dynamixel.getLastTxRxResult(self.port_num(), self.PROTOCOL_VERSION)
-    self.dxl_err= dynamixel.getLastRxPacketError(self.port_num(), self.PROTOCOL_VERSION)
-    normal= self.dxl_result==self.COMM_SUCCESS and self.dxl_err==0
+    normal= self.dxl_result==dynamixel.COMM_SUCCESS and self.dxl_err==0
     if not normal:# and not quiet:
       print 'dxl_result=',self.dxl_result, 'dxl_err=',self.dxl_err
-      if self.dxl_result != self.COMM_SUCCESS:
-        print dynamixel.getTxRxResult(self.PROTOCOL_VERSION, self.dxl_result)
+      if self.dxl_result != dynamixel.COMM_SUCCESS:
+        print self.packet_handler.getTxRxResult(self.dxl_result)
       elif self.dxl_err != 0:
-        print dynamixel.getRxPacketError(self.PROTOCOL_VERSION, self.dxl_err)
+        print self.packet_handler.getRxPacketError(self.dxl_err)
     if not normal:
       DxlPortHandler.MarkError(dev=self.DevName)
-      #self.port_num= None
       if reopen:  DxlPortHandler.StartReopen()
     return normal
 
@@ -524,7 +520,7 @@ class TDynamixel1(object):
 
   #Reboot Dynamixel
   def Reboot(self):
-    dynamixel.reboot(self.port_num(), self.PROTOCOL_VERSION, self.Id)
+    self.dxl_result,self.dxl_err= self.packet_handler.reboot(self.port_handler(), self.Id)
     self.CheckTxRxResult()
 
   #Move the position to a given value.
