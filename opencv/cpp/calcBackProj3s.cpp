@@ -37,10 +37,8 @@ void pickPoint (int event, int x, int y, int, void* );
  */
 int main( int argc, char** argv )
 {
-  cv::VideoCapture cap;
-  if(argc>=2)  cap= CapOpen(argv[1], /*width=*/0, /*height=*/0);
-  else         cap= CapOpen("0", /*width=*/0, /*height=*/0);
-  if(!cap.isOpened())  return -1;
+  TCapture cap;
+  if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
   namedWindow( window_image, WINDOW_AUTOSIZE );
 
@@ -52,7 +50,13 @@ int main( int argc, char** argv )
 
   for(int i(0);;++i)
   {
-    cap >>src;
+    cv::Mat frame;
+    if(!cap.Read(frame))
+    {
+      if(cap.WaitReopen()) continue;
+      else break;
+    }
+    src= frame;
 
     /// Transform it to HSV
     cvtColor( src, hsv, COLOR_BGR2HSV );

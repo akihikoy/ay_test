@@ -61,7 +61,12 @@ int main(int argc, char **argv)
 
   for(;;)
   {
-    cap >> img;
+    // cap >> img;
+    if(!cap.Read(img))
+    {
+      if(cap.WaitReopen()) continue;
+      else break;
+    }
     cv::imshow("camera", img);
 
 

@@ -1,3 +1,5 @@
+// g++ -std=c++11 rs-save-to-disk.cpp -lrealsense2 -o rs-save-to-disk.out
+
 // License: Apache 2.0. See LICENSE file in root directory.
 // Copyright(c) 2015-2017 Intel Corporation. All Rights Reserved.
 

@@ -292,10 +292,8 @@ using namespace loco_rabbits;
 
 int main(int argc, char **argv)
 {
-  cv::VideoCapture cap;
-  if(argc>=2)  cap= CapOpen(argv[1], /*width=*/0, /*height=*/0);
-  else         cap= CapOpen("0", /*width=*/0, /*height=*/0);
-  if(!cap.isOpened())  return -1;
+  TCapture cap;
+  if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
   cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
   cv::namedWindow("detected", CV_WINDOW_AUTOSIZE);
@@ -321,7 +319,11 @@ int main(int argc, char **argv)
   for(int i(0);;++i)
   {
     cv::Mat frame;
-    cap >> frame;
+    if(!cap.Read(frame))
+    {
+      if(cap.WaitReopen()) continue;
+      else break;
+    }
 
     detector.Step(frame);
 

@@ -14,7 +14,7 @@ from cv_bridge import CvBridge, CvBridgeError
 class image_converter:
   def __init__(self):
     self.bridge= CvBridge()
-    self.image_sub= rospy.Subscriber("/cameras/left_hand_camera/image",sensor_msgs.msg.Image,self.callback)
+    self.image_sub= rospy.Subscriber("/camera/color/image_raw",sensor_msgs.msg.Image,self.callback)
 
   def callback(self,data):
     try:

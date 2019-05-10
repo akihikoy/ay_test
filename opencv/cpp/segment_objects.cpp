@@ -64,7 +64,7 @@ static void refineSegments(const Mat& img, Mat& mask, Mat& dst)
 int main(int argc, char** argv)
 {
   TCapture cap;
-  if(!cap.Open(((argc>=2)?(argv[1]):"0"), /*width=*/0, /*height=*/0))  return -1;
+  if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
     bool update_bg_model = true;
 
@@ -87,9 +87,14 @@ int main(int argc, char** argv)
 
     for(;;)
     {
-        cap >> tmp_frame;
-        if( !tmp_frame.data )
-            break;
+        // cap >> tmp_frame;
+        // if( !tmp_frame.data )
+        //     break;
+        if(!cap.Read(tmp_frame))
+        {
+          if(cap.WaitReopen()) continue;
+          else break;
+        }
         bgsubtractor(tmp_frame, bgmask, update_bg_model ? -1 : 0);
         refineSegments(tmp_frame, bgmask, out_frame);
         imshow("video", tmp_frame);

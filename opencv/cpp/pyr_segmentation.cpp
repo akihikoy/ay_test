@@ -17,7 +17,11 @@ int main(int argc, char **argv)
   cv::Mat frame;
   for(;;)
   {
-    cap >> frame; // get a new frame from camera
+    if(!cap.Read(frame))
+    {
+      if(cap.WaitReopen()) continue;
+      else break;
+    }
     cv::imshow("camera", frame);
 
 
@@ -43,7 +47,7 @@ int main(int argc, char **argv)
 
     cv::imshow("segment", dst);
 
-    int c(cv::waitKey(10));
+    char c(cv::waitKey(10));
     if(c=='\x1b'||c=='q') break;
     // usleep(10000);
   }

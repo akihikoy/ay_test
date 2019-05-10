@@ -285,7 +285,7 @@ int main( int argc, char** argv )
   int proc_w(160), proc_h(120);
   TCapture cap;
   if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
-  cv::Mat image;
+  cv::Mat image, frame;
   cap >> image;
   cv::resize(image, image, cv::Size(proc_w,proc_h), 0, 0, 0);
 
@@ -296,11 +296,12 @@ int main( int argc, char** argv )
     gcapp.showImage();
     for(;;)
     {
-      if(!cap.Read(image))
+      if(!cap.Read(frame))
       {
         if(cap.WaitReopen()) continue;
         else break;
       }
+      image= frame;
       cv::resize(image, image, cv::Size(proc_w,proc_h), 0, 0, 0);
       gcapp.changeImage(image);
 
