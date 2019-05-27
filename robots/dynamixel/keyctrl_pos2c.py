@@ -61,7 +61,7 @@ Example:
 
   def holding_controller(target_position):
     with port_locker:
-      dxl.MoveTo(target_position, wait=False)
+      dxl.MoveTo(target_position, blocking=False)
 
   holding= TDxlHolding()
   holding.observer= holding_observer
@@ -143,7 +143,7 @@ def holding_observer():
 
 def holding_controller(target_position):
   with port_locker:
-    dxl.MoveTo(target_position, wait=False)
+    dxl.MoveTo(target_position, blocking=False)
 
 holding= TDxlHolding()
 holding.observer= holding_observer
@@ -174,7 +174,7 @@ while True:
         dxl.Reboot();
         time.sleep(0.1);
         dxl.EnableTorque()
-        dxl.MoveTo(int(trg), wait=False)
+        dxl.MoveTo(int(trg), blocking=False)
 
   if mov!=0:
     #trg= max(0,min(255,trg+mov))
@@ -183,8 +183,8 @@ while True:
       trg= dxl.Position()+mov
       max_pwm= dxl.Read('GOAL_PWM')*0.9
     print c,mov,trg
-    #dxl.MoveTo(int(trg+trg_offset), wait=False)
-    #dxl.MoveTo(int(trg), wait=False)
+    #dxl.MoveTo(int(trg+trg_offset), blocking=False)
+    #dxl.MoveTo(int(trg), blocking=False)
     holding.SetTarget(trg, max_pwm)
   else:
     #time.sleep(0.0025)

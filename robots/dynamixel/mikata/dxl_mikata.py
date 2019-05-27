@@ -16,12 +16,14 @@ from cubic_hermite_spline import TCubicHermiteSpline
 class TMikata(object):
   def __init__(self, dev='/dev/ttyUSB0'):
     self.dev= dev
+    self.baudrate= 1e6
     self.dxl_type= ['XM430-W350']*5
     self.dxl_ids= [1,2,3,4,5]
     self.joint_names= ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'gripper_joint_5']
     self.dxl= {}  #{joint_name:TDynamixel1}
     self.op_mode= 'POSITION'
-    self.goal_pwm= [10, 20, 15, 10, 12]
+    #self.goal_pwm= [10, 20, 15, 10, 12]
+    self.goal_pwm= [70, 50, 40, 40, 30]
     #self.goal_pwm= [50,50,50,50,50]
     #self.goal_pwm= [90,90,90,90,90]
 
@@ -47,8 +49,10 @@ class TMikata(object):
         dxl= self.dxl[jname]
         dxl.OpMode= self.op_mode
         dxl.Id= id
-        dxl.Baudrate= 1e6
-        dxl.Setup()
+        dxl.Baudrate= self.baudrate
+        if not dxl.Setup():
+          print 'Failed to setup Dynamixel at:',jname
+          return False
 
     #Conversions from/to Dynamixel value to/from PWM(percentage), current(mA),
     #  velocity(rad/s), position(rad), temperature(deg of Celsius).
@@ -64,6 +68,7 @@ class TMikata(object):
     self.invconv_temp= {jname:self.dxl[jname].InvConvTemp for jname in self.joint_names}
 
     self.SetPWM({jname:goal_pwm for jname,goal_pwm in zip(self.joint_names,self.goal_pwm)})
+    return True
 
   def Quit(self):
     for dxl in self.dxl.values():
@@ -146,13 +151,13 @@ class TMikata(object):
 
   #Move the position to a given value(rad).
   #  target: Target positions {joint_name:position(rad)}
-  #  wait:   True: this function waits the target position is reached.  False: this function returns immediately.
-  def MoveTo(self, target, wait=True, threshold=0.03):
+  #  blocking: True: this function waits the target position is reached.  False: this function returns immediately.
+  def MoveTo(self, target, blocking=True, threshold=0.03):
     with self.port_locker:
       for jname,pos in target.iteritems():
-        self.dxl[jname].MoveTo(self.invconv_pos[jname](pos),wait=False)
+        self.dxl[jname].MoveTo(self.invconv_pos[jname](pos),blocking=False)
 
-    while wait:
+    while blocking:
       pos= self.Position(target.keys())
       if None in pos:  return
       #print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (self.Id, target, pos))
@@ -160,13 +165,13 @@ class TMikata(object):
 
   #Move the position to a given value(rad) with given current(mA).
   #  target: Target positions and currents {joint_name:(position(rad),current(mA))}
-  #  wait:   True: this function waits the target position is reached.  False: this function returns immediately.
-  def MoveToC(self, target, wait=True, threshold=0.03):
+  #  blocking: True: this function waits the target position is reached.  False: this function returns immediately.
+  def MoveToC(self, target, blocking=True, threshold=0.03):
     with self.port_locker:
       for jname,(pos,curr) in target.iteritems():
-        self.dxl[jname].MoveToC(self.invconv_pos[jname](pos),self.invconv_curr[jname](curr),wait=False)
+        self.dxl[jname].MoveToC(self.invconv_pos[jname](pos),self.invconv_curr[jname](curr),blocking=False)
 
-    while wait:
+    while blocking:
       pos= self.Position(target.keys())
       if None in pos:  return
       #print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (self.Id, target, pos))
@@ -193,7 +198,8 @@ class TMikata(object):
       for jname,pwm_ in pwm.iteritems():
         self.dxl[jname].SetPWM(self.invconv_pwm[jname](pwm_))
 
-  #Get current state
+  #Get current state saved in memory (no port access when running this function).
+  #Run StartStateObs before using this.
   def State(self):
     with self.state_locker:
       state= copy.deepcopy(self.state)
@@ -201,9 +207,11 @@ class TMikata(object):
 
   #Start state observation.
   #  callback: Callback function at the end of each observation cycle.
+  #           callback may return True or False. If False is returned, the thread stops.
   def StartStateObs(self, callback=None):
     self.StopStateObs()
     th_func= lambda:self.StateObserver(callback)
+    self._state_observer_callback= callback  #For future use.
     self.threads['StateObserver']= [True, threading.Thread(name='StateObserver', target=th_func)]
     self.threads['StateObserver'][1].start()
 
@@ -214,16 +222,30 @@ class TMikata(object):
       self.threads['StateObserver'][1].join()
     self.threads['StateObserver']= [False,None]
 
+  #Set rate (Hz) of state observation.
+  #Works anytime.
+  def SetStateObsRate(self, rate):
+    if self.hz_state_obs!=rate:
+      self.hz_state_obs= rate
+      if self.threads['StateObserver'][0]:
+        self.StartStateObs(self._state_observer_callback)
+
   #Follow a trajectory.
   #  joint_names: Names of joints to be controlled.
   #  (q_traj,t_traj): Sequence of (joint positions) and (time from start).
   #  current: Currents of joints (available when the operation mode=CURRPOS).
-  def FollowTrajectory(self, joint_names, q_traj, t_traj, current=None, wait=False):
+  #  callback: Callback called in the control loop.  If not None, it is used in the cases:
+  #      1. At the beginning of loop: callback('loop_begin',t,q,dq)
+  #         (t: elapsed time, q: target joint positions, dq: joint velocities).
+  #         callback may return True (continue) or False (stop).
+  #      2. At the end of loop: callback('loop_end',None,None,None).
+  #      3. At the end of control: callback('final',None,None,None).
+  def FollowTrajectory(self, joint_names, q_traj, t_traj, current=None, blocking=False, callback=None):
     self.StopTrajectory()
-    th_func= lambda:self.TrajectoryController(joint_names, q_traj, t_traj, current)
+    th_func= lambda:self.TrajectoryController(joint_names, q_traj, t_traj, current, callback)
     self.threads['TrajectoryController']= [True, threading.Thread(name='TrajectoryController', target=th_func)]
     self.threads['TrajectoryController'][1].start()
-    if wait:
+    if blocking:
       self.threads['TrajectoryController'][1].join()
       self.StopTrajectory()
 
@@ -233,6 +255,11 @@ class TMikata(object):
       self.threads['TrajectoryController'][0]= False
       self.threads['TrajectoryController'][1].join()
     self.threads['TrajectoryController']= [False,None]
+
+  #Set rate (Hz) of trajectory following controller.
+  def SetTrajectoryCtrlRate(self, rate):
+    if self.hz_traj_ctrl!=rate:
+      self.hz_traj_ctrl= rate
 
   #State observer thread.
   #NOTE: Don't call this function directly.  Use self.StartStateObs and self.State
@@ -250,13 +277,14 @@ class TMikata(object):
       with self.state_locker:
         self.state= state
       if callback is not None:
-        callback(state)
+        if callback(state)==False:  break
+      #print state['position']
       rate.sleep()
     self.threads['StateObserver'][0]= False
 
   #Trajectory controller thread.
   #NOTE: Don't call this function directly.  Use self.FollowTrajectory
-  def TrajectoryController(self, joint_names, q_traj, t_traj, current):
+  def TrajectoryController(self, joint_names, q_traj, t_traj, current, callback):
     assert(len(t_traj)>0)
     assert(len(q_traj)==len(t_traj))
     assert(len(joint_names)==len(q_traj[0]))
@@ -277,15 +305,23 @@ class TMikata(object):
     t0= time.time()
     while all(((time.time()-t0)<t_traj[-1], self.threads['TrajectoryController'][0])):
       t= time.time()-t0
-      q= [splines[d].Evaluate(t) for d in xrange(dof)]
+      #q= [splines[d].Evaluate(t) for d in xrange(dof)]
+      q_dq= [splines[d].Evaluate(t,with_tan=True) for d in range(dof)]
+      q= [q for q,_ in q_dq]
+      dq= [dq for _,dq in q_dq]
+      if callback is not None:
+        if callback('loop_begin',t,q,dq)==False:  break
       #print t, q
       if current is None:
         with self.port_locker:
-          self.MoveTo({jname:qj for jname,qj in zip(joint_names,q)}, wait=False)
+          self.MoveTo({jname:qj for jname,qj in zip(joint_names,q)}, blocking=False)
       else:
         with self.port_locker:
-          self.MoveToC({jname:(qj,ej) for jname,qj,ej in zip(joint_names,q,current)}, wait=False)
+          self.MoveToC({jname:(qj,ej) for jname,qj,ej in zip(joint_names,q,current)}, blocking=False)
+      if callback is not None:
+        callback('loop_end',None,None,None)
       rate.sleep()
 
     self.threads['TrajectoryController'][0]= False
-
+    if callback is not None:
+      callback('final',None,None,None)

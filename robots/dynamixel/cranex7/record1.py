@@ -23,7 +23,7 @@ try:
     elif c is not None:
       #print crane.State()
       print crane.State()['position']
-    #crane.MoveTo(crane.Position(as_dict=True),wait=False)
+    #crane.MoveTo(crane.Position(as_dict=True),blocking=False)
     time.sleep(0.0025)
 except KeyboardInterrupt:
   pass

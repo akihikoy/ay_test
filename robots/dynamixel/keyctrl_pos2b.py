@@ -77,7 +77,7 @@ def Holding(holding_state):
       trg_offset= trg_offset + ostep*sign(trg-pos)
     #print trg-pos, trg_offset
     with holding_state['port_locker']:
-      dxl.MoveTo(int(trg+trg_offset), wait=False)
+      dxl.MoveTo(int(trg+trg_offset), blocking=False)
 
     with holding_state['port_locker']:
       print 'Err: {5} \t offset: {6} \t P: {0} \t V: {1} \t C: {2} \t PWM: {3} \t TEMP: {4}'.format(
@@ -113,7 +113,7 @@ while True:
         dxl.Reboot();
         time.sleep(0.1);
         dxl.EnableTorque()
-        dxl.MoveTo(int(trg), wait=False)
+        dxl.MoveTo(int(trg), blocking=False)
 
   if mov!=0:
     #trg= max(0,min(255,trg+mov))
@@ -121,8 +121,8 @@ while True:
     with holding_state['port_locker']:
       trg= dxl.Position()+mov
     print c,mov,trg
-    #dxl.MoveTo(int(trg+trg_offset), wait=False)
-    #dxl.MoveTo(int(trg), wait=False)
+    #dxl.MoveTo(int(trg+trg_offset), blocking=False)
+    #dxl.MoveTo(int(trg), blocking=False)
     holding_state['trg']= trg
   else:
     #time.sleep(0.0025)

@@ -9,7 +9,7 @@ crane.Setup()
 crane.EnableTorque()
 
 pose= [0.0]*8
-crane.FollowTrajectory(crane.JointNames(),[pose],[8.0],wait=True)
+crane.FollowTrajectory(crane.JointNames(),[pose],[8.0],blocking=True)
 
 #crane.DisableTorque()
 crane.Quit()

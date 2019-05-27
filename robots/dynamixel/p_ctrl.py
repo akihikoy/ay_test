@@ -23,7 +23,7 @@ p_trg= 1500  #Target position
 k_p= 0.3  #P-gain
 while abs(p_trg-dxl.Position()) > tol:
   p_diff= k_p * (p_trg-dxl.Position())
-  dxl.MoveTo(dxl.Position()+p_diff, wait=False)
+  dxl.MoveTo(dxl.Position()+p_diff, blocking=False)
   time.sleep(0.01)
 
 dxl.DisableTorque()

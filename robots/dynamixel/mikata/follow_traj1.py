@@ -28,7 +28,7 @@ t_traj= [2.0,3.0,4.0,5.0,7.0,9.0]
 print q_traj
 print t_traj
 
-mikata.FollowTrajectory(mikata.JointNames(), q_traj, t_traj, wait=True)
+mikata.FollowTrajectory(mikata.JointNames(), q_traj, t_traj, blocking=True)
 
 #mikata.DisableTorque()
 mikata.Quit()

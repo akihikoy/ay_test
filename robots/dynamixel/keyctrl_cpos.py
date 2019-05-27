@@ -56,7 +56,7 @@ while True:
       dxl.Reboot();
       time.sleep(0.1);
       dxl.EnableTorque()
-      dxl.MoveToC(int(trg), current=dxl.CurrentLimit, wait=False)
+      dxl.MoveToC(int(trg), current=dxl.CurrentLimit, blocking=False)
 
   if mov!=0:
     #trg= max(0,min(255,trg+mov))
@@ -64,10 +64,10 @@ while True:
     trg= dxl.Position()+mov
     #trg= trg+mov
     print c,mov,trg
-    #dxl.MoveTo(int(trg), wait=False)
+    #dxl.MoveTo(int(trg), blocking=False)
     curr= dxl.CurrentLimit if mov>0 else -dxl.CurrentLimit
     #curr= 50*(1 if mov>0 else -1)
-    dxl.MoveToC(int(trg), current=curr, wait=False)
+    dxl.MoveToC(int(trg), current=curr, blocking=False)
     time.sleep(0.002)
     print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())
   else:

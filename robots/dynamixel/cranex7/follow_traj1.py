@@ -19,7 +19,7 @@ t_traj= [8.0,12.0,14.0]
 print q_traj
 print t_traj
 
-crane.FollowTrajectory(crane.JointNames(), q_traj, t_traj, wait=True)
+crane.FollowTrajectory(crane.JointNames(), q_traj, t_traj, blocking=True)
 
 #crane.DisableTorque()
 crane.Quit()

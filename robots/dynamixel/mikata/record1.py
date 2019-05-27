@@ -23,7 +23,7 @@ try:
     elif c is not None:
       #print mikata.State()
       print mikata.State()['position']
-    #mikata.MoveTo(mikata.Position(as_dict=True),wait=False)
+    #mikata.MoveTo(mikata.Position(as_dict=True),blocking=False)
     time.sleep(0.0025)
 except KeyboardInterrupt:
   pass

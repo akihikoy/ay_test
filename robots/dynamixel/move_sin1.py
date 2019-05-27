@@ -22,7 +22,7 @@ print 'Current position=',dxl.Position()
 for t in np.mgrid[0:6*math.pi:0.05]:
   p_trg= p_start + 250*(0.5-0.5*math.cos(t))
   #print p_trg
-  dxl.MoveTo(p_trg, wait=False)
+  dxl.MoveTo(p_trg, blocking=False)
   time.sleep(0.01)
   #print 'Current position=',dxl.Position()
 

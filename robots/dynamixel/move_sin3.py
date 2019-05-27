@@ -26,7 +26,7 @@ for t in np.mgrid[0:6*math.pi:0.05]:
   curr= dxl.CurrentLimit if (dxl.Position()-p_trg)>0 else -dxl.CurrentLimit
   #curr= 10
   curr= 100
-  dxl.MoveToC(p_trg, current=curr, wait=False)
+  dxl.MoveToC(p_trg, current=curr, blocking=False)
   time.sleep(0.01)
   #print 'Current position=',dxl.Position()
 

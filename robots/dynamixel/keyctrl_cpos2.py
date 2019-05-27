@@ -63,7 +63,7 @@ while True:
       dxl.Reboot();
       time.sleep(0.1);
       dxl.EnableTorque()
-      dxl.MoveToC(int(trg), current=dxl.CurrentLimit, wait=False)
+      dxl.MoveToC(int(trg), current=dxl.CurrentLimit, blocking=False)
 
   if mov!=0:
     #trg= max(0,min(255,trg+mov))
@@ -71,10 +71,10 @@ while True:
     trg= dxl.Position()+mov
     #trg= trg+mov
     print c,mov,trg
-    #dxl.MoveTo(int(trg), wait=False)
+    #dxl.MoveTo(int(trg), blocking=False)
     #trg_curr= dxl.CurrentLimit if mov>0 else -dxl.CurrentLimit
     #trg_curr= 3*(1 if mov>0 else -1)
-    #dxl.MoveToC(int(trg), current=trg_curr, wait=False)
+    #dxl.MoveToC(int(trg), current=trg_curr, blocking=False)
     #time.sleep(0.002)
     #print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())
   else:
@@ -103,7 +103,7 @@ while True:
     trg_offset= trg_offset + ostep*sign(trg-pos)
   print trg-pos, trg_offset, trg_curr
   csign= sign(trg+trg_offset-pos)
-  dxl.MoveToC(int(trg+trg_offset), current=trg_curr*csign, wait=False)
+  dxl.MoveToC(int(trg+trg_offset), current=trg_curr*csign, blocking=False)
   time.sleep(0.002)
   print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())
 

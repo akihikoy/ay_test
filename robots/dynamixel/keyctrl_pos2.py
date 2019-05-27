@@ -68,7 +68,7 @@ while True:
       dxl.Reboot();
       time.sleep(0.1);
       dxl.EnableTorque()
-      dxl.MoveTo(int(trg), wait=False)
+      dxl.MoveTo(int(trg), blocking=False)
 
   if mov!=0:
     #trg= max(0,min(255,trg+mov))
@@ -95,7 +95,7 @@ while True:
   elif abs(trg-pos)>th1 and abs(vel)<th2 and abs(pwm)<max_pwm:
     trg_offset= trg_offset + ostep*sign(trg-pos)
   #print trg-pos, trg_offset
-  dxl.MoveTo(int(trg+trg_offset), wait=False)
+  dxl.MoveTo(int(trg+trg_offset), blocking=False)
   time.sleep(0.002)
   #print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())
   print 'Err: {5} \t offset: {6} \t P: {0} \t V: {1} \t C: {2} \t PWM: {3} \t TEMP: {4}'.format(

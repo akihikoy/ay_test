@@ -30,7 +30,7 @@ for t in np.mgrid[0:2*math.pi:0.05]:
 print q_traj
 print t_traj
 
-mikata.FollowTrajectory(mikata.JointNames(), q_traj, t_traj, wait=True)
+mikata.FollowTrajectory(mikata.JointNames(), q_traj, t_traj, blocking=True)
 
 #mikata.DisableTorque()
 mikata.Quit()
