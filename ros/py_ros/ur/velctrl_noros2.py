@@ -97,15 +97,19 @@ class TURVelCtrl(object):
     self.socketobj.connect((self.robot_hostname, port))
 
   def Step(self, dq, acc):
-    if self.robot_ver>=3.3:
-      cmd= "speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f, 0.008)\n" % (
-              dq[0],dq[1],dq[2],dq[3],dq[4],dq[5],acc)
-    elif self.robot_ver>=3.1:
-      cmd= "speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f)\n" % (
-              dq[0],dq[1],dq[2],dq[3],dq[4],dq[5],acc)
-    else:
-      cmd= "speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f, 0.02)\n" % (
-              dq[0],dq[1],dq[2],dq[3],dq[4],dq[5],acc)
+    #This swich for the version was implemented previously as the handler of the joint_speed topic,
+    #but as of 20190529 that topic is removed and the alternative hardware interface uses the following.
+    #if self.robot_ver>=3.3:
+      #cmd= "speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f, 0.008)\n" % (
+              #dq[0],dq[1],dq[2],dq[3],dq[4],dq[5],acc)
+    #elif self.robot_ver>=3.1:
+      #cmd= "speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f)\n" % (
+              #dq[0],dq[1],dq[2],dq[3],dq[4],dq[5],acc)
+    #else:
+      #cmd= "speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f, 0.02)\n" % (
+              #dq[0],dq[1],dq[2],dq[3],dq[4],dq[5],acc)
+    cmd= "speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f, 0.02)\n" % (
+            dq[0],dq[1],dq[2],dq[3],dq[4],dq[5],acc)
     self.AddCommandToQueue(cmd)
 
   def Finish(self):
@@ -120,16 +124,21 @@ class TURVelCtrl(object):
 
 
 if __name__=='__main__':
-  import math,time
+  import math,time,sys
   from rate_adjust import TRate
 
-  robot_hostname= 'ur3a'
+  #robot_hostname,is_e= 'ur3a',False
+  robot_hostname,is_e= 'ur3ea',True
+  print 'robot & version:',robot_hostname,GetURState(robot_hostname).GetVersion()
+  res= raw_input('continue? > ')
+  if len(res)>0 and res[0] not in ('y','Y',' '):  sys.exit(0)
 
   velctrl= TURVelCtrl(robot_hostname)
   velctrl.Init()
 
   t0= time.time()
-  rate= TRate(125)  #UR receives velocities at 125 Hz.
+  if not is_e:  rate= TRate(125)  #UR receives velocities at 125 Hz.
+  else:  rate= TRate(500)  #UR receives velocities at 500 Hz.
 
   try:
     while True:

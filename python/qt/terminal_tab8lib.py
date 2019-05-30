@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#\file    terminal_tab7lib.py
+#\file    terminal_tab8lib.py
 #\brief   Simple Tab-Terminal GUI command launcher (library).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
@@ -7,6 +7,8 @@
 #\version 0.2
 #\date    Sep.3, 2018
 #         Option (radio button) interface is added.
+#\date    May.30, 2019
+#         Option (combobox) interface is added.
 #Requirements: tmux rxvt-unicode-256color
 
 import sys
@@ -20,7 +22,9 @@ class TTerminalTab(QtGui.QWidget):
 
   # Get a dict of option name: option content
   def ExpandOpt(self):
-    return {name:rbgroup.checkedButton().text() for name,rbgroup in self.Options.iteritems()}
+    opt= {name:rbgroup.checkedButton().text() for name,rbgroup in self.RBOptions.iteritems()}
+    opt.update({name:cmbbx.currentText() for name,cmbbx in self.CBOptions.iteritems()})
+    return opt
 
   def CmdToLambda(self,term,cmd):
     if cmd==':close':  return self.close
@@ -40,7 +44,8 @@ class TTerminalTab(QtGui.QWidget):
     self.ExitCommand= exit_command
     self.Widgets= widgets
     self.Terminals= [line for line in self.Widgets if isinstance(line[1],(tuple,list))]
-    self.Options= {}  #Option name: Option radio button group
+    self.RBOptions= {}  #Option name: Option radio button group
+    self.CBOptions= {}  #Option name: Option combobox
     self.term_to_idx= {term:r for r,(term,row) in enumerate(self.Terminals)}
 
     # Horizontal box layout
@@ -72,7 +77,19 @@ class TTerminalTab(QtGui.QWidget):
           if i==0:  radbtn.setChecked(True)
           group.addButton(radbtn,1)
           grid.addWidget(radbtn, r, 1+i)
-          self.Options[name]= group
+        self.RBOptions[name]= group
+      elif isinstance(line,(tuple,list)) and len(line)>1 and line[1]==':cmb':
+        name,_,options= line
+        label= QtGui.QLabel()
+        label.setText(name)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        grid.addWidget(label, r, 0)
+        cmbbx= QtGui.QComboBox(self)
+        for opt in options:
+          cmbbx.addItem(opt)
+        cmbbx.setCurrentIndex(0)
+        grid.addWidget(cmbbx, r, 1)
+        self.CBOptions[name]= cmbbx
       elif isinstance(line,(tuple,list)) and len(line)>1 and isinstance(line[1],(tuple,list)):
         term,row= line
         btn0= QtGui.QPushButton('({term})'.format(term=term))
