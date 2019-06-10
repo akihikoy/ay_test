@@ -7,6 +7,8 @@ import time
 
 #Setup the device
 dxl= TDynamixel1(DXL_TYPE)
+dxl.Id= DXL_ID
+dxl.Baudrate= BAUDRATE
 dxl.Setup()
 dxl.EnableTorque()
 
