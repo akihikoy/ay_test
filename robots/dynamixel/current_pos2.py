@@ -9,7 +9,7 @@ import time
 DXL_ID= [4,5]
 BAUDRATE= 1e6
 DXL_TYPE= 'XM430-W350'
-dxl= [TDynamixel1(DXL_TYPE), TDynamixel1(DXL_TYPE)]
+dxl= [TDynamixel1(DXL_TYPE,dev=DEV), TDynamixel1(DXL_TYPE,dev=DEV)]
 for i in (0,1):
   dxl[i].Id= DXL_ID[i]
   dxl[i].Baudrate= BAUDRATE

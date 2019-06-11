@@ -8,7 +8,7 @@ import math
 import numpy as np
 
 #Setup the device
-dxl= TDynamixel1(DXL_TYPE)
+dxl= TDynamixel1(DXL_TYPE,dev=DEV)
 dxl.OpMode= 'CURRPOS'
 dxl.Id= DXL_ID
 dxl.Baudrate= BAUDRATE

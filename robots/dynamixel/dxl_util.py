@@ -13,11 +13,15 @@
 #\version 0.4
 #\date    Apr.18, 2019
 #         Modified for the latest SDK which no longer uses the shared object implemented in C.
+#\version 0.5
+#\date    Jun.11, 2019
+#         Added MX-64AR protocol 2.0 for SAKE EZGripper Gen2.
+#         Note: MX-64AR of EZGripper is originally protocol 1.0; update the firmware.
 
 #cf. DynamixelSDK/python/tests/protocol2_0/read_write.py
 #DynamixelSDK: https://github.com/ROBOTIS-GIT/DynamixelSDK
-#Dynamixel XM430-W350: http://support.robotis.com/en/product/actuator/dynamixel_x/xm_series/xm430-w350.htm
-#Dynamixel XH430-V350: http://support.robotis.com/en/product/actuator/dynamixel_x/xh_series/xh-430-v350.htm
+#Control table comparison:
+#  https://docs.google.com/spreadsheets/d/19Zlqyls2ZCFspiZLJ6MFhfvJ9L4j-N5LDj3l2gndB-c/edit#gid=0
 
 import dynamixel_sdk as dynamixel  #Using Dynamixel SDK
 import math, time, threading
@@ -176,7 +180,7 @@ class TDynamixel1(object):
       self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
 
     # For Dynamixel XM430-W350
-    elif type in ('XM430-W350','XH430-V350'):
+    elif type in ('XM430-W350','XH430-V350','MX-64AR'):
       #ADDR[NAME]=(ADDRESS,SIZE)
       self.ADDR={
         'MODEL_NUMBER'        : (0,2),
@@ -279,6 +283,7 @@ class TDynamixel1(object):
     if type=='RH-P12-RN':  self.MAX_POSITION = 1150
     if type=='XM430-W350':    self.MAX_CURRENT = 1193   # == Current Limit(38)
     elif type=='XH430-V350':  self.MAX_CURRENT = 689   # == Current Limit(38)
+    elif type=='MX-64AR':     self.MAX_CURRENT = 1941   # == Current Limit(38)
     elif type=='RH-P12-RN':   self.MAX_CURRENT = 820
     self.MAX_PWM = 885
     if type=='RH-P12-RN':  self.MAX_PWM = None
@@ -290,6 +295,9 @@ class TDynamixel1(object):
       self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
     elif type=='XH430-V350':
       self.CURRENT_UNIT= 1.34
+      self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
+    elif type=='MX-64AR':
+      self.CURRENT_UNIT= 3.36
       self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
     elif type=='RH-P12-RN':
       self.CURRENT_UNIT= 4.02

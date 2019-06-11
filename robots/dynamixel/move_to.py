@@ -6,14 +6,14 @@ from _config import *
 import time
 
 #Setup the device
-dxl= TDynamixel1(DXL_TYPE)
+dxl= TDynamixel1(DXL_TYPE,dev=DEV)
 dxl.Id= DXL_ID
 dxl.Baudrate= BAUDRATE
 dxl.Setup()
 dxl.EnableTorque()
 
 #Move to initial position
-p_start= 2100
+p_start= 2048
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
 print 'Current position=',dxl.Position()
