@@ -373,6 +373,9 @@ class TDynamixel1(object):
 
 
   def Write(self, address, value):
+    if self.port_handler() is None:
+      print 'Port {dev} is closed.'.format(dev=self.DevName)
+      return
     addr,size= self.ADDR[address]
     if addr is None:
       print '{address} is not available with this Dynamixel.'.format(address=address)
@@ -380,6 +383,9 @@ class TDynamixel1(object):
     self.dxl_result,self.dxl_err= self.WriteFuncs[size](self.port_handler(), self.Id, addr, value)
 
   def Read(self, address):
+    if self.port_handler() is None:
+      print 'Port {dev} is closed.'.format(dev=self.DevName)
+      return None
     addr,size= self.ADDR[address]
     if addr is None:
       print '{address} is not available with this Dynamixel.'.format(address=address)
@@ -396,6 +402,9 @@ class TDynamixel1(object):
       #if value>2047:  value= -(4096-value)
       value= value & 65535
       if value>32767:  value= -(65536-value)
+    if size==4:
+      value= value & 4294967295
+      if value>2147483647:  value= -(4294967296-value)
     return value
 
   def Setup(self):
