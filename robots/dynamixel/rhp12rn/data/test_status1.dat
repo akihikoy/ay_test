@@ -1,0 +1,48 @@
+Status:
+VEL_P_GAIN is not available with this Dynamixel.
+PWM_LIMIT is not available with this Dynamixel.
+VEL_I_GAIN is not available with this Dynamixel.
+PRESENT_PWM is not available with this Dynamixel.
+GOAL_PWM is not available with this Dynamixel.
+GOAL_PWM(None): None
+PRESENT_PWM(None): None
+PWM_LIMIT(None): None
+VEL_I_GAIN(None): None
+VEL_P_GAIN(None): None
+MODEL_NUMBER(0): -30463
+MODEL_INFORMATION(2): 0
+FIRMWARE_VERSION(6): 25
+ID(7): 1
+BAUD_RATE(8): 4
+RETURN_DELAY_TIME(9): 250
+OPERATING_MODE(11): 5
+TEMP_LIMIT(21): 80
+MAX_VOLT_LIMIT(22): 400
+MIN_VOLT_LIMIT(24): 150
+ACC_LIMIT(26): 255
+CURRENT_LIMIT(30): 820
+VEL_LIMIT(32): 100
+MAX_POS_LIMIT(36): 1150
+MIN_POS_LIMIT(40): 0
+SHUTDOWN(48): 52
+TORQUE_ENABLE(562): 1
+POS_D_GAIN(590): 200
+POS_I_GAIN(592): 0
+POS_P_GAIN(594): 30
+GOAL_POSITION(596): 101
+GOAL_VELOCITY(600): 0
+GOAL_CURRENT(604): 820
+PRESENT_POSITION(611): 101
+PRESENT_VELOCITY(615): 0
+PRESENT_CURRENT(621): 0
+PRESENT_IN_VOLT(623): 241
+PRESENT_TEMP(625): 28
+HARDWARE_ERR_ST(892): 0
+-----
+Hardware error status:
+-----
+Shutdown configuration:
+SHUTDOWN: Overheating Error
+SHUTDOWN: Electrical Shock Error
+SHUTDOWN: Overload Error
+-----
