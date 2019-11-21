@@ -54,7 +54,7 @@ void AssignParams(cv::SimpleBlobDetector::Params &params)
 
   // Filter by Area.
   params.filterByArea = true;
-  params.minArea = minArea;
+  params.minArea = (minArea>0 ? minArea : 1);
 
   // Filter by Circularity
   params.filterByCircularity = true;
@@ -72,7 +72,7 @@ void AssignParams(cv::SimpleBlobDetector::Params &params)
 int main(int argc, char**argv)
 {
   TCapture cap;
-  if(!cap.Open(((argc>=2)?(argv[1]):"0"), /*width=*/0, /*height=*/0))  return -1;
+  if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
   // set resolution
   // cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);

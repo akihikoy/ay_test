@@ -48,3 +48,13 @@ sys.stdout= stdout
 
 dxl.DisableTorque()
 dxl.Quit()
+
+print '''Test completed.
+Data files are saved into:
+  /tmp/test_status.dat
+  /tmp/test_motion.dat
+Move them to the data/ directory.
+Check them by plotting:
+  qplot -x -s 'set xlabel "time";set ylabel "position"' data/test_motion0.dat u 1:2 w l -cs 'u 1:3 w l' data/test_motion*
+  qplot -x -s 'set xlabel "time";set ylabel "velocity"' -cs 'u 1:4 w l' data/test_motion*
+'''
