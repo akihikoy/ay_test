@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #\file    follow_q_traj1.py
 #\brief   Follow a joint angle trajectory.
+#         cf. Video: https://youtu.be/CUByCHOaKcE
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Nov.25, 2019

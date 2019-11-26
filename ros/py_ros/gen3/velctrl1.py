@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #\file    velctrl1.py
 #\brief   Velocity control ver.1 (waiving).
+#         Video: https://youtu.be/BzuPKjanXP4
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Nov.26, 2019
