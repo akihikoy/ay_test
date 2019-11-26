@@ -28,8 +28,8 @@ class TKinematics(object):
     base_link Base link of kinematic chain to be considered.
       Can be None; in this case, a root link obtained from URDF is used.
     end_link End link of kinematic chain to be considered. '''
-  def __init__(self, base_link=None, end_link=None):
-    self._robot = kdl_parser_py.urdf.urdf.URDF.from_parameter_server('robot_description')
+  def __init__(self, base_link=None, end_link=None, description='robot_description'):
+    self._robot = kdl_parser_py.urdf.urdf.URDF.from_parameter_server(description)
     (ok, self._kdl_tree)= kdl_parser_py.urdf.treeFromUrdfModel(self._robot)
     self._base_link = self._robot.get_root() if base_link is None else base_link
     self._tip_link = end_link

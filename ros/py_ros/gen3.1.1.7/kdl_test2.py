@@ -3,7 +3,7 @@
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Nov.25, 2019
+#\date    May.10, 2019
 
 import numpy as np
 from kdl_kin2 import TKinematics
@@ -12,9 +12,9 @@ if __name__=='__main__':
   np.set_printoptions(precision=3)
 
   print 'Testing TKinematics (robot_description == Gen3 is assumed).'
-  #kin= TKinematics(base_link='base_link',end_link='wrist_3_link')
-  kin= TKinematics(base_link='base_link',end_link='end_effector_link',description='/gen3a/robot_description')
+  kin= TKinematics(base_link='base_link',end_link='EndEffector_Link')
   kin.print_robot_description()
+  print kin.joint_limits_lower
 
   DoF= len(kin.joint_names)
   q0= [0.0]*DoF

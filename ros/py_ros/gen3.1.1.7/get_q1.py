@@ -3,14 +3,14 @@
 #\brief   Get current joint angles.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Nov.25, 2019
+#\date    May.10, 2019
 import roslib
 import rospy
 import sensor_msgs.msg
 
 def GetState():
   try:
-    state= rospy.wait_for_message('/gen3a/joint_states', sensor_msgs.msg.JointState, 5.0)
+    state= rospy.wait_for_message('/joint_states', sensor_msgs.msg.JointState, 5.0)
     return state
   except (rospy.ROSException, rospy.ROSInterruptException):
     raise Exception('Failed to read topic: /joint_states')

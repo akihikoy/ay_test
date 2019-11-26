@@ -71,7 +71,7 @@ def GetOrthogonalAxisOf(axis,preferable=[0.0,0.0,1.0],fault=None):
 
 class TSimpleVisualizer:
   def __init__(self, viz_dt=rospy.Duration(), name_space='visualizer'):
-    self.viz_pub= rospy.Publisher('visualization_marker', visualization_msgs.msg.Marker)
+    self.viz_pub= rospy.Publisher('visualization_marker', visualization_msgs.msg.Marker, queue_size=1)
     self.curr_id= 0
     self.added_ids= set()
     self.viz_frame= 'torso_lift_link'

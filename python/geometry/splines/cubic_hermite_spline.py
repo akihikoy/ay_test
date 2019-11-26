@@ -32,7 +32,8 @@ class TCubicHermiteSpline:
 
   #Return interpolated value at t.
   #with_tan: If True, both x and dx/dt are returned.
-  def Evaluate(self, t, with_tan=False):
+  #with_dd: If True, x,dx/dt,ddx/ddt are returned (with_tan is ignored).
+  def Evaluate(self, t, with_tan=False, with_dd=False):
     idx= self.FindIdx(t,self.idx_prev)
     if abs(t-self.KeyPts[-1].T)<1.0e-6:  idx= len(self.KeyPts)-2
     if idx<0 or idx>=len(self.KeyPts)-1:
@@ -52,16 +53,24 @@ class TCubicHermiteSpline:
     self.idx_prev= idx
     p0= self.KeyPts[idx]
     p1= self.KeyPts[idx+1]
-    tr= (t-p0.T) / (p1.T-p0.T)
-    x= h00(tr)*p0.X + h10(tr)*(p1.T-p0.T)*p0.M + h01(tr)*p1.X + h11(tr)*(p1.T-p0.T)*p1.M
-    if not with_tan:  return x
+    dT= p1.T-p0.T
+    tr= (t-p0.T) / dT
+    x= h00(tr)*p0.X + h10(tr)*dT*p0.M + h01(tr)*p1.X + h11(tr)*dT*p1.M
+    if not with_tan and not with_dd:  return x
 
     dh00= lambda t: t*(6.0*t-6.0)
     dh10= lambda t: t*(3.0*t-4.0)+1.0
     dh01= lambda t: t*(-6.0*t+6.0)
     dh11= lambda t: t*(3.0*t-2.0)
-    dx= (dh00(tr)*p0.X + dh10(tr)*(p1.T-p0.T)*p0.M + dh01(tr)*p1.X + dh11(tr)*(p1.T-p0.T)*p1.M) / (p1.T-p0.T)
-    return x,dx
+    dx= (dh00(tr)*p0.X + dh10(tr)*dT*p0.M + dh01(tr)*p1.X + dh11(tr)*dT*p1.M) / dT
+    if not with_dd:  return x,dx
+
+    ddh00= lambda t: 12*t - 6
+    ddh10= lambda t: 6*t - 4
+    ddh01= lambda t: -12*t + 6
+    ddh11= lambda t: 6*t - 2
+    ddx= (ddh00(tr)*p0.X + ddh10(tr)*dT*p0.M + ddh01(tr)*p1.X + ddh11(tr)*dT*p1.M) / (dT*dT)
+    return x,dx,ddx
 
   #Compute a phase information (n, tp) for a cyclic spline curve.
   #n:  n-th occurrence of the base wave
@@ -78,15 +87,18 @@ class TCubicHermiteSpline:
   #Return interpolated value at t (cyclic version).
   #pi: Phase information.
   #with_tan: If True, both x and dx/dt are returned.
-  def EvaluateC(self, t, pi=None, with_tan=False):
+  #with_dd: If True, x,dx/dt,ddx/ddt are returned (with_tan is ignored).
+  def EvaluateC(self, t, pi=None, with_tan=False, with_dd=False):
     if pi is None:
       n, tp= self.PhaseInfo(t)
     else:
       n, tp= pi
-    if with_tan:  x,dx= self.Evaluate(tp, with_tan=with_tan)
-    else:        x= self.Evaluate(tp)
+    if with_dd:  x,dx,ddx= self.Evaluate(tp, with_dd=with_dd)
+    else:
+      if with_tan:  x,dx= self.Evaluate(tp, with_tan=with_tan)
+      else:        x= self.Evaluate(tp)
     x= x + n*(self.KeyPts[-1].X - self.KeyPts[0].X)
-    return x if not with_tan else (x,dx)
+    return (x,dx,ddx) if with_dd else ( (x,dx) if with_tan else x )
 
   #data= [[t0,x0],[t1,x1],[t2,x2],...]
   FINITE_DIFF=0  #Tangent method: finite difference method
@@ -149,8 +161,8 @@ if __name__=="__main__":
   import gen_data
   spline= TCubicHermiteSpline()
 
-  #data= gen_data.Gen1d_1()
-  data= gen_data.Gen1d_2()
+  data= gen_data.Gen1d_1()
+  #data= gen_data.Gen1d_2()
   #data= gen_data.Gen1d_3()
 
   spline.Initialize(data, tan_method=spline.CARDINAL, c=0.0)
@@ -159,7 +171,7 @@ if __name__=="__main__":
   pf= file('/tmp/spline1.dat','w')
   t= data[0][0]
   while t<data[-1][0]:
-    pf.write('%f %f\n' % (t, spline.Evaluate(t)))
+    pf.write('%f %s\n' % (t, ' '.join(map(str,spline.Evaluate(t,with_dd=True)))))
     t+= 0.001
   print 'Generated:','/tmp/spline1.dat'
 
@@ -168,6 +180,7 @@ if __name__=="__main__":
     pf.write('%f %f\n' % (d[0],d[1]))
   print 'Generated:','/tmp/spline0.dat'
 
-
   print 'Plot by:'
-  print 'qplot -x /tmp/spline1.dat w l /tmp/spline0.dat w p pt 5 ps 2'
+  print 'qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"'
+  print 'qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline1.dat u 1:3 ax x1y2 w l t "\'dx\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"'
+  print 'qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline1.dat u 1:3 ax x1y2 w l t "\'dx\'" /tmp/spline1.dat u 1:4 ax x1y2 w l t "\'ddx\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"'

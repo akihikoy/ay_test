@@ -3,7 +3,7 @@
 #\brief   Get joint angles.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Nov.25, 2019
+#\date    May.10, 2019
 import roslib
 import rospy
 import sensor_msgs.msg
@@ -22,7 +22,7 @@ def JointStatesCallback(msg):
 if __name__=='__main__':
   rospy.init_node('gen3_test')
 
-  sub= rospy.Subscriber('/gen3a/joint_states', sensor_msgs.msg.JointState, JointStatesCallback)
+  sub= rospy.Subscriber('/joint_states', sensor_msgs.msg.JointState, JointStatesCallback)
 
   for i in xrange(100000):
     if rospy.is_shutdown():  break
