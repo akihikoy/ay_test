@@ -45,6 +45,9 @@ def InterpolateTraj(q_traj, t_traj, dt=1.0e-3):
     point.time_from_start= rospy.Duration(t)
     traj_points.append(point)
     t+= dt
+  #JTP= trajectory_msgs.msg.JointTrajectoryPoint
+  #traj_points= np.array([JTP(*(np.array([[spline.Evaluate(t,with_dd=True)] for spline in splines]).T.tolist()+[[],rospy.Duration(t)]))
+                         #for t in np.arange(0.0,t_traj[-1],dt)])
   return traj_points
 
 
@@ -63,19 +66,22 @@ if __name__=='__main__':
     sys.exit(1)
 
   angles= rospy.wait_for_message('/gen3a/joint_states', sensor_msgs.msg.JointState, 5.0).position
-  #WARNING: This does not work:
+  #WARNING: This may not work:
   #  We already reached the goal position : nothing to do.
-  #q_traj=[
-    #angles,
-    #[q+0.02 for q in angles],
-    #[q-0.02 for q in angles],
-    #angles]
-  #t_traj= [0.0, 1.0, 3.0, 4.0]
+  #  https://github.com/Kinovarobotics/ros_kortex/issues/29
+  #But we can quickly fix this issue by following this:
+  #  https://github.com/Kinovarobotics/ros_kortex/issues/29#issuecomment-558633653
   q_traj=[
     angles,
+    [q+0.02 for q in angles],
     [q-0.02 for q in angles],
-    [q+0.02 for q in angles]]
-  t_traj= [0.0, 1.0, 3.0]
+    angles]
+  t_traj= [0.0, 1.0, 3.0, 4.0]
+  #q_traj=[
+    #angles,
+    #[q-0.02 for q in angles],
+    #[q+0.02 for q in angles]]
+  #t_traj= [0.0, 1.0, 3.0]
 
   goal= control_msgs.msg.FollowJointTrajectoryGoal()
   for jn in joint_names:
@@ -84,7 +90,9 @@ if __name__=='__main__':
     goal_tol.position= 0.01
     goal.goal_tolerance.append(goal_tol)
   goal.trajectory.joint_names= joint_names
+  #t0=rospy.Time.now()
   goal.trajectory.points= InterpolateTraj(q_traj, t_traj)
+  #print 'Calculation time [ms]:',(rospy.Time.now()-t0).to_sec()*1.0e+3
   goal.trajectory.header.stamp= rospy.Time.now()
   client.send_goal(goal)
   #client.cancel_goal()
