@@ -14,11 +14,14 @@ dxl.Setup()
 #dxl.EnableTorque()
 
 try:
+  i= 0
+  t0= time.time()
   while True:
     print 'Position=',dxl.Position()
-    time.sleep(0.001)
+    i+= 1
+    #time.sleep(0.001)
 except KeyboardInterrupt:
-  pass
+  print 'Observation freq:',i/(time.time()-t0),'Hz'
 
 #dxl.DisableTorque()
 dxl.Quit()

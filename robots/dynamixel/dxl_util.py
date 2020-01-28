@@ -608,10 +608,10 @@ class TDynamixel1(object):
       pos= self.Position()
       if pos is None:  return
       p_log.append(pos)
-      if len(p_log)>10:  p_log.pop(0)
+      if len(p_log)>50:  p_log.pop(0)
       if not (abs(target - p_log[-1]) > self.GoalThreshold):  break
       #Detecting stuck:
-      if len(p_log)>=10 and not (abs(p_log[0] - p_log[-1]) > self.GoalThreshold):
+      if len(p_log)>=50 and not (abs(p_log[0] - p_log[-1]) > self.GoalThreshold):
         print 'TDynamixel1:MoveTo: Control gets stuck. Abort.'
         break
 
@@ -640,11 +640,11 @@ class TDynamixel1(object):
       pos= self.Position()
       if pos is None:  return
       p_log.append(pos)
-      if len(p_log)>10:  p_log.pop(0)
+      if len(p_log)>50:  p_log.pop(0)
       if not (abs(target - p_log[-1]) > self.GoalThreshold):  break
       #Detecting stuck:
-      if len(p_log)>=10 and not (abs(p_log[0] - p_log[-1]) > self.GoalThreshold):
-        print 'TDynamixel1:MoveTo: Control gets stuck. Abort.'
+      if len(p_log)>=50 and not (abs(p_log[0] - p_log[-1]) > self.GoalThreshold):
+        print 'TDynamixel1:MoveToC: Control gets stuck. Abort.'
         break
 
   #Set current
