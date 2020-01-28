@@ -17,6 +17,9 @@
 #\date    Jun.11, 2019
 #         Added MX-64AR protocol 2.0 for SAKE EZGripper Gen2.
 #         Note: MX-64AR of EZGripper is originally protocol 1.0; update the firmware.
+#\version 0.6
+#\date    Jan.28, 2020
+#         Added PH54-200-S500.
 
 #cf. DynamixelSDK/python/tests/protocol2_0/read_write.py
 #DynamixelSDK: https://github.com/ROBOTIS-GIT/DynamixelSDK
@@ -169,18 +172,8 @@ DxlPortHandler= TDynamixelPortHandler()
 
 class TDynamixel1(object):
   def __init__(self, type, dev='/dev/ttyUSB0'):
-    # For Dynamixel PRO 54-200
-    if type=='PRO54-200':  #FIXME: Correct name?
-      #ADDR[NAME]=(ADDRESS,SIZE)
-      self.ADDR={
-        'TORQUE_ENABLE'       : (562,None),
-        'GOAL_POSITION'       : (596,None),
-        'PRESENT_POSITION'    : (611,None),
-        }
-      self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
-
     # For Dynamixel XM430-W350
-    elif type in ('XM430-W350','XH430-V350','MX-64AR'):
+    if type in ('XM430-W350','XH430-V350','MX-64AR'):
       #ADDR[NAME]=(ADDRESS,SIZE)
       self.ADDR={
         'MODEL_NUMBER'        : (0,2),
@@ -217,6 +210,47 @@ class TDynamixel1(object):
         'PRESENT_POSITION'    : (132,4),
         'PRESENT_IN_VOLT'     : (144,2),
         'PRESENT_TEMP'        : (146,1),
+        }
+      self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
+
+    # For Dynamixel PH54-200-S500-R
+    elif type in ('PH54-200-S500',):
+      #ADDR[NAME]=(ADDRESS,SIZE)
+      self.ADDR={
+        'MODEL_NUMBER'        : (0,2),
+        'MODEL_INFORMATION'   : (2,4),
+        'FIRMWARE_VERSION'    : (6,1),
+        'ID'                  : (7,1),
+        'BAUD_RATE'           : (8,1),
+        'RETURN_DELAY_TIME'   : (9,1),
+        'OPERATING_MODE'      : (11,1),
+        'TEMP_LIMIT'          : (31,1),
+        'MAX_VOLT_LIMIT'      : (32,2),
+        'MIN_VOLT_LIMIT'      : (34,2),
+        'PWM_LIMIT'           : (36,2),
+        'CURRENT_LIMIT'       : (38,2),
+        'ACC_LIMIT'           : (40,4),
+        'VEL_LIMIT'           : (44,4),
+        'MAX_POS_LIMIT'       : (48,4),
+        'MIN_POS_LIMIT'       : (52,4),
+        'SHUTDOWN'            : (63,1),
+        'TORQUE_ENABLE'       : (512,1),
+        'HARDWARE_ERR_ST'     : (518,1),
+        'VEL_I_GAIN'          : (524,2),
+        'VEL_P_GAIN'          : (526,2),
+        'POS_D_GAIN'          : (528,2),
+        'POS_I_GAIN'          : (530,2),
+        'POS_P_GAIN'          : (532,2),
+        'GOAL_PWM'            : (548,2),
+        'GOAL_CURRENT'        : (550,2),
+        'GOAL_VELOCITY'       : (552,4),
+        'GOAL_POSITION'       : (564,4),
+        'PRESENT_PWM'         : (572,2),
+        'PRESENT_CURRENT'     : (574,2),
+        'PRESENT_VELOCITY'    : (576,4),
+        'PRESENT_POSITION'    : (580,4),
+        'PRESENT_IN_VOLT'     : (592,2),
+        'PRESENT_TEMP'        : (594,1),
         }
       self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
 
@@ -270,26 +304,37 @@ class TDynamixel1(object):
       'CURRPOS'    : 5,   # Current-based Position Control Mode
       'PWM'        : 16,  # PWM Control Mode (Voltage Control Mode)
       }
-    #NOTE: with 'RH-P12-RN', only CURRENT and CURRPOS are available.
+    #NOTE: 'RH-P12-RN': CURRENT and CURRPOS are available.
+    #NOTE: 'PH54-200-S500': CURRENT, VELOCITY, POSITION(default), EXTPOS, PWM are available.
 
-    # Baud rates
-    self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6]
-    if type=='RH-P12-RN':  self.BAUD_RATE.append(10.5e6)
+    # Baud rates                                  0     1      2   3   4   5   6     7      8      9
+    self.BAUD_RATE=                           [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6]
+    if type=='RH-P12-RN':     self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,10.5e6]
+    if type=='PH54-200-S500': self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
 
     self.TORQUE_ENABLE  = 1  # Value for enabling the torque
     self.TORQUE_DISABLE = 0  # Value for disabling the torque
     self.MIN_POSITION = 0  # Dynamixel will rotate between this value
     self.MAX_POSITION = 4095  # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
-    if type=='RH-P12-RN':  self.MAX_POSITION = 1150
+    if type=='RH-P12-RN':
+      self.MAX_POSITION = 1150
+    elif type=='PH54-200-S500':
+      self.MIN_POSITION = -501433
+      self.MAX_POSITION = 501433
     if type=='XM430-W350':    self.MAX_CURRENT = 1193   # == Current Limit(38)
     elif type=='XH430-V350':  self.MAX_CURRENT = 689   # == Current Limit(38)
     elif type=='MX-64AR':     self.MAX_CURRENT = 1941   # == Current Limit(38)
     elif type=='RH-P12-RN':   self.MAX_CURRENT = 820
+    elif type=='PH54-200-S500':   self.MAX_CURRENT = 22740
     self.MAX_PWM = 885
     if type=='RH-P12-RN':  self.MAX_PWM = None
+    elif type=='PH54-200-S500':  self.MAX_PWM = 2009
 
     self.POSITION_UNIT= math.pi/2048.0
     self.POSITION_OFFSET= 2048.0
+    if type=='PH54-200-S500':
+      self.POSITION_UNIT= math.pi/501924.0
+      self.POSITION_OFFSET= 0.0
     if type=='XM430-W350':
       self.CURRENT_UNIT= 2.69
       self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
@@ -302,6 +347,9 @@ class TDynamixel1(object):
     elif type=='RH-P12-RN':
       self.CURRENT_UNIT= 4.02
       self.VELOCITY_UNIT= 0.114*(2.0*math.pi)/60.0
+    elif type=='PH54-200-S500':
+      self.CURRENT_UNIT= 1.0
+      self.VELOCITY_UNIT= 0.01*(2.0*math.pi)/60.0
 
     # Configurable variables
     self.Id= 1  # Dynamixel ID
@@ -435,7 +483,7 @@ class TDynamixel1(object):
       print 'dxl_result=',self.dxl_result, 'dxl_err=',self.dxl_err
       if self.dxl_result != dynamixel.COMM_SUCCESS:
         print self.packet_handler.getTxRxResult(self.dxl_result)
-      elif self.dxl_err != 0:
+      if self.dxl_err != 0:
         print self.packet_handler.getRxPacketError(self.dxl_err)
     if not normal:
       DxlPortHandler.MarkError(dev=self.DevName)
@@ -555,11 +603,17 @@ class TDynamixel1(object):
     self.CheckTxRxResult()
     #print 'debug:TDynamixel1:MoveTo:',target
 
+    p_log= []  #For detecting stuck.
     while blocking:
       pos= self.Position()
       if pos is None:  return
-      #print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (self.Id, target, pos))
-      if not (abs(target - pos) > self.GoalThreshold):  break
+      p_log.append(pos)
+      if len(p_log)>10:  p_log.pop(0)
+      if not (abs(target - p_log[-1]) > self.GoalThreshold):  break
+      #Detecting stuck:
+      if len(p_log)>=10 and not (abs(p_log[0] - p_log[-1]) > self.GoalThreshold):
+        print 'TDynamixel1:MoveTo: Control gets stuck. Abort.'
+        break
 
   #Move the position to a given value with given current.
   #  target: Target position, should be in [self.MIN_POSITION, self.MAX_POSITION]
@@ -581,11 +635,17 @@ class TDynamixel1(object):
     #if not self.CheckTxRxResult():  return
     self.CheckTxRxResult()
 
+    p_log= []  #For detecting stuck.
     while blocking:
       pos= self.Position()
       if pos is None:  return
-      #print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (self.Id, target, pos))
-      if not (abs(target - pos) > self.GoalThreshold):  break
+      p_log.append(pos)
+      if len(p_log)>10:  p_log.pop(0)
+      if not (abs(target - p_log[-1]) > self.GoalThreshold):  break
+      #Detecting stuck:
+      if len(p_log)>=10 and not (abs(p_log[0] - p_log[-1]) > self.GoalThreshold):
+        print 'TDynamixel1:MoveTo: Control gets stuck. Abort.'
+        break
 
   #Set current
   def SetCurrent(self, current):
