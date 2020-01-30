@@ -19,7 +19,7 @@
 #         Note: MX-64AR of EZGripper is originally protocol 1.0; update the firmware.
 #\version 0.6
 #\date    Jan.28, 2020
-#         Added PH54-200-S500.
+#         Added PH54-200-S500, XH540-W270.
 
 #cf. DynamixelSDK/python/tests/protocol2_0/read_write.py
 #DynamixelSDK: https://github.com/ROBOTIS-GIT/DynamixelSDK
@@ -173,7 +173,7 @@ DxlPortHandler= TDynamixelPortHandler()
 class TDynamixel1(object):
   def __init__(self, type, dev='/dev/ttyUSB0'):
     # For Dynamixel XM430-W350
-    if type in ('XM430-W350','XH430-V350','MX-64AR'):
+    if type in ('XM430-W350','XH430-V350','XH540-W270','MX-64AR'):
       #ADDR[NAME]=(ADDRESS,SIZE)
       self.ADDR={
         'MODEL_NUMBER'        : (0,2),
@@ -188,7 +188,7 @@ class TDynamixel1(object):
         'MIN_VOLT_LIMIT'      : (34,2),
         'PWM_LIMIT'           : (36,2),
         'CURRENT_LIMIT'       : (38,2),
-        'ACC_LIMIT'           : (40,4),
+        'ACC_LIMIT'           : (40,4),  #'XH540-W270' does not have this.
         'VEL_LIMIT'           : (44,4),
         'MAX_POS_LIMIT'       : (48,4),
         'MIN_POS_LIMIT'       : (52,4),
@@ -211,6 +211,8 @@ class TDynamixel1(object):
         'PRESENT_IN_VOLT'     : (144,2),
         'PRESENT_TEMP'        : (146,1),
         }
+      if type=='XH540-W270':
+        self.ADDR['ACC_LIMIT']= (None,None)
       self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
 
     # For Dynamixel PH54-200-S500-R
@@ -323,6 +325,7 @@ class TDynamixel1(object):
       self.MAX_POSITION = 501433
     if type=='XM430-W350':    self.MAX_CURRENT = 1193   # == Current Limit(38)
     elif type=='XH430-V350':  self.MAX_CURRENT = 689   # == Current Limit(38)
+    elif type=='XH540-W270':  self.MAX_CURRENT = 2047
     elif type=='MX-64AR':     self.MAX_CURRENT = 1941   # == Current Limit(38)
     elif type=='RH-P12-RN':   self.MAX_CURRENT = 820
     elif type=='PH54-200-S500':   self.MAX_CURRENT = 22740
@@ -340,6 +343,9 @@ class TDynamixel1(object):
       self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
     elif type=='XH430-V350':
       self.CURRENT_UNIT= 1.34
+      self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
+    elif type=='XH540-W270':
+      self.CURRENT_UNIT= 2.69
       self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
     elif type=='MX-64AR':
       self.CURRENT_UNIT= 3.36
