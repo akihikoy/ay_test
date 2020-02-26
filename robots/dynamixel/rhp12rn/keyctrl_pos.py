@@ -18,8 +18,9 @@ dxl.Setup()
 dxl.EnableTorque()
 
 #Move to initial position
-p_start= 26  #Open
-p_start= 200
+#p_start= 26  #Open
+#p_start= 200
+p_start= dxl.Position()
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
 print 'Current position=',dxl.Position()

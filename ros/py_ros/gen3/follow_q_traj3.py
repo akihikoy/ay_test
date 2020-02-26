@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#\file    follow_q_traj1.py
+#\file    follow_q_traj3.py
 #\brief   Follow a joint angle trajectory.
 #         cf. Video: https://youtu.be/CUByCHOaKcE
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -53,6 +53,9 @@ def InterpolateTraj(q_traj, t_traj, dt=1.0e-3):
 
 if __name__=='__main__':
   rospy.init_node('gen3_test')
+  t0= rospy.Time.now()
+  print 'Init',(rospy.Time.now()-t0).to_sec()*1.0e+3
+  t0= rospy.Time.now()
 
   joint_names= ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6', 'joint_7']
 
@@ -65,7 +68,13 @@ if __name__=='__main__':
     rospy.signal_shutdown('Action Server not found')
     sys.exit(1)
 
+  print 'Action client is ready',(rospy.Time.now()-t0).to_sec()*1.0e+3
+  t0= rospy.Time.now()
+
   angles= rospy.wait_for_message('/gen3a/joint_states', sensor_msgs.msg.JointState, 5.0).position
+  print 'Joint angles are observed',(rospy.Time.now()-t0).to_sec()*1.0e+3
+  t0= rospy.Time.now()
+
   #WARNING: This may not work:
   #  We already reached the goal position : nothing to do.
   #  https://github.com/Kinovarobotics/ros_kortex/issues/29
@@ -90,13 +99,21 @@ if __name__=='__main__':
     goal_tol.position= 0.01
     goal.goal_tolerance.append(goal_tol)
   goal.trajectory.joint_names= joint_names
-  #t0=rospy.Time.now()
+  print 'Via points are generated',(rospy.Time.now()-t0).to_sec()*1.0e+3
+  t0=rospy.Time.now()
   goal.trajectory.points= InterpolateTraj(q_traj, t_traj)
-  #print 'Calculation time [ms]:',(rospy.Time.now()-t0).to_sec()*1.0e+3
+  print 'Calculation time [ms]:',(rospy.Time.now()-t0).to_sec()*1.0e+3
+  print 'Memory size of trajectory points [byte]:',sys.getsizeof(goal.trajectory.points)
+  raw_input('Enter to run the trajectory > ')
+  t0= rospy.Time.now()
   goal.trajectory.header.stamp= rospy.Time.now()
   client.send_goal(goal)
+  print 'Goal is sent',(rospy.Time.now()-t0).to_sec()*1.0e+3
+  t0= rospy.Time.now()
   #client.cancel_goal()
-  #client.wait_for_result(timeout=rospy.Duration(20.0))
+  client.wait_for_result(timeout=rospy.Duration(4.0))
+  print 'After wait_for_result',(rospy.Time.now()-t0).to_sec()*1.0e+3
+  t0= rospy.Time.now()
 
   print client.get_result()
 

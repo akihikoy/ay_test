@@ -31,6 +31,8 @@ if __name__=='__main__':
     joint_speed.value= 0.0
     speed_req.input.joint_speeds.append(joint_speed)
 
+  raw_input('Press enter to start > ')
+
   t0= rospy.Time.now()
   rate= rospy.Rate(200)
 
@@ -47,7 +49,7 @@ if __name__=='__main__':
       t= (rospy.Time.now()-t0).to_sec()
       for joint_speed in speed_req.input.joint_speeds:
         #NOTE: JointSpeed/value is in DEGREES per second.
-        joint_speed.value= rad2deg(0.08*math.sin(math.pi*t))
+        joint_speed.value= rad2deg(0.04*math.sin(math.pi*t))
       srv_joint_speeds.call(speed_req)
       rate.sleep()
 

@@ -14,5 +14,4 @@ for i,_ in enumerate(DXL_ID):
 
 for i,_ in enumerate(DXL_ID):
   dxl[i].DisableTorque()
-for i,_ in enumerate(DXL_ID):
   dxl[i].Quit()

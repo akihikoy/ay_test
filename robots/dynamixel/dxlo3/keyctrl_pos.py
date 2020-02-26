@@ -100,5 +100,4 @@ for i,_ in enumerate(DXL_ID):
   dxl[i].PrintStatus()
   dxl[i].PrintHardwareErrSt()
   #dxl[i].DisableTorque()
-for i,_ in enumerate(DXL_ID):
   dxl[i].Quit()

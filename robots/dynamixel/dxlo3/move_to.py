@@ -21,13 +21,15 @@ def MoveDp(dp):
   print 'Current position=',[dxl[i].Position() for i,_ in enumerate(DXL_ID)]
 
 #Move to initial position
-MoveDp(260)  #Open
+#MoveDp(260)  #Open
+MoveDp(400)  #Open
 time.sleep(0.5)  #wait .5 sec
 
-MoveDp(0)  #Close
+raw_input('Move? > ')
+#MoveDp(0)  #Close(without fingertips)
+MoveDp(108)  #Close(with FV+)
 
 
-#for i,_ in enumerate(DXL_ID):
-  #dxl[i].DisableTorque()
 for i,_ in enumerate(DXL_ID):
+  #dxl[i].DisableTorque()
   dxl[i].Quit()

@@ -23,7 +23,6 @@ try:
 except KeyboardInterrupt:
   print 'Observation freq:',f/(time.time()-t0),'Hz'
 
-#for i,_ in enumerate(DXL_ID):
-  #dxl[i].DisableTorque()
 for i,_ in enumerate(DXL_ID):
+  #dxl[i].DisableTorque()
   dxl[i].Quit()
