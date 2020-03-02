@@ -50,8 +50,7 @@ def ConstructRBF(xmin, xmax, n_units):
   assert(dim==len(n_units))
   #np.mgrid[-1:1:3j,-1:1:3j,-1:1:3j].reshape([3,3**3]).T
   #np.array(np.meshgrid(np.mgrid[-1:1:3j],np.mgrid[-2:2:3j],np.mgrid[-1:1:3j],sparse=False)).reshape(3,3*3*3)
-  disc=
-TDiscretizer(xmin, xmax, [n-1 for n in n_units])
+  disc= TDiscretizer(xmin, xmax, [n-1 for n in n_units])
   mu= np.array([[0.0]*dim]*disc.Size())
   for i,v in enumerate(disc.VecSet()):
     mu[i][:]= Vec(v)

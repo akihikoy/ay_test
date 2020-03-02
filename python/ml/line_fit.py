@@ -25,7 +25,7 @@ def GenerateSample(xmin, xmax, N_sample):
 def LineFitByLeastSq(data_x, data_f, f_reg=0.0):
   V= np.array(data_f)
   Theta= np.array([data_x,[1.0]*len(data_x)]).T
-  w= la.inv(Theta.T.dot(Theta)+f_reg*np.eye(2)).dot(Theta.T).dot(V)
+  w= la.inv(Theta.T.dot(Theta)+f_reg*np.eye(Theta.shape[1])).dot(Theta.T).dot(V)
   return w
 
 
@@ -38,14 +38,14 @@ if __name__=='__main__':
   w= LineFitByLeastSq(data_x, data_f)
   print 'w=',w
 
-  fp= file('res/data.dat','w')
+  fp= file('/tmp/data.dat','w')
   for x,f in zip(data_x, data_f):
     fp.write('%f %f\n' % (x, f))
 
-  fp= file('res/approx.dat','w')
+  fp= file('/tmp/approx.dat','w')
   for x in np.arange(xmin,xmax,(xmax-xmin)/50.0):
     f= w.T.dot([x,1.0])
     fp.write('%f %f\n' % (x, f))
 
-  print 'qplot -x res/approx.dat w l res/data.dat'
+  print 'qplot -x /tmp/approx.dat w l /tmp/data.dat'
 

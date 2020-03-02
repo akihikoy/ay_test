@@ -103,9 +103,9 @@ class TDynamixelPortHandler(object):
 
         #Open port
         if port_handler.openPort():
-          print 'Opened a port:', dev, port_handler
+          print 'DxlPortHandler: Opened a port:', dev, port_handler
         else:
-          print 'Failed to open a port:', dev, port_handler
+          print 'DxlPortHandler: Failed to open a port:', dev, port_handler
           port_handler.closePort()
           time.sleep(self.time_to_sleep_after_closing_port)
           return None
@@ -114,9 +114,9 @@ class TDynamixelPortHandler(object):
       if (baudrate is not None and info['baudrate']!=baudrate) or set_baudrate:
         #Set port baudrate
         if port_handler.setBaudRate(int(baudrate)):
-          print 'Changed the baud rate:', dev, port_handler, baudrate
+          print 'DxlPortHandler: Changed the baud rate:', dev, port_handler, baudrate
         else:
-          print 'Failed to change the baud rate to:', dev, port_handler, baudrate
+          print 'DxlPortHandler: Failed to change the baud rate to:', dev, port_handler, baudrate
           return None
         info['baudrate']= baudrate
 
@@ -145,7 +145,7 @@ class TDynamixelPortHandler(object):
       if self.opened[i]['ref']<=0:
         with self.opened[i]['locker']:
           port_handler.closePort()
-          print 'Closed the port:',info['dev'],port_handler
+          print 'DxlPortHandler: Closed the port:',info['dev'],port_handler
           time.sleep(self.time_to_sleep_after_closing_port)
           del self.opened[i]
 
@@ -171,14 +171,18 @@ class TDynamixelPortHandler(object):
     if port_handler is not None:
       with info['locker']:
         port_handler.closePort()
-        print 'Closed the port:',info['dev'],port_handler
+        print 'DxlPortHandler.MarkError: Closed the port:',info['dev'],port_handler
         time.sleep(self.time_to_sleep_after_closing_port)
     if info is not None:  info['port']= None
 
   '''Start reopen thread to reopen all devices whose port is None.
     interval: Cycle of reopen attempt (sec). '''
   def StartReopen(self, interval=1.0):
+    print 'DxlPortHandler: Reopen is requested'
     self.StopReopen()
+    if len(self.opened)==0:
+      print 'DxlPortHandler: Reopen canceled'
+      return
     th_func= lambda:self.ReopenLoop(interval)
     self.thread_reopen= [True, threading.Thread(name='Reopen', target=th_func)]
     self.thread_reopen[1].start()
