@@ -12,6 +12,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include "cap_open.h"
 
 using namespace cv;
 using namespace std;
@@ -50,23 +51,14 @@ static void onMouse( int event, int x, int y, int flags, void* )
         line( img, prevPt, pt, Scalar::all(255), 5, 8, 0 );
         prevPt = pt;
         imshow("image", img);
+        imshow("markerMask", markerMask);
     }
 }
 
 int main( int argc, char** argv )
 {
-    cv::VideoCapture cap(0); // open the default camera
-    if(argc==2)
-    {
-      cap.release();
-      cap.open(atoi(argv[1]));
-    }
-    if(!cap.isOpened())  // check if we succeeded
-    {
-      std::cerr<<"no camera!"<<std::endl;
-      return -1;
-    }
-    std::cerr<<"camera opened"<<std::endl;
+    TCapture cap;
+    if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
     help();
     namedWindow( "image", 1 );
@@ -82,7 +74,11 @@ int main( int argc, char** argv )
     while(true)
     {
         Mat imgGray, tmp;
-        cap >> img0;
+        if(!cap.Read(img0))
+        {
+          if(cap.WaitReopen()) continue;
+          else break;
+        }
 
         img0.copyTo(img);
         cvtColor(img, tmp, COLOR_BGR2GRAY);
@@ -107,7 +103,10 @@ int main( int argc, char** argv )
             vector<vector<Point> > contours;
             vector<Vec4i> hierarchy;
 
-            findContours(markerMask, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
+            Mat tmp2;
+            markerMask.copyTo(tmp2);
+            findContours(tmp2, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);  // findContours modifies the source image;
+            printf( "number of contours = %d\n", int(contours.size()) );
 
             if( contours.empty() )
                 continue;
@@ -116,6 +115,8 @@ int main( int argc, char** argv )
             int idx = 0;
             for( ; idx >= 0; idx = hierarchy[idx][0], compCount++ )
                 drawContours(markers, contours, idx, Scalar::all(compCount+1), -1, 8, hierarchy, INT_MAX);
+            printf( "number of contour components = %d\n", compCount );
+            imshow( "markers", markers*INT_MAX/compCount );
 
             if( compCount == 0 )
                 continue;

@@ -27,6 +27,9 @@ using namespace loco_rabbits;
 // #define print(var) std::cout<<#var"= "<<(var)<<std::endl
 //-------------------------------------------------------------------------------------------
 
+double ZoomLevels[]={1.0,2.0,3.0};
+int ZoomIdx(0);
+
 bool ParamChanged(false);
 void OnTrack(int,void*)
 {
@@ -37,6 +40,7 @@ int filterByColor = 0;
 int minThreshold = 5;
 int maxThreshold = 200;
 int minArea = 40;
+int maxArea = 150;
 int minCircularity = 10;
 int minConvexity = 87;
 int minInertiaRatio = 1;
@@ -53,7 +57,8 @@ void AssignParams(cv::SimpleBlobDetector::Params &params)
 
   // Filter by Area.
   params.filterByArea = true;
-  params.minArea = minArea;
+  params.minArea = (minArea>0 ? minArea : 1);
+  params.maxArea = (maxArea>0 ? maxArea : 1);
 
   // Filter by Circularity
   params.filterByCircularity = true;
@@ -71,7 +76,7 @@ void AssignParams(cv::SimpleBlobDetector::Params &params)
 int main(int argc, char**argv)
 {
   TCapture cap;
-  if(!cap.Open(((argc>=2)?(argv[1]):"0"), /*width=*/0, /*height=*/0))  return -1;
+  if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
   // set resolution
   // cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
@@ -96,6 +101,7 @@ int main(int argc, char**argv)
   cv::createTrackbar("minThreshold", win, &minThreshold, 255, OnTrack);
   cv::createTrackbar("maxThreshold", win, &maxThreshold, 255, OnTrack);
   cv::createTrackbar("minArea", win, &minArea, 5000, OnTrack);
+  cv::createTrackbar("maxArea", win, &maxArea, 5000, OnTrack);
   cv::createTrackbar("minCircularity", win, &minCircularity, 100, OnTrack);
   cv::createTrackbar("minConvexity", win, &minConvexity, 100, OnTrack);
   cv::createTrackbar("minInertiaRatio", win, &minInertiaRatio, 100, OnTrack);
@@ -103,7 +109,11 @@ int main(int argc, char**argv)
   cv::Mat frame;
   for(;;)
   {
-    cap >> frame; // get a new frame from camera
+    if(!cap.Read(frame))
+    {
+      if(cap.WaitReopen()) continue;
+      else break;
+    }
 
     if(ParamChanged)
     {
@@ -113,11 +123,32 @@ int main(int argc, char**argv)
     }
 
     detector->detect(frame, keypoints);
+
+    // Zoom:
+    if(ZoomLevels[ZoomIdx]!=1.0)
+    {
+      cv::resize(frame,frame,cv::Size(frame.cols*ZoomLevels[ZoomIdx],frame.rows*ZoomLevels[ZoomIdx]));
+      for(std::vector<cv::KeyPoint>::iterator itr(keypoints.begin()),itr_end(keypoints.end()); itr!=itr_end; ++itr)
+      {
+        itr->pt.x*= ZoomLevels[ZoomIdx];
+        itr->pt.y*= ZoomLevels[ZoomIdx];
+        itr->size*= ZoomLevels[ZoomIdx];
+      }
+    }
+    // Emphasize size visualization:
+    for(std::vector<cv::KeyPoint>::iterator itr(keypoints.begin()),itr_end(keypoints.end()); itr!=itr_end; ++itr)
+      itr->size*= 3.0;
+
     cv::drawKeypoints(frame, keypoints, frame, cv::Scalar(0,0,255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
     cv::imshow("camera", frame);
     char c(cv::waitKey(10));
     if(c=='\x1b'||c=='q') break;
+    else if(c=='z')
+    {
+      ZoomIdx++;
+      if(ZoomIdx>=int(sizeof(ZoomLevels)/sizeof(ZoomLevels[0])))  ZoomIdx=0;
+    }
     // usleep(10000);
   }
   // the camera will be deinitialized automatically in VideoCapture destructor
