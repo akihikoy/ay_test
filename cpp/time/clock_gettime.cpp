@@ -69,6 +69,7 @@ inline TTime GetCurrentTime(void)
 #endif
 }
 
+#ifndef LIBRARY
 TTime Test(void)
 {
   TTime t_start= GetCurrentTime();
@@ -108,6 +109,6 @@ int main()
   #endif
   return 0;
 }
-
+#endif//LIBRARY
 
 
