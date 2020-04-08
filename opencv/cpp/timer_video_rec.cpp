@@ -18,7 +18,6 @@ g++ -g -Wall -O3 -o timer_video_rec.out timer_video_rec.cpp -lopencv_core -lopen
 #include <sys/time.h>  // gettimeofday
 #include <unistd.h>
 #include "cap_open.h"
-#include "cv2-videoout2.h"
 //-------------------------------------------------------------------------------------------
 
 struct TTime
