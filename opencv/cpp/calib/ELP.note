@@ -1,0 +1,99 @@
+ELP USBFHD01M-L180
+
+video device: /dev/video2
+Init. USB 2.0 Camera (location: usb-0000:00:1d.0-1.5.1.3)
+{ pixelformat = 'MJPG', description = 'MJPEG' }
+{ discrete: width = 1920, height = 1080 }
+        Time interval between frame: 1/30,
+{ discrete: width = 1280, height = 720 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1024, height = 768 }
+        Time interval between frame: 1/30,
+{ discrete: width = 640, height = 480 }
+        Time interval between frame: 513/61612,
+{ discrete: width = 800, height = 600 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1280, height = 1024 }
+        Time interval between frame: 1/30,
+{ discrete: width = 320, height = 240 }
+        Time interval between frame: 513/61612,
+
+{ pixelformat = 'YUYV', description = 'YUV 4:2:2 (YUYV)' }
+{ discrete: width = 1920, height = 1080 }
+        Time interval between frame: 1/6,
+{ discrete: width = 1280, height = 720 }
+        Time interval between frame: 1/9,
+{ discrete: width = 1024, height = 768 }
+        Time interval between frame: 1/6,
+{ discrete: width = 640, height = 480 }
+        Time interval between frame: 1/30,
+{ discrete: width = 800, height = 600 }
+        Time interval between frame: 1/20,
+{ discrete: width = 1280, height = 1024 }
+        Time interval between frame: 1/6,
+{ discrete: width = 320, height = 240 }
+        Time interval between frame: 1/30,
+
+{ pixelformat = 'RGB3', description = 'RGB3' }
+{ discrete: width = 1920, height = 1080 }
+        Time interval between frame: 1/30,
+{ discrete: width = 1280, height = 720 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1024, height = 768 }
+        Time interval between frame: 1/30,
+{ discrete: width = 640, height = 480 }
+        Time interval between frame: 1/30,
+{ discrete: width = 800, height = 600 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1280, height = 1024 }
+        Time interval between frame: 1/30,
+{ discrete: width = 320, height = 240 }
+        Time interval between frame: 1/30,
+
+{ pixelformat = 'BGR3', description = 'BGR3' }
+{ discrete: width = 1920, height = 1080 }
+        Time interval between frame: 1/30,
+{ discrete: width = 1280, height = 720 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1024, height = 768 }
+        Time interval between frame: 1/30,
+{ discrete: width = 640, height = 480 }
+        Time interval between frame: 1/30,
+{ discrete: width = 800, height = 600 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1280, height = 1024 }
+        Time interval between frame: 1/30,
+{ discrete: width = 320, height = 240 }
+        Time interval between frame: 1/30,
+
+{ pixelformat = 'YU12', description = 'YU12' }
+{ discrete: width = 1920, height = 1080 }
+        Time interval between frame: 1/30,
+{ discrete: width = 1280, height = 720 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1024, height = 768 }
+        Time interval between frame: 1/30,
+{ discrete: width = 640, height = 480 }
+        Time interval between frame: 1/30,
+{ discrete: width = 800, height = 600 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1280, height = 1024 }
+        Time interval between frame: 1/30,
+{ discrete: width = 320, height = 240 }
+        Time interval between frame: 1/30,
+
+{ pixelformat = 'YV12', description = 'YV12' }
+{ discrete: width = 1920, height = 1080 }
+        Time interval between frame: 1/30,
+{ discrete: width = 1280, height = 720 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1024, height = 768 }
+        Time interval between frame: 1/30,
+{ discrete: width = 640, height = 480 }
+        Time interval between frame: 1/30,
+{ discrete: width = 800, height = 600 }
+        Time interval between frame: 1/60,
+{ discrete: width = 1280, height = 1024 }
+        Time interval between frame: 1/30,
+{ discrete: width = 320, height = 240 }
+        Time interval between frame: 1/30,

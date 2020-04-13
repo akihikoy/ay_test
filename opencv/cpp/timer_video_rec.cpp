@@ -87,24 +87,25 @@ int main(int argc, char**argv)
   long t_start_nsec= 0;
   int FPS= (argc>iarg)?atoi(argv[iarg]):15; ++iarg;
   int duration= (argc>iarg)?atoi(argv[iarg]):10; ++iarg;
-  if(!cap.Open(((argc>iarg)?(argv[iarg]):"0"),
-              /*width=*/((argc>iarg+1)?atoi(argv[iarg+1]):0),
-              /*height=*/((argc>iarg+2)?atoi(argv[iarg+2]):0)))  return -1;
-  iarg+= 3;
+  std::string camid= (argc>iarg)?(argv[iarg]):"0"; ++iarg;
+  int width= (argc>iarg)?atoi(argv[iarg]):0; ++iarg;
+  int height= (argc>iarg)?atoi(argv[iarg]):0; ++iarg;
   bool disp= (argc>iarg)?atoi(argv[iarg]):1; ++iarg;
   bool record= (argc>iarg)?atoi(argv[iarg]):0; ++iarg;
+  std::string vout_prefix= (argc>iarg)?(argv[iarg]):"/tmp/vout"; ++iarg;
 
   // Command check.
   std::cerr<<"Current time:"<<std::endl;
   std::cerr<<std::setfill('0')<<std::setw(9)<<t_current.Sec<<" "<<std::setfill('0')<<std::setw(9)<<t_current.NSec<<std::endl;
   if(t_start_sec<0)
   {
-    std::cerr<<"\nUsage: ./timer_video_rec.out T_START FPS DURATION CAM_ID WIDTH HEIGHT DISP RECORD\n"
+    std::cerr<<"\nUsage: ./timer_video_rec.out T_START FPS DURATION CAM_ID WIDTH HEIGHT DISP RECORD VPREFIX\n"
       "T_START: Time to start (sec).  Options: absolute Unix time, seconds after current time, 0 (auto).\n"
       "FPS:     FPS to capture.\n"
       "DURATION: Recoding duration (sec).\n"
       "CAM_ID WIDTH HEIGHT:  Camera device ID, image width and height.\n"
       "DISP RECORD:  Displaying the video (0,1), Recording the video (0,1).\n"
+      "VPREFIX:  Video prefix (/tmp/vout).\n"
       "Showing this help: ./timer_video_rec.out -1\n"
       "Example: ./timer_video_rec.out 5 25 180 1 1920 1080 0 1\n"
       "  -> Recoding 5 sec after, at 25 FPS, for 180 sec, cam: 1, 1920x1080, no display, recording.\n"
@@ -116,9 +117,17 @@ int main(int argc, char**argv)
     t_start_sec= t_current.Sec+t_start_sec+(t_current.NSec>500000000L?1:0);
   long interval= 1000000000L/FPS;
 
+  // Setup the camera device.
+  for(int j(0);j<10;++j)
+    if(cap.Open(camid,width,height))  break;
+  if(!cap.C.isOpened())  return -1;
   if(disp)  cv::namedWindow("camera",1);
   cv::Mat frame;
-  cap>>frame;
+  while(!cap.Read(frame))
+  {
+    if(cap.WaitReopen()) continue;
+    else break;
+  }
   double font_scale(0.8);
   cv::Size text_size;
   int text_baseline;
@@ -138,7 +147,7 @@ int main(int argc, char**argv)
   if(record)
   {
     std::stringstream ss;
-    ss<<"/tmp/vout"<<std::setfill('0')<<std::setw(9)<<t_start_sec<<".avi";
+    ss<<vout_prefix<<std::setfill('0')<<std::setw(9)<<t_start_sec<<".avi";
     std::string file_name= ss.str();
     // int codec= CV_FOURCC('P','I','M','1');  // mpeg1video
     // int codec= CV_FOURCC('X','2','6','4');  // x264?
@@ -161,7 +170,11 @@ int main(int argc, char**argv)
     TTime dt= t0-GetCurrentTime();
     if(dt.ToSec()>0.1)
     {
-      cap>>frame;
+      if(!cap.Read(frame))
+      {
+        if(cap.WaitReopen()) continue;
+        else break;
+      }
     }
     else if(dt.ToSec()>0.0)
     {

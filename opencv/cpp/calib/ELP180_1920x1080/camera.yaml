@@ -1,0 +1,29 @@
+%YAML:1.0
+CameraInfo:
+  -
+    Name: camera
+    DevID: "/hdd/akihikoy/data/kannainagare/R7/cam3-1586416150.avi"
+    Width: 1920
+    Height: 1080
+    PixelFormat: MJPG
+    NRotate90: 0
+    Rectification: 1
+    Alpha: 0.8
+    K: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 2.1206217883238014e+03, 0., 9.4091665325689178e+02, 0.,
+        1.9631158404982850e+03, 5.6575721454806683e+02, 0., 0., 1. ]
+    D: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: d
+      data: [ -1.8414129148567389e+00, -7.1109299365846246e+00,
+        -4.7557034470170172e-02, 2.5131050292415226e-02,
+        4.6647915085793656e+01 ]
+    R: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0 ]

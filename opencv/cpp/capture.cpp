@@ -11,6 +11,7 @@ g++ -g -Wall -O2 -o capture.out capture.cpp -lopencv_core -lopencv_highgui
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+#include <iomanip>
 #include <cstdio>
 #include <sys/time.h>  // gettimeofday
 #include <unistd.h>
@@ -78,7 +79,7 @@ int main(int argc, char**argv)
   int show_fps(0);
   cv::namedWindow("camera",1);
   cv::Mat frame;
-  for(;;)
+  for(int i(0),i_saved(0);;++i)
   {
     if(!cap.Read(frame))
     {
@@ -95,6 +96,13 @@ int main(int argc, char**argv)
     --show_fps;
     char c(cv::waitKey(1));
     if(c=='\x1b'||c=='q') break;
+    else if(c==' ')
+    {
+      std::stringstream file_name;
+      file_name<<"/tmp/view"<<std::setfill('0')<<std::setw(4)<<(i_saved++)<<".png";
+      cv::imwrite(file_name.str(), frame);
+      std::cout<<"Saved "<<file_name.str()<<std::endl;
+    }
   }
 
   return 0;
