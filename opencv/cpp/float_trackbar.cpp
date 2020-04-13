@@ -14,7 +14,6 @@ g++ -g -Wall -O2 -o float_trackbar.out float_trackbar.cpp -lopencv_core -lopencv
 #include <iomanip>
 #include <list>
 #include "cap_open.h"
-#include <unistd.h>  // usleep
 //-------------------------------------------------------------------------------------------
 
 template<typename T>
@@ -98,7 +97,7 @@ void FloatTrackbarPrintOnTrack(const TFloatTrackbarInfo<T> &info, void*)
 template<typename T>
 void OnTrack(const TFloatTrackbarInfo<T> &info, void*)
 {
-  std::cerr<<"Moved: "<<info.Value<<std::endl;
+  std::cerr<<"Changed("<<info.Name<<"): "<<info.Value<<std::endl;
 }
 
 int main(int argc, char**argv)
@@ -108,10 +107,12 @@ int main(int argc, char**argv)
 
   cv::namedWindow("camera",1);
 
-  float sleep_per_frame(0.1);
-  CreateFloatTrackbar<float>("sleep_per_frame", "camera", &sleep_per_frame, 0.0, 0.5, 0.001, &OnTrack);
+  float b(1.0),g(1.0),r(1.0);
+  CreateFloatTrackbar<float>("b", "camera", &b, 0.0, 2.0, 0.001, &OnTrack);
+  CreateFloatTrackbar<float>("g", "camera", &g, 0.0, 2.0, 0.001, &OnTrack);
+  CreateFloatTrackbar<float>("r", "camera", &r, 0.0, 2.0, 0.001, &OnTrack);
 
-  cv::Mat frame;
+  cv::Mat frame, channels[3];
   for(int i(0);;++i)
   {
     if(!cap.Read(frame))
@@ -119,10 +120,12 @@ int main(int argc, char**argv)
       if(cap.WaitReopen()) continue;
       else break;
     }
+    cv::split(frame, channels);
+    cv::Mat channels2[3]= {b*channels[0],g*channels[1],r*channels[2]};
+    cv::merge(channels2, 3, frame);
     cv::imshow("camera", frame);
     char c(cv::waitKey(1));
     if(c=='\x1b'||c=='q') break;
-    usleep(sleep_per_frame*1.0e6);
   }
 
   return 0;
