@@ -2,16 +2,13 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+#include "cap_open.h"
 // g++ -g -Wall -O2 -o cv2-edge.out cv2-edge.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
 
-int main(int, char**)
+int main( int argc, char** argv )
 {
-    cv::VideoCapture cap(0); // open the default camera
-    if(!cap.isOpened())  // check if we succeeded
-    {
-      std::cerr<<"no camera!"<<std::endl;
-      return -1;
-    }
+    TCapture cap;
+    if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
     cv::Mat edges;
     cv::namedWindow("edges",1);

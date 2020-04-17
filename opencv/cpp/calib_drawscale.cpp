@@ -149,10 +149,10 @@ int main(int argc, char**argv)
     if(!fn["label0"    ].isNone())  fn["label0"    ] >> label0    ;
     if(!fn["label_step"].isNone())  fn["label_step"] >> label_step;
   }
-  CreateFloatTrackbar<float>("x0", "trackbar", &x0, -0.5, 0.5, 0.001);
-  CreateFloatTrackbar<float>("y", "trackbar", &y, -0.2, 0.2, 0.001);
-  CreateFloatTrackbar<float>("z", "trackbar", &z, 0.1, 1.0, 0.001);
-  CreateFloatTrackbar<float>("x1", "trackbar", &x1, -0.5, 0.5, 0.001);
+  CreateTrackbar<float>("x0", "trackbar", &x0, -0.5, 0.5, 0.001);
+  CreateTrackbar<float>("y", "trackbar", &y, -0.2, 0.2, 0.001);
+  CreateTrackbar<float>("z", "trackbar", &z, 0.1, 1.0, 0.001);
+  CreateTrackbar<float>("x1", "trackbar", &x1, -0.5, 0.5, 0.001);
 
   // Open the video recorder.
   cv::VideoWriter vout;

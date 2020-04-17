@@ -5,10 +5,11 @@
     \version 0.1
     \date    Apr.10, 2020
 
-g++ -g -Wall -O2 -o float_trackbar.out float_trackbar.cpp -lopencv_core -lopencv_highgui
+g++ -g -Wall -O2 -o float_trackbar.out float_trackbar.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include <iomanip>
@@ -64,12 +65,15 @@ struct TFloatTrackbarInfo
 };
 std::list<TFloatTrackbarInfo<float> > FloatTrackbarInfo_float;
 std::list<TFloatTrackbarInfo<double> > FloatTrackbarInfo_double;
+std::list<TFloatTrackbarInfo<int> > FloatTrackbarInfo_int;
 template<typename T>
 std::list<TFloatTrackbarInfo<T> >& FloatTrackbarInfo();
 template<>
 std::list<TFloatTrackbarInfo<float> >& FloatTrackbarInfo()  {return FloatTrackbarInfo_float;}
 template<>
 std::list<TFloatTrackbarInfo<double> >& FloatTrackbarInfo()  {return FloatTrackbarInfo_double;}
+template<>
+std::list<TFloatTrackbarInfo<int> >& FloatTrackbarInfo()  {return FloatTrackbarInfo_int;}
 
 template<typename T>
 void FloatTrackbarOnChange(int,void *pi)
@@ -79,7 +83,7 @@ void FloatTrackbarOnChange(int,void *pi)
 }
 
 template<typename T>
-int CreateFloatTrackbar(const std::string& trackbarname, const std::string& winname, T *value, const T &min, const T &max, const T &step, typename TFloatTrackbarInfo<T>::TCallback on_track=NULL, void *user_data=NULL)
+int CreateTrackbar(const std::string& trackbarname, const std::string& winname, T *value, const T &min, const T &max, const T &step, typename TFloatTrackbarInfo<T>::TCallback on_track=NULL, void *user_data=NULL)
 {
   FloatTrackbarInfo<T>().push_back(TFloatTrackbarInfo<T>(trackbarname, *value, min, max, step, on_track, user_data));
   TFloatTrackbarInfo<T> &pi(FloatTrackbarInfo<T>().back());
@@ -87,7 +91,7 @@ int CreateFloatTrackbar(const std::string& trackbarname, const std::string& winn
 }
 
 template<typename T>
-void FloatTrackbarPrintOnTrack(const TFloatTrackbarInfo<T> &info, void*)
+void TrackbarPrintOnTrack(const TFloatTrackbarInfo<T> &info, void*)
 {
   std::cerr<<info.Name<<"= "<<info.Value<<std::endl;
 }
@@ -108,9 +112,11 @@ int main(int argc, char**argv)
   cv::namedWindow("camera",1);
 
   float b(1.0),g(1.0),r(1.0);
-  CreateFloatTrackbar<float>("b", "camera", &b, 0.0, 2.0, 0.001, &OnTrack);
-  CreateFloatTrackbar<float>("g", "camera", &g, 0.0, 2.0, 0.001, &OnTrack);
-  CreateFloatTrackbar<float>("r", "camera", &r, 0.0, 2.0, 0.001, &OnTrack);
+  int ksize(3);
+  CreateTrackbar<float>("b", "camera", &b, 0.0, 2.0, 0.001, &OnTrack);
+  CreateTrackbar<float>("g", "camera", &g, 0.0, 2.0, 0.001, &OnTrack);
+  CreateTrackbar<float>("r", "camera", &r, 0.0, 2.0, 0.001, &OnTrack);
+  CreateTrackbar<int>("ksize", "camera", &ksize, 1, 9, 2, &TrackbarPrintOnTrack);
 
   cv::Mat frame, channels[3];
   for(int i(0);;++i)
@@ -121,6 +127,9 @@ int main(int argc, char**argv)
       else break;
     }
     cv::split(frame, channels);
+    if(ksize>1)
+      for(int n(0);n<3;++n)
+        cv::GaussianBlur(channels[n], channels[n], cv::Size(ksize,ksize), ksize, ksize);
     cv::Mat channels2[3]= {b*channels[0],g*channels[1],r*channels[2]};
     cv::merge(channels2, 3, frame);
     cv::imshow("camera", frame);
