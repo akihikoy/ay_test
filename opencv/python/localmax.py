@@ -84,6 +84,7 @@ def FindLocalMaxima(img_depth, ground_depth):
 
 if __name__=='__main__':
   img_depth= pickle.load(open('../../python/data/depth001.dat','rb'))['img_depth']
+  #img_depth= cv2.cvtColor(cv2.imread('/tmp/obs_img_depth.png'), cv2.COLOR_BGR2GRAY)
   #print img_depth.shape
 
   #localmax= findIsolatedLocalMaxima(img_depth)
