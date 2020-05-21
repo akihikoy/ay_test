@@ -91,8 +91,11 @@ cv::Mat GetSobel(const cv::Mat &src,
   return edges;
 }
 
-
-
+std::ostream& operator<<(std::ostream &os, const cv::Scalar_<double> &v)
+{
+  os<<v(0)<<" "<<v(1)<<" "<<v(2)<<" "<<v(3);
+  return os;
+}
 
 int main(int argc, char**argv)
 {
@@ -140,14 +143,33 @@ int main(int argc, char**argv)
 
   cv::Mat frame;
   cv::Mat canny, laplacian, sobel;
-  bool disp_sum(false);
+  std::vector<cv::Mat> mask_points(1);
+  bool quit_at_cap_err(false), disp_sum(false), using_mask(false);
   double sumscale(1.0e-6);
+  /*create mask (use ./mouse_poyly.out to get the points)*/{
+    cv::Mat points(6,2,CV_32S);
+    points= (cv::Mat_<int>(6,2)<<
+          0, 123,
+          0, 401,
+          300, 300,
+          639, 393,
+          628, 114,
+          300, 228);
+    mask_points[0]= points;
+  }
   for(int i(0);;++i)
   {
     if(!cap.Read(frame))
     {
-      if(cap.WaitReopen()) continue;
+      if(!quit_at_cap_err && cap.WaitReopen()) continue;
       else break;
+    }
+    if(using_mask)
+    {
+      cv::Mat mask(frame.size(), CV_8U, cv::Scalar(0)), masked;
+      cv::fillPoly(mask, mask_points, cv::Scalar(255));
+      frame.copyTo(masked, mask);
+      frame= masked;
     }
 
     canny= GetCanny(frame,
@@ -170,6 +192,7 @@ int main(int argc, char**argv)
     char c(cv::waitKey(1));
     if(c=='\x1b'||c=='q') break;
     if(c==' ')  disp_sum=!disp_sum;
+    if(c=='m')  using_mask=!using_mask;
   }
 
   return 0;
