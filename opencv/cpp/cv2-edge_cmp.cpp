@@ -22,7 +22,7 @@ g++ -g -Wall -O2 -o cv2-edge_cmp.out cv2-edge_cmp.cpp -lopencv_core -lopencv_img
 cv::Mat GetCanny(const cv::Mat &src,
   const double &threshold1=100.0,
   const double &threshold2=100.0,
-  int ksize=3,
+  int aperture_size=3,
   int blur_size=7,
   const double &blur_std=1.5
 )
@@ -33,7 +33,7 @@ cv::Mat GetCanny(const cv::Mat &src,
   else
     gray= src;
   cv::cvtColor(gray, gray, CV_BGR2GRAY);
-  cv::Canny(gray, edges, threshold1, threshold2, ksize);
+  cv::Canny(gray, edges, threshold1, threshold2, aperture_size);
   return edges;
 }
 
@@ -53,9 +53,8 @@ cv::Mat GetLaplacian(const cv::Mat &src,
     gray= src;
   cv::cvtColor(gray, gray, CV_BGR2GRAY);
   cv::Laplacian(gray, edges, CV_16S, ksize, scale, delta, cv::BORDER_DEFAULT);
-  cv::Mat edges_abs;
-  cv::convertScaleAbs(edges, edges_abs);
-  return edges_abs;
+  cv::convertScaleAbs(edges, edges);
+  return edges;
 }
 
 // Sobel
@@ -74,19 +73,18 @@ cv::Mat GetSobel(const cv::Mat &src,
     gray= src;
   cv::cvtColor(gray, gray, CV_BGR2GRAY);
   cv::Mat grad_x, grad_y;
-  cv::Mat abs_grad_x, abs_grad_y;
   // Gradient X
   // if(ksize==3)
   //cv::Scharr(gray, grad_x, CV_16S, 1, 0, scale, delta, cv::BORDER_DEFAULT);
   cv::Sobel(gray, grad_x, CV_16S, 1, 0, ksize, scale, delta, cv::BORDER_DEFAULT);
-  cv::convertScaleAbs(grad_x, abs_grad_x);
+  cv::convertScaleAbs(grad_x, grad_x);
   // Gradient Y
   // if(ksize==3)
   //cv::Scharr(gray, grad_y, CV_16S, 0, 1, scale, delta, cv::BORDER_DEFAULT);
   cv::Sobel(gray, grad_y, CV_16S, 0, 1, ksize, scale, delta, cv::BORDER_DEFAULT);
-  cv::convertScaleAbs(grad_y, abs_grad_y);
+  cv::convertScaleAbs(grad_y, grad_y);
   //Merge:
-  cv::Mat grads[3]= {0.0*abs_grad_x, abs_grad_x, abs_grad_y};
+  cv::Mat grads[3]= {0.0*grad_x, grad_x, grad_y};
   cv::merge(grads,3,edges);
   return edges;
 }
