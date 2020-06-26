@@ -14,8 +14,8 @@ Usage:
     fp.write('hello DualWriter;\n')
 '''
 class TDualWriter(file):
-  def __init__(self,filename):
-    super(TDualWriter,self).__init__(filename,'w')
+  def __init__(self,file_name):
+    super(TDualWriter,self).__init__(file_name,'w')
   def flush(self):
     sys.stdout.flush()
     super(TDualWriter,self).flush()
@@ -25,12 +25,13 @@ class TDualWriter(file):
   def writelines(self,sequence):
     sys.stdout.writelines(sequence)
     super(TDualWriter,self).writelines(sequence)
-def DualWriter(filename):
-  return TDualWriter(filename)
+def DualWriter(file_name,interactive=True):
+  #OpenWCheck(file_name,'w',interactive)
+  return TDualWriter(file_name)
 
 
 if __name__=='__main__':
-  with DualWriter('/tmp/hoge.dat') as fp:
+  with TDualWriter('/tmp/hoge.dat') as fp:
     print 'status:',fp.closed
     fp.write('hello DualWriter;\n')
     fp.write('test test test...;\n')

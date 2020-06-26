@@ -17,5 +17,5 @@ if __name__=='__main__':
 
   cv2.imshow('image',img*255)
   #cv2.imshow('localmax',localmax)
-  cv2.waitKey()
+  while cv2.waitKey() not in map(ord,[' ','q']):  pass
 

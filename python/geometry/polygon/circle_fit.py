@@ -73,8 +73,8 @@ def Main():
   #for th in FRange1(0.6*math.pi,0.9*math.pi,100):
   for th in FRange1(0.6*math.pi,0.9*math.pi,10):
   #for th in FRange1(0.0,2.0*math.pi,50):
-    x= c[0]+r*math.cos(th)+(random()-0.5)*wrand
-    y= c[1]+r*math.sin(th)+(random()-0.5)*wrand
+    x= c[0]+r*math.cos(th)+np.random.uniform(-wrand,wrand)
+    y= c[1]+r*math.sin(th)+np.random.uniform(-wrand,wrand)
     XY.append([x,y])
     fp.write('%f %f\n'%(x,y))
   fp.close()

@@ -7,6 +7,7 @@
 import numpy as np
 import six.moves.cPickle as pickle
 import cv2
+#import scipy.ndimage
 
 '''
 def findIsolatedLocalMaxima(greyScaleImage):
@@ -87,14 +88,16 @@ if __name__=='__main__':
   #img_depth= cv2.cvtColor(cv2.imread('/tmp/obs_img_depth.png'), cv2.COLOR_BGR2GRAY)
   #print img_depth.shape
 
+  #img_depth= scipy.ndimage.gaussian_filter(img_depth, sigma=2)
+
   #localmax= findIsolatedLocalMaxima(img_depth)
   localmax= FindLocalMaxima(img_depth, 380)
   print localmax
 
   for u,v in localmax:
-    cv2.circle(img_depth, (u,v), 2, 255, 1)
+    cv2.circle(img_depth, (u,v), 4, 255, 1)
 
-  cv2.imshow('depth',img_depth*255)
+  cv2.imshow('depth',img_depth*150)
   #cv2.imshow('localmax',localmax)
-  cv2.waitKey()
+  while cv2.waitKey() not in map(ord,[' ','q']):  pass
 
