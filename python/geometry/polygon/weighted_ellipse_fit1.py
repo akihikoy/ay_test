@@ -1,21 +1,29 @@
 #!/usr/bin/python
-#\file    ellipse_fit5.py
-#\brief   Fitting 2d points with ellipse.
-#         Algebraic ellipse fitting using linear least squares with bounds.
+#\file    weighted_ellipse_fit1.py
+#\brief   Sample-weighted ellipse fitting.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Jun.26, 2020
+#\date    Jun.29, 2020
 import numpy as np
 import scipy.optimize
 
-#src. https://stackoverflow.com/questions/47873759/how-to-fit-a-2d-ellipse-to-given-points
 
-def EllipseFit2D(XY):
+def SqErrorFromEllipse(x, c,r1,r2,angle):
+  ca= np.cos(angle)
+  sa= np.sin(angle)
+  x0= ca*(x[0]-c[0])+sa*(x[1]-c[1])
+  y0= -sa*(x[0]-c[0])+ca*(x[1]-c[1])
+  th= np.arctan2(y0/r2,x0/r1)
+  return (r1*np.cos(th)-x0)**2 + (r2*np.sin(th)-y0)**2
+
+#Based on ellipse_fit5:
+#Algebraic ellipse fitting using linear least squares with bounds.
+def SampleWeightedEllipseFit2D_1(XY, W):
   centroid= np.average(XY,0) # the centroid of the data set
   x= np.array([[XY[d][0]-centroid[0]] for d in range(len(XY))]) #centering data
   y= np.array([[XY[d][1]-centroid[1]] for d in range(len(XY))]) #centering data
-  A= np.hstack([x*x, x*y, y*y, x, y])
-  b= np.ones(x.shape[0])
+  A= np.dot(np.diag(W), np.hstack([x*x, x*y, y*y, x, y]))
+  b= W*np.ones(x.shape[0])
   #x= np.linalg.lstsq(A, b)[0].squeeze()
   bounds= ([0.0001,-np.inf,0.0001,-np.inf,-np.inf], np.inf)
   x= scipy.optimize.lsq_linear(A, b, bounds=bounds).x
@@ -25,15 +33,6 @@ def EllipseFit2D(XY):
     print '####################################'
     print 'Warning: Invalid ellipse parameters.'
     print '####################################'
-    #def cnstr_f(x):
-      #return [x[1]*x[1]-4.0*x[0]*x[2]]
-    #def cnstr_J(x):
-      #return [[-4.0*x[2]],[2.0*x[1]],[-4.0*x[0]],[0.0],[0.0]]
-    #nl_cnstr= scipy.optimize.NonlinearConstraint(cnstr_f,-np.inf,0.0,jac=cnstr_J)
-    #x= scipy.optimize.minimize(lambda x:np.linalg.norm(np.dot(A,x)-b), [1.0]*5,
-               #constraints=[nl_cnstr], options={'verbose': 1}, bounds=bounds).x
-    #a= np.hstack((x,[-1.0]))
-    #print 'a',a
     return None
 
   def ellipse_center(a,centroid):
@@ -71,39 +70,68 @@ def EllipseFit2D(XY):
   angle= ellipse_angle_of_rotation(a)
   return c,r1,r2,angle
 
+#Based on ellipse_fit1:
+#Geometric fitting with SVD.
+def SampleWeightedEllipseFit2D_2(XY, W):
+  sumw= np.sum(W)
+  maxw= np.max(W)
+  centroid= np.average(np.diag(W).dot(XY),0)*(len(XY)/sumw)
+  U,S,V= np.linalg.svd(np.diag(W/maxw).dot((np.array(XY)-centroid)).T)
+  #print "U=",U
+  #print "S=",S
+  #print "V=",V
+
+  r1,r2= np.sqrt(2.0*maxw/sumw) * S
+  angle= np.arctan2(U[0,1],U[0,0])
+  return centroid,r1,r2,angle
+
 
 if __name__=='__main__':
   wrand= 0.05
-  c= [-9.99,2.3]
-  r1,r2= 0.8,0.5
-  angle= np.pi/3.0
-  print 'ground-truth:',c,r1,r2,angle
+  c1= [0.1,0.15]
+  r11,r12= 0.2,0.15
+  angle1= np.pi/6.0
+  c2= [0.55,0.2]
+  r21,r22= 0.25,0.2
+  angle2= -np.pi/8.0
+  print 'ground-truth(1):',c1,r11,r12,angle1
+  print 'ground-truth(2):',c2,r21,r22,angle2
   XY=[]
+  W=[]
+  w_scale= 100.0
   with open('/tmp/data.dat','w') as fp:
-    #for th in np.linspace(0.0,2.0*np.pi,50):
-    #for th in np.linspace(0.6*np.pi,0.9*np.pi,100):
-    for th in np.linspace(0.6*np.pi,0.9*np.pi,10):
-    #for th in np.linspace(0.6*np.pi,0.9*np.pi,5):
+    c,r1,r2,angle= c1,r11,r12,angle1
+    for th in np.linspace(np.pi/6.0,(2.0-1.0/6.0)*np.pi,50):
       x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th) + np.random.uniform(-wrand,wrand)
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th) + np.random.uniform(-wrand,wrand)
       XY.append([x,y])
       fp.write('%f %f\n'%(x,y))
+      W.append(1.0/(1.0+w_scale*SqErrorFromEllipse([x,y],c1,r11,r12,angle1)))
+    fp.write('\n')
+    c,r1,r2,angle= c2,r21,r22,angle2
+    for th in np.linspace((-1.0+0.25)*np.pi,1.0*np.pi,50):
+      x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th) + np.random.uniform(-wrand,wrand)
+      y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th) + np.random.uniform(-wrand,wrand)
+      XY.append([x,y])
+      fp.write('%f %f\n'%(x,y))
+      W.append(1.0/(1.0+w_scale*SqErrorFromEllipse([x,y],c1,r11,r12,angle1)))
+  print 'W',W
 
-  #U,S,centroid= EllipseFit2D(XY)
-  #with open('/tmp/fit.dat','w') as fp:
-    #tt= np.linspace(0, 2*np.pi, 1000)
-    #circle= np.stack((np.cos(tt), np.sin(tt)))    # unit circle
-    #transform= np.sqrt(2.0/len(XY)) * U.dot(np.diag(S))   # transformation matrix
-    #fit= transform.dot(circle).T + centroid
-    #for x,y in fit:
-      #fp.write('%f %f\n'%(x,y))
-
-  c,r1,r2,angle= EllipseFit2D(XY)
+  #from ellipse_fit1 import EllipseFit2D
+  #from ellipse_fit2 import EllipseFit2D
+  #from ellipse_fit3 import EllipseFit2D
+  #from ellipse_fit4 import EllipseFit2D
+  #from ellipse_fit5 import EllipseFit2D
+  #from ellipse_fit6 import EllipseFit2D
+  #from ellipse_fit7 import EllipseFit2D
+  #c,r1,r2,angle= EllipseFit2D(XY)
+  #W= np.ones_like(W)
+  #c,r1,r2,angle= SampleWeightedEllipseFit2D_1(XY, W)  #Use W= np.ones_like(W)
+  c,r1,r2,angle= SampleWeightedEllipseFit2D_2(XY, W)
   print 'estimated:',c,r1,r2,angle
   with open('/tmp/fit.dat','w') as fp:
     for th in np.linspace(0, 2*np.pi, 1000):
       x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th)
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
-
 

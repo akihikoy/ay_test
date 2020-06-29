@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #\file    ellipse_fit2.py
 #\brief   Fitting 2d points with ellipse.
+#         Algebraic ellipse fitting using eigenvalue decomposition.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jun.26, 2020
