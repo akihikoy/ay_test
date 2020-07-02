@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #WARNING: It does not work
+#cf. recordclass1.py
 
 #import collections
 import operator

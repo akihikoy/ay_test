@@ -24,4 +24,7 @@ print 'a+b=',a+b
 #a.X= 2.9
 #For this purpose, use: ###recordtype###
 # http://stackoverflow.com/questions/2970608/what-are-named-tuples-in-python
+#Or, use: ###recordclass###
+# https://stackoverflow.com/questions/29290359/existence-of-mutable-named-tuple-in-python
+# cf. recordclass1.py
 

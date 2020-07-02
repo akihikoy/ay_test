@@ -12,13 +12,13 @@ import scipy.ndimage
 #import matplotlib.pyplot as plt
 
 #Find multi-level contours in image img.
-def FindMultilevelContours(img, vmin, vmax, step):
+def FindMultilevelContours(img, vmin, vmax, step, v_smaller=0, v_larger=1):
   contours= []
   #img= cv2.blur(copy.deepcopy(img),(3,3))
   for v in np.arange(vmin, vmax, step):
     img2= copy.deepcopy(img)
-    img2[img<v]= 0
-    img2[img>=v]= 1
+    img2[img<v]= v_smaller
+    img2[img>=v]= v_larger
     img2= img2.astype('uint8')
     #print img2.shape, img2.dtype
     cnts,_= cv2.findContours(img2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
@@ -30,32 +30,34 @@ def FindMultilevelContours(img, vmin, vmax, step):
   return contours
 
 #Visualize multi-level contours.
-def DrawMultilevelContours(img, step=5):
+def DrawMultilevelContours(img, step=2, v_smaller=0, v_larger=1):
   print 'min:',np.min(img)
   print 'max:',np.max(img)
-  contours= FindMultilevelContours(img, np.min(img), np.max(img), step)
+  contours= FindMultilevelContours(img, np.min(img), np.max(img), step, v_smaller, v_larger)
+  pickle.dump(contours,open('/tmp/contours1.dat','w'))
   img_viz= cv2.cvtColor(img.astype('uint8'), cv2.COLOR_GRAY2BGR)
   print len(contours)
   for v,cnts in contours:
     #col= (0,min(255,max(10,v-100)),0)
-    col= (0,min(100,max(1,100-0.5*v)),0)
+    col= (0,min(255,max(1,255-0.5*v)),0)
     thickness= 1
     cv2.drawContours(img_viz, cnts, -1, col, thickness)
   return img_viz
 
 if __name__=='__main__':
-  #img_depth= pickle.load(open('../../python/data/depth001.dat','rb'))['img_depth']
-  #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth1.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
-  #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth001.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
-  #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
-  img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth003.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
+  #img_depth,v_s,v_l= pickle.load(open('../../python/data/depth001.dat','rb'))['img_depth'],0,1
+  #img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth1.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
+  #img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth001.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
+  img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
+  #img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth003.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
   print img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)]
 
+  img_depth[img_depth==0]= np.max(img_depth)
   #img_depth= scipy.ndimage.gaussian_filter(img_depth, sigma=7)
   #cv2.imshow('filtered',img_depth*155)
 
 
-  img_viz= DrawMultilevelContours(img_depth)*255
+  img_viz= DrawMultilevelContours(img_depth,v_smaller=v_s,v_larger=v_l)*1
 
   #data= img_depth.reshape(img_depth.shape[0],img_depth.shape[1])
   #plt.contour(data)

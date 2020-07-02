@@ -1,1 +1,1 @@
-../../algorithms/ml/pca2.py
+../../statistics/pca2.py
