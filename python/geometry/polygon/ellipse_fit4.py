@@ -72,15 +72,6 @@ if __name__=='__main__':
       XY.append([x,y])
       fp.write('%f %f\n'%(x,y))
 
-  #U,S,centroid= EllipseFit2D(XY)
-  #with open('/tmp/fit.dat','w') as fp:
-    #tt= np.linspace(0, 2*np.pi, 1000)
-    #circle= np.stack((np.cos(tt), np.sin(tt)))    # unit circle
-    #transform= np.sqrt(2.0/len(XY)) * U.dot(np.diag(S))   # transformation matrix
-    #fit= transform.dot(circle).T + centroid
-    #for x,y in fit:
-      #fp.write('%f %f\n'%(x,y))
-
   c,r1,r2,angle= EllipseFit2D(XY)
   print 'estimated:',c,r1,r2,angle
   with open('/tmp/fit.dat','w') as fp:
@@ -89,4 +80,5 @@ if __name__=='__main__':
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
 
-
+  print '#Plot by:'
+  print '''qplot -x /tmp/data.dat /tmp/fit.dat w l'''

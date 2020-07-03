@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #\file    weighted_ellipse_fit1.py
 #\brief   Sample-weighted ellipse fitting.
+#         Based on ellipse_fit5:
+#         Algebraic ellipse fitting using linear least squares with bounds.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jun.29, 2020
@@ -18,7 +20,7 @@ def SqErrorFromEllipse(x, c,r1,r2,angle):
 
 #Based on ellipse_fit5:
 #Algebraic ellipse fitting using linear least squares with bounds.
-def SampleWeightedEllipseFit2D_1(XY, W):
+def SampleWeightedEllipseFit2D(XY, W):
   centroid= np.average(XY,0) # the centroid of the data set
   x= np.array([[XY[d][0]-centroid[0]] for d in range(len(XY))]) #centering data
   y= np.array([[XY[d][1]-centroid[1]] for d in range(len(XY))]) #centering data
@@ -70,21 +72,6 @@ def SampleWeightedEllipseFit2D_1(XY, W):
   angle= ellipse_angle_of_rotation(a)
   return c,r1,r2,angle
 
-#Based on ellipse_fit1:
-#Geometric fitting with SVD.
-def SampleWeightedEllipseFit2D_2(XY, W):
-  sumw= np.sum(W)
-  maxw= np.max(W)
-  centroid= np.average(np.diag(W).dot(XY),0)*(len(XY)/sumw)
-  U,S,V= np.linalg.svd(np.diag(W/maxw).dot((np.array(XY)-centroid)).T)
-  #print "U=",U
-  #print "S=",S
-  #print "V=",V
-
-  r1,r2= np.sqrt(2.0*maxw/sumw) * S
-  angle= np.arctan2(U[0,1],U[0,0])
-  return centroid,r1,r2,angle
-
 
 if __name__=='__main__':
   wrand= 0.05
@@ -125,9 +112,8 @@ if __name__=='__main__':
   #from ellipse_fit6 import EllipseFit2D
   #from ellipse_fit7 import EllipseFit2D
   #c,r1,r2,angle= EllipseFit2D(XY)
-  #W= np.ones_like(W)
-  #c,r1,r2,angle= SampleWeightedEllipseFit2D_1(XY, W)  #Use W= np.ones_like(W)
-  c,r1,r2,angle= SampleWeightedEllipseFit2D_2(XY, W)
+  W= np.ones_like(W); print 'modifying W',W
+  c,r1,r2,angle= SampleWeightedEllipseFit2D(XY, W)  #If we don't use W= np.ones_like(W), it does not converges.
   print 'estimated:',c,r1,r2,angle
   with open('/tmp/fit.dat','w') as fp:
     for th in np.linspace(0, 2*np.pi, 1000):
@@ -135,3 +121,5 @@ if __name__=='__main__':
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
 
+  print '#Plot by:'
+  print '''qplot -x /tmp/data.dat /tmp/fit.dat w l'''

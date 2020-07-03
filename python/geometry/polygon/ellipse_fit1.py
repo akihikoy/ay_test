@@ -55,4 +55,5 @@ if __name__=='__main__':
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
 
-
+  print '#Plot by:'
+  print '''qplot -x /tmp/data.dat /tmp/fit.dat w l'''

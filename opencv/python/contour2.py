@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#\file    contour1.py
+#\file    contour2.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
@@ -22,7 +22,7 @@ Find multi-level contours in image img.
         subcontours[j]: A contour; set of contour points.
         subcontours[j]= <np.array>[[[x0,y0]], [[x1,y1]], ...]
 '''
-def FindMultilevelContours(img, vmin, vmax, step, v_smaller=0, v_larger=1):
+def FindMultilevelContours(img, vmin, vmax, step, v_smaller=0, v_larger=1, approx_epsilon=1.5):
   contours= []
   #img= cv2.blur(copy.deepcopy(img),(3,3))
   for v in np.arange(vmin, vmax, step):
@@ -32,6 +32,14 @@ def FindMultilevelContours(img, vmin, vmax, step, v_smaller=0, v_larger=1):
     img2= img2.astype('uint8')
     #print img2.shape, img2.dtype
     cnts,_= cv2.findContours(img2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    if approx_epsilon is not None and approx_epsilon>0.0:
+      cnts_approx= []
+      for curve in cnts:
+        #print len(curve),'-->',
+        curve2= cv2.approxPolyDP(curve, approx_epsilon, closed=True)
+        #print len(curve2)
+        if len(curve2)>3:  cnts_approx.append(curve2)
+      cnts= cnts_approx
     if len(cnts)>0:  contours.append((v,cnts))
     #img2= cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
     #cv2.drawContours(img2, cnts, -1, (0,0,255), 1)
@@ -46,7 +54,7 @@ def DrawMultilevelContours(img, step=2, v_smaller=0, v_larger=1):
   contours= FindMultilevelContours(img, np.min(img), np.max(img), step, v_smaller, v_larger)
   pickle.dump(contours,open('/tmp/contours1.dat','w'))
   img_viz= cv2.cvtColor(img.astype('uint8'), cv2.COLOR_GRAY2BGR)
-  print len(contours)
+  print '# of levels, contours, points:', len(contours), sum(len(cnts) for v,cnts in contours), sum(sum(len(cnt) for cnt in cnts) for v,cnts in contours)
   for v,cnts in contours:
     #col= (0,min(255,max(10,v-100)),0)
     col= (0,min(255,max(1,255-0.5*v)),0)
@@ -56,9 +64,9 @@ def DrawMultilevelContours(img, step=2, v_smaller=0, v_larger=1):
 
 if __name__=='__main__':
   #img_depth,v_s,v_l= pickle.load(open('../../python/data/depth001.dat','rb'))['img_depth'],0,1
-  #img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth1.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
+  img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth1.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
   #img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth001.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
-  img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
+  #img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
   #img_depth,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth003.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),1,0
   print img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)]
 
