@@ -84,20 +84,25 @@ def FindOuterContour(contour, outer_contours, method):
     bounds= (np.min(contour.points,0),np.max(contour.points,0))
     for outer_contour in outer_contours:
       bounds_outer= (np.min(outer_contour.points,0),np.max(outer_contour.points,0))
-      #if an inner bounding box is included in an outer bounding box
+      #if the inner bounding box is included in the outer bounding box
       if all((bounds_outer[0][0]<bounds[0][0],bounds_outer[0][1]<bounds[0][1], bounds[1][0]<bounds_outer[1][0],bounds[1][1]<bounds_outer[1][1])):
         return outer_contour
   if method=='bb_overlap':
     bounds= (np.min(contour.points,0),np.max(contour.points,0))
     for outer_contour in outer_contours:
       bounds_outer= (np.min(outer_contour.points,0),np.max(outer_contour.points,0))
-      #if an inner bounding box is overlapping in an outer bounding box
+      #if the inner bounding box is overlapping in the outer bounding box
       xcond= ((bounds_outer[0][0]<=bounds[0][0] and bounds[0][0]<=bounds_outer[1][0]) or (bounds_outer[0][0]<=bounds[1][0] and bounds[1][0]<=bounds_outer[1][0]))
       ycond= ((bounds_outer[0][1]<=bounds[0][1] and bounds[0][1]<=bounds_outer[1][1]) or (bounds_outer[0][1]<=bounds[1][1] and bounds[1][1]<=bounds_outer[1][1]))
       if xcond and ycond:
         return outer_contour
   if method=='polygon_overlap':
+    bounds= (np.min(contour.points,0),np.max(contour.points,0))
     for outer_contour in outer_contours:
+      bounds_outer= (np.min(outer_contour.points,0),np.max(outer_contour.points,0))
+      #if the inner bounding box does not overlap with the outer bounding box
+      if any((bounds_outer[1][0]<bounds[0][0], bounds[1][0]<bounds_outer[0][0], bounds_outer[1][1]<bounds[0][1], bounds[1][1]<bounds_outer[0][1])):
+        continue
       if PolygonOverlap(contour.points,outer_contour.points):
         return outer_contour
 
@@ -115,8 +120,26 @@ def AnalyzeContoursHierarchy(contours, method_findouter='polygon_overlap'):
 def GetVertexContours(contours):
   return sum(([subcontour for subcontour in subcontours if len(subcontour.inner)==0] for subcontours in contours), [])
 
+##Get a list of valley subcontours from contours by using its hierarchy.
+#def GetValleyContours(contours):
+  #return sum(([subcontour for subcontour in subcontours if len(subcontour.inner)>1] for subcontours in contours), [])
+
+#Get a list of valley subcontours from contours by using its hierarchy
+#  where the valley level is larger than min_level.
+def GetValleyContours(contours, min_level):
+  def max_level(subcontour, base_level):
+    if len(subcontour.inner)==0:
+      return abs(subcontour.level-base_level)
+    max_lv= 0
+    for subcontour_inner in subcontour.inner:
+      level= max_level(subcontour_inner, base_level)
+      if max_lv<level:  max_lv= level
+    return max_lv
+  return sum(([subcontour for subcontour in subcontours if len(subcontour.inner)>1 and max_level(subcontour,subcontour.level)>min_level]
+              for subcontours in contours), [])
+
 #Write structure of contours into a file.
-def WriteContoursStructure(file_name, contours, vertices=None):
+def WriteContoursStructure(file_name, contours, vertices=None, valleys=None):
   with open(file_name,'w') as fp:
     fp.write('#contours= \n')
     for subcontours in contours:
@@ -124,8 +147,8 @@ def WriteContoursStructure(file_name, contours, vertices=None):
       for subcontour in subcontours:
         fp.write(' <@{idx} {l}pts {size[0]}x{size[1]}>'.format(idx=subcontour.idx, l=len(subcontour.points), size=np.max(subcontour.points,0)-np.min(subcontour.points,0)) )
       fp.write('\n')
+    subcontours_to_str= lambda subcontours: ' '.join(map(lambda c:'@{0}'.format(c.idx),subcontours))
     if vertices:
-      subcontours_to_str= lambda subcontours: ' '.join(map(lambda c:'@{0}'.format(c.idx),subcontours))
       fp.write('#vertices= {0}\n'.format(subcontours_to_str(vertices)) )
       fp.write('#mountains= \n')
       for k,v in enumerate(vertices):
@@ -133,6 +156,10 @@ def WriteContoursStructure(file_name, contours, vertices=None):
         vv= v
         while vv.outer is not None:  outers.append(vv.outer); vv= vv.outer
         fp.write('m{0} lv{1} @{2} [{3}] {4}\n'.format(k, v.level, v.idx, subcontours_to_str(v.inner), subcontours_to_str(outers) ))
+    if valleys:
+      fp.write('#valleys= \n')
+      for k,v in enumerate(valleys):
+        fp.write('v{0} lv{1} @{2} [{3}]\n'.format(k, v.level, v.idx, subcontours_to_str(v.inner) ))
 
 def WriteContour(fp, subcontour):
   x,y= subcontour.points[-1]; fp.write('{0} {1} {2}\n'.format(x,y,subcontour.level))

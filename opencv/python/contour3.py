@@ -1,9 +1,9 @@
 #!/usr/bin/python
-#\file    contour2.py
+#\file    contour3.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Apr.16, 2020
+#\date    Jul.07, 2020
 import numpy as np
 import six.moves.cPickle as pickle
 import copy
@@ -23,15 +23,23 @@ Find multi-level contours in image img.
         subcontours[j]: A contour; set of contour points.
         subcontours[j]= <np.array>[[[x0,y0]], [[x1,y1]], ...]
 Contours are simplified by an approximation with approx_epsilon.
+If the difference of the current threshold image from the previous threshold image is less than
+min_diff*pixels in img, we skip the current image.
 '''
-def FindMultilevelContours(img, vmin, vmax, step, v_smaller=0, v_larger=1, approx_epsilon=1.5):
+def FindMultilevelContours(img, vmin, vmax, step, v_smaller=0, v_larger=1, approx_epsilon=1.5, min_diff=0.0064):
   contours= []
   #img= cv2.blur(copy.deepcopy(img),(3,3))
+  img2_prev= None
   for v in np.arange(vmin, vmax, step):
     img2= copy.deepcopy(img)
     img2[img<v]= v_smaller
     img2[img>=v]= v_larger
     img2= img2.astype('uint8')
+    if min_diff>0 and img2_prev is not None:
+      diff= cv2.countNonZero(cv2.bitwise_xor(img2,img2_prev))
+      #print diff
+      if diff<min_diff*img.size:  continue
+    img2_prev= img2
     #print img2.shape, img2.dtype
     cnts,_= cv2.findContours(img2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
     if approx_epsilon is not None and approx_epsilon>0.0:
@@ -78,4 +86,3 @@ if __name__=='__main__':
   cv2.imshow('depth',img_viz)
   #cv2.imshow('localmax',localmax)
   while cv2.waitKey() not in map(ord,[' ','q']):  pass
-

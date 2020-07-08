@@ -1,95 +1,74 @@
 #!/usr/bin/python
-#\file    contours_to_mountains2.py
+#\file    contours_to_mountains3.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Jul.02, 2020
-from contours_to_mountains1 import *
-from weighted_ellipse_fit2 import SqErrorFromEllipse,SampleWeightedEllipseFit2D
-from ellipse_point_in_out import PointInEllipse
+#\date    Jul.06, 2020
+from contours_to_mountains2 import *
 
-#Approximate each contour in a mountain by an ellipse.
-#  vertex: Vertex contour of the mountain.
-#  w_param: Parameter to convert a distance from ellipse to weight.
-#  max_ellipses: Max number of ellipses per mountain. 0 for no limit.
-def ApproxMountainByEllipses(vertices, w_param=0.01, max_ellipses=10):
-  mountains= []
-  for subcontour in vertices:
-    ellipses= []
-    W= [1.0]*len(subcontour.points)
-    c,r1,r2,angle= SampleWeightedEllipseFit2D(subcontour.points, W)
-    ellipses.append((subcontour,c,r1,r2,angle))
-    while subcontour.outer is not None:
-      if max_ellipses>0 and len(ellipses)>=max_ellipses:  break
+
+##Make a valley map where a valley pixel is filled by its level.
+#def MakeValleyMap(valleys, width, height):
+  #img= np.zeros([height,width],dtype=np.uint16)
+  #for subcontour in reversed(valleys):
+    #subimg= np.zeros([height,width],dtype=np.uint16)
+    #col= subcontour.level
+    #cv2.fillPoly(subimg, [subcontour.points.reshape((-1,1,2))], col)
+    #for subcontour_inner in subcontour.inner:
+      #cv2.fillPoly(subimg, [subcontour_inner.points.reshape((-1,1,2))], 0)
+    #img[subimg>0]= subimg[subimg>0]
+  #return img
+
+##Make a valley map where a valley pixel is filled by its level.
+#def MakeValleyMap(valleys, width, height):
+  #img= np.zeros([height,width],dtype=np.uint16)
+  #def draw_outers(subimg, subcontour):
+    #if subcontour.outer is not None:
+      #draw_outers(subimg, subcontour.outer)
+    #col= subcontour.level
+    #cv2.fillPoly(subimg, [subcontour.points.reshape((-1,1,2))], col)
+  #for subcontour in reversed(valleys):
+    #subimg= np.zeros([height,width],dtype=np.uint16)
+    ##col= subcontour.level
+    ##cv2.fillPoly(subimg, [subcontour.points.reshape((-1,1,2))], col)
+    #draw_outers(subimg, subcontour)
+    #for subcontour_inner in subcontour.inner:
+      #cv2.fillPoly(subimg, [subcontour_inner.points.reshape((-1,1,2))], 0)
+    #img[subimg>0]= subimg[subimg>0]
+  #return img
+
+#Make a valley map where a valley pixel is filled by its level.
+def MakeValleyMap(valleys, width, height):
+  valleys_and_outers= []
+  for subcontour in reversed(valleys):
+    while True:
+      if id(subcontour) not in map(id,valleys_and_outers):
+        valleys_and_outers.append(subcontour)
+      if subcontour.outer is None:  break
       subcontour= subcontour.outer
-      #W= [1.0/(1.0+w_param*SqErrorFromEllipse([x,y],c,r1,r2,angle)) for x,y in subcontour.points]
-      W= [1.0/(1.0+w_param*np.sqrt(SqErrorFromEllipse([x,y],c,r1,r2,angle))) for x,y in subcontour.points]
-      #W= [1.0 if np.sqrt(SqErrorFromEllipse([x,y],c,r1,r2,angle))<w_param else 0.0 for x,y in subcontour.points]
-      #print 'W',W
-      c,r1,r2,angle= SampleWeightedEllipseFit2D(subcontour.points, W, centroid=c)
-      #If the ellipse is smaller than the previous one, stop the process.
-      #Check the size difference with the product of two axis lengths:
-      #if r1*r2 < ellipses[-1][2]*ellipses[-1][3]:  break
-      #Check the size difference per axis length:
-      if r1<ellipses[-1][2] or r2<ellipses[-1][3]:  break
-      ellipses.append((subcontour,c,r1,r2,angle))
-    mountains.append(ellipses)
-  return mountains
-
-def WriteMountainEllipses(file_name, mountains):
-  with open(file_name,'w') as fp:
-    for ellipses in mountains:
-      for subcontour,c,r1,r2,angle in ellipses:
-        for th in np.linspace(0, 2*np.pi, 1000):
-          x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th)
-          y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
-          fp.write('{0} {1} {2}\n'.format(x,y,subcontour.level))
-        fp.write('\n')
-      fp.write('\n')
-
-##Get a level at point on a mountain (==ellipses).
-##Return None if point is not on the mountain
-#def PointLevelOnMountain(ellipses, point):
-  #for subcontour,c,r1,r2,angle in ellipses:
-    #if PointInEllipse(point, c,r1,r2,angle):  return subcontour.level
-  #return None
-
-##Get a level at point on mountains.
-#def PointLevelOnMountains(mountains, point):
-  #levels= []
-  #for ellipses in mountains:
-    #level= PointLevelOnMountain(ellipses, point)
-    #if level is not None:  levels.append(level)
-  #if len(levels)>0:
-    #return min(levels)
-  #return None
-
-##Convert mountains to a depth image.
-#def MountainsToDepthImg(mountains, width, height):
-  #none_filter= lambda lv: 255 if lv is None else lv
-  #return np.array([[none_filter(PointLevelOnMountains(mountains, [x,y])) for x in range(width)]
-                   #for y in range(height)],dtype=np.uint8)
-
-import cv2
-#Convert mountains to a depth image.
-def MountainsToDepthImg(mountains, width, height):
-  img= np.ones([height,width],dtype=np.uint16)*np.iinfo(np.uint16).max
-  ellipses= sum(mountains,[])
-  ellipses.sort(key=lambda e:e[0].level)
-  for subcontour,c,r1,r2,angle in reversed(ellipses):
-    poly= [[c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th),
-            c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
-            ] for th in np.linspace(0, 2*np.pi, 200)]
-    col= subcontour.level
-    cv2.fillPoly(img, [np.array(poly,np.int32).reshape((-1,1,2))], col)
+  mountains= []  #mountain contours.
+  for subcontour in reversed(valleys):
+    for subcontour_inner in subcontour.inner:
+      if id(subcontour_inner) not in map(id,mountains):
+        mountains.append(subcontour_inner)
+  subcontours= [(subcontour,'v') for subcontour in valleys_and_outers] \
+              +[(subcontour,'m') for subcontour in mountains]
+  subcontours.sort(key=lambda v:v[0].level)
+  img= np.zeros([height,width],dtype=np.uint16)
+  for subcontour,kind in reversed(subcontours):
+    if kind=='v':
+      col= subcontour.level
+      cv2.fillPoly(img, [subcontour.points.reshape((-1,1,2))], col)
+    else:
+      cv2.fillPoly(img, [subcontour.points.reshape((-1,1,2))], 0)
   return img
-
 
 if __name__=='__main__':
   import pickle
-  cv_contours= pickle.load(open('data/mlcontours1.dat','rb'))
-  #cv_contours= pickle.load(open('data/mlcontours2.dat','rb'))
+  #cv_contours= pickle.load(open('data/mlcontours1.dat','rb'))
+  cv_contours= pickle.load(open('data/mlcontours2.dat','rb'))
   #cv_contours= pickle.load(open('data/mlcontours2a.dat','rb'))
+  #cv_contours= pickle.load(open('data/mlcontours4a.dat','rb'))
   contours= LoadFromCVMultilevelContours(cv_contours)
 
   #Filtering contours:
@@ -113,7 +92,8 @@ if __name__=='__main__':
   print '# Analyzing the hierarchical structure...'
   AnalyzeContoursHierarchy(contours)
   vertices= GetVertexContours(contours)
-  WriteContoursStructure('/dev/stdout', contours, vertices)
+  valleys= GetValleyContours(contours, min_level=20)
+  WriteContoursStructure('/dev/stdout', contours, vertices, valleys)
 
   #Write hierarchical structure.
   WriteMountainContours('/tmp/m_contours.dat', vertices)
@@ -158,9 +138,18 @@ if __name__=='__main__':
   width,height= np.max(sum([[np.max(subcontour.points,0) for subcontour in subcontours] for subcontours in contours],[]),0)
   depth_img= MountainsToDepthImg(mountains, width, height)
   depth_img= cv2.cvtColor(depth_img.astype('uint8'), cv2.COLOR_GRAY2BGR)
-  import cv2
   cv2.imwrite('/tmp/depth_img.png', depth_img)
   print '''display /tmp/depth_img.png'''
   cv2.imshow('depth', depth_img)
+  #while cv2.waitKey() not in map(ord,[' ','q']):  pass
+
+  #Make a valley map where a valley pixel is filled by its level.
+  print '# Make a valley map where a valley pixel is filled by its level.'
+  valley_img= MakeValleyMap(valleys, width, height)
+  valley_img= cv2.cvtColor(valley_img.astype('uint8'), cv2.COLOR_GRAY2BGR)
+  cv2.imwrite('/tmp/valley_img.png', valley_img)
+  print '''display /tmp/valley_img.png'''
+  cv2.imshow('valley', valley_img)
   while cv2.waitKey() not in map(ord,[' ','q']):  pass
+
 
