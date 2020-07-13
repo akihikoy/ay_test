@@ -66,9 +66,9 @@ def MakeValleyMap(valleys, width, height):
 if __name__=='__main__':
   import pickle
   #cv_contours= pickle.load(open('data/mlcontours1.dat','rb'))
-  cv_contours= pickle.load(open('data/mlcontours2.dat','rb'))
+  #cv_contours= pickle.load(open('data/mlcontours2.dat','rb'))
   #cv_contours= pickle.load(open('data/mlcontours2a.dat','rb'))
-  #cv_contours= pickle.load(open('data/mlcontours4a.dat','rb'))
+  cv_contours= pickle.load(open('data/mlcontours4a.dat','rb'))
   contours= LoadFromCVMultilevelContours(cv_contours)
 
   #Filtering contours:

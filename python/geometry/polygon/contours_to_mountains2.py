@@ -11,8 +11,11 @@ from ellipse_point_in_out import PointInEllipse
 #Approximate each contour in a mountain by an ellipse.
 #  vertex: Vertex contour of the mountain.
 #  w_param: Parameter to convert a distance from ellipse to weight.
+#  min_ellipses: Min number of ellipses per mountain. 0 for no limit.
 #  max_ellipses: Max number of ellipses per mountain. 0 for no limit.
-def ApproxMountainByEllipses(vertices, w_param=0.01, max_ellipses=10):
+#  max_area_increase: If the area of the current ellipse is greater than max_area_increase-times larger
+#    than that of the inner ellipse, it stops adding ellipses.
+def ApproxMountainByEllipses(vertices, w_param=0.01, min_ellipses=3, max_ellipses=10, max_area_increase=3.0):
   mountains= []
   for subcontour in vertices:
     ellipses= []
@@ -31,7 +34,9 @@ def ApproxMountainByEllipses(vertices, w_param=0.01, max_ellipses=10):
       #Check the size difference with the product of two axis lengths:
       #if r1*r2 < ellipses[-1][2]*ellipses[-1][3]:  break
       #Check the size difference per axis length:
-      if r1<ellipses[-1][2] or r2<ellipses[-1][3]:  break
+      if len(ellipses)>=min_ellipses and r1<ellipses[-1][2] or r2<ellipses[-1][3]:  break
+      #Check the size increase.
+      if len(ellipses)>=min_ellipses and r1*r2>max_area_increase*ellipses[-1][2]*ellipses[-1][3]:  break
       ellipses.append((subcontour,c,r1,r2,angle))
     mountains.append(ellipses)
   return mountains
