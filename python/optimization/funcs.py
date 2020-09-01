@@ -12,6 +12,7 @@ def Func(x,kind=0):
   if kind==2:  return (x[0]-0.5)**2 + (x[1]-1.0)**2 + np.sin(10.0*x[0]) + np.sin(5.0*x[1])
   if kind==3:  return 3.0+(x[0]*x[0]+(np.sin(3.0*x[1]))**2)
   if kind==4:  return -1.0 if (x[0]-0.5)**2 + (x[1]-1.0)**2 < 0.25 else 0.0
+  if kind==5:  return (x[0]-0.5)**2 + (x[1]-1.0)**2 + 5.0*np.sin(10.0*x[0]) + 5.0*np.sin(5.0*x[1])
 
 def Plot(xmin,xmax,func,x_points=None,N=50):
   with open('/tmp/func.dat','w') as fp:
