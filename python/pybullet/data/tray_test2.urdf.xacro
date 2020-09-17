@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<!-- based on: traybox.urdf -->
+<robot name="tray_test" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:property name="side_wall_angle" value="0.575469961" />
+  <xacro:property name="side_wall_w" value="0.6" />
+  <xacro:property name="side_wall_h" value="0.15" />
+  <xacro:property name="side_wall_th" value="0.02" />
+
+  <xacro:property name="side_wall_xy" value="${0.5*side_wall_w-0.5*side_wall_h*sin(side_wall_angle)}" />
+  <xacro:property name="side_wall_z" value="${0.5*side_wall_h*cos(side_wall_angle)+0.5*side_wall_th}" />
+
+  <xacro:macro name="box_geom" params="xyz rpy size">
+    <origin xyz="${xyz}" rpy="${rpy}"/>
+    <geometry><box size="${size}"/></geometry>
+  </xacro:macro>
+
+  <xacro:macro name="add_box" params="xyz rpy size material">
+    <visual>
+      <xacro:box_geom xyz="${xyz}" rpy="${rpy}" size="${size}"/>
+      <material name="${material}"/>
+    </visual>
+    <collision>
+      <xacro:box_geom xyz="${xyz}" rpy="${rpy}" size="${size}"/>
+    </collision>
+  </xacro:macro>
+
+  <material name="tray_material">
+    <color rgba="1 0.5 1 1"/>
+  </material>
+
+  <link name="base_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+
+    <xacro:add_box rpy="0 0 0" xyz="0 0 ${0.5*side_wall_th}"
+                   size="${side_wall_w} ${side_wall_w} ${side_wall_th}"
+                   material="tray_material"/>
+    <xacro:add_box rpy="0 ${side_wall_angle} 0" xyz="${side_wall_xy} 0 ${side_wall_z}"
+                   size="${side_wall_th} ${side_wall_w} ${side_wall_h}"
+                   material="tray_material"/>
+    <xacro:add_box rpy="0 -${side_wall_angle} 0" xyz="-${side_wall_xy} 0 ${side_wall_z}"
+                   size="${side_wall_th} ${side_wall_w} ${side_wall_h}"
+                   material="tray_material"/>
+    <xacro:add_box rpy="${side_wall_angle} 0 0" xyz="0 -${side_wall_xy} ${side_wall_z}"
+                   size="${side_wall_w} ${side_wall_th} ${side_wall_h}"
+                   material="tray_material"/>
+    <xacro:add_box rpy="-${side_wall_angle} 0 0" xyz="0 ${side_wall_xy} ${side_wall_z}"
+                   size="${side_wall_w} ${side_wall_th} ${side_wall_h}"
+                   material="tray_material"/>
+
+  </link>
+</robot>
