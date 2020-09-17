@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<!-- Source container of ode_grpour_sim -->
+<robot name="container1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="Thickness"    default="0.005" />
+  <!--Size parameters of the main body of the container:-->
+  <xacro:arg name="SizeXY"       default="0.3" />
+  <xacro:arg name="SizeZ"        default="0.5" />
+  <!--Size parameters of the opening part:-->
+  <xacro:arg name="Size2H"       default="0.03" />
+  <xacro:arg name="OpnAngle"     default="0.7853981633974483" />
+
+  <xacro:macro name="box_geom" params="xyz rpy size">
+    <origin xyz="${xyz}" rpy="${rpy}"/>
+    <geometry><box size="${size}"/></geometry>
+  </xacro:macro>
+
+  <xacro:macro name="add_box" params="xyz rpy size">
+    <visual>
+      <xacro:box_geom xyz="${xyz}" rpy="${rpy}" size="${size}"/>
+      <material name="container_material"/>
+    </visual>
+    <collision>
+      <xacro:box_geom xyz="${xyz}" rpy="${rpy}" size="${size}"/>
+    </collision>
+  </xacro:macro>
+
+  <material name="container_material">
+    <color rgba="1 0.5 1 1"/>
+  </material>
+
+  <link name="base_link">
+    <contact>
+      <rolling_friction value="0.1"/>
+      <spinning_friction value="0.1"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+
+    <xacro:property name="sizexy" value="$(arg SizeXY)" />
+    <xacro:property name="sizez"  value="$(arg SizeZ)" />
+    <xacro:property name="size2s" value="$(arg SizeXY)" />
+    <xacro:property name="size2h" value="$(arg Size2H)" />
+    <xacro:property name="thickness" value="$(arg Thickness)" />
+    <xacro:property name="opening_angle" value="$(arg OpnAngle)" />
+    <xacro:property name="bottom_z" value="0.0" />
+    <xacro:property name="M_SQRT2" value="${sqrt(2.0)}" />
+
+    <!--Main body of the container:-->
+    <xacro:add_box rpy="0 0 0" xyz="${0.0} ${0.0} ${0.5*thickness+bottom_z}"
+                   size="${sizexy-2.0*thickness} ${sizexy-2.0*thickness} ${thickness}" />
+    <xacro:add_box rpy="0 0 0" xyz="${0.5*sizexy-0.5*thickness} ${0.0} ${0.5*sizez+bottom_z}"
+                   size="${thickness} ${sizexy} ${sizez}" />
+    <xacro:add_box rpy="0 0 0" xyz="${-0.5*sizexy+0.5*thickness} ${0.0} ${0.5*sizez+bottom_z}"
+                   size="${thickness} ${sizexy} ${sizez}" />
+    <xacro:add_box rpy="0 0 0" xyz="${0.0} ${0.5*sizexy-0.5*thickness} ${0.5*sizez+bottom_z}"
+                   size="${sizexy-2.0*thickness} ${thickness} ${sizez}" />
+    <xacro:add_box rpy="0 0 0" xyz="${0.0} ${-0.5*sizexy+0.5*thickness} ${0.5*sizez+bottom_z}"
+                   size="${sizexy-2.0*thickness} ${thickness} ${sizez}" />
+
+    <!--Opening:-->
+    <xacro:add_box rpy="0 ${-opening_angle} 0" xyz="${0.5*sizexy-0.5*size2h-0.5*thickness} ${0.0} ${0.5*size2h+sizez+bottom_z}"
+                   size="${thickness} ${size2s} ${M_SQRT2*size2h}" />
+    <xacro:add_box rpy="0 ${opening_angle} 0" xyz="${-0.5*sizexy+0.5*size2h+0.5*thickness} ${0.0} ${0.5*size2h+sizez+bottom_z}"
+                   size="${thickness} ${size2s} ${M_SQRT2*size2h}" />
+    <xacro:add_box rpy="${opening_angle} 0 0" xyz="${0.0} ${0.5*sizexy-0.5*size2h-0.5*thickness} ${0.5*size2h+sizez+bottom_z}"
+                   size="${size2s-2.0*thickness} ${thickness} ${M_SQRT2*size2h}" />
+    <xacro:add_box rpy="${-opening_angle} 0 0" xyz="${0.0} ${-0.5*sizexy+0.5*size2h+0.5*thickness} ${0.5*size2h+sizez+bottom_z}"
+                   size="${size2s-2.0*thickness} ${thickness} ${M_SQRT2*size2h}" />
+
+  </link>
+</robot>
