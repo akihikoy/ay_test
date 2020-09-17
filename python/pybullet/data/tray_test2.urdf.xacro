@@ -1,10 +1,15 @@
 <?xml version="1.0" ?>
 <!-- based on: traybox.urdf -->
 <robot name="tray_test" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:property name="side_wall_angle" value="0.575469961" />
-  <xacro:property name="side_wall_w" value="0.6" />
-  <xacro:property name="side_wall_h" value="0.15" />
-  <xacro:property name="side_wall_th" value="0.02" />
+  <xacro:arg name="side_wall_angle" default="0.575469961" />
+  <xacro:arg name="side_wall_w" default="0.6" />
+  <xacro:arg name="side_wall_h" default="0.15" />
+  <xacro:arg name="side_wall_th" default="0.02" />
+
+  <xacro:property name="side_wall_angle" value="$(arg side_wall_angle)" />
+  <xacro:property name="side_wall_w" value="$(arg side_wall_w)" />
+  <xacro:property name="side_wall_h" value="$(arg side_wall_h)" />
+  <xacro:property name="side_wall_th" value="$(arg side_wall_th)" />
 
   <xacro:property name="side_wall_xy" value="${0.5*side_wall_w-0.5*side_wall_h*sin(side_wall_angle)}" />
   <xacro:property name="side_wall_z" value="${0.5*side_wall_h*cos(side_wall_angle)+0.5*side_wall_th}" />
