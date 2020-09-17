@@ -1,6 +1,6 @@
 #!/usr/bin/python
-#\file    load_urdf.py
-#\brief   Load URDF.
+#\file    pour1.py
+#\brief   Pouring simulation.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Sep.17, 2020
@@ -8,16 +8,29 @@ import pybullet as pb
 import time
 import pybullet_data
 import os,random
+from load_urdf import LoadXacro
 
-def LoadXacro(fileName, basePosition=[0.,0.,0.], baseOrientation=[0.,0.,0.,1.], useMaximalCoordinates=0, useFixedBase=0, flags=0, globalScaling=1.0, physicsClientId=0, args='', tmpFileFmt='/tmp/pybullet{code}.urdf'):
-  while True:
-    tmpFileName= tmpFileFmt.format(code=random.randint(10000000,99999999))
-    if not os.path.exists(tmpFileName):  break
-  print 'Converting Xacro {inFile} to URDF {outFile}'.format(inFile=fileName,outFile=tmpFileName)
-  os.system('rosrun xacro xacro --inorder {inFile} -o {outFile} {args}'.format(inFile=fileName,outFile=tmpFileName,args=args))
-  pb.loadURDF(tmpFileName, basePosition=basePosition, baseOrientation=baseOrientation,
-              useMaximalCoordinates=useMaximalCoordinates, useFixedBase=useFixedBase,
-              flags=flags, globalScaling=globalScaling, physicsClientId=physicsClientId)
+def GenerateParticles(N=200):
+  BallRad= 0.01
+  SrcSizeXY= 0.10
+  BoxThickness= 0.005
+
+  rad= BallRad*1.05  #margin
+  xymin= -0.5*SrcSizeXY + BoxThickness+rad
+  xymax= 0.5*SrcSizeXY - BoxThickness-rad
+  x,y,z= xymin, xymin, BoxThickness+rad
+  pos= []
+  for _ in range(N):
+    pos.append((x,y,z))
+    x+= 2.0*rad
+    if x>xymax:
+      x= xymin+(x-xymax)
+      y+= 2.0*rad
+      if y>xymax:
+        y= xymin+(y-xymax)
+        z+= 2.0*rad
+  for p in pos:
+    ob= pb.loadURDF("sphere_1cm.urdf", basePosition=p, useMaximalCoordinates=True)
 
 if __name__=='__main__':
   pb.connect(pb.GUI, options="--opengl2")
@@ -43,7 +56,11 @@ if __name__=='__main__':
   #pb.loadURDF("tray_test2.urdf", useMaximalCoordinates=True)
   #pb.loadURDF("container1.urdf", useMaximalCoordinates=True)
   #pb.loadURDF("container2.urdf", useMaximalCoordinates=True)
-  LoadXacro("data/container1.urdf.xacro", useMaximalCoordinates=True, args='Size2H:=0.03 SizeXY:=0.4')
+  LoadXacro("data/container1.urdf.xacro", useMaximalCoordinates=True,
+            args='SizeXY:=0.10 SizeZ:=0.15 Size2H:=0.012')
+
+  LoadXacro("data/container2.urdf.xacro", basePosition=[0,0.15,0], useMaximalCoordinates=True,
+            args='SizeX:=0.10 SizeY:=0.12 SizeZ:=0.12')
 
   gravX,gravY,gravZ= 0, 0, -1
   gravXid= pb.addUserDebugParameter('gravityX', -10, 10, gravX)
@@ -51,6 +68,8 @@ if __name__=='__main__':
   gravZid= pb.addUserDebugParameter('gravityZ', -10, 10, gravZ)
   pb.setPhysicsEngineParameter(numSolverIterations=10)
   pb.setPhysicsEngineParameter(contactBreakingThreshold=0.001)
+
+  GenerateParticles(N=400)
 
   pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
   pb.setGravity(gravX,gravY,gravZ)
