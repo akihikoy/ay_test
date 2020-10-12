@@ -20,7 +20,7 @@ if __name__=='__main__':
   joint_names= ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
                'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 
-  client= actionlib.SimpleActionClient('/scaled_pos_traj_controller/follow_joint_trajectory', control_msgs.msg.FollowJointTrajectoryAction)
+  client= actionlib.SimpleActionClient('/scaled_pos_joint_traj_controller/follow_joint_trajectory', control_msgs.msg.FollowJointTrajectoryAction)
   client.cancel_goal()  #Ensure to cancel the ongoing goal.
 
   # Wait some seconds for the head action server to start or exit
