@@ -11,6 +11,7 @@ import controller_manager_msgs.srv
 import math,time,sys
 
 if __name__=='__main__':
+  joint_idx= int(sys.argv[1]) if len(sys.argv)>1 else None
   rospy.init_node('velocity_control_test', disable_signals=True)  #NOTE: for executing the stop motion commands after Ctrl+C.
 
   pub= rospy.Publisher('/joint_group_vel_controller/command', std_msgs.msg.Float64MultiArray, queue_size=10)
@@ -35,7 +36,12 @@ if __name__=='__main__':
   try:
     while not rospy.is_shutdown():
       t= time.time()-t0
-      msg.data= [0.05*math.sin(math.pi*t)]*6
+      angle= 0.05*math.sin(math.pi*t)
+      if joint_idx is None:
+        msg.data= [angle]*6
+      else:
+        msg.data= [0.0]*6
+        msg.data[joint_idx]= angle
       pub.publish(msg)
       rate.sleep()
 
