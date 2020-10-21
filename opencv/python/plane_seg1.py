@@ -22,29 +22,82 @@ from pca2 import TPCA,TPCA_SVD
 TPCA=TPCA_SVD
 #from sklearn.decomposition import PCA
 
-def Normal(img_patch):
-  h,w= img_patch.shape[:2]
-  points= [[x-w/2,y-h/2,img_patch[y,x]] for y in range(h) for x in range(w) if img_patch[y,x]!=0]
-  if len(points)<3:  return None
-  normal= TPCA(points).EVecs[:,-1]
-  #pca2= PCA(n_components=3,svd_solver='full')  #svd_solver='randomized'
-  #pca2.fit(points)
-  #normal= pca2.components_[-1]
-  if normal[2]<0:  normal= -normal
-  return normal
+#Feature definition for clustering (interface class).
+class TImgPatchFeatIF(object):
+  #Set up the feature.  Parameters may be added.
+  def __init__(self):
+    pass
+  #Get a feature vector for an image patch img_patch.
+  #Return None if it is impossible to get a feature.
+  def __call__(self,img_patch):
+    return None
+  #Get a difference (scholar value) between two features.
+  def Diff(self,f1,f2):
+    return None
+  #Compute a weighted sum of two features. i.e. w1*f1 + (1.0-w1)*f2
+  def WSum(self,f1,f2,w1):
+    return None
 
-def AvrDepth(img_patch):
-  img_valid= img_patch[img_patch!=0]
-  if len(img_valid)==0:    return None
-  return np.array([np.mean(img_valid)])
+#Feature of the normal of a patch.
+#  th_normal: The feature is None if the normal length is greater than this value.
+class TImgPatchFeatNormal(TImgPatchFeatIF):
+  def __init__(self, th_normal=0.4):
+    self.th_normal= th_normal
+  #Get a normal vector of an image patch img_patch.
+  def __call__(self,img_patch):
+    h,w= img_patch.shape[:2]
+    #NOTE: Change the step of range from 1 to 2 for speed up.
+    #points= [[x-w/2,y-h/2,img_patch[y,x]] for y in range(h) for x in range(w) if img_patch[y,x]!=0]
+    points= np.vstack([np.where(img_patch!=0), img_patch[img_patch!=0].ravel()]).T[:,[1,0,2]] - [w/2,h/2,0]
+    if len(points)<3:  return None
+    pca= TPCA(points)
+    normal= pca.EVecs[:,-1]
+    #pca2= PCA(n_components=3,svd_solver='full')  #svd_solver='randomized'
+    #pca2.fit(points)
+    #normal= pca2.components_[-1]
+    if pca.EVals[-1]>self.th_normal:  return None
+    if normal[2]<0:  normal= -normal
+    return normal
+  #Get an angle [0,pi] between two features.
+  def Diff(self,f1,f2):
+    cos_th= np.dot(f1,f2) / (np.linalg.norm(f1)*np.linalg.norm(f2))
+    if cos_th>1.0:  cos_th=1.0
+    elif cos_th<-1.0:  cos_th=-1.0
+    return np.arccos(cos_th)
+  #Compute a weighted sum of two features. i.e. w1*f1 + (1.0-w1)*f2
+  def WSum(self,f1,f2,w1):
+    ws= w1*f1 + (1.0-w1)*f2
+    ws_norm= np.linalg.norm(ws)
+    if ws_norm<1.0e-6:
+      raise Exception('TImgPatchFeatNormal: Computing WSum for normals of opposite directions.')
+    return ws/ws_norm
 
-def AvrDepth2(img_patch):
-  h,w= img_patch.shape[:2]
-  points= [[x-w/2,y-h/2,img_patch[y,x]] for y in range(h) for x in range(w) if img_patch[y,x]!=0]
-  if len(points)==0:  return None
-  return np.array([np.mean(points,axis=0)[-1]])
+#Feature of the average depth of a patch.
+class TImgPatchFeatAvrDepth(TImgPatchFeatIF):
+  def __init__(self):
+    pass
+  #Get an average depth of an image patch img_patch.
+  def __call__(self,img_patch):
+    img_valid= img_patch[img_patch!=0]
+    if len(img_valid)==0:    return None
+    return np.array([np.mean(img_valid)])
+  '''
+  #Equal to the above __call__ (for test).
+  def __call__(self,img_patch):
+    h,w= img_patch.shape[:2]
+    #points= [[x-w/2,y-h/2,img_patch[y,x]] for y in range(h) for x in range(w) if img_patch[y,x]!=0]
+    points= np.vstack([np.where(img_patch!=0), img_patch[img_patch!=0].ravel()]).T[:,[1,0,2]] - [w/2,h/2,0]
+    if len(points)==0:  return None
+    return np.array([np.mean(points,axis=0)[-1]])
+  '''
+  #Get a difference (scholar value) between two features.
+  def Diff(self,f1,f2):
+    return np.linalg.norm(f1-f2)
+  #Compute a weighted sum of two features. i.e. w1*f1 + (1.0-w1)*f2
+  def WSum(self,f1,f2,w1):
+    return w1*f1 + (1.0-w1)*f2
 
-def ClusteringByFeatures(img, w_patch, f_feat=Normal, th_feat=15):
+def ClusteringByFeatures(img, w_patch, f_feat=TImgPatchFeatAvrDepth(), th_feat=15):
   img= img.reshape((img.shape[0],img.shape[1]))
   class TNode:
     def __init__(self, patches=[], feat=None):
@@ -57,9 +110,11 @@ def ClusteringByFeatures(img, w_patch, f_feat=Normal, th_feat=15):
           #for y in range(0,img.shape[0],w_patch)
           #for x in range(0,img.shape[1],w_patch)]
   Nu,Nv= img.shape[1]/w_patch,img.shape[0]/w_patch
+  debug_t_start= time.time()
   nodes= [TNode([(u*w_patch,v*w_patch,w_patch,w_patch)],f_feat(img[v*w_patch:v*w_patch+w_patch,u*w_patch:u*w_patch+w_patch]))
           for v in range(Nv)
           for u in range(Nu)]
+  print 'DEBUG:feat cmp time:',time.time()-debug_t_start
   print Nu,Nv
   #neighbors= ((1,1),(1,0),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1))
   neighbors= ((1,0),(0,1),(0,-1),(-1,0))
@@ -95,11 +150,11 @@ def ClusteringByFeatures(img, w_patch, f_feat=Normal, th_feat=15):
       #if len(node2.neighbors)==0:
         #if node2 in nodes:  nodes.remove(node2)
       #print '--feat-diff',np.linalg.norm(node.feat-node2.feat),th_feat
-      if np.linalg.norm(node.feat-node2.feat) < th_feat:
+      if f_feat.Diff(node.feat,node2.feat) < th_feat:
         #print '--merged',debug_id2idx[node2],'-->',debug_id2idx[node]
         #Merge node2 into node:
         r1= float(len(node.patches))/(len(node.patches)+len(node2.patches))
-        node.feat= r1*node.feat + (1.0-r1)*node2.feat
+        node.feat= f_feat.WSum(node.feat, node2.feat, r1)
         node.patches+= node2.patches
         node.neighbors.update(node2.neighbors-neighbors)
         #print '--node,node.neighbors',debug_id2idx[node],[debug_id2idx[n] for n in node.neighbors]
@@ -138,15 +193,19 @@ def DrawClusters(img, clusters):
 if __name__=='__main__':
   #img_depth= pickle.load(open('../../python/data/depth001.dat','rb'))['img_depth']
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth1.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
+  #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth2.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
+  img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth3.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth001.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
-  img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
+  #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth003.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth004.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   print img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)]
 
   t_start= time.time()
-  clusters= ClusteringByFeatures(img_depth, w_patch=30, th_feat=0.1)
-  clusters= [node for node in clusters if len(node.patches)>5]
+  clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatNormal(0.4), th_feat=0.2)
+  #clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatNormal(5.0), th_feat=0.5)
+  #clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatAvrDepth(), th_feat=3.0)
+  clusters= [node for node in clusters if len(node.patches)>=3]
   print 'Number of clusters:',len(clusters)
   print 'Sum of numbers of patches:',sum([len(node.patches) for node in clusters])
   print 'Computation time:',time.time()-t_start
