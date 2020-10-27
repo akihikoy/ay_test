@@ -182,24 +182,41 @@ def ClusteringByFeatures(img, w_patch, f_feat=TImgPatchFeatAvrDepth(), th_feat=1
 
 #Convert patch points to a binary image.
 def PatchPointsToImg(patches):
-  patches_pts= np.array([[y/h,x/w] for x,y,w,h in patches])
+  if len(patches)==0:  return None,None,None,None
+  _,_,patch_w,patch_h= patches[0]
+  patches_pts= np.array([[y/patch_h,x/patch_w] for x,y,_,_ in patches])
   patches_topleft= np.min(patches_pts,axis=0)
   patches_btmright= np.max(patches_pts,axis=0)
   patches_img= np.zeros(patches_btmright-patches_topleft+[1,1])
   patches_pts_o= patches_pts - patches_topleft
   patches_img[patches_pts_o[:,0],patches_pts_o[:,1]]= 1
-  return patches_img
+  return patches_img,patches_topleft[::-1]*[patch_w,patch_h],patch_w,patch_h
 
 
+from binary_seg2 import FindSegments
 def DrawClusters(img, clusters):
   img_viz= cv2.cvtColor(img.astype('uint8'), cv2.COLOR_GRAY2BGR)
   col_set= ((255,0,0),(0,255,0),(0,0,255),(255,255,0),(0,255,255),(255,0,255))
   for i,node in enumerate(clusters):
-    print i, node.feat, len(node.patches)
+    print i, node.feat, 'patches:',len(node.patches),
     col= col_set[i%len(col_set)]
     for patch in node.patches:
       x,y,w,h= patch
-      cv2.circle(img_viz, (x+w/2,y+h/2), (w+h)/4, col, 1)
+      #cv2.circle(img_viz, (x+w/2,y+h/2), (w+h)/4, col, 1)
+      cv2.rectangle(img_viz, (x+1,y+1), (x+w-1,y+h-1), np.array(col)/2, 1)
+    patches_img,patches_topleft,patch_w,patch_h= PatchPointsToImg(node.patches)
+    #print '  debug:',patches_img.shape
+    #if patches_img.size>100:
+      #cv2.imwrite('patches_img-{0}.png'.format(i), patches_img)
+      #cv2.imshow('patches_img-{0}'.format(i),cv2.resize(patches_img,(patches_img.shape[1]*10,patches_img.shape[0]*10),interpolation=cv2.INTER_NEAREST ))
+    segments,num_segments= FindSegments(patches_img)
+    print 'seg:',[np.sum(segments==idx) for idx in range(1,num_segments+1)]
+    for idx in range(1,num_segments+1):
+      patches= [patches_topleft + [u*patch_w,v*patch_h] for v,u in zip(*np.where(segments==idx))]
+      for patch in patches:
+        x,y= patch
+        for j in range(0,idx):
+          cv2.circle(img_viz, (x+patch_w/2,y+patch_h/2), max(1,(patch_w+patch_h)/4-2*j), col, 1)
   return img_viz
 
 
