@@ -97,6 +97,7 @@ class TImgPatchFeatAvrDepth(TImgPatchFeatIF):
   def WSum(self,f1,f2,w1):
     return w1*f1 + (1.0-w1)*f2
 
+#Segment img by a given feature model such as normal.
 def ClusteringByFeatures(img, w_patch, f_feat=TImgPatchFeatAvrDepth(), th_feat=15):
   img= img.reshape((img.shape[0],img.shape[1]))
   class TNode:
@@ -178,6 +179,18 @@ def ClusteringByFeatures(img, w_patch, f_feat=TImgPatchFeatAvrDepth(), th_feat=1
     #print len(nodes)
   return clusters
 
+
+#Convert patch points to a binary image.
+def PatchPointsToImg(patches):
+  patches_pts= np.array([[y/h,x/w] for x,y,w,h in patches])
+  patches_topleft= np.min(patches_pts,axis=0)
+  patches_btmright= np.max(patches_pts,axis=0)
+  patches_img= np.zeros(patches_btmright-patches_topleft+[1,1])
+  patches_pts_o= patches_pts - patches_topleft
+  patches_img[patches_pts_o[:,0],patches_pts_o[:,1]]= 1
+  return patches_img
+
+
 def DrawClusters(img, clusters):
   img_viz= cv2.cvtColor(img.astype('uint8'), cv2.COLOR_GRAY2BGR)
   col_set= ((255,0,0),(0,255,0),(0,0,255),(255,255,0),(0,255,255),(255,0,255))
@@ -194,16 +207,16 @@ if __name__=='__main__':
   #img_depth= pickle.load(open('../../python/data/depth001.dat','rb'))['img_depth']
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth1.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth2.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
-  img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth3.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
+  #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/test_depth3.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth001.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth003.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
-  #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth004.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
+  img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth004.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   print img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)]
 
   t_start= time.time()
-  clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatNormal(0.4), th_feat=0.2)
-  #clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatNormal(5.0), th_feat=0.5)
+  #clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatNormal(0.4), th_feat=0.2)
+  clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatNormal(5.0), th_feat=0.5)
   #clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatAvrDepth(), th_feat=3.0)
   clusters= [node for node in clusters if len(node.patches)>=3]
   print 'Number of clusters:',len(clusters)

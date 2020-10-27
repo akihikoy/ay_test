@@ -65,7 +65,6 @@ if __name__=='__main__':
   print markers
   disp_img('markers(watershed)',disp_int32(markers))
 
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
   img[markers == -1] /= 2
   img[markers == -1] += np.array([128,0,0],np.uint8)
   for idx in range(0,num_markers+2):
