@@ -15,11 +15,9 @@ import numpy as np
 import six.moves.cPickle as pickle
 import copy
 import cv2
-import scipy.ndimage
 import time
 #import matplotlib.pyplot as plt
 from pca2 import TPCA,TPCA_SVD
-TPCA=TPCA_SVD
 #from sklearn.decomposition import PCA
 
 #Feature definition for clustering (interface class).
@@ -39,10 +37,10 @@ class TImgPatchFeatIF(object):
     return None
 
 #Feature of the normal of a patch.
-#  th_normal: The feature is None if the normal length is greater than this value.
+#  th_plane: The feature is None if the normal length is greater than this value (smaller value is more like plane).
 class TImgPatchFeatNormal(TImgPatchFeatIF):
-  def __init__(self, th_normal=0.4):
-    self.th_normal= th_normal
+  def __init__(self, th_plane=0.4):
+    self.th_plane= th_plane
   #Get a normal vector of an image patch img_patch.
   def __call__(self,img_patch):
     h,w= img_patch.shape[:2]
@@ -50,12 +48,12 @@ class TImgPatchFeatNormal(TImgPatchFeatIF):
     #points= [[x-w/2,y-h/2,img_patch[y,x]] for y in range(h) for x in range(w) if img_patch[y,x]!=0]
     points= np.vstack([np.where(img_patch!=0), img_patch[img_patch!=0].ravel()]).T[:,[1,0,2]] - [w/2,h/2,0]
     if len(points)<3:  return None
-    pca= TPCA(points)
+    pca= TPCA_SVD(points)
     normal= pca.EVecs[:,-1]
     #pca2= PCA(n_components=3,svd_solver='full')  #svd_solver='randomized'
     #pca2.fit(points)
     #normal= pca2.components_[-1]
-    if pca.EVals[-1]>self.th_normal:  return None
+    if pca.EVals[-1]>self.th_plane:  return None
     if normal[2]<0:  normal= -normal
     return normal
   #Get an angle [0,pi] between two features.
