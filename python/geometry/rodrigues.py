@@ -16,7 +16,8 @@ def Rodrigues(w, epsilon=1.0e-6):
   w_wedge= GetWedge(w *(1.0/th))
   return np.identity(3) + w_wedge * math.sin(th) + np.dot(w_wedge,w_wedge) * (1.0-math.cos(th))
 
-def InvRodrigues(R, epsilon=1.0e-6):
+#Inverse of Rodrigues, i.e. returns w (=angle*axis) from R where angle is in radian and axis is 3D unit vector.
+def InvRodrigues0(R, epsilon=1.0e-6):
   alpha= (R[0,0]+R[1,1]+R[2,2] - 1.0) / 2.0
 
   if (alpha-1.0 < epsilon) and (alpha-1.0 > -epsilon):
@@ -29,6 +30,56 @@ def InvRodrigues(R, epsilon=1.0e-6):
     w[1] = tmp * (R[0,2] - R[2,0])
     w[2] = tmp * (R[1,0] - R[0,1])
     return w
+
+#Inverse of Rodrigues, i.e. returns w (=angle*axis) from R where angle is in radian and axis is 3D unit vector.
+#With singularity detection. Src: https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/index.htm
+def InvRodrigues(R, epsilon=1.0e-6):
+  epsilon2= epsilon
+  if abs(R[0,1]-R[1,0])<epsilon and abs(R[0,2]-R[2,0])<epsilon and abs(R[1,2]-R[2,1])<epsilon:
+    #singularity found
+    #first check for identity matrix which must have +1 for all terms
+    #in leading diagonaland zero in other terms
+    if abs(R[0,1]+R[1,0])<epsilon2 and abs(R[0,2]+R[2,0])<epsilon2 and abs(R[1,2]+R[2,1])<epsilon2 and abs(R[0,0]+R[1,1]+R[2,2]-3)<epsilon2:
+      #this singularity is identity matrix so angle = 0
+      return np.zeros(3)
+    #otherwise this singularity is angle = 180
+    angle= np.pi
+    xx= (R[0,0]+1.)/2.
+    yy= (R[1,1]+1.)/2.
+    zz= (R[2,2]+1.)/2.
+    xy= (R[0,1]+R[1,0])/4.
+    xz= (R[0,2]+R[2,0])/4.
+    yz= (R[1,2]+R[2,1])/4.
+    if xx>yy and xx>zz:
+      #R[0,0] is the largest diagonal term
+      if xx<epsilon:
+        x,y,z= 0, np.cos(np.pi/4.), np.cos(np.pi/4.)
+      else:
+        x= np.sqrt(xx)
+        y,z= xy/x, xz/x
+    elif yy > zz:
+      #R[1,1] is the largest diagonal term
+      if yy<epsilon:
+        x,y,z= np.cos(np.pi/4.), 0.0, np.cos(np.pi/4.)
+      else:
+        y= np.sqrt(yy)
+        x,z= xy/y, yz/y
+    else:
+      #R[2,2] is the largest diagonal term so base result on this
+      if zz<epsilon:
+        x,y,z= np.cos(np.pi/4.), np.cos(np.pi/4.), 0.0
+      else:
+        z= np.sqrt(zz)
+        x,y= xz/z, yz/z
+    return angle*np.array([x,y,z])
+  #as we have reached here there are no singularities so we can handle normally
+  s= np.sqrt((R[2,1]-R[1,2])*(R[2,1]-R[1,2])+(R[0,2]-R[2,0])*(R[0,2]-R[2,0])+(R[1,0]-R[0,1])*(R[1,0]-R[0,1]))
+  if np.abs(s)<epsilon:  s=1.0
+  #prevent divide by zero, should not happen if matrix is orthogonal and should be
+  #caught by singularity test above, but I've left it in just in case
+  angle= np.arccos((R[0,0]+R[1,1]+R[2,2]-1.)/2.)
+  tmp= angle/s
+  return tmp*np.array([R[2,1]-R[1,2],R[0,2]-R[2,0],R[1,0]-R[0,1]])
 
 #Quaternion from rotation matrix
 def QuaternionFromMatrix(matrix):
