@@ -13,6 +13,8 @@ g++ -I -Wall -O2 optical-flow-lk1.cpp -o optical-flow-lk1.out -lopencv_core -lop
 #include <opencv2/legacy/legacy.hpp>
 #include <map>
 #include "cap_open.h"
+#define LIBRARY
+#include "float_trackbar.cpp"
 //-------------------------------------------------------------------------------------------
 namespace loco_rabbits
 {
@@ -28,22 +30,27 @@ using namespace loco_rabbits;
 
 int main(int argc, char**argv)
 {
-  cv::VideoCapture cap;
-  if(argc>=2)  cap= CapOpen(argv[1], /*width=*/0, /*height=*/0);
-  else         cap= CapOpen("0", /*width=*/0, /*height=*/0);
-  if(!cap.isOpened())  return -1;
+  TCapture cap;
+  if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
   const char *window("Optical Flow LK");
   cv::namedWindow(window,1);
   int ni(10);
-  cv::createTrackbar( "Interval:", window, &ni, 100, NULL);
+  float v_min(4.0), v_max(1000.0);
+  CreateTrackbar<int>("Interval", window, &ni, 0, 100, 1,  NULL);
+  CreateTrackbar<float>("v_min", window, &v_min, 0.0f, 100.0f, 0.1f,  NULL);
+  CreateTrackbar<float>("v_max", window, &v_max, 0.0f, 1000.0f, 0.01f,  NULL);
 
   cv::Mat frame_in, frame, frame_old;
   std::map<int,cv::Mat> history;
   for(int i(0);;++i)
   {
+    if(!cap.Read(frame_in))
+    {
+      if(cap.WaitReopen()) {i=-1; continue;}
+      else break;
+    }
     int N=100;
-    cap >> frame_in;
     cv::cvtColor(frame_in,frame,CV_BGR2GRAY);
     frame.copyTo(history[i]);
     if(i>N)  history.erase(i-N-1);
@@ -63,7 +70,7 @@ int main(int argc, char**argv)
     cvCalcOpticalFlowLK(&prev, &curr, cv::Size(5,5), &velx2, &vely2);
 
     // visualization
-    frame_in*= 0.5;
+    frame_in*= 0.7;
     {
       cv::Scalar col;
       float vx,vy,spd,angle;
@@ -77,9 +84,9 @@ int main(int argc, char**argv)
           vx= velx.at<float>(j, i);  // Index order is y,x
           vy= vely.at<float>(j, i);  // Index order is y,x
           spd= std::sqrt(vx*vx+vy*vy);
-          if(spd<4.0 || 1000.0<spd)  continue;
+          if(spd<v_min || v_max<spd)  continue;
           angle= std::atan2(vy,vx);
-          col= CV_RGB(0.0,255.0*std::fabs(std::cos(angle)),255.0*std::fabs(std::sin(angle)));
+          col= cv::Scalar(0.0,255.0*std::fabs(std::cos(angle)),255.0*std::fabs(std::sin(angle)));
           cv::line(frame_in, cv::Point(i,j), cv::Point(i,j)+cv::Point(dt*vx,dt*vy), col, 1);
         }
       }
