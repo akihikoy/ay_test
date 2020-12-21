@@ -11,6 +11,7 @@ g++ -I -Wall -O2 optical-flow-lk2.cpp -o optical-flow-lk2.out -lopencv_core -lop
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/legacy/legacy.hpp>
+#include "cap_open.h"
 #include "cv2-videoout2.h"
 //-------------------------------------------------------------------------------------------
 namespace loco_rabbits
@@ -27,22 +28,12 @@ using namespace loco_rabbits;
 
 int main(int argc, char**argv)
 {
-  cv::VideoCapture cap(0); // open the default camera
-  if(argc==2)
-  {
-    cap.release();
-    cap.open(atoi(argv[1]));
-  }
-  if(!cap.isOpened())  // check if we succeeded
-  {
-    std::cerr<<"no camera!"<<std::endl;
-    return -1;
-  }
-  std::cerr<<"camera opened"<<std::endl;
+  TCapture cap;
+  if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
-  cap.set(CV_CAP_PROP_FRAME_WIDTH, 800);
-  cap.set(CV_CAP_PROP_FRAME_HEIGHT, 600);
-  cap.set(CV_CAP_PROP_FPS, 60);  // Works with ELP USBFHD01M-L180
+  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 800);
+  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 600);
+  // cap.set(CV_CAP_PROP_FPS, 60);  // Works with ELP USBFHD01M-L180
 
   TEasyVideoOut vout[2];
   vout[0].SetfilePrefix("/tmp/optflow_in");
@@ -58,7 +49,11 @@ int main(int argc, char**argv)
   for(int i(0);;++i)
   {
     frame.copyTo(frame_old);
-    cap >> frame_in;
+    if(!cap.Read(frame_in))
+    {
+      if(cap.WaitReopen()) {i=-1; continue;}
+      else break;
+    }
     cv::resize(frame_in,frame_in,cv::Size(640,480),CV_INTER_LINEAR);
     cv::cvtColor(frame_in,frame,CV_BGR2GRAY);
 
