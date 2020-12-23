@@ -66,7 +66,7 @@ int main(int argc, char**argv)
           vx= fxy.x;
           vy= fxy.y;
           spd= std::sqrt(vx*vx+vy*vy);
-          if(spd<4.0 || 1000.0<spd)  continue;
+          if(spd<1.0 || 1000.0<spd)  continue;
           angle= std::atan2(vy,vx);
           col= CV_RGB(0.0,255.0*std::fabs(std::cos(angle)),255.0*std::fabs(std::sin(angle)));
           cv::line(frame_in, cv::Point(i,j), cv::Point(i,j)+cv::Point(dt*vx,dt*vy), col, 1);

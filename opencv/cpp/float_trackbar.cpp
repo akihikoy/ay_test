@@ -17,6 +17,9 @@ g++ -g -Wall -O2 -o float_trackbar.out float_trackbar.cpp -lopencv_core -lopencv
 #include "cap_open.h"
 //-------------------------------------------------------------------------------------------
 
+//-------------------------------------------------------------------------------------------
+// Extended trackbar where trackbars can be defined with min/max/step for int/float/double.
+//-------------------------------------------------------------------------------------------
 template<typename T>
 struct TExtendedTrackbarInfo
 {
@@ -77,14 +80,13 @@ template<>
 std::list<TExtendedTrackbarInfo<int> >& ExtendedTrackbarInfo()  {return ExtendedTrackbarInfo_int;}
 template<>
 std::list<TExtendedTrackbarInfo<bool> >& ExtendedTrackbarInfo()  {return ExtendedTrackbarInfo_bool;}
-
 template<typename T>
 void ExtendedTrackbarOnChange(int,void *pi)
 {
   TExtendedTrackbarInfo<T> &info(*reinterpret_cast<TExtendedTrackbarInfo<T>*>(pi));
   info.Update();
 }
-
+//-------------------------------------------------------------------------------------------
 template<typename T>
 int CreateTrackbar(const std::string& trackbarname, const std::string& winname, T *value, const T &min, const T &max, const T &step, typename TExtendedTrackbarInfo<T>::TCallback on_track=NULL, void *user_data=NULL)
 {
@@ -105,12 +107,13 @@ int CreateTrackbar(const std::string& trackbarname, const std::string& winname, 
 {
   return CreateTrackbar<T>(trackbarname, winname, value, 0, 1, 1, on_track, user_data);
 }
-
+//-------------------------------------------------------------------------------------------
 template<typename T>
 void TrackbarPrintOnTrack(const TExtendedTrackbarInfo<T> &info, void*)
 {
   std::cerr<<info.Name<<"= "<<info.Value<<std::endl;
 }
+//-------------------------------------------------------------------------------------------
 
 
 #ifndef LIBRARY

@@ -111,6 +111,7 @@ int main(int argc, char**argv)
       if(points[0].empty())
       {
       }
+      else
       {
         int flag_map[]={0,cv::OPTFLOW_LK_GET_MIN_EIGENVALS};
         int flags= flag_map[optflow_flags];
