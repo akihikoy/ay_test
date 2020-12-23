@@ -37,9 +37,9 @@ int main(int argc, char**argv)
   cv::namedWindow(window,1);
   int ni(10);
   float v_min(4.0), v_max(1000.0);
-  CreateTrackbar<int>("Interval", window, &ni, 0, 100, 1,  NULL);
-  CreateTrackbar<float>("v_min", window, &v_min, 0.0f, 100.0f, 0.1f,  NULL);
-  CreateTrackbar<float>("v_max", window, &v_max, 0.0f, 1000.0f, 0.01f,  NULL);
+  CreateTrackbar<int>("Interval", window, &ni, 0, 100, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<float>("v_min", window, &v_min, 0.0f, 100.0f, 0.1f,  &TrackbarPrintOnTrack);
+  CreateTrackbar<float>("v_max", window, &v_max, 0.0f, 1000.0f, 0.01f,  &TrackbarPrintOnTrack);
 
   cv::Mat frame_in, frame, frame_old;
   std::map<int,cv::Mat> history;

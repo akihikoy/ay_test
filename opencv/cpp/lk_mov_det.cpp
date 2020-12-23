@@ -45,7 +45,7 @@ TMovingObjectDetector::TMovingObjectDetector()
     term_criteria_(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03),
     win_size_(10,10),
     max_feat_count_(500),
-    reset_count_(100),
+    reset_count_(1),
     count_(0)
 {
 }
@@ -59,7 +59,7 @@ void TMovingObjectDetector::Step(const cv::Mat &frame)
   if(points_[0].empty() || count_==0)
   {
     // Automatically detect feature points
-    cv::goodFeaturesToTrack(prev_gray_, points_[0], max_feat_count_, 0.01, 10, cv::Mat(), 3, 0, 0.04);
+    cv::goodFeaturesToTrack(prev_gray_, points_[0], max_feat_count_, 0.001, 10, cv::Mat(), 3, 0, 0.04);
     cv::cornerSubPix(prev_gray_, points_[0], win_size_, cv::Size(-1,-1), term_criteria_);
     count_= reset_count_;
   }
