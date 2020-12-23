@@ -21,40 +21,58 @@ g++ -g -Wall -O2 -o float_trackbar.out float_trackbar.cpp -lopencv_core -lopencv
 // Extended trackbar where trackbars can be defined with min/max/step for int/float/double.
 //-------------------------------------------------------------------------------------------
 template<typename T>
+struct TExtendedTrackbarInfo;
+template<typename T>
+struct TExtendedTrackbarUtil
+{
+  typedef T TTrackValue;
+  static T Convert(const TExtendedTrackbarInfo<T> &info, const TTrackValue &v)
+    {
+      return v;
+    }
+  static TTrackValue Invert(const TExtendedTrackbarInfo<T> &info, const T &v)
+    {
+      return v;
+    }
+};
+template<typename T>
 struct TExtendedTrackbarInfo
 {
+  typedef typename TExtendedTrackbarUtil<T>::TTrackValue TTrackValue;
   const std::string Name, WinName;
   int Position;
   int IntMax;
   T &Value;
-  T Min;
-  T Max;
-  T Step;
+  TTrackValue Min;
+  TTrackValue Max;
+  TTrackValue Step;
   typedef void (*TCallback)(const TExtendedTrackbarInfo<T>&, void*);
   TCallback OnUpdate;
+  void *Reference;
   void *UserData;
-  TExtendedTrackbarInfo(const std::string &name, const std::string &winname, T &value, const T &min, const T &max, const T &step, TCallback on_update, void *user_data)
-    : Name(name), WinName(winname), Value(value), OnUpdate(NULL), UserData(NULL)
+  TExtendedTrackbarInfo(const std::string &name, const std::string &winname, T &value, const TTrackValue &min, const TTrackValue &max, const TTrackValue &step, TCallback on_update, void *user_data, void *reference)
+    : Name(name), WinName(winname), Value(value), OnUpdate(NULL), Reference(NULL), UserData(NULL)
     {
       Min= min;
       Max= max;
       Step= step;
-      Position= ToInt(value);
       IntMax= ToInt(Max);
       if(on_update)  OnUpdate= on_update;
       if(user_data)  UserData= user_data;
+      if(reference)  Reference= reference;
+      Position= ToInt(TExtendedTrackbarUtil<T>::Invert(*this, value));
     }
-  T ToFloat(int p) const
+  T ToValue(int p) const
     {
       if(p>IntMax)  p= IntMax;
       if(p<0)  p= 0;
-      return Min + Step*static_cast<T>(p);
+      return TExtendedTrackbarUtil<T>::Convert(*this, Min + Step*static_cast<TTrackValue>(p));
     }
-  T ToFloat() const
+  T ToValue() const
     {
-      return ToFloat(Position);
+      return ToValue(Position);
     }
-  int ToInt(T v) const
+  int ToInt(TTrackValue v) const
     {
       if(v>Max)  v= Max;
       if(v<Min)  v= Min;
@@ -62,14 +80,31 @@ struct TExtendedTrackbarInfo
     }
   void Update()
     {
-      Value= ToFloat();
+      Value= ToValue();
       if(OnUpdate)  OnUpdate(*this, UserData);
+    }
+};
+template<>
+struct TExtendedTrackbarUtil<std::string>
+{
+  typedef int TTrackValue;
+  static std::string Convert(const TExtendedTrackbarInfo<std::string> &info, const TTrackValue &v)
+    {
+      return (*reinterpret_cast<const std::vector<std::string>*>(info.Reference))[v];
+    }
+  static TTrackValue Invert(const TExtendedTrackbarInfo<std::string> &info, const std::string &v)
+    {
+      const std::vector<std::string> &ref(*reinterpret_cast<const std::vector<std::string>*>(info.Reference));
+      std::vector<std::string>::const_iterator itr= std::find(ref.begin(),ref.end(),v);
+      if(itr==ref.end())  return -1;
+      return std::distance(ref.begin(), itr);
     }
 };
 std::list<TExtendedTrackbarInfo<float> > ExtendedTrackbarInfo_float;
 std::list<TExtendedTrackbarInfo<double> > ExtendedTrackbarInfo_double;
 std::list<TExtendedTrackbarInfo<int> > ExtendedTrackbarInfo_int;
 std::list<TExtendedTrackbarInfo<bool> > ExtendedTrackbarInfo_bool;
+std::list<TExtendedTrackbarInfo<std::string> > ExtendedTrackbarInfo_string;
 template<typename T>
 std::list<TExtendedTrackbarInfo<T> >& ExtendedTrackbarInfo();
 template<>
@@ -80,6 +115,8 @@ template<>
 std::list<TExtendedTrackbarInfo<int> >& ExtendedTrackbarInfo()  {return ExtendedTrackbarInfo_int;}
 template<>
 std::list<TExtendedTrackbarInfo<bool> >& ExtendedTrackbarInfo()  {return ExtendedTrackbarInfo_bool;}
+template<>
+std::list<TExtendedTrackbarInfo<std::string> >& ExtendedTrackbarInfo()  {return ExtendedTrackbarInfo_string;}
 template<typename T>
 void ExtendedTrackbarOnChange(int,void *pi)
 {
@@ -88,7 +125,7 @@ void ExtendedTrackbarOnChange(int,void *pi)
 }
 //-------------------------------------------------------------------------------------------
 template<typename T>
-int CreateTrackbar(const std::string& trackbarname, const std::string& winname, T *value, const T &min, const T &max, const T &step, typename TExtendedTrackbarInfo<T>::TCallback on_track=NULL, void *user_data=NULL)
+int CreateTrackbarHelper(const std::string& trackbarname, const std::string& winname, T *value, const typename TExtendedTrackbarUtil<T>::TTrackValue &min, const typename TExtendedTrackbarUtil<T>::TTrackValue &max, const typename TExtendedTrackbarUtil<T>::TTrackValue &step, typename TExtendedTrackbarInfo<T>::TCallback on_track=NULL, void *user_data=NULL, void *reference=NULL)
 {
   for(typename std::list<TExtendedTrackbarInfo<T> >::iterator itr(ExtendedTrackbarInfo<T>().begin()),itr_end(ExtendedTrackbarInfo<T>().end()); itr!=itr_end; ++itr)
   {
@@ -98,14 +135,24 @@ int CreateTrackbar(const std::string& trackbarname, const std::string& winname, 
       break;
     }
   }
-  ExtendedTrackbarInfo<T>().push_back(TExtendedTrackbarInfo<T>(trackbarname, winname, *value, min, max, step, on_track, user_data));
+  ExtendedTrackbarInfo<T>().push_back(TExtendedTrackbarInfo<T>(trackbarname, winname, *value, min, max, step, on_track, user_data, reference));
   TExtendedTrackbarInfo<T> &pi(ExtendedTrackbarInfo<T>().back());
   return cv::createTrackbar(trackbarname, winname, &pi.Position, pi.IntMax, ExtendedTrackbarOnChange<T>, &pi);
 }
 template<typename T>
+int CreateTrackbar(const std::string& trackbarname, const std::string& winname, T *value, const T &min, const T &max, const T &step, typename TExtendedTrackbarInfo<T>::TCallback on_track=NULL, void *user_data=NULL)
+{
+  return CreateTrackbarHelper<T>(trackbarname, winname, value, min, max, step, on_track, user_data);
+}
+template<typename T>
 int CreateTrackbar(const std::string& trackbarname, const std::string& winname, T *value, TExtendedTrackbarInfo<bool>::TCallback on_track=NULL, void *user_data=NULL)
 {
-  return CreateTrackbar<T>(trackbarname, winname, value, 0, 1, 1, on_track, user_data);
+  return CreateTrackbarHelper<T>(trackbarname, winname, value, 0, 1, 1, on_track, user_data);
+}
+template<typename T>
+int CreateTrackbar(const std::string& trackbarname, const std::string& winname, T *value, std::vector<std::string> &str_list, typename TExtendedTrackbarInfo<T>::TCallback on_track=NULL, void *user_data=NULL)
+{
+  return CreateTrackbarHelper<T>(trackbarname, winname, value, 0, str_list.size()-1, 1, on_track, user_data, &str_list);
 }
 //-------------------------------------------------------------------------------------------
 template<typename T>
@@ -133,12 +180,19 @@ int main(int argc, char**argv)
   float b(1.0),g(1.0),r(1.0);
   int ksize(3);
   bool negative(false);
+  std::string channel("bgr");
+  std::vector<std::string> channel_list;
+  channel_list.push_back("b");
+  channel_list.push_back("g");
+  channel_list.push_back("r");
+  channel_list.push_back("bgr");
   CreateTrackbar<float>("b", "camera", &b, 0.0, 2.0, 0.001, &OnTrack);
   CreateTrackbar<float>("g", "camera", &g, 0.0, 2.0, 0.001, &OnTrack);
   CreateTrackbar<float>("r", "camera", &r, 0.0, 2.0, 0.001, &OnTrack);
-  CreateTrackbar<int>("ksize", "camera", &ksize, 1, 9, 2, &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("ksize", "camera", &ksize, 1, 15, 2, &TrackbarPrintOnTrack);
   CreateTrackbar<bool>("negative", "camera", &negative, &TrackbarPrintOnTrack);
-  std::cerr<<"# of trackbars(int/float/double/bool): "<<ExtendedTrackbarInfo<int>().size()<<", "<<ExtendedTrackbarInfo<float>().size()<<", "<<ExtendedTrackbarInfo<double>().size()<<", "<<ExtendedTrackbarInfo<bool>().size()<<std::endl;
+  CreateTrackbar<std::string>("channel", "camera", &channel, channel_list, &TrackbarPrintOnTrack);
+  std::cerr<<"# of trackbars(int/float/double/bool/string): "<<ExtendedTrackbarInfo<int>().size()<<", "<<ExtendedTrackbarInfo<float>().size()<<", "<<ExtendedTrackbarInfo<double>().size()<<", "<<ExtendedTrackbarInfo<bool>().size()<<", "<<ExtendedTrackbarInfo<std::string>().size()<<std::endl;
 
   cv::Mat frame, channels[3];
   for(int i(0);;++i)
@@ -152,14 +206,18 @@ int main(int argc, char**argv)
     if(ksize>1)
       for(int n(0);n<3;++n)
         cv::GaussianBlur(channels[n], channels[n], cv::Size(ksize,ksize), ksize, ksize);
+    float ch[3]= {1.0,1.0,1.0};
+    if(channel=="b")  ch[1]=ch[2]=0.0;
+    else if(channel=="g")  ch[0]=ch[2]=0.0;
+    else if(channel=="r")  ch[0]=ch[1]=0.0;
     if(!negative)
     {
-      cv::Mat channels2[3]= {b*channels[0],g*channels[1],r*channels[2]};
+      cv::Mat channels2[3]= {ch[0]*b*channels[0],ch[1]*g*channels[1],ch[2]*r*channels[2]};
       cv::merge(channels2, 3, frame);
     }
     else
     {
-      cv::Mat channels2[3]= {255-b*channels[0],255-g*channels[1],255-r*channels[2]};
+      cv::Mat channels2[3]= {ch[0]*(255-b*channels[0]),ch[1]*(255-g*channels[1]),ch[2]*(255-r*channels[2])};
       cv::merge(channels2, 3, frame);
     }
     cv::imshow("camera", frame);
@@ -174,7 +232,8 @@ int main(int argc, char**argv)
       CreateTrackbar<float>("r", "camera", &r, 0.0, 3.0, 0.001, &OnTrack);
       CreateTrackbar<int>("ksize", "camera", &ksize, 1, 15, 2, &TrackbarPrintOnTrack);
       CreateTrackbar<bool>("negative", "camera", &negative, &TrackbarPrintOnTrack);
-      std::cerr<<"# of trackbars(int/float/double/bool): "<<ExtendedTrackbarInfo<int>().size()<<", "<<ExtendedTrackbarInfo<float>().size()<<", "<<ExtendedTrackbarInfo<double>().size()<<", "<<ExtendedTrackbarInfo<bool>().size()<<std::endl;
+      CreateTrackbar<std::string>("channel", "camera", &channel, channel_list, &TrackbarPrintOnTrack);
+      std::cerr<<"# of trackbars(int/float/double/bool/string): "<<ExtendedTrackbarInfo<int>().size()<<", "<<ExtendedTrackbarInfo<float>().size()<<", "<<ExtendedTrackbarInfo<double>().size()<<", "<<ExtendedTrackbarInfo<bool>().size()<<", "<<ExtendedTrackbarInfo<std::string>().size()<<std::endl;
     }
   }
 
