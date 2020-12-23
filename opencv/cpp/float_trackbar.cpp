@@ -18,7 +18,8 @@ g++ -g -Wall -O2 -o float_trackbar.out float_trackbar.cpp -lopencv_core -lopencv
 //-------------------------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------------------------
-// Extended trackbar where trackbars can be defined with min/max/step for int/float/double.
+// Extended trackbar class where trackbars can be defined with min/max/step for int/float/double/bool,
+// and trackbars can be defined with std::vector<std::string> for std::string.
 //-------------------------------------------------------------------------------------------
 template<typename T>
 struct TExtendedTrackbarInfo;
