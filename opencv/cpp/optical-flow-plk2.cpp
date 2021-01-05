@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------------
 /*! \file    optical-flow-plk2.cpp
-    \brief   Test of calcOpticalFlowPyrLK with continuous feature point detection.
+    \brief   Test of calcOpticalFlowPyrLK with continuous feature point detection (sparse optical flow).
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
     \date    Dec.23, 2020
@@ -27,14 +27,6 @@ using namespace loco_rabbits;
 //-------------------------------------------------------------------------------------------
 // #define print(var) PrintContainer((var), #var"= ")
 // #define print(var) std::cout<<#var"= "<<(var)<<std::endl
-//-------------------------------------------------------------------------------------------
-
-void CalcOpticalFlowPyrLKWithFeatureDetection(
-  const cv::Mat &prev, const cv::Mat &curr)
-{
-
-
-}
 //-------------------------------------------------------------------------------------------
 
 int main(int argc, char**argv)

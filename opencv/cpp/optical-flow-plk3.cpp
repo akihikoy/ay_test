@@ -1,17 +1,18 @@
 //-------------------------------------------------------------------------------------------
-/*! \file    optical-flow-farn1.cpp
-    \brief   certain c++ source file
+/*! \file    optical-flow-plk3.cpp
+    \brief   Test of calcOpticalFlowPyrLK with all image points (dense optical flow).
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
-    \date    Jul.22, 2016
+    \date    Jan.05, 2021
 
-g++ -I -Wall -O2 optical-flow-farn1.cpp -o optical-flow-farn1.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-plk3.cpp -o optical-flow-plk3.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/video/tracking.hpp>
+#include "opencv2/video/tracking.hpp"
 #include <iostream>
+#include <ctype.h>
 #include "cap_open.h"
 #define LIBRARY
 #include "float_trackbar.cpp"
@@ -33,76 +34,87 @@ int main(int argc, char**argv)
   TCapture cap;
   if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
-  const char *window("Optical Flow Farneback");
+  const char *window("Parameters");
   cv::namedWindow(window,1);
-
-  float v_min(1.0), v_max(1000.0);
+  cv::namedWindow("camera",1);
+  int ni(1);
+  float v_min(0.1), v_max(1000.0);
+  CreateTrackbar<int>("Interval", window, &ni, 0, 100, 1,  &TrackbarPrintOnTrack);
   CreateTrackbar<float>("v_min", window, &v_min, 0.0f, 100.0f, 0.1f,  &TrackbarPrintOnTrack);
   CreateTrackbar<float>("v_max", window, &v_max, 0.0f, 1000.0f, 0.01f,  &TrackbarPrintOnTrack);
 
-  double pyr_scale(0.5);
-  int levels(3);
-  int winsize(2);
-  int iterations(1);
-  int poly_n(1);
-  double poly_sigma(1.5);
-  int flags(0);
+  cv::TermCriteria term_criteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03);
+  int grid_step(5);
+  int subpix_win_size(10);
+  int lk_win_size(11);
+  int max_level(3);
+  double min_eig_th(0.001);
+  int optflow_flags(0);
 
-  CreateTrackbar<double>("pyr_scale:", window, &pyr_scale, 0.0, 0.99, 0.01, &TrackbarPrintOnTrack);
-  CreateTrackbar<int   >("levels:", window, &levels, 1, 10, 1, &TrackbarPrintOnTrack);
-  CreateTrackbar<int   >("winsize:", window, &winsize, 1, 30, 1, &TrackbarPrintOnTrack);
-  CreateTrackbar<int   >("iterations:", window, &iterations, 0, 10, 1, &TrackbarPrintOnTrack);
-  CreateTrackbar<int   >("poly_n:", window, &poly_n, 0, 10, 1, &TrackbarPrintOnTrack);
-  CreateTrackbar<double>("poly_sigma:", window, &poly_sigma, 0.0, 10.0, 0.01, &TrackbarPrintOnTrack);
-  CreateTrackbar<int   >("flags:", window, &flags, 0, 1, 1, &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("grid_step", window, &grid_step, 1, 30, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("lk_win_size", window, &lk_win_size, 0, 50, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("max_level", window, &max_level, 0, 10, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<double>("min_eig_th", window, &min_eig_th, 0.0, 0.1, 0.0001,  &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("optflow_flags", window, &optflow_flags, 0, 1, 1,  &TrackbarPrintOnTrack);
 
   cv::Mat frame_in, frame, frame_old;
-  cap >> frame;
-  cv::cvtColor(frame,frame,CV_BGR2GRAY);
-  for(int i(0);;++i)
+  std::map<int,cv::Mat> history;
+  for(int f(0);;++f)
   {
-    frame.copyTo(frame_old);
     if(!cap.Read(frame_in))
     {
-      if(cap.WaitReopen()) {i=-1; continue;}
+      if(cap.WaitReopen()) {f=-1; continue;}
       else break;
     }
+    int N=100;
     cv::cvtColor(frame_in,frame,CV_BGR2GRAY);
+    frame.copyTo(history[f]);
+    if(f>N)  history.erase(f-N-1);
+    frame_old= history[((f-ni)>=0?(f-ni):0)];
 
     // medianBlur(frame, frame, 9);
 
-    cv::Mat flow;
-    // cv::calcOpticalFlowFarneback(frame_old, frame, flow,
-    //   /*pyr_scale*/0.5, /*levels*/3, /*winsize*/2, /*iterations*/1,
-    //   /*poly_n*/1, /*poly_sigma*/1.5, /*flags*/0);
-    int flag_map[]={0,cv::OPTFLOW_FARNEBACK_GAUSSIAN};
-    int flags2= flag_map[flags];
-    cv::calcOpticalFlowFarneback(frame_old, frame, flow,
-      pyr_scale, levels, winsize, iterations,
-      poly_n, poly_sigma, flags2);
-
-    // copy optical flow to a compatible form.
     cv::Mat velx(frame.rows, frame.cols, CV_32FC1);
     cv::Mat vely(frame.rows, frame.cols, CV_32FC1);
     velx= cv::Scalar(0);
     vely= cv::Scalar(0);
-    for (int i(0); i<frame.cols; ++i)
+
     {
-      for (int j(0); j<frame.rows; ++j)
+      const cv::Mat &prev(frame_old), &curr(frame);
+      std::vector<cv::Point2f> points[2];
+      std::vector<uchar> status;
+      std::vector<float> err;
+
+      for(int i=0;i<prev.rows;i+=grid_step)
+        for(int j=0;j<prev.cols;j+=grid_step)
+          points[0].push_back(cv::Point2f((float)j,(float)i));
+
+      int flag_map[]={0,cv::OPTFLOW_LK_GET_MIN_EIGENVALS};
+      int flags= flag_map[optflow_flags];
+      cv::calcOpticalFlowPyrLK(prev, curr, points[0], points[1], status, err, cv::Size(lk_win_size,lk_win_size),
+                            max_level, term_criteria, flags, min_eig_th);
+      for(int i(0); i<points[1].size(); ++i)
       {
-        const cv::Point2f &fxy=flow.at<cv::Point2f>(j,i);
-        velx.at<float>(j,i)= fxy.x;
-        vely.at<float>(j,i)= fxy.y;
+        if(!status[i])  continue;
+        int x=points[1][i].x, y=points[1][i].y;
+        if(x>=0 && x<frame.cols && y>=0 && y<frame.rows)
+        {
+          velx.at<float>(y,x)= x-points[0][i].x;
+          vely.at<float>(y,x)= y-points[0][i].y;
+        }
+        else
+        {
+        }
       }
     }
 
     // visualization
-    frame_in*= 0.5;
+    frame_in*= 0.7;
     {
       cv::Scalar col;
       float vx,vy,spd,angle;
       int dx,dy;
-      const float dt(0.1);
+      const float dt(1.0);
       int step(1);
       for (int i(step); i<frame_in.cols-step; i+=step)
       {
@@ -119,7 +131,7 @@ int main(int argc, char**argv)
       }
     }
 
-    cv::imshow(window, frame_in);
+    cv::imshow("camera", frame_in);
     char c(cv::waitKey(1));
     if(c=='\x1b'||c=='q') break;
     // usleep(10000);

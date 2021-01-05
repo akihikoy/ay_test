@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------------
 /*! \file    optical-flow-plk.cpp
-    \brief   Test of calcOpticalFlowPyrLK.
+    \brief   Test of calcOpticalFlowPyrLK (sparse optical flow).
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
     \date    Feb.08, 2017

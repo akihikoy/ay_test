@@ -1,11 +1,11 @@
 //-------------------------------------------------------------------------------------------
-/*! \file    optical-flow-farn1.cpp
-    \brief   certain c++ source file
+/*! \file    optical-flow-filter.cpp
+    \brief   Filter test for optical flow.
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
-    \date    Jul.22, 2016
+    \date    Jan.05, 2021
 
-g++ -I -Wall -O2 optical-flow-farn1.cpp -o optical-flow-farn1.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-filter.cpp -o optical-flow-filter.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -28,12 +28,68 @@ using namespace loco_rabbits;
 // #define print(var) std::cout<<#var"= "<<(var)<<std::endl
 //-------------------------------------------------------------------------------------------
 
+template<typename T>
+inline T Sq(const T &v)
+{
+  return v*v;
+}
+void MeanStdDevF(const cv::Mat &mat, int r, int c, int rsize, int csize, double &mean, double &stddev)
+{
+  // cv::Scalar m, sd;
+  // cv::meanStdDev(mat(cv::Rect(c,r,csize,rsize)), m, sd);
+  // mean= m[0];  stddev= sd[0];
+  mean= 0.0;
+  for (int i(c); i<c+csize; ++i)
+    for (int j(r); j<r+rsize; ++j)
+      mean+= mat.at<float>(j,i);
+  mean= mean/static_cast<double>(rsize*csize);
+  stddev= 0.0;
+  for (int i(c); i<c+csize; ++i)
+    for (int j(r); j<r+rsize; ++j)
+      stddev+= Sq(mat.at<float>(j,i)-mean);
+  stddev= std::sqrt(stddev/static_cast<double>(rsize*csize));
+}
+void AngleFilterForOpticalFlow(cv::Mat &velx, cv::Mat &vely,
+  const double &max_stddev, int winsize=5, int step=1)
+{
+  CV_Assert(winsize%2==1 && winsize>=1);
+  if(winsize==1)  return;
+
+  cv::Mat angle(velx.rows, velx.cols, CV_32FC1);
+  float vx,vy;
+  for (int i(0); i<velx.cols; i+=step)
+  {
+    for (int j(0); j<velx.rows; j+=step)
+    {
+      vx= velx.at<float>(j, i);
+      vy= vely.at<float>(j, i);
+      // spd= std::sqrt(vx*vx+vy*vy);
+      angle.at<float>(j, i)= std::atan2(vy,vx);
+    }
+  }
+
+  int winsize_2(winsize/2);
+  double mean, stddev;
+  for (int i(winsize_2); i<velx.cols-winsize_2; i+=step)
+  {
+    for (int j(winsize_2); j<velx.rows-winsize_2; j+=step)
+    {
+      MeanStdDevF(angle, j-winsize_2, i-winsize_2, winsize, winsize, mean, stddev);
+      if(stddev>max_stddev)
+      {
+        velx.at<float>(j, i)= 0.0;
+        vely.at<float>(j, i)= 0.0;
+      }
+    }
+  }
+}
+
 int main(int argc, char**argv)
 {
   TCapture cap;
   if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
-  const char *window("Optical Flow Farneback");
+  const char *window("Optical Flow Farneback+Filter");
   cv::namedWindow(window,1);
 
   float v_min(1.0), v_max(1000.0);
@@ -55,6 +111,11 @@ int main(int argc, char**argv)
   CreateTrackbar<int   >("poly_n:", window, &poly_n, 0, 10, 1, &TrackbarPrintOnTrack);
   CreateTrackbar<double>("poly_sigma:", window, &poly_sigma, 0.0, 10.0, 0.01, &TrackbarPrintOnTrack);
   CreateTrackbar<int   >("flags:", window, &flags, 0, 1, 1, &TrackbarPrintOnTrack);
+
+  double max_stddev(0.05);
+  int filter_winsize(3);
+  CreateTrackbar<double>("max_stddev:", window, &max_stddev, 0.0, 5.0, 0.01, &TrackbarPrintOnTrack);
+  CreateTrackbar<int   >("filter_winsize:", window, &filter_winsize, 1, 25, 2, &TrackbarPrintOnTrack);
 
   cv::Mat frame_in, frame, frame_old;
   cap >> frame;
@@ -95,6 +156,8 @@ int main(int argc, char**argv)
         vely.at<float>(j,i)= fxy.y;
       }
     }
+
+    AngleFilterForOpticalFlow(velx, vely, max_stddev, filter_winsize);
 
     // visualization
     frame_in*= 0.5;
