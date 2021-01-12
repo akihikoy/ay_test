@@ -18,13 +18,13 @@ $ rosrun baxter_tools camera_control.py -o left_hand_camera -r 640x400
 #include <sensor_msgs/image_encodings.h>
 // #include <camera_info_manager/camera_info_manager.h>
 //-------------------------------------------------------------------------------------------
-namespace trick
-{
-}
+// namespace trick
+// {
+// }
 //-------------------------------------------------------------------------------------------
-using namespace std;
+// using namespace std;
 // using namespace boost;
-using namespace trick;
+// using namespace trick;
 //-------------------------------------------------------------------------------------------
 // #define print(var) PrintContainer((var), #var"= ")
 // #define print(var) std::cout<<#var"= "<<(var)<<std::endl
@@ -32,17 +32,22 @@ using namespace trick;
 
 void ImageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
-  // std::cerr<<"msg->height: "<<msg->height<<std::endl;
-  // std::cerr<<"msg->width: "<<msg->width<<std::endl;
-  // std::cerr<<"msg->header: "<<msg->header<<std::endl;
-  // std::cerr<<"msg->encoding: "<<msg->encoding<<std::endl;
-  // std::cerr<<"msg->step: "<<msg->step<<std::endl;
-  // std::cerr<<"msg->data.size(): "<<msg->data.size()<<std::endl;
-  // std::cerr<<"msg->data[0,1,2]: "<<int(msg->data[0])<<" "<<int(msg->data[1])<<" "<<int(msg->data[2])<<std::endl;
+  std::cerr<<"msg->header: "<<msg->header<<std::endl;
+  std::cerr<<"msg->height: "<<msg->height<<std::endl;
+  std::cerr<<"msg->width: "<<msg->width<<std::endl;
+  std::cerr<<"msg->encoding: "<<msg->encoding<<std::endl;
+  std::cerr<<"msg->is_bigendian: "<<int(msg->is_bigendian)<<std::endl;
+  std::cerr<<"msg->step: "<<msg->step<<std::endl;
+  std::cerr<<"msg->data.size(): "<<msg->data.size()<<std::endl;
+  std::cerr<<"msg->data[0,1,2]: "<<int(msg->data[0])<<" "<<int(msg->data[1])<<" "<<int(msg->data[2])<<std::endl;
+  std::cerr<<"msg->data[size()-1]: "<<int(msg->data[msg->data.size()-1])<<std::endl;
+  std::cerr<<"msg->data[size()-2]: "<<int(msg->data[msg->data.size()-2])<<std::endl;
+  std::cerr<<"msg->data[size()-3]: "<<int(msg->data[msg->data.size()-3])<<std::endl;
   cv_bridge::CvImagePtr cv_ptr;
   try
   {
     cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+    std::cerr<<"debug.p1"<<std::endl;
   }
   catch (cv_bridge::Exception& e)
   {
@@ -62,7 +67,7 @@ int main(int argc, char**argv)
 {
   ros::init(argc, argv, "sub_img_node");
   ros::NodeHandle node("~");
-  std::string img_topic("/cameras/left_hand_camera/image");
+  std::string img_topic("/camera/color/image_raw");
 
   if(argc>1)  img_topic= argv[1];
 
