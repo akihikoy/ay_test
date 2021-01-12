@@ -7,6 +7,12 @@
 
 NOTE: Run to activate a camera:
 $ rosrun baxter_tools camera_control.py -o left_hand_camera -r 640x400
+
+Or,
+$ rosrun usb_cam usb_cam_node
+
+Then run this program:
+$ bin/sub_img_node /usb_cam/image_raw
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
