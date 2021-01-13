@@ -196,7 +196,7 @@ def DrawClusters(img, clusters):
   img_viz= cv2.cvtColor(img.astype('uint8'), cv2.COLOR_GRAY2BGR)
   col_set= ((255,0,0),(0,255,0),(0,0,255),(255,255,0),(0,255,255),(255,0,255))
   for i,node in enumerate(clusters):
-    print i, node.feat, 'patches:',len(node.patches),
+    print i, len(node.neighbors), node.feat, 'patches:',len(node.patches),
     col= col_set[i%len(col_set)]
     for patch in node.patches:
       x,y,w,h= patch
