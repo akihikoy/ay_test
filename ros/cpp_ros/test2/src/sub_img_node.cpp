@@ -13,6 +13,12 @@ $ rosrun usb_cam usb_cam_node
 
 Then run this program:
 $ bin/sub_img_node /usb_cam/image_raw
+
+NOTE: If you experience segmentation fault, do this:
+$ sudo apt-get -f install libcv-bridge0d
+$ cd /opt/ros/kinetic/lib/
+$ sudo mv libcv_bridge.so{,.trouble}
+$ sudo ln -s /usr/lib/x86_64-linux-gnu/libcv_bridge.so.0d libcv_bridge.so
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -61,7 +67,7 @@ void ImageCallback(const sensor_msgs::ImageConstPtr& msg)
     return;
   }
   std::cerr<<"cv_ptr: "<<cv_ptr<<std::endl;
-  std::cerr<<"cv_ptr->image: "<<cv_ptr->image<<std::endl;
+  // std::cerr<<"cv_ptr->image: "<<cv_ptr->image<<std::endl;
   cv::Mat frame= cv_ptr->image;
 
   cv::imshow("camera",frame);
