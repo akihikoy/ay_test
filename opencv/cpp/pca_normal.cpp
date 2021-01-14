@@ -55,6 +55,25 @@ cv::Mat GenPlane(const cv::Size &size, const double &h0, const cv::Vec3d &N, int
 }
 //-------------------------------------------------------------------------------------------
 
+cv::Mat LoadData(const std::string &filename, int num_cols)
+{
+  std::ifstream ifs(filename.c_str());
+  std::string line;
+  cv::Mat res, col(1, num_cols, CV_64F);
+  while(std::getline(ifs,line))
+  {
+    std::stringstream ss(line);
+    for(int c(0);c<num_cols;++c)
+      ss>>col.at<double>(c);
+    if(res.empty())
+      res= col;
+    else
+      cv::vconcat(res,col, res);
+  }
+  return res;
+}
+//-------------------------------------------------------------------------------------------
+
 template<typename T>
 void SaveData(const std::string &filename, const cv::Mat &data)
 {
@@ -73,26 +92,52 @@ void SaveData(const std::string &filename, const cv::Mat &data)
 }
 //-------------------------------------------------------------------------------------------
 
-void GetNormal(const cv::Mat &img_patch, int step=1)
+// Extract effective depth points and store them into Nx3 matrix.
+template<typename t_img_depth>
+cv::Mat DepthImgToPoints(const cv::Mat &img_patch, const double &d_scale=1.0, int step=1)
 {
+  // Extract effective depth points.
   int num_data(0);
   for(int r(0);r<img_patch.rows;r+=step)
     for(int c(0);c<img_patch.cols;c+=step)
-      if(img_patch.at<double>(r,c)>0)  ++num_data;
-  if(num_data<3)  return /*cv::Mat()*/;
+      if(img_patch.at<t_img_depth>(r,c)>0)  ++num_data;
   cv::Mat points(num_data,3,CV_64F);
   for(int r(0),i(0);r<img_patch.rows;r+=step)
     for(int c(0);c<img_patch.cols;c+=step)
     {
-      const double &h= img_patch.at<double>(r,c);
-      if(h>0)
+      const double &d= img_patch.at<t_img_depth>(r,c);
+      if(d>0)
       {
         points.at<double>(i,0)= c;
         points.at<double>(i,1)= r;
-        points.at<double>(i,2)= h;
+        points.at<double>(i,2)= d * d_scale;
         ++i;
       }
     }
+  return points;
+}
+//-------------------------------------------------------------------------------------------
+
+void GetNormal(const cv::Mat &points)
+{
+  // int num_data(0);
+  // for(int r(0);r<img_patch.rows;r+=step)
+  //   for(int c(0);c<img_patch.cols;c+=step)
+  //     if(img_patch.at<double>(r,c)>0)  ++num_data;
+  // if(num_data<3)  return /*cv::Mat()*/;
+  // cv::Mat points(num_data,3,CV_64F);
+  // for(int r(0),i(0);r<img_patch.rows;r+=step)
+  //   for(int c(0);c<img_patch.cols;c+=step)
+  //   {
+  //     const double &h= img_patch.at<double>(r,c);
+  //     if(h>0)
+  //     {
+  //       points.at<double>(i,0)= c;
+  //       points.at<double>(i,1)= r;
+  //       points.at<double>(i,2)= h;
+  //       ++i;
+  //     }
+  //   }
 
   print(points.size());
   cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
@@ -121,7 +166,9 @@ int main(int argc, char**argv)
 {
   Srand();
   cv::Vec3d normal(Rand(-1,1),Rand(-1,1),Rand(0,1));
-  cv::Mat plane= GenPlane(cv::Size(30,30), 100, normal, /*n_zero=*/800);
+  cv::Mat plane= DepthImgToPoints<double>(GenPlane(cv::Size(30,30), 100, normal, /*n_zero=*/800));
+  //cv::Mat plane= LoadData("sample/points1.dat", 3);
+  //cv::Mat plane= LoadData("sample/points2.dat", 3);
   print(normal);
   cv::normalize(normal, normal);
   print(normal);

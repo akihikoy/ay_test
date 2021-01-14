@@ -13,6 +13,7 @@ g++ -O2 -g -W -Wall -o ros_plane_seg1.out ros_plane_seg1.cpp  -I../include -I/op
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
+#include <fstream>
 #include <set>
 #include <vector>
 #include <list>
@@ -76,6 +77,32 @@ inline int Rand (int min, int max)
 */
 
 
+// Extract effective depth points and store them into Nx3 matrix.
+template<typename t_img_depth>
+cv::Mat DepthImgToPoints(const cv::Mat &img_patch, const double &d_scale=1.0, int step=1)
+{
+  // Extract effective depth points.
+  int num_data(0);
+  for(int r(0);r<img_patch.rows;r+=step)
+    for(int c(0);c<img_patch.cols;c+=step)
+      if(img_patch.at<t_img_depth>(r,c)>0)  ++num_data;
+  cv::Mat points(num_data,3,CV_64F);
+  for(int r(0),i(0);r<img_patch.rows;r+=step)
+    for(int c(0);c<img_patch.cols;c+=step)
+    {
+      const double &d= img_patch.at<t_img_depth>(r,c);
+      if(d>0)
+      {
+        points.at<double>(i,0)= c;
+        points.at<double>(i,1)= r;
+        points.at<double>(i,2)= d * d_scale;
+        ++i;
+      }
+    }
+  return points;
+}
+//-------------------------------------------------------------------------------------------
+
 // Feature definition for clustering (interface class).
 class TImgPatchFeatIF
 {
@@ -100,7 +127,7 @@ public:
 class TImgPatchFeatNormal : public TImgPatchFeatIF
 {
 public:
-  TImgPatchFeatNormal(const double &th_plane=0.4, const double &d_scale=0.1, int step=1)
+  TImgPatchFeatNormal(const double &th_plane=0.4, const double &d_scale=1.0, int step=1)
     {
       th_plane_= th_plane;
       d_scale_= d_scale;
@@ -109,31 +136,14 @@ public:
   // Get a normal vector of an image patch img_patch.
   cv::Mat Feat(const cv::Mat &img_patch) const
     {
-      // Extract effective depth points.
-      int num_data(0);
-      for(int r(0);r<img_patch.rows;r+=step_)
-        for(int c(0);c<img_patch.cols;c+=step_)
-          if(img_patch.at<TImgDepth>(r,c)>0)  ++num_data;
-      if(num_data<3)  return cv::Mat();
-      cv::Mat points(num_data,3,CV_64F);
-      for(int r(0),i(0);r<img_patch.rows;r+=step_)
-        for(int c(0);c<img_patch.cols;c+=step_)
-        {
-          const double &d= img_patch.at<TImgDepth>(r,c);
-          if(d>0)
-          {
-            points.at<double>(i,0)= c;
-            points.at<double>(i,1)= r;
-            points.at<double>(i,2)= d * d_scale_;
-            ++i;
-          }
-        }
+      cv::Mat points= DepthImgToPoints<TImgDepth>(img_patch, d_scale_, step_);
+      if(points.rows<3)  return cv::Mat();
 
       cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
       cv::Mat normal= pca.eigenvectors.row(2);
       if(normal.at<double>(0,2)<0)  normal= -normal;
-      if(pca.eigenvalues.at<double>(2) > th_plane_)  return cv::Mat();
-// std::cerr<<num_data<<" debug "<<img_patch.type()<<" "<<normal<<" pca.mean: "<<pca.mean<<std::endl;
+      if(pca.eigenvalues.at<double>(2) > th_plane_ * d_scale_)  return cv::Mat();
+std::cerr<<points.rows<<" debug "<<img_patch.type()<<" "<<normal<<" pca.mean: "<<pca.mean<<std::endl;
       return normal;
     }
   // Get an angle [0,pi] between two features.
@@ -321,17 +331,20 @@ def PatchPointsToImg(patches):
 // from binary_seg2 import FindSegments
 cv::Mat DrawClusters(const cv::Mat &img, const std::list<TClusterNode> &clusters)
 {
-  cv::Mat img_viz(img*0.1);
+  cv::Mat img_viz(img*0.3);
   img_viz.convertTo(img_viz, CV_8U);
   cv::cvtColor(img_viz, img_viz, CV_GRAY2BGR);
 
   cv::Scalar col_set[]= {cv::Scalar(255,0,0),cv::Scalar(0,255,0),cv::Scalar(0,0,255),cv::Scalar(255,255,0),cv::Scalar(0,255,255),cv::Scalar(255,0,255)};
   std::cout<<"clusters:"<<std::endl;
   int i(0);
+  std::list<TClusterNode>::const_iterator inode_largest(clusters.end());
   for(std::list<TClusterNode>::const_iterator inode(clusters.begin()),inode_end(clusters.end()); inode!=inode_end; ++inode,++i)
   {
     if(inode->patches.size()<5)  continue;
-    std::cout<<"  "<<i<<" "<<inode->neighbors.size()<<" "<<inode->feat<<" patches:"<<inode->patches.size()<<std::endl;
+    if(inode_largest==clusters.end() || inode_largest->patches.size()<inode->patches.size())
+      inode_largest= inode;
+    std::cout<<"  "<<i<<" "<<inode->neighbors.size()<<" feat:"<<inode->feat<<" patches:"<<inode->patches.size()<<std::endl;
     cv::Scalar col= col_set[i%(sizeof(col_set)/sizeof(col_set[0]))];
     for(std::vector<cv::Rect>::const_iterator ipatch(inode->patches.begin()),ipatch_end(inode->patches.end()); ipatch!=ipatch_end; ++ipatch)
       cv::rectangle(img_viz, *ipatch, col, 1);  //TODO: Shrink the patch for 1px.
@@ -352,6 +365,30 @@ cv::Mat DrawClusters(const cv::Mat &img, const std::list<TClusterNode> &clusters
 
     */
   }
+  if(inode_largest!=clusters.end())
+  {
+    // Save points of a patch in the largest cluster:
+    // cv::Mat img_patch= img(inode_largest->patches[inode_largest->patches.size()/2]);
+    // cv::Mat data= DepthImgToPoints<unsigned short>(img_patch, /*d_scale*/1.0, /*step*/1);
+// std::cerr<<"debug:inode_largest:patch:"<<inode_largest->patches[inode_largest->patches.size()/2]<<std::endl;
+// std::cerr<<"img_patch:"<<img_patch<<std::endl;
+// std::cerr<<"data:"<<data<<std::endl;
+    // std::string filename("/tmp/points.dat");
+    // {
+    //   std::ofstream ofs(filename.c_str());
+    //   std::string delim;
+    //   for(int r(0);r<data.rows;++r)
+    //   {
+    //     delim= "";
+    //     for(int c(0);c<data.cols;++c)
+    //     {
+    //       ofs<<delim<<data.at<double>(r,c);
+    //       delim= " ";
+    //     }
+    //     ofs<<std::endl;
+    //   }
+    // }
+  }
   return img_viz;
 }
 //-------------------------------------------------------------------------------------------
@@ -364,7 +401,7 @@ cv::Mat DrawClusters(const cv::Mat &img, const std::list<TClusterNode> &clusters
 void CVCallback(const cv::Mat &img_depth)
 {
   double t_start= GetCurrentTime();
-  std::list<TClusterNode> clusters= ClusteringByFeatures(img_depth, /*w_patch=*/25, /*f_feat=*/TImgPatchFeatNormal(0.4), /*th_feat=*/0.1);
+  std::list<TClusterNode> clusters= ClusteringByFeatures(img_depth, /*w_patch=*/25, /*f_feat=*/TImgPatchFeatNormal(0.4), /*th_feat=*/0.2);
   //std::list<TClusterNode> clusters= ClusteringByFeatures(img_depth, /*w_patch=*/25, /*f_feat=*/TImgPatchFeatNormal(5.0), /*th_feat=*/0.5);
   //std::list<TClusterNode> clusters= ClusteringByFeatures(img_depth, w_patch=25, f_feat=TImgPatchFeatAvrDepth(), th_feat=3.0);
   // clusters= [node for node in clusters if len(node.patches)>=3]
