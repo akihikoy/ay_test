@@ -27,11 +27,11 @@ template<typename T>
 struct TExtendedTrackbarUtil
 {
   typedef T TTrackValue;
-  static T Convert(const TExtendedTrackbarInfo<T> &info, const TTrackValue &v)
+  static T Convert(const TExtendedTrackbarInfo<T> &/*info*/, const TTrackValue &v)
     {
       return v;
     }
-  static TTrackValue Invert(const TExtendedTrackbarInfo<T> &info, const T &v)
+  static TTrackValue Invert(const TExtendedTrackbarInfo<T> &/*info*/, const T &v)
     {
       return v;
     }
