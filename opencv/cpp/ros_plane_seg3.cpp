@@ -1,11 +1,12 @@
 //-------------------------------------------------------------------------------------------
-/*! \file    ros_plane_seg2.cpp
+/*! \file    ros_plane_seg3.cpp
     \brief   Plane segmentation ported from ../python/plane_seg1.py
+             The normal vectors are computed from 3D points by transforming with camera matrix.
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
     \date    Jan.14, 2021
 
-g++ -O2 -g -W -Wall -o ros_plane_seg2.out ros_plane_seg2.cpp  -I../include -I/opt/ros/kinetic/include -pthread -llog4cxx -lpthread -L/opt/ros/kinetic/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -Wl,-rpath,/opt/ros/kinetic/lib
+g++ -O2 -g -W -Wall -o ros_plane_seg3.out ros_plane_seg3.cpp  -I../include -I/opt/ros/kinetic/include -pthread -llog4cxx -lpthread -L/opt/ros/kinetic/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -Wl,-rpath,/opt/ros/kinetic/lib
 
 */
 //-------------------------------------------------------------------------------------------
@@ -32,55 +33,17 @@ inline double GetCurrentTime(void)
 }
 //-------------------------------------------------------------------------------------------
 
-/*
-
-inline unsigned Srand(void)
-{
-  unsigned seed ((unsigned)time(NULL));
-  srand(seed);
-  return seed;
-}
-//-------------------------------------------------------------------------------------------
-
-inline TReal Rand (const double &max)
-{
-  return (max)*static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
-}
-//-------------------------------------------------------------------------------------------
-
-inline TReal Rand (const double &min, const double &max)
-{
-  return Rand(max - min) + min;
-}
-//-------------------------------------------------------------------------------------------
-
-inline TReal Rand (const long double &max)
-{
-  return (max)*static_cast<long double>(rand()) / static_cast<long double>(RAND_MAX);
-}
-//-------------------------------------------------------------------------------------------
-
-inline TReal Rand (const long double &min, const long double &max)
-{
-  return Rand(max - min) + min;
-}
-//-------------------------------------------------------------------------------------------
-
-inline int Rand (int min, int max)
-  // return [min,max]
-{
-  // return static_cast<int>(Rand(static_cast<double>(min),static_cast<double>(max+1)));
-  return static_cast<int>(real_floor(Rand(static_cast<double>(min),static_cast<double>(max+1))));
-}
-//-------------------------------------------------------------------------------------------
-
-*/
-
 
 // Extract effective depth points and store them into Nx3 matrix.
 template<typename t_img_depth>
-cv::Mat DepthImgToPoints(const cv::Mat &img_patch, const double &d_scale=1.0, int step=1)
+cv::Mat DepthImgTo3DPoints(const cv::Rect &roi, const cv::Mat &img_patch, const cv::Mat &proj_mat, int step=1)
 {
+  double Fx,Fy,Cx,Cy;
+  Fx= proj_mat.at<double>(0,0);
+  Fy= proj_mat.at<double>(1,1);
+  Cx= proj_mat.at<double>(0,2);
+  Cy= proj_mat.at<double>(1,2);
+
   // Extract effective depth points.
   int num_data(0);
   for(int r(0);r<img_patch.rows;r+=step)
@@ -90,12 +53,12 @@ cv::Mat DepthImgToPoints(const cv::Mat &img_patch, const double &d_scale=1.0, in
   for(int r(0),i(0);r<img_patch.rows;r+=step)
     for(int c(0);c<img_patch.cols;c+=step)
     {
-      const double &d= img_patch.at<t_img_depth>(r,c);
+      const double d= img_patch.at<t_img_depth>(r,c) * 0.001;
       if(d>0)
       {
-        points.at<double>(i,0)= c;
-        points.at<double>(i,1)= r;
-        points.at<double>(i,2)= d * d_scale;
+        points.at<double>(i,0)= (roi.x+c-Cx)/Fx*d;
+        points.at<double>(i,1)= (roi.y+r-Cy)/Fy*d;
+        points.at<double>(i,2)= d;
         ++i;
       }
     }
@@ -103,102 +66,6 @@ cv::Mat DepthImgToPoints(const cv::Mat &img_patch, const double &d_scale=1.0, in
 }
 //-------------------------------------------------------------------------------------------
 
-/*
-// Feature definition for clustering (interface class).
-class TImgPatchFeatIF
-{
-public:
-  typedef unsigned short TImgDepth;
-
-  // Set up the feature.  Parameters may be added.
-  TImgPatchFeatIF()  {}
-  // Get a feature vector for an image patch img_patch.
-  // Return cv::Mat() if it is impossible to get a feature.
-  virtual cv::Mat Feat(const cv::Mat &img_patch) const = 0;
-  // Get a difference (scholar value) between two features.
-  virtual double Diff(const cv::Mat &f1, const cv::Mat &f2) const = 0;
-  // Compute a weighted sum of two features. i.e. w1*f1 + (1.0-w1)*f2
-  virtual cv::Mat WSum(const cv::Mat &f1, const cv::Mat &f2, const double &w1) const = 0;
-};
-//-------------------------------------------------------------------------------------------
-
-//Feature of the normal of a patch.
-//  th_plane: The feature is None if the normal length is greater than this value (smaller value is more like plane).
-//  step: Interval of points for calculation.
-class TImgPatchFeatNormal : public TImgPatchFeatIF
-{
-public:
-  TImgPatchFeatNormal(const double &th_plane=0.4, const double &d_scale=1.0, int step=1)
-    {
-      th_plane_= th_plane;
-      d_scale_= d_scale;
-      step_= step;
-    }
-  // Get a normal vector of an image patch img_patch.
-  cv::Mat Feat(const cv::Mat &img_patch) const
-    {
-      cv::Mat points= DepthImgToPoints<TImgDepth>(img_patch, d_scale_, step_);
-      if(points.rows<3)  return cv::Mat();
-
-      cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
-      cv::Mat normal= pca.eigenvectors.row(2);
-      if(normal.at<double>(0,2)<0)  normal= -normal;
-      if(pca.eigenvalues.at<double>(2) > th_plane_ * d_scale_)  return cv::Mat();
-std::cerr<<points.rows<<" debug "<<img_patch.type()<<" "<<normal<<" pca.mean: "<<pca.mean<<std::endl;
-      return normal;
-    }
-  // Get an angle [0,pi] between two features.
-  double Diff(const cv::Mat &f1, const cv::Mat &f2) const
-    {
-      double cos_th= f1.dot(f2) / (cv::norm(f1)*cv::norm(f2));
-      if(cos_th>1.0)  cos_th= 1.0;
-      else if(cos_th<-1.0)  cos_th= -1.0;
-      return std::acos(cos_th);
-    }
-  // Compute a weighted sum of two features. i.e. w1*f1 + (1.0-w1)*f2
-  cv::Mat WSum(const cv::Mat &f1, const cv::Mat &f2, const double &w1) const
-    {
-      cv::Mat ws= w1*f1 + (1.0-w1)*f2;
-      double ws_norm= cv::norm(ws);
-      if(ws_norm<1.0e-6)
-        CV_Error(CV_StsError, "TImgPatchFeatNormal: Computing WSum for normals of opposite directions.");
-      return ws/ws_norm;
-    }
-private:
-  double th_plane_;
-  double d_scale_;
-  int step_;
-};
-//-------------------------------------------------------------------------------------------
-*/
-
-/*
-#Feature of the average depth of a patch.
-class TImgPatchFeatAvrDepth(TImgPatchFeatIF):
-  def __init__(self):
-    pass
-  #Get an average depth of an image patch img_patch.
-  def __call__(self,img_patch):
-    img_valid= img_patch[img_patch!=0]
-    if len(img_valid)==0:    return None
-    return np.array([np.mean(img_valid)])
-  '''
-  #Equal to the above __call__ (for test).
-  def __call__(self,img_patch):
-    h,w= img_patch.shape[:2]
-    #points= [[x-w/2,y-h/2,img_patch[y,x]] for y in range(h) for x in range(w) if img_patch[y,x]!=0]
-    points= np.vstack([np.where(img_patch!=0), img_patch[img_patch!=0].ravel()]).T[:,[1,0,2]] - [w/2,h/2,0]
-    if len(points)==0:  return None
-    return np.array([np.mean(points,axis=0)[-1]])
-  '''
-  #Get a difference (scholar value) between two features.
-  def Diff(self,f1,f2):
-    return np.linalg.norm(f1-f2)
-  #Compute a weighted sum of two features. i.e. w1*f1 + (1.0-w1)*f2
-  def WSum(self,f1,f2,w1):
-    return w1*f1 + (1.0-w1)*f2
-//-------------------------------------------------------------------------------------------
-*/
 
 struct TClusterPatch
 {
@@ -212,10 +79,8 @@ struct TClusterPatch
 struct TClusterPatchSet
 {
   typedef unsigned short TImgDepth;
-//   typedef std::pair<int,int> TLoc;  // location.
   int WPatch;
   int Nu, Nv;
-//   std::map<TLoc, int> LocToIdx;
   std::vector<TClusterPatch> Patches;
 
   TClusterPatchSet(void)
@@ -226,7 +91,7 @@ struct TClusterPatchSet
       return v*Nu + u;
     }
 
-  void ConstructFromDepthImg(const cv::Mat &img, int w_patch, const double &th_plane=0.4, const double &d_scale=1.0, int step=1)
+  void ConstructFromDepthImg(const cv::Mat &img, const cv::Mat &proj_mat, int w_patch, const double &th_plane=0.01, int step=1)
     {
       if(w_patch!=WPatch || Nu!=img.cols/WPatch || Nv!=img.rows/WPatch || int(Patches.size())!=Nu*Nv)
       {
@@ -234,18 +99,16 @@ struct TClusterPatchSet
         Nu= img.cols/WPatch;
         Nv= img.rows/WPatch;
         Patches.resize(Nu*Nv);
-//         LocToIdx.clear();
         std::vector<TClusterPatch>::iterator p_itr(Patches.begin());
-        for(int v(0)/*,i(0)*/;v<Nv;++v)
-          for(int u(0);u<Nu;++u,++p_itr/*,++i*/)
+        for(int v(0);v<Nv;++v)
+          for(int u(0);u<Nu;++u,++p_itr)
           {
-//             LocToIdx[TLoc(u,v)]= i;
             p_itr->ROI= cv::Rect(u*WPatch,v*WPatch,WPatch,WPatch);
           }
       }
-      Update(img, th_plane, d_scale, step);
+      Update(img, proj_mat, th_plane, step);
     }
-  void Update(const cv::Mat &img, const double &th_plane=0.4, const double &d_scale=1.0, int step=1)
+  void Update(const cv::Mat &img, const cv::Mat &proj_mat, const double &th_plane=0.01, int step=1)
     {
       std::vector<TClusterPatch>::iterator p_itr(Patches.begin());
       for(int v(0);v<Nv;++v)
@@ -254,16 +117,14 @@ struct TClusterPatchSet
           TClusterPatch &p(*p_itr);
           p.IsValid= false;
 
-          cv::Mat points= DepthImgToPoints<TImgDepth>(img(p.ROI), d_scale, step);
+          cv::Mat points= DepthImgTo3DPoints<TImgDepth>(p.ROI, img(p.ROI), proj_mat, step);
           if(points.rows<3)  continue;
 
           cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
           p.Normal= pca.eigenvectors.row(2);
           p.Mean= pca.mean;
-          p.Mean.at<double>(0,0)+= p.ROI.x;
-          p.Mean.at<double>(0,1)+= p.ROI.y;
           if(p.Normal.at<double>(0,2)<0)  p.Normal= -p.Normal;
-          if(pca.eigenvalues.at<double>(2) > th_plane * d_scale)  continue;
+          if(pca.eigenvalues.at<double>(2) > th_plane)  continue;
           p.IsValid= true;
         }
     }
@@ -340,35 +201,11 @@ struct TClusterNode
 void ClusteringByFeatures(const TClusterPatchSet &patch_set, std::vector<TClusterNode> &clusters,
   /*const cv::Mat &img,*/ const TClusteringFeatIF &f_feat, const double &th_feat=15.0)
 {
-  // img= img.reshape((img.shape[0],img.shape[1]))
-
-  /*
-  depth image --> patches (w_patch x w_patch); each patch has a feat.
-  patches --> nodes = initial planes
-  nodes= [TClusterNode([(x,y,w_patch,w_patch)],f_feat(img[y:y+w_patch,x:x+w_patch]))
-          for y in range(0,img.shape[0],w_patch)
-          for x in range(0,img.shape[1],w_patch)]
-  */
-//   int Nu= img.cols/w_patch;
-//   int Nv= img.rows/w_patch;
   std::vector<TClusterNode> nodes(patch_set.Patches.size());
   for(int i(0),i_end(patch_set.Patches.size()); i<i_end; ++i)
     nodes[i]= TClusterNode(i,f_feat.Feat(patch_set.Patches[i]));
 
-//   typedef std::pair<int,int> TLoc;  // location.
   typedef int TNodeItr;
-//   std::map<TLoc, TNodeItr> node_map;
-//   for(int v(0);v<Nv;++v)
-//     for(int u(0);u<Nu;++u)
-//     {
-//       cv::Rect patch(u*w_patch,v*w_patch,w_patch,w_patch);
-//       cv::Mat feat= f_feat.Feat(img(patch));
-//       nodes.push_back(TClusterNode(patch,feat));
-//       TNodeItr itr= nodes.end();
-//       --itr;
-//       node_map[TLoc(u,v)]= nodes.size()-1;
-//     }
-//   /*DEBUG*/std::cerr<<"DEBUG:Nu,Nv: "<<Nu<<", "<<Nv<<std::endl;
   // int dneighbors[][2]= ((1,1),(1,0),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1))
   int dneighbors[][2]= {{1,0},{0,1},{0,-1},{-1,0}};
   for(int v(0);v<patch_set.Nv;++v)
@@ -384,12 +221,6 @@ void ClusteringByFeatures(const TClusterPatchSet &patch_set, std::vector<TCluste
           nodes[inode].Neighbors.insert(patch_set.UVToIdx(u+du,v+dv));
       }
     }
-  // nodes= filter(lambda node:node.Feat is not None, nodes)
-//   for(TNodeItr itr(nodes.end()); itr!=nodes.begin();)
-//   {
-//     --itr;
-//     if(itr->Feat.empty())  itr= a.erase(itr);
-//   }
 
   // Clustering nodes.
   std::list<TNodeItr> inodes, iclusters;
@@ -468,7 +299,7 @@ void GetPlaneFromPatches(const TClusterPatchSet &patch_set, const std::vector<in
     points.at<double>(i,2)= patch_set.Patches[*ip].Mean.at<double>(0,2);
   }
 
-  /*DEBUG:Save points:*-/
+  /*DEBUG:Save points:*/
   std::string filename("/tmp/points.dat");
   {
     std::ofstream ofs(filename.c_str());
@@ -492,26 +323,30 @@ void GetPlaneFromPatches(const TClusterPatchSet &patch_set, const std::vector<in
 }
 //-------------------------------------------------------------------------------------------
 
-// Extract depth around a plane whose depth at (u,v) is given by D(normal,center,u,v).
-// For each pixel (u,v), points [D(normal,center,u,v)+lower, D(normal,center,u,v)+upper] are extracted.
-void DepthExtractAroundPlane(cv::Mat &img_depth, const cv::Mat &normal, const cv::Mat &center, const double &lower, const double &upper)
+// Extract points whose height from the plane given by normal and center is within [lower,upper].
+void DepthExtractAroundPlane(cv::Mat &img_depth, const cv::Mat &proj_mat, const cv::Mat &normal, const cv::Mat &center, const double &lower, const double &upper)
 {
-  double u0(center.at<double>(0,0)), v0(center.at<double>(0,1)), d0(center.at<double>(0,2));
+  // Plane parameters:
+  double x0(center.at<double>(0,0)), y0(center.at<double>(0,1)), z0(center.at<double>(0,2));
   double N0(normal.at<double>(0,0)), N1(normal.at<double>(0,1)), N2(normal.at<double>(0,2));
-// std::cerr<<"debug:img_depth.size:"<<img_depth.type()<<" "<<img_depth.rows<<" "<<img_depth.cols<<std::endl;
-// std::cerr<<"debug:center:"<<u0<<" "<<v0<<" "<<d0<<" N:"<<N0<<" "<<N1<<" "<<N2<<std::endl;
+  // Camera matrix:
+  double Fx,Fy,Cx,Cy;
+  Fx= proj_mat.at<double>(0,0);
+  Fy= proj_mat.at<double>(1,1);
+  Cx= proj_mat.at<double>(0,2);
+  Cy= proj_mat.at<double>(1,2);
   for(int v(0);v<img_depth.rows;++v)
     for(int u(0);u<img_depth.cols;++u)
     {
-// std::cerr<<"debug:u,v: "<<u<<" "<<v<<std::endl;
-// std::cerr<<"debug:d: "<<img_depth.at<unsigned short>(v,u)<<std::endl;
-// std::cerr<<"--"<<std::endl;
-      double d= d0 - (N0*(u-u0)+N1*(v-v0))/N2;
-// std::cerr<<" "<<d;
-      if(img_depth.at<unsigned short>(v,u) < d+lower || d+upper < img_depth.at<unsigned short>(v,u))
+      // u,v,d --> 3D
+      const double pz= img_depth.at<unsigned short>(v,u) * 0.001;
+      const double px= (u-Cx)/Fx*pz;
+      const double py= (v-Cy)/Fy*pz;
+      // height from the plane:
+      const double h= N0*(px-x0) + N1*(py-y0) + N2*(pz-z0);
+      if(h < lower || upper < h)
         img_depth.at<unsigned short>(v,u)= 0.0;
     }
-// std::cerr<<std::endl;
 }
 //-------------------------------------------------------------------------------------------
 
@@ -583,34 +418,45 @@ cv::Mat DrawClusters(const cv::Mat &img, const TClusterPatchSet &patch_set, cons
 #define LIBRARY
 #include "ros_capture.cpp"
 #include "float_trackbar.cpp"
+#include "ros_proj_mat.cpp"
 
 namespace ns_main
 {
 TClusterPatchSet patch_set;
-bool disp_info(true);
-int w_patch(25);
-double th_plane(0.4);
-double th_feat(0.2);
-// double lower(-10.0), upper(80.0);  // Extract plane.
-double lower(-300.0), upper(-24.0);  // Extract objects on plane.
+std::string frame_id;
+cv::Mat proj_mat;
 
-void Init(int /*argc*/, char**/*argv*/)
+bool disp_info(false);
+int w_patch(25);
+double th_plane(0.01);
+double th_feat(0.2);
+double lower(-0.01), upper(0.01);  // Extract plane.
+// double lower(-300.0), upper(-24.0);  // Extract objects on plane.
+
+void Init(int argc, char**argv)
 {
+  std::string cam_info_topic("/camera/aligned_depth_to_color/camera_info");
+  if(argc>3)  cam_info_topic= argv[3];
+
+  GetCameraProjectionMatrix(cam_info_topic, frame_id, proj_mat);
+  std::cerr<<"frame_id: "<<frame_id<<std::endl;
+  std::cerr<<"proj_mat: "<<proj_mat<<std::endl;
+
   cv::namedWindow("depth",1);
 
   CreateTrackbar<bool>("disp_info", "depth", &disp_info, &TrackbarPrintOnTrack);
   CreateTrackbar<int>("w_patch", "depth", &w_patch, 1, 51, 2,  &TrackbarPrintOnTrack);
-  CreateTrackbar<double>("th_plane", "depth", &th_plane, 0.0, 5.0, 0.01,  &TrackbarPrintOnTrack);
+  CreateTrackbar<double>("th_plane", "depth", &th_plane, 0.0, 1.0, 0.001,  &TrackbarPrintOnTrack);
   CreateTrackbar<double>("th_feat", "depth", &th_feat, 0.0, 5.0, 0.01,  &TrackbarPrintOnTrack);
-  CreateTrackbar<double>("lower", "depth", &lower, -500.0, 500.0, 0.1,  &TrackbarPrintOnTrack);
-  CreateTrackbar<double>("upper", "depth", &upper, -500.0, 500.0, 0.1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<double>("lower", "depth", &lower, -1.0, 1.0, 0.001,  &TrackbarPrintOnTrack);
+  CreateTrackbar<double>("upper", "depth", &upper, -1.0, 1.0, 0.001,  &TrackbarPrintOnTrack);
 }
 //-------------------------------------------------------------------------------------------
 
 void CVCallback(const cv::Mat &img_depth)
 {
   double t_start= GetCurrentTime();
-  patch_set.ConstructFromDepthImg(img_depth, w_patch, th_plane);
+  patch_set.ConstructFromDepthImg(img_depth, proj_mat, w_patch, th_plane);
   if(disp_info)  std::cerr<<"Patch set cmp time: "<<GetCurrentTime()-t_start<<std::endl;
   std::vector<TClusterNode> clusters;
   ClusteringByFeatures(patch_set, clusters, TClusteringFeatNormal(), th_feat);
@@ -634,7 +480,7 @@ void CVCallback(const cv::Mat &img_depth)
     GetPlaneFromPatches(patch_set, clusters[ic_largest].Patches, normal, center);
     if(disp_info)  std::cout<<"Plane: "<<normal<<", "<<center<<std::endl;
     img_depth.copyTo(img_depth2);
-    DepthExtractAroundPlane(img_depth2, normal, center, lower, upper);
+    DepthExtractAroundPlane(img_depth2, proj_mat, normal, center, lower, upper);
     cv::imshow("depth_extracted", img_depth2*255.0*0.3);
   }
 
@@ -652,8 +498,10 @@ int main(int argc, char**argv)
   std::string img_topic("/camera/aligned_depth_to_color/image_raw"), encoding(sensor_msgs::image_encodings::TYPE_16UC1);
   if(argc>1)  img_topic= argv[1];
   if(argc>2)  encoding= argv[2];
+  std::string node_name("img_node");
+  ros::init(argc, argv, node_name);
   ns_main::Init(argc, argv);
-  StartLoop(argc, argv, img_topic, encoding, ns_main::CVCallback);
+  StartLoop(argc, argv, img_topic, encoding, ns_main::CVCallback, node_name);
   return 0;
 }
 //-------------------------------------------------------------------------------------------
