@@ -1,12 +1,12 @@
 //-------------------------------------------------------------------------------------------
-/*! \file    ros_plane_seg3.cpp
+/*! \file    ros_plane_seg4.cpp
     \brief   Plane segmentation ported from ../python/plane_seg1.py
              The normal vectors are computed from 3D points by transforming with camera matrix.
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
     \date    Jan.14, 2021
 
-g++ -O2 -g -W -Wall -o ros_plane_seg3.out ros_plane_seg3.cpp  -I../include -I/opt/ros/kinetic/include -pthread -llog4cxx -lpthread -L/opt/ros/kinetic/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -Wl,-rpath,/opt/ros/kinetic/lib
+g++ -O2 -g -W -Wall -o ros_plane_seg4.out ros_plane_seg4.cpp  -I../include -I/opt/ros/kinetic/include -pthread -llog4cxx -lpthread -L/opt/ros/kinetic/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -Wl,-rpath,/opt/ros/kinetic/lib
 
 */
 //-------------------------------------------------------------------------------------------
@@ -324,9 +324,11 @@ void GetPlaneFromPatches(const TClusterPatchSet &patch_set, const std::vector<in
 }
 //-------------------------------------------------------------------------------------------
 
-// Extract points whose height from the plane given by normal and center is within [lower,upper].
-void DepthExtractAroundPlane(cv::Mat &img_depth, const cv::Mat &proj_mat, const cv::Mat &normal, const cv::Mat &center, const double &lower, const double &upper)
+// Mask to extract points whose height from the plane given by normal and center is within [lower,upper].
+cv::Mat DepthExtractAroundPlaneMask(const cv::Mat &img_depth, const cv::Mat &proj_mat, const cv::Mat &normal, const cv::Mat &center, const double &lower, const double &upper)
 {
+  cv::Mat mask(img_depth.size(), CV_8UC1);
+  mask.setTo(1);
   // Plane parameters:
   double x0(center.at<double>(0,0)), y0(center.at<double>(0,1)), z0(center.at<double>(0,2));
   double N0(normal.at<double>(0,0)), N1(normal.at<double>(0,1)), N2(normal.at<double>(0,2));
@@ -347,8 +349,9 @@ void DepthExtractAroundPlane(cv::Mat &img_depth, const cv::Mat &proj_mat, const 
       // height from the plane:
       const double h= N0*(px-x0) + N1*(py-y0) + N2*(pz-z0);
       if(h < lower || upper < h)
-        img_depth.at<unsigned short>(v,u)= 0.0;
+        mask.at<unsigned char>(v,u)= 0;
     }
+  return mask;
 }
 //-------------------------------------------------------------------------------------------
 
@@ -429,12 +432,12 @@ void FitCylinder(const cv::Mat &img_depth, const cv::Mat &proj_mat, const cv::Ma
 }
 //-------------------------------------------------------------------------------------------
 
-void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Point> > &contours, int n_dilate=10, int n_erode=5, bool convex=false)
+void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Point> > &contours, int n_erode=5, int n_dilate=5, bool convex=false)
 {
   cv::Mat img_depth2;
   img_depth.convertTo(img_depth2, CV_8U);
-  if(n_dilate>0)  cv::dilate(img_depth2,img_depth2,cv::Mat(),cv::Point(-1,-1), n_dilate);
   if(n_erode>0)   cv::erode(img_depth2,img_depth2,cv::Mat(),cv::Point(-1,-1), n_erode);
+  if(n_dilate>0)  cv::dilate(img_depth2,img_depth2,cv::Mat(),cv::Point(-1,-1), n_dilate);
 
   // Contour detection
   contours.clear();
@@ -588,7 +591,7 @@ cv::Mat DrawClusters(const cv::Mat &img, const TClusterPatchSet &patch_set, cons
 
 
 #define LIBRARY
-#include "ros_capture.cpp"
+#include "ros_capture2.cpp"
 #include "float_trackbar.cpp"
 #include "ros_proj_mat.cpp"
 
@@ -604,13 +607,13 @@ double th_plane(0.01);
 double th_feat(0.2);
 // double lower(-0.01), upper(0.01);  // Extract plane.
 double lower(-0.3), upper(-0.01);  // Extract objects on plane.
-int n_dilate(10), n_erode(5);  // Segmentation parameters.
+int n_erode(5), n_dilate(5);  // Segmentation parameters.
 bool convex(false);  // Convert object contour to be convex.
 
 void Init(int argc, char**argv)
 {
   std::string cam_info_topic("/camera/aligned_depth_to_color/camera_info");
-  if(argc>3)  cam_info_topic= argv[3];
+  if(argc>5)  cam_info_topic= argv[5];
 
   GetCameraProjectionMatrix(cam_info_topic, frame_id, proj_mat);
   std::cerr<<"frame_id: "<<frame_id<<std::endl;
@@ -625,13 +628,13 @@ void Init(int argc, char**argv)
   CreateTrackbar<double>("lower", "depth", &lower, -1.0, 1.0, 0.001,  &TrackbarPrintOnTrack);
   CreateTrackbar<double>("upper", "depth", &upper, -1.0, 1.0, 0.001,  &TrackbarPrintOnTrack);
 
-  CreateTrackbar<int>("n_dilate", "depth", &n_dilate, 0, 50, 1,  &TrackbarPrintOnTrack);
   CreateTrackbar<int>("n_erode", "depth", &n_erode, 0, 50, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("n_dilate", "depth", &n_dilate, 0, 50, 1,  &TrackbarPrintOnTrack);
   CreateTrackbar<bool>("convex", "depth", &convex, &TrackbarPrintOnTrack);
 }
 //-------------------------------------------------------------------------------------------
 
-void CVCallback(const cv::Mat &img_depth)
+void CVCallback(const cv::Mat &img_depth, const cv::Mat &img_rgb)
 {
   double t_start= GetCurrentTime();
   patch_set.ConstructFromDepthImg(img_depth, proj_mat, w_patch, th_plane);
@@ -654,18 +657,21 @@ void CVCallback(const cv::Mat &img_depth)
   }
   if(ic_largest>=0)
   {
-    cv::Mat normal_pl, center_pl, img_depth2;
+    cv::Mat normal_pl, center_pl;
     GetPlaneFromPatches(patch_set, clusters[ic_largest].Patches, normal_pl, center_pl);
     if(disp_info)  std::cout<<"Plane: "<<normal_pl<<", "<<center_pl<<std::endl;
-    img_depth.copyTo(img_depth2);
-    DepthExtractAroundPlane(img_depth2, proj_mat, normal_pl, center_pl, lower, upper);
-//     cv::imshow("depth_extracted", img_depth2*255.0*0.3);
+    cv::Mat mask_on_plane= DepthExtractAroundPlaneMask(img_depth, proj_mat, normal_pl, center_pl, lower, upper);
+    cv::imshow("mask_on_plane", mask_on_plane*255);
     std::vector<std::vector<cv::Point> > contours;
-    DepthSegmentation(img_depth2, contours, n_dilate, n_erode, convex);
-    DepthFitCylinders(img_depth2, proj_mat, contours, normal_pl, center_pl);
+    DepthSegmentation(mask_on_plane, contours, n_erode, n_dilate, convex);
+    cv::Mat img_depth_obj(img_depth.size(), img_depth.type());
+    img_depth_obj.setTo(0);
+    img_depth.copyTo(img_depth_obj, mask_on_plane);
+    DepthFitCylinders(img_depth_obj, proj_mat, contours, normal_pl, center_pl);
   }
 
   cv::imshow("depth", img_viz);
+  cv::imshow("rgb", img_rgb);
   char c(cv::waitKey(1));
   if(c=='\x1b'||c=='q')  FinishLoop();
 }
@@ -676,13 +682,18 @@ void CVCallback(const cv::Mat &img_depth)
 
 int main(int argc, char**argv)
 {
-  std::string img_topic("/camera/aligned_depth_to_color/image_raw"), encoding(sensor_msgs::image_encodings::TYPE_16UC1);
-  if(argc>1)  img_topic= argv[1];
-  if(argc>2)  encoding= argv[2];
+  std::string img_depth_topic("/camera/aligned_depth_to_color/image_raw");
+  std::string img_rgb_topic("/camera/color/image_raw");
+  std::string encoding1(sensor_msgs::image_encodings::TYPE_16UC1);
+  std::string encoding2(sensor_msgs::image_encodings::BGR8);
+  if(argc>1)  img_depth_topic= argv[1];
+  if(argc>2)  img_rgb_topic= argv[2];
+  if(argc>3)  encoding1= argv[3];
+  if(argc>4)  encoding2= argv[4];
   std::string node_name("img_node");
   ros::init(argc, argv, node_name);
   ns_main::Init(argc, argv);
-  StartLoop(argc, argv, img_topic, encoding, ns_main::CVCallback, node_name);
+  StartLoop(argc, argv, img_depth_topic, img_rgb_topic, encoding1, encoding2, ns_main::CVCallback, node_name);
   return 0;
 }
 //-------------------------------------------------------------------------------------------
