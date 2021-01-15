@@ -20,6 +20,7 @@ g++ -O2 -g -W -Wall -o ros_plane_seg3.out ros_plane_seg3.cpp  -I../include -I/op
 #include <list>
 #include <map>
 #include <cstdio>
+#include <cmath>
 // #include <cstdlib>
 #include <sys/time.h>  // gettimeofday
 //-------------------------------------------------------------------------------------------
@@ -350,6 +351,163 @@ void DepthExtractAroundPlane(cv::Mat &img_depth, const cv::Mat &proj_mat, const 
 }
 //-------------------------------------------------------------------------------------------
 
+void MakeMaskFromContour(const std::vector<std::vector<cv::Point> > &contours, int ic, cv::Mat &mask, bool convex=false, int fill_value=1)
+{
+  if(ic<0 || ic>=int(contours.size()))  return;
+//   double a(0.0),a_max(0.0), i_max(0);
+//   for(int i(0),i_end(contours.size()); i<i_end; ++i)
+//   {
+//     a= cv::contourArea(contours[i],false);
+//     if(a>a_max)  {a_max= a;  i_max= i;}
+//   }
+  if(!convex)
+    cv::drawContours(mask, contours, ic, fill_value, /*thickness=*/-1);
+  else
+  {
+    std::vector<std::vector<cv::Point> > hull(1);
+    cv::convexHull(contours[ic], hull[0], /*clockwise=*/true);
+    cv::drawContours(mask, hull, 0, fill_value, /*thickness=*/-1);
+  }
+}
+//-------------------------------------------------------------------------------------------
+
+// Fit a cylinder parameter to an object specified by img_depth(mask,roi) on a plane specified by normal_pl and center_pl.
+// NOTE: The direction cylinder==normal_pl.
+void FitCylinder(const cv::Mat &img_depth, const cv::Mat &proj_mat, const cv::Mat &mask, const cv::Rect &roi, const cv::Mat &normal_pl, const cv::Mat &center_pl, double &h_cyl, double &r_cyl, cv::Mat &center_cyl)
+{
+  // Extract object depth to be fitted.
+  cv::Mat img_depth_obj(roi.size(), img_depth.type());
+  img_depth_obj.setTo(0);
+  img_depth(roi).copyTo(img_depth_obj, mask(roi));
+
+// cv::imshow("tmp", img_depth_obj*255.0*0.3);
+
+  // Plane parameters:
+  double x0(center_pl.at<double>(0,0)), y0(center_pl.at<double>(0,1)), z0(center_pl.at<double>(0,2));
+  double N0(normal_pl.at<double>(0,0)), N1(normal_pl.at<double>(0,1)), N2(normal_pl.at<double>(0,2));
+  // Camera matrix:
+  double Fx,Fy,Cx,Cy;
+  Fx= proj_mat.at<double>(0,0);
+  Fy= proj_mat.at<double>(1,1);
+  Cx= proj_mat.at<double>(0,2);
+  Cy= proj_mat.at<double>(1,2);
+
+  h_cyl= 0.0;
+  center_cyl.create(center_pl.size(), center_pl.type());
+  center_cyl.setTo(0.0);
+  std::list<cv::Point3d> points_pl;
+  for(int v(0);v<img_depth_obj.rows;++v)
+    for(int u(0);u<img_depth_obj.cols;++u)
+    {
+      if(img_depth_obj.at<unsigned short>(v,u)<=0)  continue;
+      // u,v,d --> 3D
+      const double pz= img_depth_obj.at<unsigned short>(v,u) * 0.001;
+      const double px= (roi.x+u-Cx)/Fx*pz;
+      const double py= (roi.y+v-Cy)/Fy*pz;
+      // height from the plane:
+      const double h_pl= N0*(px-x0) + N1*(py-y0) + N2*(pz-z0);
+      if(std::fabs(h_pl)>h_cyl)  h_cyl= std::fabs(h_pl);
+      // Point projected onto the plane:
+      const double px_pl= px - h_pl*N0;
+      const double py_pl= py - h_pl*N1;
+      const double pz_pl= pz - h_pl*N2;
+      center_cyl.at<double>(0,0)+= px_pl;
+      center_cyl.at<double>(0,1)+= py_pl;
+      center_cyl.at<double>(0,2)+= pz_pl;
+      points_pl.push_back(cv::Point3d(px_pl,py_pl,pz_pl));
+    }
+  center_cyl/= static_cast<double>(points_pl.size());
+  r_cyl= 0.0;
+  double r(0.0);
+  for(std::list<cv::Point3d>::const_iterator ip_pl(points_pl.begin()),ip_pl_end(points_pl.end()); ip_pl!=ip_pl_end; ++ip_pl)
+  {
+    r= cv::norm(*ip_pl - cv::Point3d(center_cyl));
+    if(r>r_cyl)  r_cyl= r;
+  }
+}
+//-------------------------------------------------------------------------------------------
+
+void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Point> > &contours, int n_dilate=10, int n_erode=5)
+{
+  cv::Mat img_depth2;
+  img_depth.convertTo(img_depth2, CV_8U);
+  if(n_dilate>0)  cv::dilate(img_depth2,img_depth2,cv::Mat(),cv::Point(-1,-1), n_dilate);
+  if(n_erode>0)   cv::erode(img_depth2,img_depth2,cv::Mat(),cv::Point(-1,-1), n_erode);
+
+  // Contour detection
+  contours.clear();
+  cv::findContours(img_depth2, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+  if(contours.size()>0)
+  {
+    for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
+    {
+      // double area= cv::contourArea(contours[ic],false);
+      cv::Rect roi= cv::boundingRect(contours[ic]);
+//       int bound_len= std::max(roi.width, roi.height);
+//       if(bound_len<rect_len_min || bound_len>rect_len_max)  continue;
+      cv::drawContours(img_depth2, contours, ic, CV_RGB(255,0,255), /*thickness=*/2, /*linetype=*/8);
+      cv::rectangle(img_depth2, roi, cv::Scalar(0,0,255), 2);
+    }
+  }
+cv::imshow("test_contours", img_depth2*255.0*0.3);
+}
+//-------------------------------------------------------------------------------------------
+
+void DrawCylinder(cv::Mat &img_depth, const cv::Mat &proj_mat, const double &h, const double &r, const cv::Mat &center, const cv::Mat &dir)
+{
+  // Camera matrix:
+  double Fx,Fy,Cx,Cy;
+  Fx= proj_mat.at<double>(0,0);
+  Fy= proj_mat.at<double>(1,1);
+  Cx= proj_mat.at<double>(0,2);
+  Cy= proj_mat.at<double>(1,2);
+
+  // std::vector<std::vector<cv::Point> >  points1(1), points2(1);
+  // for(double theta(0.0); theta<2.0*MATH_PI; ++theta)
+  // {
+  // }
+  // // cv::fillPoly(img_depth, points1, CV_RGB(128,0,128));
+  // cv::polylines(img_depth, points1, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+  // cv::polylines(img_depth, points2, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+
+  cv::Point pb(Fx*center.at<double>(0,0)/center.at<double>(0,2) + Cx,
+               Fy*center.at<double>(0,1)/center.at<double>(0,2) + Cy);
+  cv::circle(img_depth, pb, 3, CV_RGB(255,0,255), 1);
+
+  cv::Mat top= center+h*dir;
+  cv::Point pt(Fx*top.at<double>(0,0)/top.at<double>(0,2) + Cx,
+               Fy*top.at<double>(0,1)/top.at<double>(0,2) + Cy);
+  cv::circle(img_depth, pb, 3, CV_RGB(255,0,255), 1);
+}
+//-------------------------------------------------------------------------------------------
+
+void DepthFitCylinders(const cv::Mat &img_depth, const cv::Mat &proj_mat, const std::vector<std::vector<cv::Point> > &contours, const cv::Mat &normal_pl, const cv::Mat &center_pl)
+{
+  cv::Mat img_depth2;
+  img_depth.convertTo(img_depth2, CV_8U);
+
+  if(contours.size()>0)
+  {
+    for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
+    {
+      cv::Mat mask(img_depth.size(), CV_8UC1);
+      mask.setTo(0);
+      MakeMaskFromContour(contours, ic, mask, /*convex=*/false);
+      cv::Rect roi= cv::boundingRect(contours[ic]);
+// if(roi.height*roi.width<100)  continue;
+//       FitCylinder(img_depth, /*proj_mat*/cv::Mat(), mask, roi/*, ...*/);
+      double h_cyl(0.0), r_cyl(0.0);
+      cv::Mat center_cyl;
+      FitCylinder(img_depth, proj_mat, mask, roi, normal_pl, center_pl, h_cyl, r_cyl, center_cyl);
+DrawCylinder(img_depth2, proj_mat, h_cyl, r_cyl, center_cyl, normal_pl);
+    }
+  }
+cv::imshow("test_contours", img_depth2*255.0*0.3);
+}
+//-------------------------------------------------------------------------------------------
+
+
 // from binary_seg2 import FindSegments
 cv::Mat DrawClusters(const cv::Mat &img, const TClusterPatchSet &patch_set, const std::vector<TClusterNode> &clusters, bool disp_info)
 {
@@ -430,8 +588,8 @@ bool disp_info(false);
 int w_patch(25);
 double th_plane(0.01);
 double th_feat(0.2);
-double lower(-0.01), upper(0.01);  // Extract plane.
-// double lower(-300.0), upper(-24.0);  // Extract objects on plane.
+// double lower(-0.01), upper(0.01);  // Extract plane.
+double lower(-0.3), upper(-0.01);  // Extract objects on plane.
 
 void Init(int argc, char**argv)
 {
@@ -476,12 +634,15 @@ void CVCallback(const cv::Mat &img_depth)
   }
   if(ic_largest>=0)
   {
-    cv::Mat normal, center, img_depth2;
-    GetPlaneFromPatches(patch_set, clusters[ic_largest].Patches, normal, center);
-    if(disp_info)  std::cout<<"Plane: "<<normal<<", "<<center<<std::endl;
+    cv::Mat normal_pl, center_pl, img_depth2;
+    GetPlaneFromPatches(patch_set, clusters[ic_largest].Patches, normal_pl, center_pl);
+    if(disp_info)  std::cout<<"Plane: "<<normal_pl<<", "<<center_pl<<std::endl;
     img_depth.copyTo(img_depth2);
-    DepthExtractAroundPlane(img_depth2, proj_mat, normal, center, lower, upper);
+    DepthExtractAroundPlane(img_depth2, proj_mat, normal_pl, center_pl, lower, upper);
     cv::imshow("depth_extracted", img_depth2*255.0*0.3);
+    std::vector<std::vector<cv::Point> > contours;
+    DepthSegmentation(img_depth2, contours, /*n_dilate*/10, /*n_erode*/5);
+    DepthFitCylinders(img_depth2, proj_mat, contours, normal_pl, center_pl);
   }
 
   cv::imshow("depth", img_viz);
