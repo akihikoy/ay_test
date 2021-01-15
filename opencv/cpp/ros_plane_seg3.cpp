@@ -351,7 +351,7 @@ void DepthExtractAroundPlane(cv::Mat &img_depth, const cv::Mat &proj_mat, const 
 }
 //-------------------------------------------------------------------------------------------
 
-void MakeMaskFromContour(const std::vector<std::vector<cv::Point> > &contours, int ic, cv::Mat &mask, bool convex=false, int fill_value=1)
+void MakeMaskFromContour(const std::vector<std::vector<cv::Point> > &contours, int ic, cv::Mat &mask, int fill_value=1)
 {
   if(ic<0 || ic>=int(contours.size()))  return;
 //   double a(0.0),a_max(0.0), i_max(0);
@@ -360,14 +360,15 @@ void MakeMaskFromContour(const std::vector<std::vector<cv::Point> > &contours, i
 //     a= cv::contourArea(contours[i],false);
 //     if(a>a_max)  {a_max= a;  i_max= i;}
 //   }
-  if(!convex)
-    cv::drawContours(mask, contours, ic, fill_value, /*thickness=*/-1);
-  else
-  {
-    std::vector<std::vector<cv::Point> > hull(1);
-    cv::convexHull(contours[ic], hull[0], /*clockwise=*/true);
-    cv::drawContours(mask, hull, 0, fill_value, /*thickness=*/-1);
-  }
+  cv::drawContours(mask, contours, ic, fill_value, /*thickness=*/-1);
+//   if(!convex)
+//     cv::drawContours(mask, contours, ic, fill_value, /*thickness=*/-1);
+//   else
+//   {
+//     std::vector<std::vector<cv::Point> > hull(1);
+//     cv::convexHull(contours[ic], hull[0], /*clockwise=*/true);
+//     cv::drawContours(mask, hull, 0, fill_value, /*thickness=*/-1);
+//   }
 }
 //-------------------------------------------------------------------------------------------
 
@@ -427,7 +428,7 @@ void FitCylinder(const cv::Mat &img_depth, const cv::Mat &proj_mat, const cv::Ma
 }
 //-------------------------------------------------------------------------------------------
 
-void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Point> > &contours, int n_dilate=10, int n_erode=5)
+void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Point> > &contours, int n_dilate=10, int n_erode=5, bool convex=false)
 {
   cv::Mat img_depth2;
   img_depth.convertTo(img_depth2, CV_8U);
@@ -437,6 +438,19 @@ void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Poi
   // Contour detection
   contours.clear();
   cv::findContours(img_depth2, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+  if(convex && contours.size()>0)
+  {
+    std::vector<std::vector<cv::Point> > hull(1);
+    for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
+    {
+      hull[0].clear();
+      cv::convexHull(contours[ic], hull[0], /*clockwise=*/true);
+      cv::drawContours(img_depth2, hull, 0, /*fill_value=*/255, /*thickness=*/-1);
+    }
+    contours.clear();
+    cv::findContours(img_depth2, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+  }
 
   if(contours.size()>0)
   {
@@ -450,7 +464,7 @@ void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Poi
       cv::rectangle(img_depth2, roi, cv::Scalar(0,0,255), 2);
     }
   }
-cv::imshow("test_contours", img_depth2*255.0*0.3);
+cv::imshow("test_segmentation", img_depth2*255.0*0.3);
 }
 //-------------------------------------------------------------------------------------------
 
@@ -484,8 +498,9 @@ void DrawCylinder(cv::Mat &img_depth, const cv::Mat &proj_mat, const double &h, 
 
 void DepthFitCylinders(const cv::Mat &img_depth, const cv::Mat &proj_mat, const std::vector<std::vector<cv::Point> > &contours, const cv::Mat &normal_pl, const cv::Mat &center_pl)
 {
-  cv::Mat img_depth2;
-  img_depth.convertTo(img_depth2, CV_8U);
+  cv::Mat img_depth2(img_depth*255.0*0.3);
+  img_depth2.convertTo(img_depth2, CV_8U);
+  cv::cvtColor(img_depth2, img_depth2, CV_GRAY2BGR);
 
   if(contours.size()>0)
   {
@@ -493,17 +508,15 @@ void DepthFitCylinders(const cv::Mat &img_depth, const cv::Mat &proj_mat, const 
     {
       cv::Mat mask(img_depth.size(), CV_8UC1);
       mask.setTo(0);
-      MakeMaskFromContour(contours, ic, mask, /*convex=*/false);
+      MakeMaskFromContour(contours, ic, mask);
       cv::Rect roi= cv::boundingRect(contours[ic]);
-// if(roi.height*roi.width<100)  continue;
-//       FitCylinder(img_depth, /*proj_mat*/cv::Mat(), mask, roi/*, ...*/);
       double h_cyl(0.0), r_cyl(0.0);
       cv::Mat center_cyl;
       FitCylinder(img_depth, proj_mat, mask, roi, normal_pl, center_pl, h_cyl, r_cyl, center_cyl);
 DrawCylinder(img_depth2, proj_mat, h_cyl, r_cyl, center_cyl, normal_pl);
     }
   }
-cv::imshow("test_contours", img_depth2*255.0*0.3);
+cv::imshow("test_cylinders", img_depth2);
 }
 //-------------------------------------------------------------------------------------------
 
@@ -590,6 +603,8 @@ double th_plane(0.01);
 double th_feat(0.2);
 // double lower(-0.01), upper(0.01);  // Extract plane.
 double lower(-0.3), upper(-0.01);  // Extract objects on plane.
+int n_dilate(10), n_erode(5);  // Segmentation parameters.
+bool convex(false);  // Convert object contour to be convex.
 
 void Init(int argc, char**argv)
 {
@@ -608,6 +623,10 @@ void Init(int argc, char**argv)
   CreateTrackbar<double>("th_feat", "depth", &th_feat, 0.0, 5.0, 0.01,  &TrackbarPrintOnTrack);
   CreateTrackbar<double>("lower", "depth", &lower, -1.0, 1.0, 0.001,  &TrackbarPrintOnTrack);
   CreateTrackbar<double>("upper", "depth", &upper, -1.0, 1.0, 0.001,  &TrackbarPrintOnTrack);
+
+  CreateTrackbar<int>("n_dilate", "depth", &n_dilate, 0, 50, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("n_erode", "depth", &n_erode, 0, 50, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<bool>("convex", "depth", &convex, &TrackbarPrintOnTrack);
 }
 //-------------------------------------------------------------------------------------------
 
@@ -639,9 +658,9 @@ void CVCallback(const cv::Mat &img_depth)
     if(disp_info)  std::cout<<"Plane: "<<normal_pl<<", "<<center_pl<<std::endl;
     img_depth.copyTo(img_depth2);
     DepthExtractAroundPlane(img_depth2, proj_mat, normal_pl, center_pl, lower, upper);
-    cv::imshow("depth_extracted", img_depth2*255.0*0.3);
+//     cv::imshow("depth_extracted", img_depth2*255.0*0.3);
     std::vector<std::vector<cv::Point> > contours;
-    DepthSegmentation(img_depth2, contours, /*n_dilate*/10, /*n_erode*/5);
+    DepthSegmentation(img_depth2, contours, n_dilate, n_erode, convex);
     DepthFitCylinders(img_depth2, proj_mat, contours, normal_pl, center_pl);
   }
 
