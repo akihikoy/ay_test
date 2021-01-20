@@ -64,7 +64,7 @@ void SaveData(const std::string &filename, const cv::Mat &data)
 }
 //-------------------------------------------------------------------------------------------
 
-void ReduceDimWithPCA(const cv::Mat &data)
+cv::Mat ReduceDimWithPCA(const cv::Mat &data)
 {
   cv::PCA pca(data, cv::Mat(), CV_PCA_DATA_AS_ROW);
   cv::Vec3d mean(pca.mean.at<double>(0,0), pca.mean.at<double>(0,1), pca.mean.at<double>(0,2));
@@ -94,16 +94,19 @@ void ReduceDimWithPCA(const cv::Mat &data)
   cv::Mat backprojected= pca.backProject(reduced);
   // print(backprojected);
 
-  SaveData<double>("/tmp/res.dat", backprojected);
-  std::cerr<<"#Plot by:"<<std::endl;
-  std::cerr<<"qplot -x -3d sample/points1.dat /tmp/res.dat"<<std::endl;
+  return backprojected;
 }
 //-------------------------------------------------------------------------------------------
 
 int main(int argc, char**argv)
 {
-  cv::Mat data(LoadData("sample/points1.dat", 3));
-  ReduceDimWithPCA(data);
+  std::string filename= (argc>1) ? argv[1] : "sample/points1.dat";
+  cv::Mat data(LoadData(filename, 3));
+  cv::Mat backprojected= ReduceDimWithPCA(data);
+
+  SaveData<double>("/tmp/res.dat", backprojected);
+  std::cerr<<"#Plot by:"<<std::endl;
+  std::cerr<<"qplot -x -3d "<<filename<<" /tmp/res.dat"<<std::endl;
   return 0;
 }
 //-------------------------------------------------------------------------------------------
