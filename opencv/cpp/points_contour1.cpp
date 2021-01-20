@@ -28,7 +28,7 @@ inline double GetCurrentTime(void)
 }
 //-------------------------------------------------------------------------------------------
 
-void LoadData(const std::string &filename, std::list<cv::Point3d> &points)
+void LoadData(const std::string &filename, std::vector<cv::Point3d> &points)
 {
   std::ifstream ifs(filename.c_str());
   std::string line;
@@ -64,11 +64,11 @@ void SaveData(const std::string &filename, const cv::Mat &data)
 
 // Fit a cylinder parameter to an object specified by img_depth(mask,roi) on a plane specified by normal_pl and center_pl.
 // NOTE: The direction cylinder==normal_pl.
-void FitCylinder(const std::list<cv::Point3d> &points_pl, double &r_cyl, cv::Mat &center_cyl)
+void FitCylinder(const std::vector<cv::Point3d> &points_pl, double &r_cyl, cv::Mat &center_cyl)
 {
   center_cyl.create(1, 3, CV_64F);
   center_cyl.setTo(0.0);
-  for(std::list<cv::Point3d>::const_iterator ip_pl(points_pl.begin()),ip_pl_end(points_pl.end()); ip_pl!=ip_pl_end; ++ip_pl)
+  for(std::vector<cv::Point3d>::const_iterator ip_pl(points_pl.begin()),ip_pl_end(points_pl.end()); ip_pl!=ip_pl_end; ++ip_pl)
   {
     center_cyl.at<double>(0,0)+= ip_pl->x;
     center_cyl.at<double>(0,1)+= ip_pl->y;
@@ -77,7 +77,7 @@ void FitCylinder(const std::list<cv::Point3d> &points_pl, double &r_cyl, cv::Mat
   center_cyl/= static_cast<double>(points_pl.size());
   r_cyl= 0.0;
   double r(0.0);
-  for(std::list<cv::Point3d>::const_iterator ip_pl(points_pl.begin()),ip_pl_end(points_pl.end()); ip_pl!=ip_pl_end; ++ip_pl)
+  for(std::vector<cv::Point3d>::const_iterator ip_pl(points_pl.begin()),ip_pl_end(points_pl.end()); ip_pl!=ip_pl_end; ++ip_pl)
   {
     r= cv::norm(*ip_pl - cv::Point3d(center_cyl));
     if(r>r_cyl)  r_cyl= r;
@@ -85,11 +85,11 @@ void FitCylinder(const std::list<cv::Point3d> &points_pl, double &r_cyl, cv::Mat
 }
 //-------------------------------------------------------------------------------------------
 
-void ConvexHull(const std::list<cv::Point3d> &points, cv::Mat &hull_3d, int step=1)
+void ConvexHull(const std::vector<cv::Point3d> &points, cv::Mat &hull_3d, int step=1)
 {
   cv::Mat data(std::ceil(double(points.size())/double(step)), 3, CV_64F);
   int ir(0);
-  for(std::list<cv::Point3d>::const_iterator ip(points.begin()),ip_end(points.end()); ip!=ip_end; ++ip,++ir)
+  for(std::vector<cv::Point3d>::const_iterator ip(points.begin()),ip_end(points.end()); ip!=ip_end; ++ip,++ir)
   {
     if(ir%step==0)
     {
@@ -123,10 +123,42 @@ void ConvexHull(const std::list<cv::Point3d> &points, cv::Mat &hull_3d, int step
 }
 //-------------------------------------------------------------------------------------------
 
+void ConvexHullIdx(const std::vector<cv::Point3d> &points, cv::Mat &hull_3d, int step=1)
+{
+  cv::Mat data(std::ceil(double(points.size())/double(step)), 3, CV_64F);
+  int ir(0);
+  for(std::vector<cv::Point3d>::const_iterator ip(points.begin()),ip_end(points.end()); ip!=ip_end; ++ip,++ir)
+  {
+    if(ir%step==0)
+    {
+      data.at<double>(ir/step,0)= ip->x;
+      data.at<double>(ir/step,1)= ip->y;
+      data.at<double>(ir/step,2)= ip->z;
+    }
+  }
+
+  double scale(10000);
+  cv::PCA pca(data, cv::Mat(), CV_PCA_DATA_AS_ROW);
+  //Project points
+  cv::Mat projected= pca.project(data), projected_s, projected_i, hull_idx;
+  projected_s= scale*projected(cv::Rect(0,0,2,projected.rows));
+  projected_s.convertTo(projected_i, CV_32S);
+  cv::convexHull(projected_i, hull_idx, /*clockwise=*/true, /*returnPoints=*/false);
+//   std::cerr<<"DEBUG:hull_idx: "<<hull_idx<<std::endl;
+  hull_3d.create(hull_idx.rows,3,CV_64F);
+  for(int idx(0);idx<hull_idx.rows;++idx)
+  {
+    cv::Mat pt= cv::Mat(points[step*hull_idx.at<int>(idx)]).t();
+    pt.copyTo(hull_3d.row(idx));
+  }
+//   std::cerr<<"DEBUG:hull_3d: "<<hull_3d<<std::endl;
+}
+//-------------------------------------------------------------------------------------------
+
 int main(int argc, char**argv)
 {
   std::string filename= (argc>1) ? argv[1] : "sample/points1.dat";
-  std::list<cv::Point3d> points;
+  std::vector<cv::Point3d> points;
   LoadData(filename, points);
 
   double r_cyl;
@@ -139,11 +171,17 @@ int main(int argc, char**argv)
   cv::Mat hull_3d;
   ConvexHull(points, hull_3d);
   std::cerr<<"Computation time: "<<GetCurrentTime()-t_start<<std::endl;
-
   SaveData<double>("/tmp/hull.dat", hull_3d);
 
+  t_start= GetCurrentTime();
+  cv::Mat hull_3d2;
+  ConvexHullIdx(points, hull_3d2);
+  std::cerr<<"Computation time: "<<GetCurrentTime()-t_start<<std::endl;
+  SaveData<double>("/tmp/hull2.dat", hull_3d2);
+
+
   std::cerr<<"#Plot by:"<<std::endl;
-  std::cerr<<"qplot -x -3d "<<filename<<" w d /tmp/hull.dat"<<std::endl;
+  std::cerr<<"qplot -x -3d "<<filename<<" w d /tmp/hull.dat /tmp/hull2.dat"<<std::endl;
   return 0;
 }
 //-------------------------------------------------------------------------------------------

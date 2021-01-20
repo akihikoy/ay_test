@@ -27,6 +27,7 @@ int main(int argc, char**argv)
   print(cv::norm(v1));
   print(cv::norm(v2));
   print(v1.dot(v2));
+  print(v1.cross(v2));
   print("========");
 
   cv::Mat_<double> v3(3,1), v4(3,1);
@@ -37,6 +38,19 @@ int main(int argc, char**argv)
   print(cv::norm(v3));
   print(cv::norm(v4));
   print(v3.dot(v4));
+  print(v3.cross(v4));
+  print("========");
+
+  cv::Point3d p1(v2);
+  print(v1);
+  print(p1);
+  print(cv::norm(v1));
+  print(cv::norm(p1));
+  // print(v1.dot(p1));  NOTE: Does not work.
+  // print(v1.cross(p1));  NOTE: Does not work.
+  print(cv::Mat(p1).t());
+  print(v1.dot(cv::Mat(p1).t()));
+  print(v1.cross(cv::Mat(p1).t()));
   print("========");
 
   return 0;
