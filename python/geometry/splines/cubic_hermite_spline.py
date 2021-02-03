@@ -120,7 +120,7 @@ class TCubicHermiteSpline:
     else:                self.Param.EndTan= end_tan
     if c is None:  c= self.Param.C
     else:          self.Param.C= c
-    if m is None:  c= self.Param.M
+    if m is None:  m= self.Param.M
     else:          self.Param.M= m
 
     grad= lambda idx1,idx2: (self.KeyPts[idx2].X-self.KeyPts[idx1].X)/(self.KeyPts[idx2].T-self.KeyPts[idx1].T)
