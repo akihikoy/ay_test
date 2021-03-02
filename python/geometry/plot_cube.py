@@ -17,10 +17,9 @@ def PlotCube(ax, cube_points):
           [cube_points[0],cube_points[1],cube_points[5],cube_points[4]], 
           [cube_points[2],cube_points[3],cube_points[7],cube_points[6]], 
           [cube_points[1],cube_points[2],cube_points[6],cube_points[5]],
-  [cube_points[4],cube_points[7],cube_points[3],cube_points[0]]]
+          [cube_points[4],cube_points[7],cube_points[3],cube_points[0]]]
   #plot sides
-  ax.add_collection3d(Poly3DCollection(verts, 
-  facecolors='cyan', linewidths=1, edgecolors='r', alpha=.25))
+  ax.add_collection3d(Poly3DCollection(verts, facecolors='cyan', linewidths=1, edgecolors='r', alpha=.25))
 
 
 if __name__=='__main__':
