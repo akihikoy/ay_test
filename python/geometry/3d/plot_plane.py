@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #\file    plot_plane.py
-#\brief   Plot plane.
+#\brief   Plot 3D plane.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Mar.03, 2021
