@@ -34,14 +34,13 @@ def BoxPlaneIntersection(box, x_box, x_plane):
 
   #Make it convex:
   hull= scipy.spatial.ConvexHull(l_p_intersect)
-  print hull.vertices
+  #print hull.vertices
   l_p_intersect= np.array(l_p_intersect)[hull.vertices]
 
   return l_p_intersect
 
 
 if __name__=='__main__':
-  from mpl_toolkits.mplot3d.art3d import Poly3DCollection
   import matplotlib.pyplot as pyplot
   from plot_cube2 import PlotCube
   from plot_plane import PlotPlane, PlotPoly

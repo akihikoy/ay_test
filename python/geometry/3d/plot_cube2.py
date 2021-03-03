@@ -8,7 +8,7 @@ import numpy as np
 from geometry import *
 import plot_cube
 
-def PlotCube(ax, cube, x_cube):
+def PlotCube(ax, cube, x_cube, col=['cyan','r']):
   W,D,H= cube
   cube_points= [[-W*0.5, -D*0.5, -H*0.5],
                 [ W*0.5, -D*0.5, -H*0.5 ],
@@ -19,7 +19,7 @@ def PlotCube(ax, cube, x_cube):
                 [ W*0.5,  D*0.5,  H*0.5],
                 [-W*0.5,  D*0.5,  H*0.5]]
   cube_points= np.array(map(lambda p: Transform(x_cube,p), cube_points))
-  plot_cube.PlotCube(ax, cube_points)
+  plot_cube.PlotCube(ax, cube_points, col)
 
 
 if __name__=='__main__':
