@@ -5,7 +5,6 @@
 #\version 0.1
 #\date    Mar.03, 2021
 import numpy as np
-import scipy.spatial
 from geometry import *
 from box_ray_intersection import BoxRayIntersection
 
@@ -20,12 +19,12 @@ def BoxLineIntersection(box, x_box, p1, p2):
   box_min= [-W*0.5, -D*0.5, -H*0.5]
   box_max= [ W*0.5,  D*0.5,  H*0.5]
   tmin,tmax= BoxRayIntersection(ray_o, ray_d, box_min, box_max)
-  print 'p1,p2:',p1,p2
-  print 'ray_o:',ray_o
-  print 'ray_d:',ray_d
-  print 'box_min:',box_min
-  print 'box_max:',box_max
-  print 'tmin,tmax:',tmin,tmax
+  #print 'p1,p2:',p1,p2
+  #print 'ray_o:',ray_o
+  #print 'ray_d:',ray_d
+  #print 'box_min:',box_min
+  #print 'box_max:',box_max
+  #print 'tmin,tmax:',tmin,tmax
   if tmin is None:  return None,None
   if tmax<0 or tmin>line_len:  return None,None
   if tmin<0:  tmin= 0.0

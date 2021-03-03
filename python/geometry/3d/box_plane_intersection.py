@@ -5,7 +5,7 @@
 #\version 0.1
 #\date    Mar.02, 2021
 import numpy as np
-import scipy.spatial
+from scipy.spatial import ConvexHull as scipy_ConvexHull
 from geometry import *
 
 def BoxPlaneIntersection(box, x_box, x_plane):
@@ -33,7 +33,7 @@ def BoxPlaneIntersection(box, x_box, x_plane):
   l_p_intersect= map(lambda (i1,i2):f_intersect(l_box_points[i1],l_box_points[i2]), box_edges)
 
   #Make it convex:
-  hull= scipy.spatial.ConvexHull(l_p_intersect)
+  hull= scipy_ConvexHull(l_p_intersect)
   #print hull.vertices
   l_p_intersect= np.array(l_p_intersect)[hull.vertices]
 

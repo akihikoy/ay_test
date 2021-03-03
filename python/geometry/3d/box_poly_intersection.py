@@ -5,7 +5,6 @@
 #\version 0.1
 #\date    Mar.03, 2021
 import numpy as np
-import scipy.spatial
 from geometry import *
 from box_plane_intersection import BoxPlaneIntersection
 from polygon_clip import ClipPolygon

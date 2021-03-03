@@ -5,14 +5,14 @@
 #\version 0.1
 #\date    Mar.03, 2021
 import numpy as np
-import scipy.spatial
+from scipy.spatial import ConvexHull as scipy_ConvexHull
 from geometry import *
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 def Generate2DPoly(min,max,N=20):
   points_2d= np.random.uniform(min,max,[N,2])
   #Make points_2d convex:
-  hull= scipy.spatial.ConvexHull(points_2d)
+  hull= scipy_ConvexHull(points_2d)
   return np.array(points_2d)[hull.vertices]
 
 def PlotPlane(ax, x_plane, w=2.0, col='blue'):
