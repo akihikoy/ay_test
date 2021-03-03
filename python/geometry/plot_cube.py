@@ -6,7 +6,6 @@
 #\date    Sep.09, 2019
 import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-import matplotlib.pyplot as pyplot
 
 def PlotCube(ax, cube_points):
   #plot vertices
@@ -23,6 +22,7 @@ def PlotCube(ax, cube_points):
 
 
 if __name__=='__main__':
+  import matplotlib.pyplot as pyplot
   cube_points= np.array([[-1, -1, -1],
                         [1, -1, -1 ],
                         [1, 1, -1],

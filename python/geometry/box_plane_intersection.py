@@ -7,17 +7,6 @@
 import numpy as np
 import scipy.spatial
 from geometry import *
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-import matplotlib.pyplot as pyplot
-from plot_cube import PlotCube
-
-def PlotPlane(ax, x_plane, w=2.0):
-  c= np.array(x_plane[:3])
-  ex,ey,ez= RotToExyz(QToRot(x_plane[3:]))
-  ex,ey= w*ex,w*ey
-  points= [c+ex+ey, c-ex+ey, c-ex-ey, c+ex-ey]
-  verts= [[points[0],points[1],points[2],points[3]]]
-  ax.add_collection3d(Poly3DCollection(verts, facecolors='blue', linewidths=0, alpha=.25))
 
 def BoxPlaneIntersection(box, x_box, x_plane):
   W,D,H= box
@@ -52,17 +41,12 @@ def BoxPlaneIntersection(box, x_box, x_plane):
 
 
 if __name__=='__main__':
+  from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+  import matplotlib.pyplot as pyplot
+  from plot_cube2 import PlotCube
+  from plot_plane import PlotPlane, PlotPoly
   W,D,H= np.random.uniform(0,2,3)
-  cube_points= [[-W*0.5, -D*0.5, -H*0.5],
-                [ W*0.5, -D*0.5, -H*0.5 ],
-                [ W*0.5,  D*0.5, -H*0.5],
-                [-W*0.5,  D*0.5, -H*0.5],
-                [-W*0.5, -D*0.5,  H*0.5],
-                [ W*0.5, -D*0.5,  H*0.5 ],
-                [ W*0.5,  D*0.5,  H*0.5],
-                [-W*0.5,  D*0.5,  H*0.5]]
   x_box= np.random.uniform(-1,1,3).tolist() + QFromAxisAngle(np.random.uniform(0,1,3),np.random.uniform(-np.pi,np.pi)).tolist()
-  cube_points= np.array(map(lambda p: Transform(x_box,p), cube_points))
 
   x_plane= np.random.uniform(-1,1,3).tolist() + QFromAxisAngle(np.random.uniform(0,1,3),np.random.uniform(-np.pi,np.pi)).tolist()
 
@@ -70,13 +54,12 @@ if __name__=='__main__':
   print 'l_p_intersect:',l_p_intersect
   p_intersect= map(lambda l_p: Transform(x_plane,list(l_p)+[0]), l_p_intersect)
 
-
   fig= pyplot.figure()
   ax= fig.add_subplot(111, projection='3d')
-  PlotCube(ax, cube_points)
+  PlotCube(ax, [W,D,H], x_box)
   PlotPlane(ax, x_plane)
   if len(p_intersect)>0:
-    ax.add_collection3d(Poly3DCollection([p_intersect], facecolors='green', linewidths=2, edgecolors='r', alpha=.25))
+    PlotPoly(ax, p_intersect)
   ax.set_xlabel('X')
   ax.set_ylabel('Y')
   ax.set_zlabel('Z')
