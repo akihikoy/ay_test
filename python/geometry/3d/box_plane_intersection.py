@@ -9,6 +9,7 @@ from scipy.spatial import ConvexHull as scipy_ConvexHull
 from geometry import *
 
 def BoxPlaneIntersection(box, x_box, x_plane):
+  EPS= 1.0e-100
   W,D,H= box
   box_points= [[-W*0.5, -D*0.5, -H*0.5],
                [ W*0.5, -D*0.5, -H*0.5 ],
@@ -29,7 +30,7 @@ def BoxPlaneIntersection(box, x_box, x_plane):
   box_edges= filter(lambda (i1,i2): l_box_points[i1][2]<=0<=l_box_points[i2][2] or l_box_points[i2][2]<=0<=l_box_points[i1][2], box_edges)
   if len(box_edges)==0:  return []
   #Calculate intersection points.
-  f_intersect= lambda p1,p2: [(p1[0]*p2[2]-p1[2]*p2[0])/(p2[2]-p1[2]), (p1[1]*p2[2]-p1[2]*p2[1])/(p2[2]-p1[2])]
+  f_intersect= lambda p1,p2: [(p1[0]*p2[2]-p1[2]*p2[0])/(p2[2]-p1[2]), (p1[1]*p2[2]-p1[2]*p2[1])/(p2[2]-p1[2])] if abs(p2[2]-p1[2])>EPS else [(p1[0]+p2[0])*0.5, (p1[1]+p2[1])*0.5]
   l_p_intersect= map(lambda (i1,i2):f_intersect(l_box_points[i1],l_box_points[i2]), box_edges)
 
   #Make it convex:
@@ -48,6 +49,10 @@ if __name__=='__main__':
   x_box= np.random.uniform(-1,1,3).tolist() + QFromAxisAngle(np.random.uniform(0,1,3),np.random.uniform(-np.pi,np.pi)).tolist()
 
   x_plane= np.random.uniform(-1,1,3).tolist() + QFromAxisAngle(np.random.uniform(0,1,3),np.random.uniform(-np.pi,np.pi)).tolist()
+
+  #W,D,H= [0.17, 0.21, 0.13]
+  #x_box= [0.5089655172413793, 0.14206896551724135, -0.085, -0.029221169523695276, 0.7065027411494363, 0.029221169523695276, 0.7065027411494363]
+  #x_plane= [0.49, 0.03, -0.17, 0.0, 0.0, 0.0, 1.0]
 
   l_p_intersect= BoxPlaneIntersection([W,D,H], x_box, x_plane)
   print 'l_p_intersect:',l_p_intersect
