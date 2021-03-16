@@ -41,11 +41,11 @@ def ClipPolygon(subject_polygon, clip_polygon):
 
   ic = is_clockwise(subject_polygon)
   if ic is None:  return []
-  if ic:  subject_polygon.reverse()
+  if ic:  subject_polygon= list(reversed(subject_polygon))
   ic = is_clockwise(clip_polygon)
   #print 'is_clockwise(clip_polygon)=',ic
   if ic is None:  return []
-  if ic:  clip_polygon.reverse()
+  if ic:  clip_polygon= list(reversed(clip_polygon))
 
   output_list = subject_polygon
   cp1 = clip_polygon[-1]
