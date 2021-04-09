@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys, termios
+import time
 #import atexit
 from select import select
 
@@ -123,6 +124,33 @@ class TKBHit:
             if ans==a:  return a
     else:
       return AskGen(*argv)
+
+#Wait for a key input (immediately quit after a key input).
+def KBHitOnce():
+  sys.stdout.flush()
+  with TKBHit() as kbhit:
+    while True:
+      if kbhit.IsActive():
+        key= kbhit.KBHit()
+        if key is not None:
+          return key
+      else:  break
+      time.sleep(0.005)
+  return None
+
+#KBHit version of AskYesNo (does not wait for pressing return key).
+def KBHAskYesNo():
+  sys.stdout.flush()
+  with TKBHit() as kbhit:
+    return kbhit.AskYesNo()
+  return None
+
+#KBHit version of AskGen (does not wait for pressing return key).
+def KBHAskGen(*argv):
+  sys.stdout.flush()
+  with TKBHit() as kbhit:
+    return kbhit.AskGen(*argv)
+  return None
 
 
 if __name__ == '__main__':
