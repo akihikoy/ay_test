@@ -30,7 +30,8 @@ if __name__=='__main__':
   client= actionlib.SimpleActionClient('/follow_joint_trajectory', control_msgs.msg.FollowJointTrajectoryAction)
 
   print 'Press space to cancel the trajectory.'
-  if KBHAskGen(' ','q'):
+  while KBHAskGen(' ','q')==' ':
+    print 'Cancelling the trajectory...'
     client.cancel_goal()
     #client.wait_for_result(timeout=rospy.Duration(20.0))
 
