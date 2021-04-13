@@ -29,19 +29,20 @@ class TGrid(QtGui.QWidget):
     self.setLayout(grid)
 
     # Add buttons on grid
-    names= [[('a0',lambda:Print('0')), ('a1',lambda:Print('1'))],
+    names= [[('a0\na01',lambda:Print('0')), ('a1',lambda:Print('1'))],
             [('b0',lambda:Print('x')), ('b1',lambda:Print('y')), ('b2',lambda:Print('z'))],
-            [('c0',exit)]]
+            [('c0',exit,2)]]
     self.buttons= []
     self.default_font_size= 18
     for r,row in enumerate(names):
-      for c,(name,f) in enumerate(row):
+      for c,contents in enumerate(row):
+        name,f,colsize= contents if len(contents)==3 else (contents[0],contents[1],1)
         btn= QtGui.QPushButton(name)
         btn.clicked.connect(f)
         btn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         btn.setFont(QtGui.QFont('', self.default_font_size))
         btn.resizeEvent= self.resizeText
-        grid.addWidget(btn, r, c)
+        grid.addWidget(btn, r, c, 1, colsize)
         self.buttons.append(btn)
 
     # Show window
