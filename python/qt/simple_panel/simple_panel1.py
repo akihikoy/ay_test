@@ -15,6 +15,31 @@ def InsertDict(d_base, d_new):
     else:
       d_base[k_new]= v_new
 
+class TRadioBox(object):
+  def __init__(self, parent, layout='h'):
+    self.parent= parent
+    self.layout= None
+    if layout=='h':  self.layout= QtGui.QHBoxLayout()
+    elif layout=='v':  self.layout= QtGui.QVBoxLayout()
+    elif layout=='grid':  raise Exception('Not implemented yet')
+    else:  raise Exception('Invalid layout option:',layout)
+
+  def Construct(self, options, index, onclick, font_size):
+    self.group= QtGui.QButtonGroup()
+    self.radbtns= []
+    for idx,option in enumerate(options):
+      radbtn= QtGui.QRadioButton(option, self.parent)
+      radbtn.setCheckable(True)
+      if idx==index:  radbtn.setChecked(True)
+      radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
+      radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+      #radbtn.move(10, 60)
+      if font_size:  radbtn.setFont(QtGui.QFont('', font_size))
+      if onclick:  radbtn.clicked.connect(onclick)
+      self.layout.addWidget(radbtn)
+      self.group.addButton(radbtn)
+      self.radbtns.append(radbtn)
+
 class TSimplePanel(QtGui.QWidget):
   def __init__(self, title, widgets, layout, size=(800,400)):
     QtGui.QWidget.__init__(self)
@@ -29,15 +54,31 @@ class TSimplePanel(QtGui.QWidget):
       #obj.resize(obj.sizeHint().width(),obj.height())
     #obj.setFont(f)
 
+  def ResizeTextOfObj(self, obj, font_size_range, size):
+    font_size= min(font_size_range[1],max(font_size_range[0],int(size*font_size_range[0])))
+    f= QtGui.QFont('', font_size)
+    if isinstance(obj,QtGui.QRadioButton):
+      obj.setStyleSheet('QRadioButton::indicator {{width:{0}px;height:{0}px;}};'.format(1.3*font_size))
+    elif isinstance(obj,QtGui.QComboBox):
+      obj.resize(obj.sizeHint().width(),obj.height())
+    obj.setFont(f)
+
   def ResizeText(self, event):
+    s= self.rect().height()/100.
     for name,obj in self.widgets.iteritems():
-      font_size= min(obj.font_size_range[1],max(obj.font_size_range[0],int(self.rect().height()/100.*obj.font_size_range[0])))
-      f= QtGui.QFont('', font_size)
-      if isinstance(obj,QtGui.QRadioButton):
-        obj.setStyleSheet('QRadioButton::indicator {{width:{0}px;height:{0}px;}};'.format(1.3*font_size))
-      elif isinstance(obj,QtGui.QComboBox):
-        obj.resize(obj.sizeHint().width(),obj.height())
-      obj.setFont(f)
+      if isinstance(obj,TRadioBox):
+        for radbtn in obj.radbtns:
+          self.ResizeTextOfObj(radbtn, obj.font_size_range, s)
+      else:
+        self.ResizeTextOfObj(obj, obj.font_size_range, s)
+
+      #font_size= min(obj.font_size_range[1],max(obj.font_size_range[0],int(self.rect().height()/100.*obj.font_size_range[0])))
+      #f= QtGui.QFont('', font_size)
+      #if isinstance(obj,QtGui.QRadioButton):
+        #obj.setStyleSheet('QRadioButton::indicator {{width:{0}px;height:{0}px;}};'.format(1.3*font_size))
+      #elif isinstance(obj,QtGui.QComboBox):
+        #obj.resize(obj.sizeHint().width(),obj.height())
+      #obj.setFont(f)
 
   def AddButton(self, w_param):
     param={
@@ -92,7 +133,7 @@ class TSimplePanel(QtGui.QWidget):
     cmbbx.setFocusPolicy(QtCore.Qt.NoFocus)
     for option in param['options']:
       cmbbx.addItem(option)
-    cmbbx.setCurrentIndex(param['index'])
+    if param['index'] is not None:  cmbbx.setCurrentIndex(param['index'])
     if param['onactivated']:  cmbbx.activated[str].connect(lambda _,cmbbx=cmbbx:param['onactivated'](self,cmbbx))
     cmbbx.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     cmbbx.resize(cmbbx.sizeHint())
@@ -122,18 +163,44 @@ class TSimplePanel(QtGui.QWidget):
     #edit.resizeEvent= lambda event,obj=edit: self.ResizeText(obj,event)
     return edit
 
-  def AddRadioBoxH(self, w_param):
+  def AddRadioBox(self, w_param):
     param={
+      'options': [],
+      'index': None,
+      'layout': 'h',  #h(horizontal),v(vertical),grid
       'onclick': None,
       'font_size_range': (10,30),
       }
     InsertDict(param, w_param)
-  def AddRadioBoxV(self, w_param):
-    param={
-      'onclick': None,
-      'font_size_range': (10,30),
-      }
-    InsertDict(param, w_param)
+
+    radiobox= TRadioBox(self, layout=param['layout'])
+    radiobox.font_size_range= param['font_size_range']
+    if param['onclick']:  clicked= lambda _,radiobox=radiobox:param['onclick'](self,radiobox)
+    else:  clicked= None
+    radiobox.Construct(param['options'], index=param['index'], onclick=clicked, font_size=radiobox.font_size_range[0])
+
+    #if param['layout']=='h':  radiobox= QtGui.QHBoxLayout()
+    #elif param['layout']=='v':  radiobox= QtGui.QVBoxLayout()
+    #elif param['layout']=='grid':  raise Exception('Not implemented yet')
+    #else:  raise Exception('Invalid layout option:',param['layout'])
+
+    #radiobox.font_size_range= param['font_size_range']
+    #radiobox.group= QtGui.QButtonGroup()
+    #radiobox.radbtns= []
+    #for idx,option in enumerate(param['options']):
+      #radbtn= QtGui.QRadioButton('Option-1', self)
+      #radbtn.setCheckable(True)
+      #if idx==param['index']:  radbtn.setChecked(True)
+      #radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
+      #radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+      ##radbtn.move(10, 60)
+      #radbtn.setFont(QtGui.QFont('', radiobox.font_size_range[0]))
+      #if param['onclick']:  radbtn.clicked.connect(lambda radiobox=radiobox:param['onclick'](self,radiobox))
+      #radiobox.addWidget(radbtn)
+      #radiobox.group.addButton(radbtn)
+      #radiobox.radbtns.append(radbtn)
+    return radiobox
+
   def AddSliderH(self, w_param):
     param={
       'range': (0,10,1),
@@ -161,6 +228,8 @@ class TSimplePanel(QtGui.QWidget):
           widget= self.widgets[item]
           if isinstance(widget,QtGui.QSpacerItem):
             layout.addSpacerItem(widget)
+          elif isinstance(widget,TRadioBox):
+            layout.addLayout(widget.layout)
           else:
             layout.addWidget(widget)
         else:
@@ -184,8 +253,7 @@ class TSimplePanel(QtGui.QWidget):
       'buttonch': self.AddButtonCheckable,
       'combobox': self.AddComboBox,
       'lineedit': self.AddLineEdit,
-      'radioboxh': self.AddRadioBoxH,
-      'radioboxv': self.AddRadioBoxV,
+      'radiobox': self.AddRadioBox,
       'sliderh': self.AddSliderH,
       'spacer': self.AddSpacer,
       }
@@ -231,10 +299,24 @@ if __name__=='__main__':
     'edit_cmb1other': ('lineedit',
                        {'validator':'int',
                         'enabled':False}),
-    #'radbtn1': ('radioboxh', {'onclick': onclick_r1}),
-    #'edit_radbtn1other': ('lineedit', {'validator': 'int'}),
-    #'radbtn2': ('radioboxv', {'onclick': onclick_r2}),
-    #'edit_radbtn2other': ('lineedit', {'validator': 'int'}),
+    'radbox1': ('radiobox',
+                {'options':('Option-0','Option-1','Option-2','Other'),
+                 'layout': 'h',
+                 'index': 0,
+                 'onclick': lambda w,obj:(Print('Selected',obj.group.checkedButton().text()),
+                                           w.widgets['edit_radbox1other'].setEnabled(obj.group.checkedButton().text()=='Other'))}),
+    'edit_radbox1other': ('lineedit',
+                          {'validator':'int',
+                           'enabled':False}),
+    'radbox2': ('radiobox',
+                {'options':('Option-A','Option-B','Option-C','Other'),
+                 'layout': 'v',
+                 'index': None,
+                 'onclick': lambda w,obj:(Print('Selected',obj.group.checkedButton().text()),
+                                           w.widgets['edit_radbox2other'].setEnabled(obj.group.checkedButton().text()=='Other'))}),
+    'edit_radbox2other': ('lineedit',
+                          {'validator':'int',
+                           'enabled':False}),
     #'slider1': ('sliderh', {'range': (1000,1800,100)}),
     #'spacer1': ('spacer', {}),
     }
@@ -243,13 +325,15 @@ if __name__=='__main__':
            #(
              #('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
                             #('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
-             #('boxh',None, ('radbtn1','edit_radbtn1other')),
-             #('boxv',None, ('radbtn2','edit_radbtn2other')),
+             #('boxh',None, ('radbox1','edit_radbox1other')),
+             #('boxv',None, ('radbox2','edit_radbox2other')),
              #'slider1',
            #))
   layout= ('boxv',None,
            (
              ('boxh',None, ('btn1','btn2','cmb1','edit_cmb1other') ),
+             ('boxh',None, ('radbox1','edit_radbox1other') ),
+             ('boxv',None, ('radbox2','edit_radbox2other') ),
            ))
 
   app= QtGui.QApplication(sys.argv)
