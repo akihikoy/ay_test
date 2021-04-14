@@ -15,70 +15,65 @@ def InsertDict(d_base, d_new):
     else:
       d_base[k_new]= v_new
 
-class TRadioBox(object):
-  def __init__(self, parent, layout='h'):
-    self.parent= parent
+class TRadioBox(QtGui.QWidget):
+  def __init__(self, *args, **kwargs):
+    super(TRadioBox, self).__init__(*args, **kwargs)
+
+  #layout: 'h'(horizontal), 'v'(vertical), 'grid'
+  def Construct(self, layout, options, index, onclick, font_size):
     self.layout= None
     if layout=='h':  self.layout= QtGui.QHBoxLayout()
     elif layout=='v':  self.layout= QtGui.QVBoxLayout()
     elif layout=='grid':  raise Exception('Not implemented yet')
     else:  raise Exception('Invalid layout option:',layout)
 
-  def Construct(self, options, index, onclick, font_size):
     self.group= QtGui.QButtonGroup()
     self.radbtns= []
     for idx,option in enumerate(options):
-      radbtn= QtGui.QRadioButton(option, self.parent)
+      radbtn= QtGui.QRadioButton(option, self)
       radbtn.setCheckable(True)
       if idx==index:  radbtn.setChecked(True)
       radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
-      radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+      radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
       #radbtn.move(10, 60)
       if font_size:  radbtn.setFont(QtGui.QFont('', font_size))
       if onclick:  radbtn.clicked.connect(onclick)
       self.layout.addWidget(radbtn)
       self.group.addButton(radbtn)
       self.radbtns.append(radbtn)
+    self.setLayout(self.layout)
+
+  def setFont(self, f):
+    for radbtn in self.radbtns:
+      radbtn.setFont(f)
+
 
 class TSimplePanel(QtGui.QWidget):
-  def __init__(self, title, widgets, layout, size=(800,400)):
+  def __init__(self, title, widgets, layout, size=(800,400), font_height_scale=100.0):
     QtGui.QWidget.__init__(self)
+    self.font_height_scale= font_height_scale
     self.InitUI(title, widgets, layout, size)
-
-  #def ResizeText(self, obj, event):
-    #font_size= min(obj.font_size_range[1],max(obj.font_size_range[0],int(self.rect().height()/100.*obj.font_size_range[0])))
-    #f= QtGui.QFont('', font_size)
-    #if isinstance(obj,QtGui.QRadioButton):
-      #obj.setStyleSheet('QRadioButton::indicator {{width:{0}px;height:{0}px;}};'.format(1.3*font_size))
-    #elif isinstance(obj,QtGui.QComboBox):
-      #obj.resize(obj.sizeHint().width(),obj.height())
-    #obj.setFont(f)
 
   def ResizeTextOfObj(self, obj, font_size_range, size):
     font_size= min(font_size_range[1],max(font_size_range[0],int(size*font_size_range[0])))
     f= QtGui.QFont('', font_size)
-    if isinstance(obj,QtGui.QRadioButton):
+    if isinstance(obj,(QtGui.QRadioButton,TRadioBox)):
       obj.setStyleSheet('QRadioButton::indicator {{width:{0}px;height:{0}px;}};'.format(1.3*font_size))
+      #obj.resize(obj.sizeHint().width(),obj.height())
+    elif isinstance(obj,QtGui.QLineEdit):
+      #obj.resize(obj.sizeHint().width(),obj.height())
+      text= obj.text()
+      rect= obj.fontMetrics().boundingRect(text if text!='' else '0')
+      obj.setMinimumWidth(rect.width()+15)
+      obj.setMinimumHeight(rect.height()+15)
     elif isinstance(obj,QtGui.QComboBox):
       obj.resize(obj.sizeHint().width(),obj.height())
     obj.setFont(f)
 
   def ResizeText(self, event):
-    s= self.rect().height()/100.
+    s= self.rect().height()/self.font_height_scale
     for name,obj in self.widgets.iteritems():
-      if isinstance(obj,TRadioBox):
-        for radbtn in obj.radbtns:
-          self.ResizeTextOfObj(radbtn, obj.font_size_range, s)
-      else:
-        self.ResizeTextOfObj(obj, obj.font_size_range, s)
-
-      #font_size= min(obj.font_size_range[1],max(obj.font_size_range[0],int(self.rect().height()/100.*obj.font_size_range[0])))
-      #f= QtGui.QFont('', font_size)
-      #if isinstance(obj,QtGui.QRadioButton):
-        #obj.setStyleSheet('QRadioButton::indicator {{width:{0}px;height:{0}px;}};'.format(1.3*font_size))
-      #elif isinstance(obj,QtGui.QComboBox):
-        #obj.resize(obj.sizeHint().width(),obj.height())
-      #obj.setFont(f)
+      self.ResizeTextOfObj(obj, obj.font_size_range, s)
 
   def AddButton(self, w_param):
     param={
@@ -173,32 +168,12 @@ class TSimplePanel(QtGui.QWidget):
       }
     InsertDict(param, w_param)
 
-    radiobox= TRadioBox(self, layout=param['layout'])
+    radiobox= TRadioBox(self)
     radiobox.font_size_range= param['font_size_range']
     if param['onclick']:  clicked= lambda _,radiobox=radiobox:param['onclick'](self,radiobox)
     else:  clicked= None
-    radiobox.Construct(param['options'], index=param['index'], onclick=clicked, font_size=radiobox.font_size_range[0])
+    radiobox.Construct(param['layout'], param['options'], index=param['index'], onclick=clicked, font_size=radiobox.font_size_range[0])
 
-    #if param['layout']=='h':  radiobox= QtGui.QHBoxLayout()
-    #elif param['layout']=='v':  radiobox= QtGui.QVBoxLayout()
-    #elif param['layout']=='grid':  raise Exception('Not implemented yet')
-    #else:  raise Exception('Invalid layout option:',param['layout'])
-
-    #radiobox.font_size_range= param['font_size_range']
-    #radiobox.group= QtGui.QButtonGroup()
-    #radiobox.radbtns= []
-    #for idx,option in enumerate(param['options']):
-      #radbtn= QtGui.QRadioButton('Option-1', self)
-      #radbtn.setCheckable(True)
-      #if idx==param['index']:  radbtn.setChecked(True)
-      #radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
-      #radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
-      ##radbtn.move(10, 60)
-      #radbtn.setFont(QtGui.QFont('', radiobox.font_size_range[0]))
-      #if param['onclick']:  radbtn.clicked.connect(lambda radiobox=radiobox:param['onclick'](self,radiobox))
-      #radiobox.addWidget(radbtn)
-      #radiobox.group.addButton(radbtn)
-      #radiobox.radbtns.append(radbtn)
     return radiobox
 
   def AddSliderH(self, w_param):
@@ -207,6 +182,7 @@ class TSimplePanel(QtGui.QWidget):
       'font_size_range': (10,30),
       }
     InsertDict(param, w_param)
+
   def AddSpacer(self, w_param):
     param={
       }
@@ -228,8 +204,6 @@ class TSimplePanel(QtGui.QWidget):
           widget= self.widgets[item]
           if isinstance(widget,QtGui.QSpacerItem):
             layout.addSpacerItem(widget)
-          elif isinstance(widget,TRadioBox):
-            layout.addLayout(widget.layout)
           else:
             layout.addWidget(widget)
         else:
@@ -262,12 +236,6 @@ class TSimplePanel(QtGui.QWidget):
     for name,(w_type, w_param) in self.widgets_in.iteritems():
       self.widgets[name]= self.widget_generator[w_type](w_param)
 
-    #self.layout_generator= {
-      #'boxv': self.AddBoxV,
-      #'boxh': self.AddBoxH,
-      #'grid': self.AddGrid,
-      #'tab': self.AddGrid,
-      #}
     self.layout_in= layout
     self.layouts= {}
     self.setLayout(self.AddLayouts(self.layout_in))
@@ -337,5 +305,5 @@ if __name__=='__main__':
            ))
 
   app= QtGui.QApplication(sys.argv)
-  win= TSimplePanel('Simple Panel', widgets, layout)
+  win= TSimplePanel('Simple Panel', widgets, layout, size=(600,300), font_height_scale=200.0)
   sys.exit(app.exec_())

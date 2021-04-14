@@ -8,30 +8,32 @@
 import sys
 from PyQt4 import QtCore,QtGui
 
-class TRadioBox(object):
-  def __init__(self, parent, layout='h'):
-    self.parent= parent
+class TRadioBox(QtGui.QWidget):
+  def __init__(self, *args, **kwargs):
+    super(TRadioBox, self).__init__(*args, **kwargs)
+
+  def Construct(self, layout, options, index, onclick, font_size):
     self.layout= None
     if layout=='h':  self.layout= QtGui.QHBoxLayout()
     elif layout=='v':  self.layout= QtGui.QVBoxLayout()
     elif layout=='grid':  raise Exception('Not implemented yet')
     else:  raise Exception('Invalid layout option:',layout)
 
-  def Construct(self, options, index, onclick, font_size):
     self.group= QtGui.QButtonGroup()
     self.radbtns= []
     for idx,option in enumerate(options):
-      radbtn= QtGui.QRadioButton(option, self.parent)
+      radbtn= QtGui.QRadioButton(option, self)
       radbtn.setCheckable(True)
       if idx==index:  radbtn.setChecked(True)
       radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
-      radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+      radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
       #radbtn.move(10, 60)
       if font_size:  radbtn.setFont(QtGui.QFont('', font_size))
       if onclick:  radbtn.clicked.connect(onclick)
       self.layout.addWidget(radbtn)
       self.group.addButton(radbtn)
       self.radbtns.append(radbtn)
+    self.setLayout(self.layout)
 
 def Print(s):
   print s
@@ -66,12 +68,12 @@ class TRadioButton(QtGui.QWidget):
     self.btn1= btn1
     mainlayout.addWidget(btn1)#,0,0)
 
-    radiobox= TRadioBox(self, layout='h')
+    radiobox= TRadioBox(self)
     radiobox.font_size= (10,30)
     clicked= lambda: self.btn1.setText('Exit') if self.radiobox.radbtns[1].isChecked() else self.btn1.setText('Not exit({text})'.format(text=self.radiobox.group.checkedButton().text()))
-    radiobox.Construct(['Option-1','Option-2','Option-3'], index=2, onclick=clicked, font_size=radiobox.font_size[0])
+    radiobox.Construct('h',['Option-1','Option-2','Option-3'], index=2, onclick=clicked, font_size=radiobox.font_size[0])
     self.radiobox= radiobox
-    mainlayout.addLayout(radiobox.layout)
+    mainlayout.addWidget(radiobox)
 
     self.resizeEvent= lambda event: (self.ResizeText(self.btn1,event), self.ResizeText(self.radiobox,event),None)[-1]
 
