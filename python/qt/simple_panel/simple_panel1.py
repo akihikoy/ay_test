@@ -20,7 +20,7 @@ class TRadioBox(QtGui.QWidget):
     super(TRadioBox, self).__init__(*args, **kwargs)
 
   #layout: 'h'(horizontal), 'v'(vertical), 'grid'
-  def Construct(self, layout, options, index, onclick, font_size):
+  def Construct(self, layout, options, index, onclick):
     self.layout= None
     if layout=='h':  self.layout= QtGui.QHBoxLayout()
     elif layout=='v':  self.layout= QtGui.QVBoxLayout()
@@ -36,7 +36,6 @@ class TRadioBox(QtGui.QWidget):
       radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
       radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
       #radbtn.move(10, 60)
-      if font_size:  radbtn.setFont(QtGui.QFont('', font_size))
       if onclick:  radbtn.clicked.connect(onclick)
       self.layout.addWidget(radbtn)
       self.group.addButton(radbtn)
@@ -46,6 +45,78 @@ class TRadioBox(QtGui.QWidget):
   def setFont(self, f):
     for radbtn in self.radbtns:
       radbtn.setFont(f)
+
+class TSlider(QtGui.QWidget):
+  def __init__(self, *args, **kwargs):
+    super(TSlider, self).__init__(*args, **kwargs)
+
+  def convert_from(self, slider_value):
+    return min(self.range_step[1], self.range_step[0] + self.range_step[2]*slider_value)
+
+  def convert_to(self, value):
+    return max(0,min(self.slider_max,(value-self.range_step[0])/self.range_step[2]))
+
+  def value(self):
+    return self.convert_from(self.slider.value())
+
+  def setValue(self, value):
+    slider_value= self.convert_to(value)
+    self.slider.setValue(slider_value)
+    self.setLabel(value)
+
+  def setLabel(self, value):
+    self.label.setText(str(value).rjust(len(str(self.range_step[1]))))
+
+  def Construct(self, range_step, n_labels, onvaluechange):
+    self.range_step= range_step
+    self.slider_max= (self.range_step[1]-self.range_step[0])/self.range_step[2]
+
+    self.layout= QtGui.QGridLayout()
+
+    vspacer1= QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    self.layout.addItem(vspacer1, 0, 0, 1, n_labels+1)
+
+    self.slider= QtGui.QSlider(QtCore.Qt.Horizontal, self)
+    self.slider.setTickPosition(QtGui.QSlider.TicksBothSides)
+    self.slider.setRange(0, self.slider_max)
+    self.slider.setTickInterval(1)
+    self.slider.setSingleStep(1)
+    #self.slider.move(10, 60)
+    #self.slider.resize(100, 20)
+    self.slider.valueChanged.connect(lambda *args,**kwargs:(self.setLabel(self.value()), onvaluechange(*args,**kwargs) if onvaluechange else None)[-1])
+
+    self.layout.addWidget(self.slider, 1, 0, 1, n_labels)
+
+    self.label= QtGui.QLabel('0',self)
+    self.layout.addWidget(self.label, 1, n_labels, 1, 1, QtCore.Qt.AlignLeft)
+
+    #hspacer1= QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
+    #self.layout.addItem(hspacer1, 1, n_labels+1)
+
+    self.tick_labels= []
+    if n_labels>1:
+      tick_font= QtGui.QFont(self.label.font().family(), self.label.font().pointSize()*0.6)
+      label_step= (range_step[1]-range_step[0])/(n_labels-1)
+      for i_label in range(n_labels):
+        label= str(range_step[0]+i_label*label_step)
+        tick_label= QtGui.QLabel(label,self)
+        tick_label.setFont(tick_font)
+        if i_label<(n_labels-1)/2:  align= QtCore.Qt.AlignLeft
+        elif i_label==(n_labels-1)/2:  align= QtCore.Qt.AlignCenter
+        else:  align= QtCore.Qt.AlignRight
+        self.layout.addWidget(tick_label, 2, i_label, 1, 1, align)
+        self.tick_labels.append(tick_label)
+
+    vspacer2= QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    self.layout.addItem(vspacer2, 3, 0, 1, n_labels+1)
+    self.setValue(range_step[0])
+    self.setLayout(self.layout)
+
+  def setFont(self, f):
+    self.label.setFont(f)
+    tick_f= QtGui.QFont(f.family(), f.pointSize()*0.6)
+    for tick_label in self.tick_labels:
+      tick_label.setFont(tick_f)
 
 
 class TSimplePanel(QtGui.QWidget):
@@ -167,21 +238,31 @@ class TSimplePanel(QtGui.QWidget):
       'font_size_range': (10,30),
       }
     InsertDict(param, w_param)
-
     radiobox= TRadioBox(self)
     radiobox.font_size_range= param['font_size_range']
     if param['onclick']:  clicked= lambda _,radiobox=radiobox:param['onclick'](self,radiobox)
     else:  clicked= None
-    radiobox.Construct(param['layout'], param['options'], index=param['index'], onclick=clicked, font_size=radiobox.font_size_range[0])
-
+    radiobox.Construct(param['layout'], param['options'], index=param['index'], onclick=clicked)
+    radiobox.setFont(QtGui.QFont('', radiobox.font_size_range[0]))
     return radiobox
 
   def AddSliderH(self, w_param):
     param={
       'range': (0,10,1),
+      'value': 0,
+      'n_labels': 3,
+      'onvaluechange': None,
       'font_size_range': (10,30),
       }
     InsertDict(param, w_param)
+    slider= TSlider(self)
+    if param['onvaluechange']:  onvaluechange= lambda _,slider=slider:param['onvaluechange'](self,slider)
+    else:  onvaluechange= None
+    slider.Construct(param['range'], n_labels=param['n_labels'], onvaluechange=onvaluechange)
+    if param['value'] is not None:  slider.setValue(param['value'])
+    slider.font_size_range= param['font_size_range']
+    slider.setFont(QtGui.QFont('', slider.font_size_range[0]))
+    return slider
 
   def AddSpacer(self, w_param):
     param={
@@ -285,7 +366,11 @@ if __name__=='__main__':
     'edit_radbox2other': ('lineedit',
                           {'validator':'int',
                            'enabled':False}),
-    #'slider1': ('sliderh', {'range': (1000,1800,100)}),
+    'slider1': ('sliderh',
+                {'range': (1000,1800,100),
+                 'value': 1600,
+                 'n_labels': 5,
+                 'onvaluechange': lambda w,obj:Print('Value:',obj.value())}),
     #'spacer1': ('spacer', {}),
     }
   #Layout option: vbox, hbox, grid, tab
@@ -302,8 +387,9 @@ if __name__=='__main__':
              ('boxh',None, ('btn1','btn2','cmb1','edit_cmb1other') ),
              ('boxh',None, ('radbox1','edit_radbox1other') ),
              ('boxv',None, ('radbox2','edit_radbox2other') ),
+             'slider1',
            ))
 
   app= QtGui.QApplication(sys.argv)
-  win= TSimplePanel('Simple Panel', widgets, layout, size=(600,300), font_height_scale=200.0)
+  win= TSimplePanel('Simple Panel', widgets, layout, size=(600,400), font_height_scale=300.0)
   sys.exit(app.exec_())
