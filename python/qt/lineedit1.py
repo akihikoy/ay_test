@@ -12,7 +12,7 @@ def Print(*s):
   for ss in s:  print ss,
   print ''
 
-class TComboBox(QtGui.QWidget):
+class TLineEdit(QtGui.QWidget):
   def __init__(self):
     QtGui.QWidget.__init__(self)
     self.InitUI()
@@ -28,7 +28,7 @@ class TComboBox(QtGui.QWidget):
     btn1= QtGui.QPushButton('_________Exit?_________', self)
     #btn1.setFlat(True)
     btn1.setToolTip('Click to make something happen')
-    btn1.clicked.connect(lambda:self.close() if int(self.edit1.text())%2==0 else Print('Hint: Set an even number to exit'))
+    btn1.clicked.connect(lambda:self.close() if self.edit1.text()!='' and int(self.edit1.text())%2==0 else Print('Hint: Put an even number to exit'))
     btn1.resize(btn1.sizeHint())
     btn1.move(100, 150)
     self.btn1= btn1
@@ -45,7 +45,7 @@ class TComboBox(QtGui.QWidget):
 a = QtGui.QApplication(sys.argv)
 
 # The QWidget widget is the base class of all user interface objects in PyQt4.
-w = TComboBox()
+w = TLineEdit()
 
 sys.exit(a.exec_())
 
