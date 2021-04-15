@@ -347,16 +347,37 @@ class TSimplePanel(QtGui.QWidget):
           sublayout= self.AddLayouts(item)
           layout.addLayout(sublayout,r,c,rs,cs,align)
     elif l_type=='tab':
-      pass
+      #As a tab is a widget in Qt, we make an outer layout with zero margin.
+      #NOTE: The tab widget is stored into layout.tabs member variable.
+      layout= QtGui.QVBoxLayout()
+      layout.setContentsMargins(0, 0, 0, 0)
+      layout.tabs= QtGui.QTabWidget()
+      layout.addWidget(layout.tabs)
+      layout.tab= []
+      layout.tab_name_to_index= {}
+      for tab_name,tab_layout in items:
+        tab= QtGui.QWidget()
+        layout.tab.append(tab)
+        layout.tab_name_to_index[tab_name]= len(layout.tab)-1
+        layout.tabs.addTab(tab,tab_name)
+        sublayout= self.AddLayouts(tab_layout)
+        tab.setLayout(sublayout)
+      #For convenience, we define a setCurrentTab method to show a tab by name.
+      layout.setCurrentTab= lambda tab_name:layout.tabs.setCurrentIndex(layout.tab_name_to_index[tab_name])
 
-  #layout= ('boxv',None,
-           #(
-             #('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
-                            #('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
-             #('boxh',None, ('radbox1','edit_radbox1other')),
-             #('boxv',None, ('radbox2','edit_radbox2other')),
-             #'slider1',
-           #))
+  #layout= ('tab',None,
+           #('tab1',
+              #('boxv',None,
+                #(
+                  #('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
+                                  #('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
+                  #('boxh',None, ('radbox1','edit_radbox1other')),
+                  #('boxv',None, ('radbox2','edit_radbox2other')),
+                  #'slider1',
+                #))),
+            #('tab2', ('boxv',None,())),
+            #('tab3', ('boxv',None,())),
+            #)
 
     self.layouts[name]= layout
     return layout
@@ -368,7 +389,7 @@ class TSimplePanel(QtGui.QWidget):
 
     self.widget_generator= {
       'button': self.AddButton,
-      'buttonch': self.AddButtonCheckable,
+      'buttonchk': self.AddButtonCheckable,
       'combobox': self.AddComboBox,
       'lineedit': self.AddLineEdit,
       'radiobox': self.AddRadioBox,
@@ -401,10 +422,34 @@ if __name__=='__main__':
         'text':'Close',
         'onclick':lambda w,obj:w.close()}),
     'btn2': (
-      'buttonch',{
+      'buttonchk',{
         'text':('TurnOn','TurnOff'),
         'onclick': (lambda w,obj:Print('ON!'),
                     lambda w,obj:Print('OFF!'))}),
+    'btn_totab10': (
+      'button',{
+        'text':'To tab1',
+        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab1')}),
+    'btn_totab11': (
+      'button',{
+        'text':'To tab1',
+        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab1')}),
+    'btn_totab20': (
+      'button',{
+        'text':'To tab2',
+        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab2')}),
+    'btn_totab21': (
+      'button',{
+        'text':'To tab2',
+        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab2')}),
+    'btn_totab30': (
+      'button',{
+        'text':'To tab3',
+        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab3')}),
+    'btn_totab31': (
+      'button',{
+        'text':'To tab3',
+        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab3')}),
     'cmb1': (
       'combobox',{
         'options':('Option-0','Option-1','Option-2','Other'),
@@ -444,21 +489,27 @@ if __name__=='__main__':
     'spacer1': ('spacer', {}),
     }
   #Layout option: vbox, hbox, grid, tab
-  #layout= ('boxv',None,
-           #(
+  #layout= ('boxv',None,(
              #('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
                             #('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
-             #('boxh',None, ('radbox1','edit_radbox1other')),
-             #('boxv',None, ('radbox2','edit_radbox2other')),
-             #'slider1',
+             #('boxh',None, ('radbox1','edit_radbox1other') ),
+             #('boxv',None, ('radbox2','slider_radbox2other') ),
+             #'spacer1',
            #))
-  layout= ('boxv',None,(
-             ('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
-                            ('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
-             ('boxh',None, ('radbox1','edit_radbox1other') ),
-             ('boxv',None, ('radbox2','slider_radbox2other') ),
-             'spacer1',
-           ))
+  layout= ('tab','maintab',(
+           ('tab1',
+              ('boxv',None,
+                (
+                  ('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
+                                  ('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
+                  ('boxh',None, ('radbox1','edit_radbox1other') ),
+                  ('boxv',None, ('radbox2','slider_radbox2other') ),
+                  ('boxh',None, ('btn_totab20', 'btn_totab30') ),
+                  'spacer1',
+                )) ),
+            ('tab2', ('boxv',None, ('btn_totab10', 'btn_totab31') ) ),
+            ('tab3', ('boxv',None, ('btn_totab11', 'btn_totab21') ) ),
+            ))
 
   app= QtGui.QApplication(sys.argv)
   win= TSimplePanel('Simple Panel', widgets, layout, size=(600,400), font_height_scale=300.0)
