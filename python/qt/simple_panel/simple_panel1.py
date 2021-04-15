@@ -5,7 +5,7 @@
 #\version 0.1
 #\date    Apr.14, 2021
 
-import sys
+import sys, copy
 from PyQt4 import QtCore,QtGui
 
 def InsertDict(d_base, d_new):
@@ -14,6 +14,12 @@ def InsertDict(d_base, d_new):
       InsertDict(d_base[k_new], v_new)
     else:
       d_base[k_new]= v_new
+  return d_base  #NOTE: d_base is overwritten. Returning it is for the convenience.
+
+def InsertDict2(d_base, *d_new):
+  for d in d_new:
+    InsertDict(d_base, d)
+  return d_base  #NOTE: d_base is overwritten. Returning it is for the convenience.
 
 class TRadioBox(QtGui.QWidget):
   def __init__(self, *args, **kwargs):
@@ -34,6 +40,7 @@ class TRadioBox(QtGui.QWidget):
       radbtn.setCheckable(True)
       if idx==index:  radbtn.setChecked(True)
       radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
+      #radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
       radbtn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
       #radbtn.move(10, 60)
       if onclick:  radbtn.clicked.connect(onclick)
@@ -45,6 +52,8 @@ class TRadioBox(QtGui.QWidget):
   def setFont(self, f):
     for radbtn in self.radbtns:
       radbtn.setFont(f)
+    h= f.pointSize()*1.5
+    self.setStyleSheet('QRadioButton::indicator {{width:{0}px;height:{0}px;}};'.format(h))
 
 class TSlider(QtGui.QWidget):
   def __init__(self, *args, **kwargs):
@@ -67,9 +76,11 @@ class TSlider(QtGui.QWidget):
   def setLabel(self, value):
     self.label.setText(str(value).rjust(len(str(self.range_step[1]))))
 
-  def Construct(self, range_step, n_labels, onvaluechange):
+  #style: 0:Default, 1:Variable handle size.
+  def Construct(self, range_step, n_labels, slider_style, onvaluechange):
     self.range_step= range_step
     self.slider_max= (self.range_step[1]-self.range_step[0])/self.range_step[2]
+    self.slider_style= slider_style
 
     self.layout= QtGui.QGridLayout()
 
@@ -77,10 +88,12 @@ class TSlider(QtGui.QWidget):
     self.layout.addItem(vspacer1, 0, 0, 1, n_labels+1)
 
     self.slider= QtGui.QSlider(QtCore.Qt.Horizontal, self)
+    #self.slider.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     self.slider.setTickPosition(QtGui.QSlider.TicksBothSides)
     self.slider.setRange(0, self.slider_max)
     self.slider.setTickInterval(1)
     self.slider.setSingleStep(1)
+    self.slider.setPageStep(1)
     #self.slider.move(10, 60)
     #self.slider.resize(100, 20)
     self.slider.valueChanged.connect(lambda *args,**kwargs:(self.setLabel(self.value()), onvaluechange(*args,**kwargs) if onvaluechange else None)[-1])
@@ -95,12 +108,12 @@ class TSlider(QtGui.QWidget):
 
     self.tick_labels= []
     if n_labels>1:
-      tick_font= QtGui.QFont(self.label.font().family(), self.label.font().pointSize()*0.6)
+      #tick_font= QtGui.QFont(self.label.font().family(), self.label.font().pointSize()*0.6)
       label_step= (range_step[1]-range_step[0])/(n_labels-1)
       for i_label in range(n_labels):
         label= str(range_step[0]+i_label*label_step)
         tick_label= QtGui.QLabel(label,self)
-        tick_label.setFont(tick_font)
+        #tick_label.setFont(tick_font)
         if i_label<(n_labels-1)/2:  align= QtCore.Qt.AlignLeft
         elif i_label==(n_labels-1)/2:  align= QtCore.Qt.AlignCenter
         else:  align= QtCore.Qt.AlignRight
@@ -111,27 +124,60 @@ class TSlider(QtGui.QWidget):
     self.layout.addItem(vspacer2, 3, 0, 1, n_labels+1)
     self.setValue(range_step[0])
     self.setLayout(self.layout)
+    self.setStyleForFont(self.label.font())
 
-  def setFont(self, f):
-    self.label.setFont(f)
+  def setStyleForFont(self, f):
     tick_f= QtGui.QFont(f.family(), f.pointSize()*0.6)
     for tick_label in self.tick_labels:
       tick_label.setFont(tick_f)
+    if self.slider_style==0:
+      self.slider.setStyleSheet('')
+    elif self.slider_style==1:
+      h0= f.pointSize()*2
+      h1= h0+8
+      self.slider.setStyleSheet('''
+        QSlider {{
+            height: {1}px;
+        }}
+        QSlider::groove:horizontal {{
+            background: transparent;
+            border: 2px solid #aaa;
+            height: {0}px;
+            margin: 0 0;
+        }}
+        QSlider::handle:horizontal {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+            border: 1px solid #5c5c5c;
+            width: {0}px;
+            margin: 0 0;
+            border-radius: 3px;
+        }}
+        '''.format(h0,h1))
+
+  def setFont(self, f):
+    self.label.setFont(f)
+    self.setStyleForFont(f)
 
 
 class TSimplePanel(QtGui.QWidget):
   def __init__(self, title, widgets, layout, size=(800,400), font_height_scale=100.0):
     QtGui.QWidget.__init__(self)
     self.font_height_scale= font_height_scale
+    self.param_common={
+      'enabled': True,
+      'font_size_range': (10,30),
+      }
     self.InitUI(title, widgets, layout, size)
+
+  def ApplyCommonConfig(self, widget, param):
+    widget.font_size_range= param['font_size_range']
+    widget.setFont(QtGui.QFont('', widget.font_size_range[0]))
+    widget.setEnabled(param['enabled'])
 
   def ResizeTextOfObj(self, obj, font_size_range, size):
     font_size= min(font_size_range[1],max(font_size_range[0],int(size*font_size_range[0])))
     f= QtGui.QFont('', font_size)
-    if isinstance(obj,(QtGui.QRadioButton,TRadioBox)):
-      obj.setStyleSheet('QRadioButton::indicator {{width:{0}px;height:{0}px;}};'.format(1.3*font_size))
-      #obj.resize(obj.sizeHint().width(),obj.height())
-    elif isinstance(obj,QtGui.QLineEdit):
+    if isinstance(obj,QtGui.QLineEdit):
       #obj.resize(obj.sizeHint().width(),obj.height())
       text= obj.text()
       rect= obj.fontMetrics().boundingRect(text if text!='' else '0')
@@ -147,12 +193,10 @@ class TSimplePanel(QtGui.QWidget):
       self.ResizeTextOfObj(obj, obj.font_size_range, s)
 
   def AddButton(self, w_param):
-    param={
+    param= InsertDict2(copy.deepcopy(self.param_common), {
       'text': 'button',
       'onclick': None,
-      'font_size_range': (10,30),
-      }
-    InsertDict(param, w_param)
+      }, w_param)
     btn= QtGui.QPushButton(param['text'], self)
     btn.setFocusPolicy(QtCore.Qt.NoFocus)
     #btn.setFlat(True)
@@ -161,19 +205,15 @@ class TSimplePanel(QtGui.QWidget):
     btn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     btn.resize(btn.sizeHint())
     #btn.move(100, 150)
-    btn.font_size_range= param['font_size_range']
-    btn.setFont(QtGui.QFont('', btn.font_size_range[0]))
-    #btn.resizeEvent= lambda event,obj=btn: self.ResizeText(obj,event)
+    self.ApplyCommonConfig(btn, param)
     return btn
 
   def AddButtonCheckable(self, w_param):
-    param={
+    param= InsertDict2(copy.deepcopy(self.param_common), {
       'text': ('button','button'),
       'checked': False,
       'onclick': None,
-      'font_size_range': (10,30),
-      }
-    InsertDict(param, w_param)
+      }, w_param)
     btn= QtGui.QPushButton(param['text'][0], self)
     btn.setFocusPolicy(QtCore.Qt.NoFocus)
     btn.setCheckable(True)
@@ -182,19 +222,15 @@ class TSimplePanel(QtGui.QWidget):
     btn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     btn.resize(btn.sizeHint())
     #btn.move(220, 100)
-    btn.font_size_range= param['font_size_range']
-    btn.setFont(QtGui.QFont('', btn.font_size_range[0]))
-    #btn.resizeEvent= lambda event,obj=btn: self.ResizeText(obj,event)
+    self.ApplyCommonConfig(btn, param)
     return btn
 
   def AddComboBox(self, w_param):
-    param={
+    param= InsertDict2(copy.deepcopy(self.param_common), {
       'options': [],
       'index': 0,
       'onactivated': None,
-      'font_size_range': (10,30),
-      }
-    InsertDict(param, w_param)
+      }, w_param)
     cmbbx= QtGui.QComboBox(self)
     cmbbx.setFocusPolicy(QtCore.Qt.NoFocus)
     for option in param['options']:
@@ -204,70 +240,57 @@ class TSimplePanel(QtGui.QWidget):
     cmbbx.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     cmbbx.resize(cmbbx.sizeHint())
     #cmbbx.move(10, 60)
-    cmbbx.font_size_range= param['font_size_range']
-    cmbbx.setFont(QtGui.QFont('', cmbbx.font_size_range[0]))
-    #cmbbx.resizeEvent= lambda event,obj=cmbbx: self.ResizeText(obj,event)
+    self.ApplyCommonConfig(cmbbx, param)
     return cmbbx
 
   def AddLineEdit(self, w_param):
-    param={
+    param= InsertDict2(copy.deepcopy(self.param_common), {
       'validator': None,  #'int'
-      'enabled': True,
-      'font_size_range': (10,30),
-      }
-    InsertDict(param, w_param)
+      }, w_param)
     edit= QtGui.QLineEdit(self)
     if param['validator']=='int':  edit.setValidator(QtGui.QIntValidator())
     edit.setMinimumHeight(10)
     edit.setMinimumWidth(10)
-    edit.setEnabled(param['enabled'])
     edit.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
     edit.resize(edit.sizeHint())
     #edit.move(10, 60)
-    edit.font_size_range= param['font_size_range']
-    edit.setFont(QtGui.QFont('', edit.font_size_range[0]))
-    #edit.resizeEvent= lambda event,obj=edit: self.ResizeText(obj,event)
+    self.ApplyCommonConfig(edit, param)
     return edit
 
   def AddRadioBox(self, w_param):
-    param={
+    param= InsertDict2(copy.deepcopy(self.param_common), {
       'options': [],
       'index': None,
       'layout': 'h',  #h(horizontal),v(vertical),grid
       'onclick': None,
-      'font_size_range': (10,30),
-      }
-    InsertDict(param, w_param)
+      }, w_param)
     radiobox= TRadioBox(self)
-    radiobox.font_size_range= param['font_size_range']
     if param['onclick']:  clicked= lambda _,radiobox=radiobox:param['onclick'](self,radiobox)
     else:  clicked= None
     radiobox.Construct(param['layout'], param['options'], index=param['index'], onclick=clicked)
-    radiobox.setFont(QtGui.QFont('', radiobox.font_size_range[0]))
+    self.ApplyCommonConfig(radiobox, param)
     return radiobox
 
   def AddSliderH(self, w_param):
-    param={
+    param= InsertDict2(copy.deepcopy(self.param_common), {
       'range': (0,10,1),
       'value': 0,
       'n_labels': 3,
+      'slider_style': 0,
       'onvaluechange': None,
-      'font_size_range': (10,30),
-      }
-    InsertDict(param, w_param)
+      }, w_param)
     slider= TSlider(self)
     if param['onvaluechange']:  onvaluechange= lambda _,slider=slider:param['onvaluechange'](self,slider)
     else:  onvaluechange= None
-    slider.Construct(param['range'], n_labels=param['n_labels'], onvaluechange=onvaluechange)
+    slider.Construct(param['range'], n_labels=param['n_labels'], slider_style=param['slider_style'], onvaluechange=onvaluechange)
     if param['value'] is not None:  slider.setValue(param['value'])
-    slider.font_size_range= param['font_size_range']
-    slider.setFont(QtGui.QFont('', slider.font_size_range[0]))
+    self.ApplyCommonConfig(slider, param)
     return slider
 
   def AddSpacer(self, w_param):
-    param={
-      }
-    InsertDict(param, w_param)
+    param= InsertDict2(copy.deepcopy(self.param_common), {
+      }, w_param)
+    #self.ApplyCommonConfig(, param)
 
   def AddLayouts(self, layout):
     l_type,name,items= layout
@@ -333,44 +356,51 @@ if __name__=='__main__':
     print ''
 
   widgets= {
-    'btn1': ('button',
-             {'text':'Close',
-              'onclick':lambda w,obj:w.close()}),
-    'btn2': ('buttonch',
-             {'text':('TurnOn','TurnOff'),
-              'onclick': (lambda w,obj:Print('ON!'),
-                          lambda w,obj:Print('OFF!'))}),
-    'cmb1': ('combobox',
-             {'options':('Option-0','Option-1','Option-2','Other'),
-              'index':1,
-              'onactivated': lambda w,obj:(Print('Selected',obj.currentText()),
-                                           w.widgets['edit_cmb1other'].setEnabled(obj.currentText()=='Other'))}),
-    'edit_cmb1other': ('lineedit',
-                       {'validator':'int',
-                        'enabled':False}),
-    'radbox1': ('radiobox',
-                {'options':('Option-0','Option-1','Option-2','Other'),
-                 'layout': 'h',
-                 'index': 0,
-                 'onclick': lambda w,obj:(Print('Selected',obj.group.checkedButton().text()),
-                                           w.widgets['edit_radbox1other'].setEnabled(obj.group.checkedButton().text()=='Other'))}),
-    'edit_radbox1other': ('lineedit',
-                          {'validator':'int',
-                           'enabled':False}),
-    'radbox2': ('radiobox',
-                {'options':('Option-A','Option-B','Option-C','Other'),
-                 'layout': 'v',
-                 'index': None,
-                 'onclick': lambda w,obj:(Print('Selected',obj.group.checkedButton().text()),
-                                           w.widgets['edit_radbox2other'].setEnabled(obj.group.checkedButton().text()=='Other'))}),
-    'edit_radbox2other': ('lineedit',
-                          {'validator':'int',
-                           'enabled':False}),
-    'slider1': ('sliderh',
-                {'range': (1000,1800,100),
-                 'value': 1600,
-                 'n_labels': 5,
-                 'onvaluechange': lambda w,obj:Print('Value:',obj.value())}),
+    'btn1': (
+      'button',{
+        'text':'Close',
+        'onclick':lambda w,obj:w.close()}),
+    'btn2': (
+      'buttonch',{
+        'text':('TurnOn','TurnOff'),
+        'onclick': (lambda w,obj:Print('ON!'),
+                    lambda w,obj:Print('OFF!'))}),
+    'cmb1': (
+      'combobox',{
+        'options':('Option-0','Option-1','Option-2','Other'),
+        'index':1,
+        'onactivated': lambda w,obj:(Print('Selected',obj.currentText()),
+                                     w.widgets['edit_cmb1other'].setEnabled(obj.currentText()=='Other'))}),
+    'edit_cmb1other': (
+      'lineedit',{
+        'validator':'int',
+        'enabled':False}),
+    'radbox1': (
+      'radiobox',{
+        'options':('Option-0','Option-1','Option-2','Other'),
+        'layout': 'h',
+        'index': 0,
+        'onclick': lambda w,obj:(Print('Selected',obj.group.checkedButton().text()),
+                                 w.widgets['edit_radbox1other'].setEnabled(obj.group.checkedButton().text()=='Other'))}),
+    'edit_radbox1other': (
+      'lineedit',{
+        'validator':'int',
+        'enabled':False}),
+    'radbox2': (
+      'radiobox',{
+        'options':('Option-A','Option-B','Option-C','Other'),
+        'layout': 'v',
+        'index': None,
+        'onclick': lambda w,obj:(Print('Selected',obj.group.checkedButton().text()),
+                                 w.widgets['slider_radbox2other'].setEnabled(obj.group.checkedButton().text()=='Other'))}),
+    'slider_radbox2other': (
+      'sliderh',{
+        'range': (1000,1800,100),
+        'value': 1600,
+        'n_labels': 3,
+        'slider_style':1,
+        'enabled':False,
+        'onvaluechange': lambda w,obj:Print('Value:',obj.value())}),
     #'spacer1': ('spacer', {}),
     }
   #Layout option: vbox, hbox, grid, tab
@@ -386,8 +416,7 @@ if __name__=='__main__':
            (
              ('boxh',None, ('btn1','btn2','cmb1','edit_cmb1other') ),
              ('boxh',None, ('radbox1','edit_radbox1other') ),
-             ('boxv',None, ('radbox2','edit_radbox2other') ),
-             'slider1',
+             ('boxv',None, ('radbox2','slider_radbox2other') ),
            ))
 
   app= QtGui.QApplication(sys.argv)

@@ -29,9 +29,11 @@ class TSlider(QtGui.QWidget):
   def setLabel(self, value):
     self.label.setText(str(value).rjust(len(str(self.range_step[1]))))
 
-  def Construct(self, range_step, n_labels, onvaluechange):
+  #style: 0:Default, 1:Variable handle size.
+  def Construct(self, range_step, n_labels, slider_style, onvaluechange):
     self.range_step= range_step
     self.slider_max= (self.range_step[1]-self.range_step[0])/self.range_step[2]
+    self.slider_style= slider_style
 
     self.layout= QtGui.QGridLayout()
 
@@ -39,6 +41,7 @@ class TSlider(QtGui.QWidget):
     self.layout.addItem(vspacer1, 0, 0, 1, n_labels+1)
 
     self.slider= QtGui.QSlider(QtCore.Qt.Horizontal, self)
+    #self.slider.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     self.slider.setTickPosition(QtGui.QSlider.TicksBothSides)
     self.slider.setRange(0, self.slider_max)
     self.slider.setTickInterval(1)
@@ -57,12 +60,12 @@ class TSlider(QtGui.QWidget):
 
     self.tick_labels= []
     if n_labels>1:
-      tick_font= QtGui.QFont(self.label.font().family(), self.label.font().pointSize()*0.6)
+      #tick_font= QtGui.QFont(self.label.font().family(), self.label.font().pointSize()*0.6)
       label_step= (range_step[1]-range_step[0])/(n_labels-1)
       for i_label in range(n_labels):
         label= str(range_step[0]+i_label*label_step)
         tick_label= QtGui.QLabel(label,self)
-        tick_label.setFont(tick_font)
+        #tick_label.setFont(tick_font)
         if i_label<(n_labels-1)/2:  align= QtCore.Qt.AlignLeft
         elif i_label==(n_labels-1)/2:  align= QtCore.Qt.AlignCenter
         else:  align= QtCore.Qt.AlignRight
@@ -73,12 +76,39 @@ class TSlider(QtGui.QWidget):
     self.layout.addItem(vspacer2, 3, 0, 1, n_labels+1)
     self.setValue(range_step[0])
     self.setLayout(self.layout)
+    self.setStyleForFont(self.label.font())
 
-  def setFont(self, f):
-    self.label.setFont(f)
+  def setStyleForFont(self, f):
     tick_f= QtGui.QFont(f.family(), f.pointSize()*0.6)
     for tick_label in self.tick_labels:
       tick_label.setFont(tick_f)
+    if self.slider_style==0:
+      self.slider.setStyleSheet('')
+    elif self.slider_style==1:
+      h0= f.pointSize()*2
+      h1= h0+8
+      self.slider.setStyleSheet('''
+        QSlider {{
+            height: {1}px;
+        }}
+        QSlider::groove:horizontal {{
+            background: transparent;
+            border: 2px solid #aaa;
+            height: {0}px;
+            margin: 0 0;
+        }}
+        QSlider::handle:horizontal {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+            border: 1px solid #5c5c5c;
+            width: {0}px;
+            margin: 0 0;
+            border-radius: 3px;
+        }}
+        '''.format(h0,h1))
+
+  def setFont(self, f):
+    self.label.setFont(f)
+    self.setStyleForFont(f)
 
 
 def Print(*s):
@@ -101,7 +131,7 @@ class TSliderTest(QtGui.QWidget):
     self.setLayout(mainlayout)
 
     slider1= TSlider(self)
-    slider1.Construct([1000,1800,100], n_labels=5, onvaluechange=lambda _:Print(slider1.value()))
+    slider1.Construct([1000,1800,100], n_labels=5, slider_style=1, onvaluechange=lambda _:Print(slider1.value()))
     slider1.setValue(1600)
     slider1.font_size= (10,30)
     slider1.setFont(QtGui.QFont('', slider1.font_size[0]))
