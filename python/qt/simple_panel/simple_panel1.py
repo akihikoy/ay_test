@@ -167,6 +167,12 @@ class TSimplePanel(QtGui.QWidget):
       'enabled': True,
       'font_size_range': (10,30),
       }
+    self.alignments= {
+      '': QtCore.Qt.Alignment(),
+      'left': QtCore.Qt.AlignLeft,
+      'center': QtCore.Qt.AlignCenter,
+      'right': QtCore.Qt.AlignRight,
+      }
     self.InitUI(title, widgets, layout, size)
 
   def ApplyCommonConfig(self, widget, param):
@@ -190,6 +196,7 @@ class TSimplePanel(QtGui.QWidget):
   def ResizeText(self, event):
     s= self.rect().height()/self.font_height_scale
     for name,obj in self.widgets.iteritems():
+      if 'font_size_range' not in obj.__dict__:  continue
       self.ResizeTextOfObj(obj, obj.font_size_range, s)
 
   def AddButton(self, w_param):
@@ -289,8 +296,12 @@ class TSimplePanel(QtGui.QWidget):
 
   def AddSpacer(self, w_param):
     param= InsertDict2(copy.deepcopy(self.param_common), {
+      'w':1,
+      'h':1,
       }, w_param)
-    #self.ApplyCommonConfig(, param)
+    spacer= QtGui.QSpacerItem(param['w'], param['h'], QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    #self.ApplyCommonConfig(spacer, param)
+    return spacer
 
   def AddLayouts(self, layout):
     l_type,name,items= layout
@@ -314,9 +325,38 @@ class TSimplePanel(QtGui.QWidget):
           sublayout= self.AddLayouts(item)
           layout.addLayout(sublayout)
     elif l_type=='grid':
-      pass
+      layout= QtGui.QGridLayout()
+      for item_loc in items:
+        if len(item_loc)==3:
+          (item,r,c),rs,cs,align= item_loc,1,1,self.alignments['']
+        elif len(item_loc)==4:
+          (item,r,c),rs,cs,align= item_loc[:3],1,1,self.alignments[item_loc[3]]
+        elif len(item_loc)==5:
+          (item,r,c,rs,cs),align= item_loc,self.alignments['']
+        elif len(item_loc)==6:
+          item,r,c,rs,cs,align= item_loc
+        else:
+          raise Exception('Invalid grid item:',item_loc)
+        if isinstance(item,str):
+          widget= self.widgets[item]
+          if isinstance(widget,QtGui.QSpacerItem):
+            layout.addItem(widget,r,c,rs,cs,align)
+          else:
+            layout.addWidget(widget,r,c,rs,cs,align)
+        else:
+          sublayout= self.AddLayouts(item)
+          layout.addLayout(sublayout,r,c,rs,cs,align)
     elif l_type=='tab':
       pass
+
+  #layout= ('boxv',None,
+           #(
+             #('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
+                            #('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
+             #('boxh',None, ('radbox1','edit_radbox1other')),
+             #('boxv',None, ('radbox2','edit_radbox2other')),
+             #'slider1',
+           #))
 
     self.layouts[name]= layout
     return layout
@@ -401,7 +441,7 @@ if __name__=='__main__':
         'slider_style':1,
         'enabled':False,
         'onvaluechange': lambda w,obj:Print('Value:',obj.value())}),
-    #'spacer1': ('spacer', {}),
+    'spacer1': ('spacer', {}),
     }
   #Layout option: vbox, hbox, grid, tab
   #layout= ('boxv',None,
@@ -412,11 +452,12 @@ if __name__=='__main__':
              #('boxv',None, ('radbox2','edit_radbox2other')),
              #'slider1',
            #))
-  layout= ('boxv',None,
-           (
-             ('boxh',None, ('btn1','btn2','cmb1','edit_cmb1other') ),
+  layout= ('boxv',None,(
+             ('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
+                            ('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
              ('boxh',None, ('radbox1','edit_radbox1other') ),
              ('boxv',None, ('radbox2','slider_radbox2other') ),
+             'spacer1',
            ))
 
   app= QtGui.QApplication(sys.argv)
