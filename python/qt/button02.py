@@ -24,15 +24,15 @@ btn.move(100, 80)
 # Create the actions
 @pyqtSlot()
 def on_click():
-    print('clicked')
+    print('3.clicked\n')
 
 @pyqtSlot()
 def on_press():
-    print('pressed')
+    print('1.pressed')
 
 @pyqtSlot()
 def on_release():
-    print('released')
+    print('2.released')
 
 # connect the signals to the slots
 btn.clicked.connect(on_click)
