@@ -19,7 +19,7 @@ class TEllipse(QtGui.QWidget):
 
     self.changeColor()
     self.setBackgroundRole(QtGui.QPalette.Base)
-    self.setAutoFillBackground(True)
+    #self.setAutoFillBackground(True)
 
     size_policy= QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
     size_policy.setHeightForWidth(True)
@@ -29,16 +29,23 @@ class TEllipse(QtGui.QWidget):
     self.color= QtGui.QColor(255*random.random(),255*random.random(),255*random.random())
 
   def minimumSizeHint(self):
-    return QtCore.QSize(100, 100)
+    return QtCore.QSize(100, self.heightForWidth(100))
 
   def sizeHint(self):
-    return QtCore.QSize(400, 400)
+    return QtCore.QSize(400, self.heightForWidth(400))
 
   def heightForWidth(self, width):
-    return width
+    return width*1.2
+
+  #def resizeEvent(self, e):
+    ##self.setMinimumWidth(self.height())
+    #self.resize(QtCore.QSize(self.width(),self.heightForWidth(self.width())))
 
   def paintEvent(self, event):
     rect= QtCore.QRect(10, 10, self.width()-20, self.height()-20)
+    #Always draw circle:
+    #rad= min(self.width()-20, self.height()-20)
+    #rect= QtCore.QRect((self.width()-rad)/2, (self.height()-rad)/2, rad, rad)
 
     linear_gradient= QtGui.QLinearGradient(0, 0, self.width(), self.height())
     linear_gradient.setColorAt(0.0, QtCore.Qt.white)
@@ -77,18 +84,22 @@ class TDrawEllipse(QtGui.QWidget):
     self.setWindowTitle('DrawEllipse')
 
 
-    mainlayout= QtGui.QVBoxLayout()
+    mainlayout= QtGui.QGridLayout()
 
     self.ellipse= TEllipse()
-    mainlayout.addWidget(self.ellipse)
+    mainlayout.addWidget(self.ellipse,0,0)
 
-    # Add a button
     btn1= QtGui.QPushButton('Change color', self)
     btn1.clicked.connect(lambda:(self.ellipse.changeColor(),self.ellipse.update()))
-    btn1.resize(btn1.sizeHint())
-    btn1.move(100, 150)
+    btn1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     self.btn1= btn1
-    mainlayout.addWidget(self.btn1)
+    mainlayout.addWidget(self.btn1,0,1)
+
+    btn2= QtGui.QPushButton('Exit', self)
+    btn2.clicked.connect(lambda:self.close())
+    btn2.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    self.btn2= btn2
+    mainlayout.addWidget(self.btn2,1,0,1,2)
 
     self.setLayout(mainlayout)
 

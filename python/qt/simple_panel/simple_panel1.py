@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 #\file    simple_panel1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -365,20 +366,6 @@ class TSimplePanel(QtGui.QWidget):
       #For convenience, we define a setCurrentTab method to show a tab by name.
       layout.setCurrentTab= lambda tab_name:layout.tabs.setCurrentIndex(layout.tab_name_to_index[tab_name])
 
-  #layout= ('tab',None,
-           #('tab1',
-              #('boxv',None,
-                #(
-                  #('grid',None, (('btn1',0,0),('btn2',0,1,1,2),
-                                  #('spacer1',1,0),('cmb1',1,1),('edit_cmb1other',1,2)) ),
-                  #('boxh',None, ('radbox1','edit_radbox1other')),
-                  #('boxv',None, ('radbox2','edit_radbox2other')),
-                  #'slider1',
-                #))),
-            #('tab2', ('boxv',None,())),
-            #('tab3', ('boxv',None,())),
-            #)
-
     self.layouts[name]= layout
     return layout
 
@@ -387,6 +374,7 @@ class TSimplePanel(QtGui.QWidget):
     self.resize(*size)  #window size
     self.setWindowTitle(title)
 
+TODO: It is better to separate AddWidgets, AddLayouts, and ..., to let users add own widgets (such as rviz)
     self.widget_generator= {
       'button': self.AddButton,
       'buttonchk': self.AddButtonCheckable,
@@ -395,6 +383,8 @@ class TSimplePanel(QtGui.QWidget):
       'radiobox': self.AddRadioBox,
       'sliderh': self.AddSliderH,
       'spacer': self.AddSpacer,
+      AddLabel
+      AddTextEdit
       }
     self.widgets_in= widgets
     self.widgets= {}
