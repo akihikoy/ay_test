@@ -13,9 +13,9 @@ def Print(*s):
   for ss in s:  print ss,
   print ''
 
-class TPrimitive(QtGui.QWidget):
+class TRenderPrimitive(QtGui.QWidget):
   def __init__(self, shape, margin, color, parent=None):
-    super(TPrimitive, self).__init__(parent)
+    super(TRenderPrimitive, self).__init__(parent)
 
     self.shape= shape
     self.margin= margin  #(horizontal_margin(ratio),vertical_margin(ratio))
@@ -104,7 +104,7 @@ class TDrawPrimitive(QtGui.QWidget):
     self.cmbbx1= cmbbx1
     mainlayout.addWidget(self.cmbbx1,0,0,1,2)
 
-    self.primitive= TPrimitive('rect',(0.05,0.05),(0,0,0),self)
+    self.primitive= TRenderPrimitive('rect',(0.05,0.05),(0,0,0),self)
     self.primitive.setRandomColor()
     mainlayout.addWidget(self.primitive,1,0)
 

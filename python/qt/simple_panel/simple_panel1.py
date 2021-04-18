@@ -9,17 +9,17 @@
 import sys, copy
 from PyQt4 import QtCore,QtGui
 
-def InsertDict(d_base, d_new):
+def MergeDict(d_base, d_new):
   for k_new,v_new in d_new.iteritems():
     if k_new in d_base and (type(v_new)==dict and type(d_base[k_new])==dict):
-      InsertDict(d_base[k_new], v_new)
+      MergeDict(d_base[k_new], v_new)
     else:
       d_base[k_new]= v_new
   return d_base  #NOTE: d_base is overwritten. Returning it is for the convenience.
 
-def InsertDict2(d_base, *d_new):
+def MergeDict2(d_base, *d_new):
   for d in d_new:
-    InsertDict(d_base, d)
+    MergeDict(d_base, d)
   return d_base  #NOTE: d_base is overwritten. Returning it is for the convenience.
 
 class TRadioBox(QtGui.QWidget):
@@ -159,6 +159,72 @@ class TSlider(QtGui.QWidget):
     self.label.setFont(f)
     self.setStyleForFont(f)
 
+class TPrimitivePainter(QtGui.QWidget):
+  def __init__(self, shape, margin, color, parent=None):
+    super(TPrimitivePainter, self).__init__(parent)
+
+    self.shape= shape
+    self.margin= margin  #(horizontal_margin(ratio),vertical_margin(ratio))
+    self.color= color
+    self.setBackgroundRole(QtGui.QPalette.Base)
+    #self.setAutoFillBackground(True)
+
+    size_policy= QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+    size_policy.setHeightForWidth(True)
+    self.setSizePolicy(size_policy)
+
+  def setRandomColor(self):
+    self.color= [255*random.random(),255*random.random(),255*random.random()]
+
+  def setShape(self, shape):
+    self.shape= shape
+
+  def setMargin(self, margin):
+    self.shape= margin
+
+  def minimumSizeHint(self):
+    return QtCore.QSize(100, self.heightForWidth(100))
+
+  def sizeHint(self):
+    return QtCore.QSize(400, self.heightForWidth(400))
+
+  def heightForWidth(self, width):
+    return width*1.2
+
+  def paintEvent(self, event):
+    col1= QtGui.QColor(*self.color)
+    col2= QtGui.QColor(0.6*self.color[0], 0.6*self.color[1], 0.6*self.color[2])
+    linear_gradient= QtGui.QLinearGradient(0, 0, self.width(), self.height())
+    linear_gradient.setColorAt(0.0, QtCore.Qt.white)
+    linear_gradient.setColorAt(0.2, col1)
+    linear_gradient.setColorAt(0.8, col2)
+    linear_gradient.setColorAt(1.0, QtCore.Qt.black)
+
+    painter= QtGui.QPainter(self)
+    painter.setPen(QtCore.Qt.SolidLine)
+    painter.setBrush(linear_gradient)
+    painter.setRenderHint(QtGui.QPainter.Antialiasing)
+
+    painter.save()
+    painter.translate(0, 0)
+
+    if self.shape in ('ellipse','rect'):
+      rect= QtCore.QRect(self.width()*self.margin[0], self.height()*self.margin[1], self.width()*(1.0-2.0*self.margin[0]), self.height()*(1.0-2.0*self.margin[1]))
+    elif self.shape in ('circle','square'):
+      l= min(self.width()*(1.0-2.0*self.margin[0]), self.height()*(1.0-2.0*self.margin[1]))
+      rect= QtCore.QRect((self.width()-l)/2, (self.height()-l)/2, l, l)
+
+    if self.shape in ('ellipse','circle'):
+      painter.drawEllipse(rect)
+    elif self.shape in ('rect','square'):
+      painter.drawRect(rect)
+
+    painter.restore()
+
+    painter.setPen(self.palette().dark().color())
+    painter.setBrush(QtCore.Qt.NoBrush)
+    painter.drawRect(QtCore.QRect(0, 0, self.width() - 1, self.height() - 1))
+
 
 class TSimplePanel(QtGui.QWidget):
   def __init__(self, title, size=(800,400), font_height_scale=100.0):
@@ -182,6 +248,8 @@ class TSimplePanel(QtGui.QWidget):
     self.param_common={
       'enabled': True,
       'font_size_range': (10,30),
+      'minimum_size': None,  #None, or (horizontal_minimum_size, vertical_minimum_size)
+      'maximum_size': None,  #None, or (horizontal_maximum_size, vertical_maximum_size)
       'size_policy': ('expanding', 'expanding'),  #(horizontal_size_policy, vertical_size_policy), or size_policy
       }
     self.widget_generator= {
@@ -194,6 +262,7 @@ class TSimplePanel(QtGui.QWidget):
       'spacer': self.AddSpacer,
       'label': self.AddLabel,
       'textedit': self.AddTextEdit,
+      'primitive_painer': self.AddPrimitivePainter,
       }
     self.resize(*size)  #window size
     self.setWindowTitle(title)
@@ -221,6 +290,12 @@ class TSimplePanel(QtGui.QWidget):
     widget.font_size_range= param['font_size_range']
     widget.setFont(QtGui.QFont('', widget.font_size_range[0]))
     if param['enabled']:  widget.setEnabled(param['enabled'])
+    if param['minimum_size']:
+      if param['minimum_size'][0]:  widget.setMinimumWidth(param['minimum_size'][0])
+      if param['minimum_size'][1]:  widget.setMinimumHeight(param['minimum_size'][1])
+    if param['maximum_size']:
+      if param['maximum_size'][0]:  widget.setMaximumWidth(param['maximum_size'][0])
+      if param['maximum_size'][1]:  widget.setMaximumHeight(param['maximum_size'][1])
     if param['size_policy']:
       if isinstance(param['size_policy'],str):  widget.setSizePolicy(self.size_policies[param['size_policy']])
       else:  widget.setSizePolicy(self.size_policies[param['size_policy'][0]], self.size_policies[param['size_policy'][1]])
@@ -245,7 +320,7 @@ class TSimplePanel(QtGui.QWidget):
       self.ResizeTextOfObj(obj, obj.font_size_range, s)
 
   def AddButton(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'text': 'button',
       'onclick': None,
       }, w_param)
@@ -261,7 +336,7 @@ class TSimplePanel(QtGui.QWidget):
     return btn
 
   def AddButtonCheckable(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'text': ('button','button'),
       'checked': False,
       'onclick': None,
@@ -278,7 +353,7 @@ class TSimplePanel(QtGui.QWidget):
     return btn
 
   def AddComboBox(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'options': [],
       'index': 0,
       'onactivated': None,
@@ -296,7 +371,7 @@ class TSimplePanel(QtGui.QWidget):
     return cmbbx
 
   def AddLineEdit(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'validator': None,  #'int'
       'size_policy': ('expanding', 'fixed'),
       }, w_param)
@@ -311,7 +386,7 @@ class TSimplePanel(QtGui.QWidget):
     return edit
 
   def AddRadioBox(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'options': [],
       'index': None,
       'layout': 'h',  #h(horizontal),v(vertical),grid
@@ -325,7 +400,7 @@ class TSimplePanel(QtGui.QWidget):
     return radiobox
 
   def AddSliderH(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'range': (0,10,1),
       'value': 0,
       'n_labels': 3,
@@ -341,7 +416,7 @@ class TSimplePanel(QtGui.QWidget):
     return slider
 
   def AddSpacer(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'w':1,
       'h':1,
       }, w_param)
@@ -350,7 +425,7 @@ class TSimplePanel(QtGui.QWidget):
     return spacer
 
   def AddLabel(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'text':'',
       'selectable_by_mouse':False,  #Text is selectable by mouse.
       }, w_param)
@@ -362,7 +437,7 @@ class TSimplePanel(QtGui.QWidget):
     return label
 
   def AddTextEdit(self, w_param):
-    param= InsertDict2(copy.deepcopy(self.param_common), {
+    param= MergeDict2(copy.deepcopy(self.param_common), {
       'text':'',
       'read_only':False,
       }, w_param)
@@ -372,6 +447,16 @@ class TSimplePanel(QtGui.QWidget):
     #text.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
     self.ApplyCommonConfig(text, param)
     return text
+
+  def AddPrimitivePainter(self, w_param):
+    param= MergeDict2(copy.deepcopy(self.param_common), {
+      'shape':'rect',
+      'margin':(0.05,0.05),
+      'color':(0,0,255),
+      }, w_param)
+    primitive= TPrimitivePainter(param['shape'],param['margin'],param['color'],self)
+    self.ApplyCommonConfig(primitive, param)
+    return primitive
 
   def AddLayouts(self, layout):
     l_type,name,items= layout
@@ -521,6 +606,13 @@ if __name__=='__main__':
     'textedit1': (
       'textedit',{
         'text': 'Example\nOf\nTextEdit',}),
+    'primitive_painer1': (
+      'primitive_painer',{
+        'color': (0,0,255),
+        'margin': (0,0),
+        'minimum_size': (None,20),
+        'maximum_size': (None,20),
+        'size_policy': ('expanding', 'fixed')}),
     'spacer1': ('spacer', {}),
     }
   #Layout option: vbox, hbox, grid, tab
@@ -543,7 +635,7 @@ if __name__=='__main__':
                   'spacer1',
                 )) ),
             ('tab2', ('boxv',None, ('label_tab2', 'btn_totab10', 'btn_totab31') ) ),
-            ('tab3', ('boxv',None, ('btn_totab11', 'btn_totab21', 'textedit1') ) ),
+            ('tab3', ('boxv',None, ('primitive_painer1','btn_totab11', 'btn_totab21', 'textedit1') ) ),
             ))
 
   app= QtGui.QApplication(sys.argv)
