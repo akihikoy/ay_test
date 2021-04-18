@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #\file    simple_panel1.py
-#\brief   certain python script
+#\brief   Qt-based simple panel designer.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Apr.14, 2021
@@ -253,6 +253,7 @@ class TSimplePanel(QtGui.QWidget):
       'size_policy': ('expanding', 'expanding'),  #(horizontal_size_policy, vertical_size_policy), or size_policy
       }
     self.widget_generator= {
+      'duplicate': self.DuplicateWidget,
       'button': self.AddButton,
       'buttonchk': self.AddButtonCheckable,
       'combobox': self.AddComboBox,
@@ -275,6 +276,8 @@ class TSimplePanel(QtGui.QWidget):
   def AddWidgets(self, widgets):
     for name,(w_type, w_param) in widgets.iteritems():
       self.widgets_in[name]= (w_type, w_param)
+    for name in widgets.iterkeys():
+      w_type, w_param= self.widgets_in[name]
       self.widgets[name]= self.widget_generator[w_type](w_param)
 
   def Construct(self, layout):
@@ -289,14 +292,14 @@ class TSimplePanel(QtGui.QWidget):
   def ApplyCommonConfig(self, widget, param):
     widget.font_size_range= param['font_size_range']
     widget.setFont(QtGui.QFont('', widget.font_size_range[0]))
-    if param['enabled']:  widget.setEnabled(param['enabled'])
-    if param['minimum_size']:
+    if param['enabled'] is not None:  widget.setEnabled(param['enabled'])
+    if param['minimum_size'] is not None:
       if param['minimum_size'][0]:  widget.setMinimumWidth(param['minimum_size'][0])
       if param['minimum_size'][1]:  widget.setMinimumHeight(param['minimum_size'][1])
-    if param['maximum_size']:
+    if param['maximum_size'] is not None:
       if param['maximum_size'][0]:  widget.setMaximumWidth(param['maximum_size'][0])
       if param['maximum_size'][1]:  widget.setMaximumHeight(param['maximum_size'][1])
-    if param['size_policy']:
+    if param['size_policy'] is not None:
       if isinstance(param['size_policy'],str):  widget.setSizePolicy(self.size_policies[param['size_policy']])
       else:  widget.setSizePolicy(self.size_policies[param['size_policy'][0]], self.size_policies[param['size_policy'][1]])
 
@@ -318,6 +321,14 @@ class TSimplePanel(QtGui.QWidget):
     for name,obj in self.widgets.iteritems():
       if 'font_size_range' not in obj.__dict__:  continue
       self.ResizeTextOfObj(obj, obj.font_size_range, s)
+
+  #Duplicate a widget (regenerate a widget with the same parameter).
+  #NOTE: w_param is a widget name to be copied.
+  def DuplicateWidget(self, w_param):
+    src_widget_name= w_param
+    w_type, w_param= self.widgets_in[src_widget_name]
+    widget= self.widget_generator[w_type](w_param)
+    return widget
 
   def AddButton(self, w_param):
     param= MergeDict2(copy.deepcopy(self.param_common), {
@@ -524,6 +535,18 @@ class TSimplePanel(QtGui.QWidget):
     return layout
 
 
+app= None
+
+def InitPanelApp():
+  global app
+  app= QtGui.QApplication(sys.argv)
+  return app
+
+def RunPanelApp():
+  global app
+  sys.exit(app.exec_())
+
+
 if __name__=='__main__':
   def Print(*s):
     for ss in s:  print ss,
@@ -543,26 +566,17 @@ if __name__=='__main__':
       'button',{
         'text':'To tab1',
         'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab1')}),
-    'btn_totab11': (
-      'button',{
-        'text':'To tab1',
-        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab1')}),
+    'btn_totab11': ('duplicate', 'btn_totab10'),
     'btn_totab20': (
       'button',{
         'text':'To tab2',
         'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab2')}),
-    'btn_totab21': (
-      'button',{
-        'text':'To tab2',
-        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab2')}),
+    'btn_totab21': ('duplicate', 'btn_totab20'),
     'btn_totab30': (
       'button',{
         'text':'To tab3',
         'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab3')}),
-    'btn_totab31': (
-      'button',{
-        'text':'To tab3',
-        'onclick':lambda w,obj:w.layouts['maintab'].setCurrentTab('tab3')}),
+    'btn_totab31': ('duplicate', 'btn_totab30'),
     'cmb1': (
       'combobox',{
         'options':('Option-0','Option-1','Option-2','Other'),
@@ -638,8 +652,9 @@ if __name__=='__main__':
             ('tab3', ('boxv',None, ('primitive_painer1','btn_totab11', 'btn_totab21', 'textedit1') ) ),
             ))
 
-  app= QtGui.QApplication(sys.argv)
-  win= TSimplePanel('Simple Panel', size=(600,400), font_height_scale=300.0)
-  win.AddWidgets(widgets)
-  win.Construct(layout)
-  sys.exit(app.exec_())
+  InitPanelApp()
+  panel= TSimplePanel('Simple Panel Example', size=(600,400), font_height_scale=300.0)
+  panel.AddWidgets(widgets)
+  panel.Construct(layout)
+  RunPanelApp()
+
