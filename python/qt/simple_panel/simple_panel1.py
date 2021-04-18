@@ -161,25 +161,69 @@ class TSlider(QtGui.QWidget):
 
 
 class TSimplePanel(QtGui.QWidget):
-  def __init__(self, title, widgets, layout, size=(800,400), font_height_scale=100.0):
+  def __init__(self, title, size=(800,400), font_height_scale=100.0):
     QtGui.QWidget.__init__(self)
     self.font_height_scale= font_height_scale
-    self.param_common={
-      'enabled': True,
-      'font_size_range': (10,30),
-      }
     self.alignments= {
       '': QtCore.Qt.Alignment(),
       'left': QtCore.Qt.AlignLeft,
       'center': QtCore.Qt.AlignCenter,
       'right': QtCore.Qt.AlignRight,
       }
-    self.InitUI(title, widgets, layout, size)
+    self.size_policies= {
+      'fixed': QtGui.QSizePolicy.Fixed,
+      'minimum': QtGui.QSizePolicy.Minimum,
+      'maximum': QtGui.QSizePolicy.Maximum,
+      'preferred': QtGui.QSizePolicy.Preferred,
+      'expanding': QtGui.QSizePolicy.Expanding,
+      'minimum_expanding': QtGui.QSizePolicy.MinimumExpanding,
+      'ignored': QtGui.QSizePolicy.Ignored,
+      }
+    self.param_common={
+      'enabled': True,
+      'font_size_range': (10,30),
+      'size_policy': ('expanding', 'expanding'),  #(horizontal_size_policy, vertical_size_policy), or size_policy
+      }
+    self.widget_generator= {
+      'button': self.AddButton,
+      'buttonchk': self.AddButtonCheckable,
+      'combobox': self.AddComboBox,
+      'lineedit': self.AddLineEdit,
+      'radiobox': self.AddRadioBox,
+      'sliderh': self.AddSliderH,
+      'spacer': self.AddSpacer,
+      'label': self.AddLabel,
+      'textedit': self.AddTextEdit,
+      }
+    self.resize(*size)  #window size
+    self.setWindowTitle(title)
+    self.widgets_in= {}
+    self.widgets= {}
+    self.layout_in= None
+    self.layouts= {}
+
+  #Add widgets from widget description dict.
+  def AddWidgets(self, widgets):
+    for name,(w_type, w_param) in widgets.iteritems():
+      self.widgets_in[name]= (w_type, w_param)
+      self.widgets[name]= self.widget_generator[w_type](w_param)
+
+  def Construct(self, layout):
+    self.layout_in= layout
+    self.setLayout(self.AddLayouts(self.layout_in))
+
+    self.ResizeText(None)
+    self.resizeEvent= self.ResizeText
+
+    self.show()
 
   def ApplyCommonConfig(self, widget, param):
     widget.font_size_range= param['font_size_range']
     widget.setFont(QtGui.QFont('', widget.font_size_range[0]))
-    widget.setEnabled(param['enabled'])
+    if param['enabled']:  widget.setEnabled(param['enabled'])
+    if param['size_policy']:
+      if isinstance(param['size_policy'],str):  widget.setSizePolicy(self.size_policies[param['size_policy']])
+      else:  widget.setSizePolicy(self.size_policies[param['size_policy'][0]], self.size_policies[param['size_policy'][1]])
 
   def ResizeTextOfObj(self, obj, font_size_range, size):
     font_size= min(font_size_range[1],max(font_size_range[0],int(size*font_size_range[0])))
@@ -210,7 +254,7 @@ class TSimplePanel(QtGui.QWidget):
     #btn.setFlat(True)
     #btn.setToolTip('Click to make something happen')
     if param['onclick']:  btn.clicked.connect(lambda btn=btn: param['onclick'](self,btn))
-    btn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    #btn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     btn.resize(btn.sizeHint())
     #btn.move(100, 150)
     self.ApplyCommonConfig(btn, param)
@@ -227,7 +271,7 @@ class TSimplePanel(QtGui.QWidget):
     btn.setCheckable(True)
     btn.setChecked(param['checked'])
     if param['onclick']:  btn.clicked.connect(lambda bnt=btn: (param['onclick'][0](self,btn) if param['onclick'][0] else None, btn.setText(param['text'][1])) if btn.isChecked() else (param['onclick'][1](self,btn) if param['onclick'][1] else None, btn.setText(param['text'][0])) )
-    btn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    #btn.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     btn.resize(btn.sizeHint())
     #btn.move(220, 100)
     self.ApplyCommonConfig(btn, param)
@@ -245,7 +289,7 @@ class TSimplePanel(QtGui.QWidget):
       cmbbx.addItem(option)
     if param['index'] is not None:  cmbbx.setCurrentIndex(param['index'])
     if param['onactivated']:  cmbbx.activated[str].connect(lambda _,cmbbx=cmbbx:param['onactivated'](self,cmbbx))
-    cmbbx.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    #cmbbx.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     cmbbx.resize(cmbbx.sizeHint())
     #cmbbx.move(10, 60)
     self.ApplyCommonConfig(cmbbx, param)
@@ -254,12 +298,13 @@ class TSimplePanel(QtGui.QWidget):
   def AddLineEdit(self, w_param):
     param= InsertDict2(copy.deepcopy(self.param_common), {
       'validator': None,  #'int'
+      'size_policy': ('expanding', 'fixed'),
       }, w_param)
     edit= QtGui.QLineEdit(self)
     if param['validator']=='int':  edit.setValidator(QtGui.QIntValidator())
     edit.setMinimumHeight(10)
     edit.setMinimumWidth(10)
-    edit.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+    #edit.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
     edit.resize(edit.sizeHint())
     #edit.move(10, 60)
     self.ApplyCommonConfig(edit, param)
@@ -303,6 +348,30 @@ class TSimplePanel(QtGui.QWidget):
     spacer= QtGui.QSpacerItem(param['w'], param['h'], QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
     #self.ApplyCommonConfig(spacer, param)
     return spacer
+
+  def AddLabel(self, w_param):
+    param= InsertDict2(copy.deepcopy(self.param_common), {
+      'text':'',
+      'selectable_by_mouse':False,  #Text is selectable by mouse.
+      }, w_param)
+    label= QtGui.QLabel(param['text'], self)
+    #label.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    if param['selectable_by_mouse']:
+      label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+    self.ApplyCommonConfig(label, param)
+    return label
+
+  def AddTextEdit(self, w_param):
+    param= InsertDict2(copy.deepcopy(self.param_common), {
+      'text':'',
+      'read_only':False,
+      }, w_param)
+    text= QtGui.QTextEdit(self)
+    text.setText(param['text'])
+    text.setReadOnly(param['read_only'])
+    #text.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
+    self.ApplyCommonConfig(text, param)
+    return text
 
   def AddLayouts(self, layout):
     l_type,name,items= layout
@@ -368,37 +437,6 @@ class TSimplePanel(QtGui.QWidget):
 
     self.layouts[name]= layout
     return layout
-
-
-  def InitUI(self, title, widgets, layout, size):
-    self.resize(*size)  #window size
-    self.setWindowTitle(title)
-
-TODO: It is better to separate AddWidgets, AddLayouts, and ..., to let users add own widgets (such as rviz)
-    self.widget_generator= {
-      'button': self.AddButton,
-      'buttonchk': self.AddButtonCheckable,
-      'combobox': self.AddComboBox,
-      'lineedit': self.AddLineEdit,
-      'radiobox': self.AddRadioBox,
-      'sliderh': self.AddSliderH,
-      'spacer': self.AddSpacer,
-      AddLabel
-      AddTextEdit
-      }
-    self.widgets_in= widgets
-    self.widgets= {}
-    for name,(w_type, w_param) in self.widgets_in.iteritems():
-      self.widgets[name]= self.widget_generator[w_type](w_param)
-
-    self.layout_in= layout
-    self.layouts= {}
-    self.setLayout(self.AddLayouts(self.layout_in))
-
-    self.ResizeText(None)
-    self.resizeEvent= self.ResizeText
-
-    self.show()
 
 
 if __name__=='__main__':
@@ -476,6 +514,13 @@ if __name__=='__main__':
         'slider_style':1,
         'enabled':False,
         'onvaluechange': lambda w,obj:Print('Value:',obj.value())}),
+    'label_tab2': (
+      'label',{
+        'text': 'Select a tab to go',
+        'size_policy': ('expanding', 'minimum')}),
+    'textedit1': (
+      'textedit',{
+        'text': 'Example\nOf\nTextEdit',}),
     'spacer1': ('spacer', {}),
     }
   #Layout option: vbox, hbox, grid, tab
@@ -497,10 +542,12 @@ if __name__=='__main__':
                   ('boxh',None, ('btn_totab20', 'btn_totab30') ),
                   'spacer1',
                 )) ),
-            ('tab2', ('boxv',None, ('btn_totab10', 'btn_totab31') ) ),
-            ('tab3', ('boxv',None, ('btn_totab11', 'btn_totab21') ) ),
+            ('tab2', ('boxv',None, ('label_tab2', 'btn_totab10', 'btn_totab31') ) ),
+            ('tab3', ('boxv',None, ('btn_totab11', 'btn_totab21', 'textedit1') ) ),
             ))
 
   app= QtGui.QApplication(sys.argv)
-  win= TSimplePanel('Simple Panel', widgets, layout, size=(600,400), font_height_scale=300.0)
+  win= TSimplePanel('Simple Panel', size=(600,400), font_height_scale=300.0)
+  win.AddWidgets(widgets)
+  win.Construct(layout)
   sys.exit(app.exec_())
