@@ -21,11 +21,11 @@ if __name__=='__main__':
   print 'Done-3'
 
   print 'Run-4'
-  os.system('''qplot -x2 'sin(x)' &''')
+  os.system('''qplot -x2 'aaa' 'sin(x)' &''')
   print 'Done-4'
 
   print 'Run-5'
-  subprocess.call('''qplot -x2 'sin(x)' &''', shell=True)
+  subprocess.call('''qplot -x2 'aaa' 'sin(x)' &''', shell=True)
   print 'Done-5'
 
 
