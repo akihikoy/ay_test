@@ -7,6 +7,7 @@
 import multiprocessing as mp
 import Queue
 import random, copy
+import os,signal
 
 def SubFunc(pid, queue_cmd, queue_out, parameter):
   print 'Started:',pid,parameter,id(parameter)
@@ -40,15 +41,22 @@ def Main1(param_list):
         processes[pid]= new_proc
         processes[pid].start()
         pid+= 1
-      pid_out,parameter,x,y= queue_out.get(timeout=0.5)
-      processes[pid_out].join()
+      pid_out,parameter,x,y= queue_out.get(timeout=0.15)
+      processes[pid_out].join(timeout=0.15)
+      exitcode= processes[pid_out].exitcode
       del processes[pid_out]
       results.append((pid_out,parameter,x,y))
-      print 'Finished:',results[-1]
+      print 'Finished:',results[-1],exitcode
   except Queue.Empty:
-    print 'Timeout. Killing processes...'
+    print 'Timeout.'
     for proc in processes.itervalues():
-      proc.terminate()
+      print '  Terminating',proc.pid,proc.exitcode
+      #proc.terminate()
+      os.kill(proc.pid,signal.SIGKILL)
+    time.sleep(0.002)
+    print 'Termination double check.'
+    for proc in processes.itervalues():
+      print '  Proc',proc.pid,proc.is_alive()
 
   print 'Results:'
   for res in results:
