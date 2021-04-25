@@ -1,0 +1,30 @@
+#!/bin/bash
+#--------------------------------------------------
+ext=''
+#--------------------------------------------------
+
+usage="`basename $0` [EXT] [OPTIONS]
+Open kate and kdiff3 to provide an easy interface for comparing two snippets.
+  EXT:  Extension, such as py,cpp.
+  OPTIONS:
+    [-help]    : show help
+"
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    -*) echo "invalid option: $1"; echo ""; echo "usage: $usage"; exit 0 ;;
+    '') break ;;
+    *)  ext=".$1"; shift 1 ;;
+  esac
+done
+
+#--------------------------------------------------
+
+fA=/tmp/snipdiff-$$-A$ext
+fB=/tmp/snipdiff-$$-B$ext
+touch $fA $fB
+
+kate --new --start '' $fA $fB  >& /dev/null &
+kdiff3 $fA $fB  >& /dev/null &

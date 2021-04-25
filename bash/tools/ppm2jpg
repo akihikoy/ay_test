@@ -1,0 +1,17 @@
+#! /bin/bash
+recho "DEPRECATED: use conv-img command"
+
+usage="usage: ppm2jpg"
+
+if [ $# -ne 0 ];  then
+  recho ${usage} $#
+  exit 0
+fi
+
+for i in *.ppm; do
+  fn=`echo $i | sed 's/\(.\+\)\(\..\{1,10\}$\)/\1\.jpg/'`
+  echo "convert -quality 100 $i ${fn}"
+  convert -quality 100 $i ${fn}
+  rm $i
+done
+

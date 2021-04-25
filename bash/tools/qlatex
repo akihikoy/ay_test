@@ -1,0 +1,162 @@
+#!/bin/bash
+usage="`basename $0` OPTIONS INPUT_FILENAME
+  OPTIONS:
+    [-p PAGE_SIZE]
+    [-cmp] : compress the PDF size
+    [-l LATEX_COMMAND] (default: platex)
+    [-d] : draft version
+    [-v++] : increment VERSION (saved to version.dat)
+    [-v VERSION] : assign VERSION (saved to version.dat)
+    [-pid PAPER_ID] : assign PAPER_ID (saved to paperid.dat)
+    [--] : terminate to parse option
+    [-help] : show help"
+#--------------------------------------------------
+
+src=''
+opt_dvips=''
+opt_dvipdfmx=''
+pdf_compress=0
+draft=0
+latex_cmd=platex
+
+if [ -f version.dat ];then
+  version=`head -n1 version.dat`
+else
+  version=0
+fi
+if [ -f revision.dat ];then
+  revision=`head -n1 revision.dat`
+  revision=$((revision+1))
+else
+  revision=0
+fi
+if [ -f paperid.dat ];then
+  paperid="`cat paperid.dat`"
+else
+  paperid=''
+fi
+
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    # -i) src="$2"; shift 2 ;;
+    -p)
+        opt_dvips="-t $2"
+        opt_dvipdfmx="$opt_dvipdfmx -p $2"
+        shift 2 ;;
+    -cmp)
+        pdf_compress=1
+        shift 1 ;;
+    -l) latex_cmd=$2; shift 2 ;;
+    -d) draft=1; shift ;;
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    -v++) version=$((version+1)); revision=0; shift 1 ;;
+    -v) version=$2; revision=0; shift 2 ;;
+    -pid) paperid=$2; shift 2 ;;
+    ''|--) shift; break ;;
+    *)
+        if [ -z "$src" ];then
+          src=$1
+          shift 1
+        else
+          echo "unexpected option '$1'" >&2
+          echo ''
+          echo "usage: $usage"
+          exit 1
+        fi
+        ;;
+  esac
+done
+
+if [ -z "$src" ];then
+  echo "error! specify the INPUT_FILENAME."
+  echo ''
+  echo "usage: $usage"
+  exit 1
+fi
+
+#--------------------------------------------------
+
+fname=`echo ${src} | sed 's/\(.\+\)\(\..\{1,10\}$\)/\1/'`
+fps="${fname}.ps"
+faux="${fname}.aux"
+fdvi="${fname}.dvi"
+fpdf="${fname}.pdf"
+bibtexcmd=pbibtex
+
+if $latex_cmd ${src}; then
+  biberr=0
+  if [ `grep 'citation' ${faux} | wc -l` -gt 0 ]; then
+    if ! ( $bibtexcmd ${fname} ) then
+      biberr=1
+      # exit 1
+    fi
+    if ! $latex_cmd ${src}; then biberr=1; fi
+  fi
+  if $latex_cmd ${src}; then
+    becho "generated: "${fdvi}
+    if dvips ${opt_dvips} -o ${fps} ${fdvi}; then
+      becho "generated: "${fps}
+    else
+      recho "error in generating ${fps}"
+      exit 1
+    fi
+    if [ $pdf_compress -eq 0 ];then
+      if dvipdfmx ${opt_dvipdfmx} -o ${fpdf} ${fdvi}; then
+        becho "generated: ${fpdf}"
+      else
+        recho "error in generating ${fpdf}"
+        exit 1
+      fi
+    else
+      if dvipdfmx ${opt_dvipdfmx} -D 'ps2pdf -dCompatibilityLevel=1.2 -sPAPERSIZE=a0    -dAutoFilterGrayImages=true -dGrayImageFilter=/DCTEncode -dEncodeGrayImages=true -dDownsampleGrayImages=true -dGrayImageDownsampleThreshold=1.5 -dGrayImageDownsampleType=/Bicubic -dGrayImageResolution=150    -dMonoImageFilter=/CCITTFaxEncode -dEncodeMonoImages=true -dDownsampleMonoImages=true -dMonoImageDownsampleThreshold=1.5 -dMonoImageDownsampleType=/Bicubic -dMonoImageResolution=300    -dAutoFilterColorImages=true -dColorImageFilter=/DCTEncode -dEncodeColorImages=true -dColorImageResolution=150 -dColorImageDownsampleThreshold=1.5 -dColorImageDownsampleType=/Bicubic -dCompressFonts=true -dSubsetFonts=true    %i %o' -o ${fpdf} ${fdvi}; then
+        becho "generated (cmp): ${fpdf}"
+      else
+        recho "error in generating (cmp) ${fpdf}"
+        exit 1
+      fi
+    fi
+  fi
+  if [ $biberr -ne 0 ];then
+    recho "error in ${bibtexcmd}. check ${fname}.blg"
+  fi
+else
+  exit 1
+fi
+
+#--------------------------------------------------
+
+becho "Check font embedding with pdffonts?"
+if ask-yes-no;then  pdffonts ${fpdf} | $PAGER; fi
+
+#--------------------------------------------------
+
+echo $version > version.dat
+becho "version is saved to version.dat: $(cat version.dat)"
+echo $revision > revision.dat
+becho "revision is saved to revision.dat: $(cat revision.dat)"
+echo $paperid > paperid.dat
+becho "paperid is saved to paperid.dat:"
+cat paperid.dat
+
+if [ $draft -eq 1 ];then
+  tmpfile1=/tmp/qlatex_version_$$.pdf
+  tmpfile2=/tmp/qlatex_date_$$.pdf
+  tmpfile3=/tmp/qlatex_pid_$$.pdf
+  tmpfile4=/tmp/qlatex_draft_$$.pdf
+  pdfstamp -t "\begin{Large}ver. $version.$revision\end{Large}" -p rt -f -o $tmpfile1
+  pdfstamp -t "`date -R`" -p ct -f -o $tmpfile2
+  pdfstamp -t "$paperid" -p lt -f -o $tmpfile3
+  pdftk ${fpdf} stamp $tmpfile1 output - \
+      | pdftk - stamp $tmpfile2 output - \
+      | pdftk - stamp $tmpfile3 output $tmpfile4
+  mv -v $tmpfile4 ${fpdf}
+  rm $tmpfile1
+  rm $tmpfile2
+fi
+
+if [ $biberr -ne 0 ];then
+  recho "error in ${bibtexcmd}. check ${fname}.blg"
+fi
+

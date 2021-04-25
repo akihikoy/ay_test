@@ -1,0 +1,11 @@
+#!/usr/bin/python
+import sys,subprocess
+text=sys.stdin.read().rstrip()
+
+try:
+  p = subprocess.Popen(['xclip', '-i', '-selection', 'clipboard'], stdin=subprocess.PIPE)
+  p.stdin.write(text)
+  p.stdin.close()
+  retcode = p.wait()
+except:
+  pass

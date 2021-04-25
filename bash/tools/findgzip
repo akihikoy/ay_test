@@ -1,0 +1,63 @@
+#!/bin/bash
+usage="`basename $0` OPTIONS FILE_PATTERN
+  Find files and compress them by gzip.
+  Without -ex option, this program output a list of files to be compressed.
+  OPTIONS:
+    [-s SIZE] : minimum size of file to be compressed (500k)
+    [-d DIR]  : list of directories to search ()
+    [-ex]     : execute compressing
+    [-help]   : show help"
+#--------------------------------------------------
+
+dir_list=""
+pattern=""
+minsize=500k
+ex_cmp=0
+
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -s)  minsize=$2; shift 2 ;;
+    -d)  dir_list=$2; shift 2 ;;
+    -ex) ex_cmp=1; shift ;;
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    '') shift; break ;;
+    # ''|--) shift; break ;;
+    *)
+      if [ -z "$pattern" ];then
+        pattern="$1"
+      else
+        echo "unexpected option '$1'" >&2
+        echo ''
+        echo "usage: $usage"
+        exit 1
+      fi
+      shift ;;
+  esac
+done
+
+if [ -z "$pattern" ];then
+  echo "specify file-pattern" >&2
+  echo ''
+  echo "usage: $usage"
+  exit 1
+fi
+
+#--------------------------------------------------
+
+file_list=`find $dir_list -size +$minsize -name "$pattern"`
+
+if [ -z "$file_list" ];then
+  echo "no matched file"
+  exit 0
+fi
+
+if [ $ex_cmp -eq 0 ];then
+  du -bsch $file_list
+else
+  echo "execute compressing?"
+  if avi2mpg;then
+    gzip -v  $file_list
+  fi
+fi

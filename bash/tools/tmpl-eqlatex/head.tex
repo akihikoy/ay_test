@@ -1,0 +1,340 @@
+%-----------------------------------------------------------------------------------
+\usepackage{latexsym}
+\usepackage{array}
+\usepackage{calc}
+\usepackage{amsmath, amsfonts}
+\usepackage{amssymb}
+\usepackage{ascmac}
+\usepackage{textcomp}
+% \usepackage{ulem}
+%   \def\emph{\textit} % NOTE : ulem overwrites emph by uline, so reset it here
+\usepackage[noend]{algorithmic}
+\usepackage{balance}
+\usepackage[dvipdfmx,setpagesize=false]{hyperref}
+\usepackage{url}
+
+%select graphic package:
+% \usepackage[dvips]{graphicx}
+% \usepackage[dvipdfmx]{graphicx}
+\usepackage[dvips]{color}
+\usepackage{epsfig,subfigure}
+% \usepackage{multicol}
+\usepackage{multirow}
+% \usepackage{doublespace}
+\usepackage{wrapfig}
+\usepackage{calligra}
+%-----------------------------------------------------------------------------------
+\usepackage{geometry}
+\geometry{top=0mm, bottom=0mm, left=0mm, right=0mm}
+%-----------------------------------------------------------------------------------
+\everymath{\displaystyle}
+% \allowdisplaybreaks
+%-----------------------------------------------------------------------------------
+\def\eg{e.g.}
+\def\ie{i.e.}
+\def\etal{\textit{et al.}}
+\def\wrt{w.r.t.}
+%-----------------------------------------------------------------------------------
+\newcommand{\namefontA}{}
+% \def\contentsname     {\namefontA{Contents}}
+% \def\abstractname     {\namefontA{Abstract}}
+% \def\appendixname     {\namefontA{Appendix}}
+\def\figurename         {\namefontA{Fig.}}
+% \def\tablename                {\namefontA{Table}}
+% \def\listfigurename   {\namefontA{List of Figures}}
+% \def\listtablename    {\namefontA{List of Tables}}
+% \def\bibname          {\namefontA{Bibliography}}
+\def\algorithmname      {\namefontA{Algorithm}}
+% \def\sourcename               {\namefontA{List}}
+%-----------------------------------------------------------------------------------
+\newcommand{\emp}[1]{\emph{#1}}
+\newcommand{\fcblue}[1]{{\textcolor{blue}{#1}}}
+\newcommand{\fcred}[1]{{\textcolor{red}{#1}}}
+\newcommand{\fcgreen}[1]{{\textcolor{green}{#1}}}
+\definecolor{RED}{rgb}{1,0,0}
+\definecolor{BLUE}{rgb}{0,0,1}
+\definecolor{BLACK}{rgb}{0,0,0}
+\definecolor{orange}{rgb}{1,0.5,0}
+\definecolor{dorange}{rgb}{0.5,0.2,0}
+\definecolor{mosgreen}{rgb}{0,0.5,0}
+\newcommand{\fcorange}[1]{{\textcolor{orange}{#1}}}
+\definecolor{gray5}{gray}{0.5}
+\newcommand{\fcgray}[1]{{\textcolor{gray5}{#1}}}
+\definecolor{colorcomment}{rgb}{0,0.5,1}
+\newcommand{\fccomment}[1]{\textcolor{colorcomment}{#1}}
+%-----------------------------------------------------------------------------------
+\newcommand{\notel}[1]{}%{\textcolor{gray5}{{#1}}}  %commentout mode {}%
+\newcommand{\note}[1]{{\color{red}{\textit{#1}}\color{black}}}  %commentout mode {}%
+% \renewcommand{\note}[1]{}
+% \newcommand{\updated}[1]{{\color{mosgreen}{#1}\color{black}}}
+\newcommand{\fromrss}[1]{{\color{BLUE}{#1}\color{black}}}
+\newcommand{\updated}[1]{{#1}}
+\newcommand{\phrase}[1]{\textcolor{blue}{#1}}
+\newcommand{\handout}[2]{#2}                        %commentout mode (use #1 to uncomment)
+\newcommand{\xcomment}[1]{}    % block comment
+%-----------------------------------------------------------------------------------
+
+\makeatletter
+\newenvironment{pScaleEq}[1][8]%
+  {%
+    \begingroup%
+    %\trivlist%
+    \def\f@size{#1}\check@mathfonts%
+    \def\maketag@@@##1{\hbox{\m@th\normalsize\normalfont##1}}%
+    \setlength{\jot}{2pt}
+    %\item\relax%
+  }%
+  {\endgroup}%
+  %{\endtrivlist}%
+\makeatother
+
+%-----------------------------------------------------------------------------------
+
+\newenvironment{pVentry}[1][0pt]%
+  {\begin{list}{}%
+    {%
+      %\renewcommand{\makelabel}[1]{\textsf{\textgt{\small{##1}}}\hfill}%
+      \renewcommand{\makelabel}[1]{##1\hfill}%
+      %\settowidth{\labelwidth}{#2}%
+      \settowidth{\labelwidth}{0.0em}%
+      \setlength{\labelsep}{0.5em}%
+      %\setlength{\leftmargin}{\labelwidth+\labelsep-0.5em}%
+      \setlength{\leftmargin}{0.0em}%
+      \setlength{\itemindent}{3.0em}%
+      \setlength{\listparindent}{0em}%
+      \setlength{\topsep}{#1}%
+      \setlength{\itemsep}{0pt}%
+      \setlength{\parsep}{0pt}%
+    }%
+  }%
+  {\end{list}}
+
+\newcounter{algorithm@counter}
+% \setcounter{algocounter}{1}
+\newenvironment{pAlgorithm}[0]%
+  {
+    \renewcommand\caption[1]%
+      {%
+        \refstepcounter{algorithm@counter}
+        \nobreak%
+        \noindent \textbf{\algorithmname{} \arabic{algorithm@counter}:} ##1%
+        \vspace{0.2zh}\nobreak%
+        \hrule\nobreak\vspace{0.2zh}\nobreak%
+      }%
+    %\noindent \rule{\textwidth}{0.3mm}%
+    \small
+    \vspace{1.0zh}
+    {\hrule height1.5pt}
+    \nopagebreak[4]\vspace{0.2zh}%
+    \nopagebreak[4]
+  }%
+  { \nobreak \vspace{0.1zh} \nobreak {\hrule height1.5pt} \vspace{1.0zh}  }
+%-----------------------------------------------------------------------------------
+
+%-----------------------------------------------------------------------------------
+\makeatletter
+\newenvironment{qSource}[1][1.0]%
+  {%
+    \allowbreak%
+    \vspace{1.0zh}\nopagebreak[4]%
+    {\hrule height0.8pt}%
+    \nopagebreak[4]\vspace{0.2zh}\nopagebreak[4]%
+    \begin{list}{}%
+    {%
+      \settowidth{\labelwidth}{0pt}%
+      \setlength{\labelsep}{-0em}%
+      \setlength{\leftmargin}{0.0em}%
+      \setlength{\itemindent}{0.0em}%
+      \setlength{\listparindent}{0em}%
+      \setlength{\topsep}{2pt}%
+      \setlength{\itemsep}{0pt}%
+      \setlength{\parsep}{0pt}%
+    }%
+    \begingroup\item[]%\samepage
+    \renewcommand{\baselinestretch}{#1}%
+%     \footnotesize%
+    \scriptsize%
+    \def\verbatim@font{\normalfont\bfseries\ttfamily}%
+    \ignorespaces%
+  }%
+  {%
+    \endgroup\end{list}%
+    \nobreak\vspace{-0.2zh}\nobreak{\hrule height0.8pt}\vspace{1.0zh}%
+  }
+\makeatother
+%-----------------------------------------------------------------------------------
+
+\newcommand{\refchap}[1]{Chapter\,\ref{#1}}
+\newcommand{\refsec}[1]{Section\,\ref{#1}}
+\newcommand{\refsubsec}[1]{Section\,\ref{#1}}
+\newcommand{\refsubsubsec}[1]{\ref{#1}}
+\newcommand{\reffig}[1]{\figurename{}\,\ref{#1}}
+\newcommand{\refeqn}[1]{(\ref{#1})}
+\newcommand{\refeq}[1]{Eq.~\refeqn{#1}}
+\newcommand{\refalgo}[1]{\algorithmname{}\,\ref{#1}}
+\newcommand{\reftable}[1]{Table\,\ref{#1}}
+\newcommand{\refappendix}[1]{\appendixname{}\,\ref{#1}} %\appendixname{}
+
+%-----------------------------------------------------------------------------------
+
+\newcommand{\psmall}[1]{\begingroup{\small{#1}\/}\endgroup}
+\newcommand{\piitem}[1]{(#1)}
+\newcommand{\refiitem}[1]{(#1)}
+\newcommand{\msmall}[1]{\mbox{\small$\displaystyle #1 $}}
+\newcommand{\mfootnotesize}[1]{\mbox{\footnotesize$\displaystyle #1 $}}
+
+\newcommand{\rarrow}[0]{$\rightarrow$}
+\newcommand{\larrow}[0]{$\leftarrow$}
+\newcommand{\ecma}[0]{,\ }
+
+\newcommand{\mdef}[0]{\triangleq}%  {\equiv}
+\newcommand{\mand}[0]{\,\wedge\,}
+\newcommand{\mor}[0]{\,\vee\,}
+
+\newcommand{\dcginv}[1]{\overline{#1}}
+\newcommand{\gives}[0]{\Longrightarrow\quad}
+
+\newcommand{\bunderbar}[0]{\_\allowbreak{}}
+\newcommand{\bsemicolon}[0]{;\allowbreak{}}
+\newcommand{\bcma}[0]{,\allowbreak{}}
+\newcommand{\cma}[0]{,\>\allowbreak{}}
+\newcommand{\mhyphen}[0]{\mbox{-}}
+\newcommand{\dprime}[0]{{\prime\!\prime}}
+
+\newcommand{\func}[1]{$\mathsf{#1}$}
+\newcommand{\algkw}[1]{{\small\bfseries\texttt{#1}}}
+\newcommand{\mfunc}[1]{\mathsf{#1}}
+\newcommand{\uexp}[1]{\mathrm{e}^{#1}}
+
+% \mathop{\sum_{i,j=1}^{N}}_{i>j}
+% \stackrel{top}{bot}
+\newcommand{\updown}[3]{#1_{#3}^{#2}}
+%\newcommand{\basev}[3]{\mathbf{#1}_{#3}^{#2}}
+\newcommand{\vect}[1]{$\mathbf{#1}$}
+\newcommand{\mvecnm}[1]{\mathbf{#1}} %\boldsymbol{\bf
+\newcommand{\mvec}[1]{\boldsymbol{\mathbf{#1}}} %\boldsymbol{\bf
+\newcommand{\mvsq}[1]{#1^\top{}#1}
+\newcommand{\mvsqa}[2]{#1^\top{}#2#1}
+% \newcommand{\argmax}{\mathop{\rm arg\,max}\limits}
+\DeclareMathOperator*{\args}{arg}
+\DeclareMathOperator*{\argmax}{arg\,max}
+% \newcommand{\argmin}{\mathop{\rm arg\,min}\limits}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\mmod}{mod}
+\newcommand{\tr}{{\rm tr}}
+\newcommand{\class}[1]{$\varpi_{#1}$}
+\newcommand{\mclass}[1]{\varpi_{#1}}
+\newcommand{\undercomment}[2]{\mathop{\mathop{#1}_{\mbox{\fccomment{\cleaders\hbox{$\mkern-2mu\mathord-\mkern-2mu$}\hfill}}}}_{\fccomment{#2}}}
+
+\newcommand{\relu}{\mathrm{relu}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\erf}{\mathrm{erf}}
+\newcommand{\step}{\mathrm{step}}
+\newcommand{\abs}{\mathrm{abs}}
+
+\newcommand{\realset}[0]{\mathbb{R}}
+\newcommand{\mrealset}[2]{\mathbb{R}^{#1\times{}#2}}
+\newcommand{\umatd}[0]{\mvec{1}}
+\newcommand{\umat}[1]{\umatd{}^{#1}}
+\newcommand{\zeromatd}[0]{\mvec{0}}
+\newcommand{\zeromat}[2]{\zeromatd{}^{#1\times{}#2}}
+\newcommand{\zeromats}[1]{\zeromatd{}^{#1}}
+\newcommand{\stdbasis}[0]{\mathrm{\mathbf{e}}}
+
+\newcommand{\param}[1]{$\mathbf{\theta}_{#1}$}
+\newcommand{\mparam}[1]{\mathbf{\theta}_{#1}}
+
+\newcommand{\binomial}[2]{\left(\begin{array}{c}#1\\#2\end{array}\right)}
+
+%-----------------------------------------------------------------------------------
+
+% vectors
+\newcommand{\va}{\mvec{a}}
+\newcommand{\vb}{\mvec{b}}
+\newcommand{\vc}{\mvec{c}}
+\newcommand{\ve}{\mvec{e}}
+\newcommand{\vf}{\mvec{f}}
+\newcommand{\vg}{\mvec{g}}
+\newcommand{\vh}{\mvec{h}}
+\newcommand{\vi}{\mvec{i}}
+\newcommand{\vk}{\mvec{k}}
+\newcommand{\vl}{\mvec{l}}
+\newcommand{\vm}{\mvec{m}}
+\newcommand{\vn}{\mvec{n}}
+\newcommand{\vp}{\mvec{p}}
+\newcommand{\vq}{\mvec{q}}
+\newcommand{\vr}{\mvec{r}}
+\newcommand{\vs}{\mvec{s}}
+\newcommand{\vt}{\mvec{t}}
+\newcommand{\vu}{\mvec{u}}
+\newcommand{\vv}{\mvec{v}}
+\newcommand{\vw}{\mvec{w}}
+\newcommand{\vx}{\mvec{x}}
+\newcommand{\vy}{\mvec{y}}
+\newcommand{\vz}{\mvec{z}}
+
+\newcommand{\vO}{\mvec{0}}  %Zero vector
+
+\newcommand{\valpha}{\mvec{\alpha}}
+\newcommand{\vbeta}{\mvec{\beta}}
+\newcommand{\vdelta}{\mvec{\delta}}
+\newcommand{\vepsilon}{\mvec{\epsilon}}
+\newcommand{\vmu}{\mvec{\mu}}
+\newcommand{\vomega}{\mvec{\omega}}
+\newcommand{\vpi}{\mvec{\pi}}
+\newcommand{\vphi}{\mvec{\phi}}
+\newcommand{\vpsi}{\mvec{\psi}}
+\newcommand{\vtau}{\mvec{\tau}}
+\newcommand{\vtheta}{\mvec{\theta}}
+\newcommand{\vxi}{\mvec{\xi}}
+
+\newcommand{\vDelta}{\mvec{\Delta}}
+
+% matrices
+\newcommand{\mA}{\mvec{A}}
+\newcommand{\mB}{\mvec{B}}
+\newcommand{\mC}{\mvec{C}}
+\newcommand{\mD}{\mvec{D}}
+\newcommand{\mE}{\mvec{E}}
+\newcommand{\mF}{\mvec{F}}
+\newcommand{\mG}{\mvec{G}}
+\newcommand{\mH}{\mvec{H}}
+\newcommand{\mI}{\mvec{I}}
+\newcommand{\mJ}{\mvec{J}}
+\newcommand{\mK}{\mvec{K}}
+\newcommand{\mL}{\mvec{L}}
+\newcommand{\mM}{\mvec{M}}
+\newcommand{\mP}{\mvec{P}}
+\newcommand{\mQ}{\mvec{Q}}
+\newcommand{\mR}{\mvec{R}}
+\newcommand{\mS}{\mvec{S}}
+\newcommand{\mT}{\mvec{T}}
+\newcommand{\mU}{\mvec{U}}
+\newcommand{\mV}{\mvec{V}}
+\newcommand{\mW}{\mvec{W}}
+\newcommand{\mX}{\mvec{X}}
+\newcommand{\mY}{\mvec{Y}}
+\newcommand{\mZ}{\mvec{Z}}
+
+\newcommand{\mO}{\mvec{0}}  %Zero matrix
+
+\newcommand{\mSigma}{\mvec{\Sigma}}
+\newcommand{\mOmega}{\mvec{\Omega}}
+
+% Special defs
+\newcommand{\vF}{\mvec{F}}
+\newcommand{\Fc}[1]{\mF_{\mathrm{0}#1}}
+\newcommand{\Fxa}[1]{\mF_{\mathrm{XA}#1}}
+\newcommand{\Fx}[1]{\mF_{\mathrm{X}#1}}
+\newcommand{\Fa}[1]{\mF_{\mathrm{A}#1}}
+% \newcommand{\DFa}[1]{\frac{\partial \mF_{#1}}{\partial \va_{#1}}}
+% \newcommand{\DFx}[1]{\frac{\partial \mF_{#1}}{\partial \vx_{#1}}}
+% \newcommand{\DRx}[1]{\frac{\partial R_{#1}}{\partial \vx_{#1}}}
+\newcommand{\DJa}[1]{\partial \mJ_{\mathrm{A}#1}}
+\newcommand{\DFa}[1]{\partial \mF_{\mathrm{A}#1}}
+\newcommand{\DFx}[1]{\partial \mF_{\mathrm{X}#1}}
+\newcommand{\DRx}[1]{\partial \mR_{\mathrm{X}#1}}
+\newcommand{\tDFa}[1]{\partial \tilde{\mF}_{\mathrm{A}#1}}
+\newcommand{\tDFx}[1]{\partial \tilde{\mF}_{\mathrm{X}#1}}
+\newcommand{\tDRx}[1]{\partial \tilde{\mR}_{\mathrm{X}#1}}
+%-----------------------------------------------------------------------------------

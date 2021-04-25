@@ -1,0 +1,191 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+import os,time,sys,signal
+import subprocess
+import tempfile
+
+usage='''graph plotter using gnuplot
+  usage: qplot [OPTION] PLOTLINE
+    OPTION:
+      -s XXX     setting line (multiple -s are automatically concatenated with ;)
+      +s         split the setting line for multiplot
+                 (note: the previous setting line is used as the initial value
+                 of the next setting line)
+      -3d        3D-plot (splot)
+      -o FILE    save graph into FILE; file type is determined by
+                 the extension (png,jpg,svg,eps are available)
+                 if FILE is -.EXT (e.g. -o -.svg), filename is
+                 automatically decided like /tmp/0.svg, /tmp/1.svg, ...
+      -          use std-in as a data file
+      +          split the PLOTLINE for multiplot
+      -it        iterative plot mode (quit by Ctrl+C)
+      -i T       iteration interval (second; default=1.0)
+      -cs YYY    common graph style (put after each filename)
+      -ac        auto-comma mode (default=True): comma is automatically inserted
+                 before each filename
+      -nc        disable auto-comma mode
+      -showerr   show error output of gnuplot
+      -x         (test) wait key input before exit
+      -x2 ZZZ    (test) assume to be executed in the background and
+                 wait gnuplot process ends or "qplot -x2kill ZZZ" is executed
+                 where ZZZ is a group code
+      -x2kill ZZZ terminate all gnuplot processes executed with -x2 option
+      -x2k ZZZ   == -x2kill ZZZ
+      -help      show help
+  example:
+    qplot hoge.dat using 3:4
+    qplot -s 'set xrange [-1.5:1.5];set yrange [-1.5:1.5]' hoge.dat
+    qplot -i 0.2 '"< tail -100 trajectory.dat"' u 1:3 w lp
+    (some command) | qplot - u 1:3 w l - u 1:5 w l
+    qplot -cs 'w l' test*.dat
+    qplot -s 'set multiplot layout 2,1' 'sin(x)' + 'cos(x)'
+    qplot -x -s 'set multiplot layout 2,1; set ylabel "y"' +s -s 'set xlabel "x"' 'sin(x)' + 'cos(x)'
+  '''
+
+# default setting:
+#terminal='set terminal x11 persist'
+terminal='set terminal wxt'
+setting=['set key right bottom']
+setting[-1]=setting[-1]+'; min(x,y)=x<=y?x:y; max(x,y)=x>=y?x:y'
+iterative=False
+tsleep=1.0
+pline=['']
+plotter='plot'
+commonstyle=''
+autocomma=' ,'
+keytoexit=False
+keep_in_bg=None
+gnuplot_pid_list='/tmp/qplot_gnuplot_pid_list-'
+stderr_redirect=subprocess.PIPE
+
+stdindata=''
+
+def ask_yes_no():
+  if stdindata!='':
+    sys.stdout.write('  (y|n) > n\n')
+    return False
+  while True:
+    sys.stdout.write('  (y|n) > ')
+    ans= sys.stdin.readline().strip()
+    if ans=='y' or ans=='Y':  return True
+    elif ans=='n' or ans=='N':  return False
+
+def add_to_pline(elem,comma):
+  global pline,autocomma
+  if comma and pline[-1]!='': pline[-1]=pline[-1]+autocomma
+  pline[-1]=pline[-1]+' '+elem
+
+it= iter(sys.argv)
+it.next() # skip exec name
+while True:
+  try:
+    a= it.next()
+    if a=='-help' or a=='--help': print usage; sys.exit(0)
+    elif a=='-3d': plotter='splot'
+    elif a=='-s': setting[-1]=setting[-1]+'; '+it.next()
+    elif a=='+s': setting.append('')
+    elif a=='-o':
+      filename=it.next()
+      noext,ext= os.path.splitext(filename)
+      if noext=='-':  #Auto filename
+        i= 0
+        while os.path.exists('/tmp/'+str(i)+ext):  i+= 1
+        filename= '/tmp/'+str(i)+ext
+      else:
+        if os.path.exists(filename):
+          print filename+' : already exists. will you overwrite?'
+          if not ask_yes_no():  sys.exit(0)
+      ext= ext.lower()
+      if   ext=='.png': s_file='set terminal png size 800, 640 transparent'
+      elif ext=='.jpg' or ext=='.jpeg': s_file='set terminal jpeg size 800, 640'
+      elif ext=='.svg': s_file='set terminal svg size 1200 780 fname "Trebuchet MS" fsize 24'
+      elif ext=='.eps': s_file='set terminal postscript eps color "Trebuchet MS" 11'
+      else:
+        print 'WARNING: undefined extension. save graph as png...'
+        s_file='set terminal png size 800, 640 transparent'
+      s_file=s_file+'; set output "'+filename+'";'
+      setting[0]=s_file+setting[0]
+      terminal=''
+    elif a=='-it': iterative=True
+    elif a=='-i': tsleep=float(it.next()); iterative=True
+    elif a=='-cs': commonstyle=' '+it.next()
+    elif a=='-ac': autocomma=' ,'
+    elif a=='-nc': autocomma=''
+    elif a=='-showerr': stderr_redirect=None
+    elif a=='-x': keytoexit=True
+    elif a=='-x2': keep_in_bg=str(it.next())
+    elif a in ('-x2kill','-x2k'):
+      gnuplot_pid_list_g= gnuplot_pid_list+str(it.next())
+      fp= open(gnuplot_pid_list_g)
+      pids= map(int, fp.read().split())
+      fp.close()
+      print 'Terminating gnuplot processes:',pids
+      for pid in pids:
+        try:
+          os.kill(pid, signal.SIGTERM)
+        except Exception as e:
+          print 'Failed to kill:',pid
+          print ' ',e
+      print 'Deleting pid list file:',gnuplot_pid_list_g
+      os.remove(gnuplot_pid_list_g)
+      print 'Done.'
+      sys.exit(0)
+    elif a=='-':
+      if stdindata=='':
+        dummy,stdindata=tempfile.mkstemp('.dat')
+        pout=open(stdindata,'w+')
+        while(1):
+          line=sys.stdin.readline()
+          if(not line):  break
+          pout.write(line)
+        pout.close()
+        sys.stdin=file('/dev/tty')
+      add_to_pline('"'+stdindata+'"'+commonstyle,True)
+    elif a=='+': pline.append('')
+    elif os.path.exists(a): add_to_pline('"'+a+'"'+commonstyle,True)
+    else: add_to_pline(a,False)
+  except StopIteration:
+    break
+
+if len(pline)==1 and pline[-1]=='':
+  print usage; sys.exit(0)
+
+while len(setting)<len(pline):  setting.append('')
+
+print terminal
+for p,s in zip(pline,setting):
+  print s
+  print plotter+' '+p
+
+persist='--persist'
+if keytoexit or keep_in_bg!=None: persist=''
+
+if not iterative:  g= subprocess.Popen('gnuplot -background white '+persist,shell=True,stdin=subprocess.PIPE,stderr=stderr_redirect)
+else: terminal=''; g= subprocess.Popen('gnuplot -noraise',shell=True,stdin=subprocess.PIPE,stderr=stderr_redirect)
+g.stdin.write(terminal+'\n')
+for p,s in zip(pline,setting):
+  g.stdin.write(s+'\n')
+  g.stdin.write(plotter+' '+p+'\n')
+g.stdin.write('pause -1'+'\n')
+#g.stdin.flush()
+
+if iterative:
+  try:
+    while True:
+      g.stdin.write("replot\n")
+      g.stdin.flush()
+      time.sleep(tsleep)
+  except KeyboardInterrupt:
+    #g.terminate()  # available for python's version >= 2.6
+    sys.exit(0)
+
+if keytoexit:
+  print 'press a key to exit > ',
+  raw_input()
+
+if keep_in_bg!=None:
+  fp= open(gnuplot_pid_list+keep_in_bg,'a+')
+  fp.write('%i\n'%g.pid)
+  fp.close()
+  print 'Waiting gnuplot [{pid} in {gid}]. Use [qplot -x2kill {gid}] to terminate the gnuplot processes.'.format(pid=g.pid, gid=keep_in_bg)
+  g.wait()  #Actually this does not work; even if we quit the gnuplot window, that process keeps

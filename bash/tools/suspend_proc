@@ -1,0 +1,45 @@
+#!/bin/bash
+#suspend and resume process
+#ref: http://unix.stackexchange.com/questions/2107/how-to-suspend-and-resume-processes
+
+function ask
+{
+  while true; do
+    echo -n '  (y|n) > '
+    read s
+    if [ "$s" == "y" ];then return 0; fi
+    if [ "$s" == "n" ];then return 1; fi
+  done
+}
+
+
+names=$@
+
+is_pid=0
+if [ -z "$(echo $names | sed 's/[\ 0-9]\+//g')" ];then
+  is_pid=1
+fi
+
+if [ $is_pid -eq 1 ];then
+  echo "PID only: $names"
+else
+  echo "Exe names: $names"
+fi
+
+if [ $is_pid -eq 1 ];then
+  kill -SIGSTOP $names
+else
+  killall -s SIGSTOP $names
+fi
+
+echo 'Resume?'
+while ! ask; do
+  echo 'Resume?'
+done
+
+if [ $is_pid -eq 1 ];then
+  kill -SIGCONT $names
+else
+  killall -s SIGCONT $names
+fi
+

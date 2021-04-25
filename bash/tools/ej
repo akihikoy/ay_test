@@ -1,0 +1,20 @@
+#!/bin/bash
+# http://taka.no32.tk/diary/20050826.html
+KEY=`echo $@ | nkf -w -w80`
+echo $@ >> ~/.eng-list
+# shift
+# URI='http://www2.alc.co.jp/ejr/index.php?
+#      word_in2=%82%A0%82%A2%82%A4%82%A6%82%A8&
+#      word_in3=PVawEWi72JXCKoa0Je&word_in='"$KEY"
+URI="http://eow.alc.co.jp/$KEY/UTF-8/"
+RS=`echo '▼ 検索結果本体 ▼' | nkf -w -w80`
+RE=`echo '▲ 検索結果本体 ▲' | nkf -w -w80`
+wget -q --referer='http://eow.alc.co.jp/' \
+     -U 'Mozilla/5.0' -O - "$URI" | \
+sed -ne "/<!--\s*$RS\s*-->/,/<!--\s*$RE\s*-->/p" | w3m -dump -T 'text/html' | $PAGER
+
+# sed -ne '/<ul/,/<\/ul>/p' | w3m -T 'text/html'
+#   lv
+#   w3m  -T text/html
+#   w3m -dump -T text/html | lv
+# sed -ne '/<p>/,/<\/ul>/p' | w3m -dump -T text/html | lv

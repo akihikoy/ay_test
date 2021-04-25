@@ -1,0 +1,60 @@
+#!/bin/bash
+#--------------------------------------------------
+inputf=''
+outputf=''
+bitrate='2000k'
+audiorate='44100'
+#--------------------------------------------------
+
+usage="`basename $0` OPTIONS [INPUT_FILENAME] [OUTPUT_FILENAME]
+  OPTIONS:
+    [-b RATE] : bit rate (default: $bitrate)
+    [-ar RATE] : audio sampling frequency (default: $audiorate)
+    [--] : finish to parse option
+    [-help] : show help"
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -i)  inputf=$2; shift 2 ;;
+    -o)  outputf=$2; shift 2 ;;
+    -b)  bitrate=$2; shift 2 ;;
+    -ar) audiorate=$2; shift 2 ;;
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    --|'') shift; break ;;
+    *)
+        if [ -z "$inputf" ];then
+          inputf=$1
+          shift 1
+        elif [ -z "$outputf" ];then
+          outputf=$1
+          shift 1
+        else
+          echo "unexpected option '$1'" >&2
+          echo ''
+          echo "usage: $usage"
+          exit 1
+        fi
+        ;;
+  esac
+done
+
+if [ -z "$inputf" ];then
+  echo "error! specify the INPUT_FILENAME"
+  echo ''
+  echo "usage: $usage"
+  exit 1
+fi
+
+if [ -z "$outputf" ];then
+  echo "error! specify the OUTPUT_FILENAME"
+  echo ''
+  echo "usage: $usage"
+  exit 1
+fi
+
+#--------------------------------------------------
+
+echo "ffmpeg -i $inputf -b $bitrate -ar $audiorate $@ $outputf"
+ffmpeg -i $inputf -b $bitrate -ar $audiorate $@ $outputf
+

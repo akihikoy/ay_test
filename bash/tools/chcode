@@ -1,0 +1,28 @@
+#! /bin/bash
+usage="chcode output_dir file1 [file2] [...]"
+_help="change char code to euc-jp & save to output_dir"
+
+if [ $# -le 1 ]; then
+  echo "no input files"
+  echo ${usage}
+  echo ${_help}
+  exit 1
+fi
+
+skip="true"
+for str in "$@"
+do
+  if [ ${skip} == "false" ]; then
+    filename=`echo "${str}" |sed 's/\([^\/]*\/\)*\([^\/]*\)$/\2/g'`
+    nkf -e -Lu ${str} > ${folder}/${filename}
+  else
+    folder=${str}
+    if [ ! -d ${folder} ]; then
+      echo "${folder}: directory not found"
+      echo ${usage}
+      exit 1
+    fi
+    skip="false"
+  fi
+done
+

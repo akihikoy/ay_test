@@ -1,0 +1,33 @@
+#! /bin/bash
+# copy only file name of the specified directory (file size is zero)
+usage="usage: name-only-copy src-dir dist-dir"
+
+if [ $# -ne 2 ];  then
+  recho "too many arguments"
+  becho $usage
+  exit 1
+fi
+if [ ! -d $1 ]; then
+  msg="$1: directory not found"
+  recho $msg
+  becho $usage
+  exit 1
+fi
+if [ -e $2 ]; then
+  recho "dist-dir already exists"
+  becho $usage
+  exit 1
+fi
+
+mkdir $2
+esc_srcdir=`echo "$1" | sed 's/\([^a-zA-Z0-9]\)/\\\1/g'`
+for i in `find $1`; do
+  if [ $i != $1 ];then
+    src=`echo "$i" | sed "s/$esc_srcdir//g"`
+    if [ -d $i ];then
+      mkdir $2/$src
+    else
+      touch $2/$src
+    fi
+  fi
+done

@@ -1,0 +1,19 @@
+#! /bin/bash
+usage="usage: midi2mp3 MIDI-FILES"
+
+if [ $# -eq 0 ];  then
+  recho ${usage}
+  exit 1
+fi
+
+# *.mid *.midi *.MID *.MIDI
+for i in $@; do
+  if [ -f $i ]; then
+    fn=`basename $i | sed 's/\(.\+\)\(\..\{1,10\}$\)/\1/'`
+    becho "convert $i to ${fn}.wav ..."
+    timidity -A40,60a -Ow $i -o ${fn}.wav
+    becho "convert ${fn}.wav to ${fn}.mp3 ..."
+    lame -b 128 ${fn}.wav ${fn}.mp3
+    rm ${fn}.wav
+  fi
+done

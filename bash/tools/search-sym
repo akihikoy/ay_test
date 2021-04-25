@@ -1,0 +1,47 @@
+#!/bin/bash
+usage='search-sym SYMBOL'
+
+if [ $# -ne 1 ];then
+  recho "invalid arguments!"
+  becho $usage
+  exit 1
+fi
+
+# nmopt_cmn="-f bsd -C"
+nmopt_cmn="-f bsd"
+
+sym=$1
+egrep_pattern="^[0-9a-f]*[[:space:]]*[^U[:space:]].*$sym"
+static_lib_pattern='*.a *.o'
+shared_lib_pattern='*.so*'
+
+function search_file() # filename nm-opt
+{
+  local f=$1
+  shift
+  local nmopt=$@
+  local res
+  if [ -f $f ];then
+    # res=`nm $nmopt $f 2>&1 | grep -E $egrep_pattern`
+    # if [ -n "$res" ];then
+    #   becho "$f:"
+    #   echo "$res"
+    # fi
+    res=`nm $nmopt $f 2>&1 | grep $sym`
+    if [ -n "$res" ];then
+      res=`printf -- "$res\n" | grep -E $egrep_pattern`
+      if [ -n "$res" ];then
+        becho "$f:"
+        echo "$res"
+      fi
+    fi
+  fi
+}
+
+echo "symbol $sym is included in..."
+for f in $static_lib_pattern;do
+  search_file $f $nmopt_cmn
+done
+for f in $shared_lib_pattern;do
+  search_file $f $nmopt_cmn -D
+done

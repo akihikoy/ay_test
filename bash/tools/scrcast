@@ -1,0 +1,27 @@
+#!/bin/bash
+# screen-cast program
+# original source from http://opentechpress.jp/developer/article.pl?sid=07/03/23/0037212
+usage="scrcasat Window-id [outdir]"
+if [ $# -lt 1 ];then
+  recho "invalid option($#)"
+  becho "usage: $usage"
+  becho "Window-id can be checked by xwininfo -frame"
+  exit 1
+fi
+wid=$1
+outdir='.'
+if [ $# -gt 1 ];then
+  outdir=$2
+fi
+
+i=0
+while [ 1 ]
+do
+  x=$[i+10000];
+  import -frame -window $wid "$outdir/cap${x/1/}.miff"
+  becho "captured to $outdir/cap${x/1/}.miff"
+  i=$(( $i + 1 ))
+  # sleep 2s
+done
+
+

@@ -1,0 +1,28 @@
+#! /bin/bash
+usage="usage: rmblankf [dir]"
+
+DIRFLAG=""
+if [ $# -gt 1 ];  then
+  echo "too many arguments"
+  echo ${usage}
+  exit 1
+elif [ $# -eq 1 ]; then
+  if [ ! -d $1 ]; then
+    msg="$1: directory not found"
+    echo ${usage}
+    exit 1
+  fi
+  if [ -z `echo "$1" | sed 's/.\+\/$//g'` ]; then
+    DIRFLAG="$1"
+  else
+    DIRFLAG="$1/"
+  fi
+  echo "in ${DIRFLAG} :"
+fi
+
+for str in `ls ${DIRFLAG}`; do
+  filename="${DIRFLAG}${str}"
+  if [ -e ${filename} ] && [ ! -s ${filename} ]; then
+    rm -iv ${filename}
+  fi
+done

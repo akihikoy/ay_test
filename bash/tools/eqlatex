@@ -1,0 +1,107 @@
+#! /bin/bash
+usage="usage: eqlatex [-all|-svg|-pdf|-png|-dvi] [latex-file]\n  if [latex-file] is not specified, std-in is used."
+templatedir=~/bin/linux/tmpl-eqlatex # テンプレートがおいてあるディレクトリ
+# templatedir=~/bin/linux/templates-eql # テンプレートがおいてあるディレクトリ
+tmpdir=/tmp/eqlatex$$
+outdir=`pwd`
+outfile=eqlatex
+pngres=180 # PNG化するときの解像度
+
+outputmode="all"
+if [ $# -ge 1 ] && [ "$1" == "-help" ];  then
+  echo -e $usage
+  exit 0
+fi
+
+if [ $# -ge 1 ];  then
+  case "$1" in
+    "-svg"|"-pdf"|"-png"|"-dvi"|"-all")
+      outputmode=${1/-/}
+      shift;;
+  esac
+fi
+
+if [ $# -gt 1 ];  then
+  echo -e $usage
+  exit 1
+fi
+
+if [ -d $tmpdir ];then
+  rm -rf $tmpdir
+fi
+mkdir $tmpdir
+
+if [ $# -eq 0 ];  then
+  cp /dev/stdin $tmpdir/main.tex
+else
+  cp $1 $tmpdir/main.tex
+  outdir=`dirname ${1/.tex/}`
+  outfile=`basename ${1/.tex/}`
+fi
+
+cp -a $templatedir/* $tmpdir
+
+cd $tmpdir
+
+
+ifile=latex-eq
+fontsmap=pdffonts.map
+
+error=1
+if platex -halt-on-error ${ifile}.tex; then
+  if [ -n "`grep 'newlabel' ${ifile}.aux`" ]; then
+    platex -halt-on-error ${ifile}.tex
+  fi
+  if dvipdfmx -f ${fontsmap} -o ${ifile}.pdf ${ifile}.dvi; then
+    error=0
+  fi
+fi
+
+if (($error));then
+  echo 'error in compiling the latex source.'
+  echo "logs are saved to $tmpdir/${ifile}.log"
+  exit 1
+fi
+
+if [ $outputmode == 'all' ] || [ $outputmode == 'pdf' ];then
+  # if [ -x /usr/bin/inkscape ];then
+  #   inkscape --export-pdf=${outfile}.pdf -T ${ifile}.pdf
+  # else
+    cp -a ${ifile}.pdf ${outfile}.pdf
+  # fi
+fi
+
+if [ $outputmode == 'all' ] || [ $outputmode == 'svg' ];then
+  # if [ -x /usr/bin/pdf2svg ];then
+  #   pdf2svg ${ifile}.pdf ${outfile}.svg
+  if [ -x /usr/bin/inkscape ];then
+    # inkscape --export-pdf=${outfile}.pdf -T ${ifile}.pdf
+    # inkscape --export-plain-svg=${outfile}.svg ${outfile}.pdf
+    gs -q -r20480 -sDEVICE=epswrite -sOutputFile=${ifile}.eps -dNOPAUSE -dBATCH -dSAFER -dEPSCrop -dEPSFitPage -dUseCropBox -dNOCACHE ${ifile}.pdf
+    inkscape --export-plain-svg=${outfile}.svg ${ifile}.eps
+  else
+    gs -q -r20480 -sDEVICE=epswrite -sOutputFile=${ifile}.eps -dNOPAUSE -dBATCH -dSAFER -dEPSCrop -dEPSFitPage -dUseCropBox -dNOCACHE ${ifile}.pdf
+    pstoedit -f plot-svg -dt -ssp -sclip ${ifile}.eps | \
+      sed 's/<rect[^<>]\+id=\"background\"[^<>]*>//g' > ${outfile}.svg
+  fi
+fi
+
+if [ $outputmode == 'all' ] || [ $outputmode == 'png' ];then
+  gs -q -sDEVICE=pngalpha -sOutputFile=${outfile}.png -r${pngres} -dNOPAUSE -dBATCH -dSAFER -dEPSCrop -dGraphicsAlphaBits=4 -dTextAlphaBits=4 -dMaxBitmap=50000000 ${ifile}.pdf
+  convert -trim +repage ${outfile}.png ${outfile}.png
+fi
+
+cd -
+case $outputmode in
+  "all")
+    mv $tmpdir/${outfile}.{png,svg,pdf} ${outdir}/
+    echo "${outdir}/${outfile}.{svg,pdf,png} are generated";;
+  "svg"|"pdf"|"png")
+    mv $tmpdir/${outfile}.$outputmode ${outdir}/
+    echo "${outdir}/${outfile}.$outputmode is generated";;
+  "dvi")
+    mv $tmpdir/${ifile}.$outputmode ${outdir}/${outfile}.$outputmode
+    echo "${outdir}/${outfile}.$outputmode is generated";;
+esac
+echo "latex logs are saved to $tmpdir/${ifile}.log"
+

@@ -1,0 +1,9 @@
+#! /bin/bash
+# remove tex file
+
+shopt -s nullglob
+rm -v *.aux *.blg *.log *.toc *.lof *.lot
+
+# *~ *.aux *.blg *.bbl *.dvi *.log *.toc
+# '*~' '*.aux' '*.blg' '*.bbl' '*.dvi' '*.log' '*.toc'
+# "*~" "*.aux" "*.blg" "*.bbl" "*.dvi" "*.log" "*.toc"

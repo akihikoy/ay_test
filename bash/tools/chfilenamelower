@@ -1,0 +1,9 @@
+#! /bin/bash
+# change filename to lower-case only
+
+for i in $@; do
+  if [ "${i}" != "`echo ${i}|tr A-Z a-z`" ]; then
+    mv -v ${i} `echo ${i}|tr A-Z a-z`
+  fi
+done
+

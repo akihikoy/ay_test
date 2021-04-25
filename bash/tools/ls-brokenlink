@@ -1,0 +1,11 @@
+#! /bin/bash
+usage="usage: ls-brokenlink\n  list up broken symbolic-link files"
+
+for i in *; do
+  if [ -h $i ];then
+    if ! [ -a $i ];then
+      echo $i
+    fi
+  fi
+done
+

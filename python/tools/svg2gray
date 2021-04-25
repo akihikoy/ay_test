@@ -1,0 +1,37 @@
+#! /usr/bin/python
+# convert color svg to gray
+# copyright 2006,2009, akihiko yamaguchi
+import sys,os,re
+
+# Y = ( 0.298912 * R + 0.586611 * G + 0.114478 * B )
+
+if len(sys.argv)!=2 and len(sys.argv)!=3:
+  print 'usage: svg2gray file [outfile]'
+  sys.exit(1)
+
+def convert_colorcode_to_gray(strR,strG,strB):
+  R= int(strR,16)
+  G= int(strG,16)
+  B= int(strB,16)
+  val= (0.298912 * R + 0.586611 * G + 0.114478 * B)
+  return ('#%(g)02x%(g)02x%(g)02x' % {'g':val})
+
+pfile=open(sys.argv[1])
+if len(sys.argv)==3:
+  pofile=open(sys.argv[2],'w+')
+while(1):
+  line=pfile.readline()
+  if(not line):  break
+  line=re.sub(r'red','#ff0000',line)
+  line=re.sub(r'green','#008000',line)
+  line=re.sub(r'blue','#0000ff',line)
+  line=re.sub(r'lime','#00ff00',line)
+
+  line=re.sub(r'#(?P<R>[0-9a-fA-F]{2,2})(?P<G>[0-9a-fA-F]{2,2})(?P<B>[0-9a-fA-F]{2,2})', \
+         lambda obj:convert_colorcode_to_gray(obj.group('R'),obj.group('G'),obj.group('B')), line)
+  if len(sys.argv)!=3:  print line,
+  else:                 pofile.write(line+'\n')
+
+pfile.close()
+if len(sys.argv)==3:
+  pofile.close()

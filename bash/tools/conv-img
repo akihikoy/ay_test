@@ -1,0 +1,139 @@
+#!/bin/bash
+#--------------------------------------------------
+quality=100
+infiles=""
+outdir="."
+opts=""
+delorig=0
+overwrite=0
+backup=1
+format=""
+#--------------------------------------------------
+
+usage="`basename $0` OPTIONS INPUT_FILES
+Convert INPUT_FILES.
+  OPTIONS:
+    [-q FLOAT] : quality (default: $quality)
+    [-D]       : delete original files
+    [-K]       : keep original files (default)
+    [-B]       : backup the original files (default)
+    [-NB]      : not backup the original files
+    [-OW]      : overwrite existing file
+    [-o STR]   : output directory (default: $outdir)
+    [-f STR]   : format of output file
+    [-transw]  : transparent white
+    [-flop]    : flop image horizontally
+    [-flip]    : flip image vertically
+    [-trim]    : trim image
+    [-resize G]: resize image (G: e.g. 200x300, 40%x40%, 50%)
+    [--]       : following options are directly used in convert
+    [-help]    : show help
+  EX:
+    conv-img -f png -transw -flop frame*.ppm
+    conv-img -f jpg ../vlc*.png -- -crop 762x1079+455+0"
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -q) quality=$2; shift 2 ;;
+    -D) delorig=1; shift 1 ;;
+    -K) delorig=0; shift 1 ;;
+    -B) backup=1; shift 1 ;;
+    -NB) backup=0; shift 1 ;;
+    -OW) overwrite=1; shift 1 ;;
+    -o) outdir=$2; shift 2 ;;
+    -f) opts="$opts -format $2"; format=$2; shift 2 ;;
+    -transw) opts="$opts -transparent white"; shift 1 ;;
+    -flop) opts="$opts -flop"; shift 1 ;;
+    -flip) opts="$opts -flip"; shift 1 ;;
+    -trim) opts="$opts -trim"; shift 1 ;;
+    -resize) opts="$opts -resize $2"; shift 2 ;;
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    --|'') shift; break ;;
+    -*) echo "invalid option: $1"; echo ""; echo "usage: $usage"; exit 0 ;;
+    *)
+      infiles="$infiles $1"
+      shift 1
+      ;;
+  esac
+done
+
+opts="$opts $@"
+
+if [ "$infiles" == "" ];then
+  echo "no input files"
+  echo ""
+  echo "usage: $usage"
+  exit 1
+fi
+
+#--------------------------------------------------
+# #Backup original images
+# if [ $backup -eq 1 ];then
+#   tmpdir=/tmp/conv-img-saved-$$
+#   mkdir $tmpdir
+#   echo "Backup input images into $tmpdir ..."
+#   cp -a $infiles $tmpdir/
+# fi
+#--------------------------------------------------
+
+# if ! mogrify -verbose -quality $quality $opts $infiles; then
+#   echo "error!"
+#   exit 1
+# fi
+#
+# if [ "$format" != "" ] && [ $delorig -eq 1 ];then
+#   for f in $infiles;do
+#     fnew=${f%.*}.$format
+#     if [ "$f" != "$fnew" ] && [ -f $fnew ];then
+#       rm -v $f
+#     fi
+#   done
+# fi
+
+#Backup dir
+if [ $backup -eq 1 ];then
+  tmpdir=/tmp/conv-img-saved-$$
+  mkdir $tmpdir
+fi
+
+
+for f in $infiles;do
+  bf=$(basename $f)
+  if [ "$format" == "" ]; then
+    of=$outdir/$bf
+  else
+    ext=$(echo $bf | sed 's/\(.\+\)\.\(.\{1,10\}$\)/\2/')
+    of=$outdir/${bf/.$ext/.$format}
+  fi
+  #If output file exists
+  if [ -e $of ]; then
+    if [ $f -ef $of ] && [ $delorig -eq 1 ]; then
+      #This is OK
+      pass=1
+    elif [ $overwrite -eq 1 ];then
+      #This is OK
+      pass=1
+    else
+      echo "$of exists."
+      exit 1
+    fi
+  fi
+  #Backup original image
+  if [ $backup -eq 1 ];then
+    echo "Saved backup image $tmpdir/$bf"
+    cp -a $f $tmpdir/
+  fi
+  if ! convert -verbose $f -quality $quality $opts $of;then
+    echo "Error!"
+    exit 1
+  fi
+  if ! [ $f -ef $of ] && [ $delorig -eq 1 ];then
+    rm -v $f
+  fi
+done
+
+echo "Done."
+if [ $backup -eq 1 ];then
+  echo "Input images are backupped in $tmpdir"
+fi

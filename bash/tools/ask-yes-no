@@ -1,0 +1,8 @@
+#!/bin/bash
+
+while true; do
+  echo -n '  (y|n) > '
+  read s
+  if [ "$s" == "y" ];then exit 0; fi
+  if [ "$s" == "n" ];then exit 1; fi
+done

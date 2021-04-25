@@ -1,0 +1,18 @@
+#! /bin/bash
+## @param1 : 出力ファイル名のプレフィクス
+## @param2 : 対象ファイルの拡張子
+## @param3 : 開始番号
+## *.param1 のファイル名を 連番にする (file0.hoge, file1.hoge,...)
+
+if [ $# -ne 3 ];  then
+  msg="usage: numbering prefix extension(without dot) begin_number"
+  echo $msg
+else
+  num=$3
+  for i in *.$2
+  do
+    #echo rename $i to $1$num.$2
+    mv "$i" $1$num.$2
+    num=`expr $num + 1`
+  done
+fi

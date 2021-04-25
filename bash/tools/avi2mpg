@@ -1,0 +1,10 @@
+#! /bin/bash
+usage="avi2mpg INPUT OUTPUT"
+
+if [ $# -ne 2 ]; then
+  echo "error"
+  echo ${usage}
+  exit 1
+fi
+
+ffmpeg -i $1 -r 40 -b 400k $2

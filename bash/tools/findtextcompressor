@@ -1,0 +1,41 @@
+#! /bin/bash
+usage="$0 [-help|-test|-notest]"
+
+function errexit
+{
+  recho "invalid arguments"
+  becho "usage:  $usage"
+  exit 1
+}
+
+notest=0
+if [ $# -gt 1 ];  then
+  errexit
+elif [ $# -eq 1 ]; then
+  if [ $1 == '-help' ] || [ $1 == '--help' ]; then
+    becho "usage:  $usage"
+    exit 0
+  elif [ $1 == '-test' ] || [ $1 == '--test' ]; then
+    notest=0
+  elif [ $1 == '-notest' ] || [ $1 == '--notest' ]; then
+    notest=1
+  else
+    errexit
+  fi
+fi
+
+cond="-and -name *.dat"
+cond="$cond -and ! -path */total/*"
+cond="$cond -and ! -name *learned-valuetable*.dat -and ! -name out-symbolset.dat -and ! -regex .*trj*\.dat -and ! -name state-2dim.dat"
+# cond="$cond -and ! -name greedy-trj.dat -and ! -name tderror.dat -and ! -name total-log*.dat -and ! -name trial-acc-reward*.dat -and ! -name trial-result.dat -and ! -name unit-area.dat"
+for i in `find -size +500k ${cond}`; do
+  if [ -n "`file $i|grep text`" ]; then
+    if [ $notest == 1 ]; then
+      becho "compressing $i"
+      gzip $i
+    else
+      echo "gzip `ls -sh $i`"
+    fi
+  fi
+done
+

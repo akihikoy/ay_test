@@ -1,0 +1,29 @@
+\documentclass[11pt,a4j,fleqn,leqno]{jarticle}
+%-----------------------------------------------------------------------------------
+% \charsinline{40}
+% \linesinpage{40}
+%-----------------------------------------------------------------------------------
+\include{head}
+%-----------------------------------------------------------------------------------
+\newcommand{\lemmaname}{Lemma}
+\newcommand{\reflemma}[1]{\lemmaname{} \ref{#1}}
+\newcounter{lemma@counter}
+\newcommand{\lemmatitle}[1]{%
+   \refstepcounter{lemma@counter}
+   \vspace{0.5zh}%
+   \noindent \textsf{\textgt{\lemmaname{} \arabic{lemma@counter}. \small{#1}}}}
+\newcommand{\plemma}[1]{%
+   \constrainttitle{#1}\\
+   \indent}
+%-----------------------------------------------------------------------------------
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{3}
+%-----------------------------------------------------------------------------------
+\begin{document}
+\pagestyle{empty}%{plain}
+\null\vfil
+\input{main}
+\vfil\null
+%-----------------------------------------------------------------------------------
+\end{document}
+%-----------------------------------------------------------------------------------

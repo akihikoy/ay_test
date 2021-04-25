@@ -1,0 +1,47 @@
+#!/bin/bash
+#--------------------------------------------------
+dev=eth0
+#--------------------------------------------------
+
+usage="`basename $0` [OPTIONS] [DEV]
+Ping to all sub-addresses of DEV (e.g. 192.168.0.1, 192.168.0.2, ...).
+  DEV: Network interface (default: $dev)
+  OPTIONS:
+    [-help]    : show help
+"
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    -*) echo "invalid option: $1"; echo ""; echo "usage: $usage"; exit 0 ;;
+    '') break ;;
+    *)
+      dev="$1"; shift 1
+      #if [ "$dev" == "" ];then dev="$1"; shift 1
+      #else echo "invalid option: $1"; echo ""; echo "usage: $usage"; exit 1
+      #fi
+      ;;
+  esac
+done
+
+if [ "$dev" == "" ];then
+  echo "Network interface is not specified."
+  echo ""
+  echo "usage: $usage"
+  exit 1
+fi
+#--------------------------------------------------
+
+ip_base=`ip_addr $dev | sed 's/\([0-9]*\.[0-9]*\.[0-9]*\)\.[0-9]*/\1/g'`
+
+trap 'echo "interrupted"; exit' SIGINT
+
+for i in $(seq 254);do
+  if ping -c 1 -i 0.2 -W 1 $ip_base.$i 2>&1 >/dev/null;then
+    echo "Ping success: $ip_base.$i"
+  else
+    echo "$ip_base.$i"
+  fi
+done
+

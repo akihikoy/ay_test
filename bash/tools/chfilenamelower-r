@@ -1,0 +1,16 @@
+#! /bin/bash
+# change filename to lower-case only
+
+if [ $# -ge 1 ];  then
+  recho "too many arguments"
+  exit 1
+fi
+
+# for i in `find -name '*'`; do
+#   echo ${i} `echo ${i}|tr A-Z a-z`
+# done
+
+# find -name '*' -exec echo {} `echo {}|tr A-Z a-z` \;
+for ((i=1; i<=15; i+=1)); do
+  find -maxdepth $i -mindepth $i -exec chfilenamelower {} \;
+done

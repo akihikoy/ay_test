@@ -1,0 +1,18 @@
+#! /bin/bash
+usage="upd [count=1]"
+
+if [ $# -gt 1 ]; then
+  echo "too many arguments"
+  echo ${usage}
+  exit 1
+elif [ $# -eq 1 ]; then
+  bcount=$1
+else
+  bcount=1
+fi
+
+updir=""
+for (( i=1 ; i <= ${bcount} ; i++ )); do
+  updir="../${updir}"
+done
+echo ${updir}

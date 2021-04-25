@@ -1,0 +1,16 @@
+#! /bin/bash
+
+tmp_file="/tmp/rev-mspdf.tmp.pdf"
+
+for file in $@; do
+  cat $file | sed 's/MS\-Mincho/MSMincho-Regular/g' > $tmp_file
+  mv $tmp_file $file
+  cat $file | sed 's/MS\-Gothic/MSGothic-Regular/g' > $tmp_file
+  mv $tmp_file $file
+
+  cat $file | sed 's/MS\-PMincho/MSPMincho-Regular/g' > $tmp_file
+  mv $tmp_file $file
+  cat $file | sed 's/MS\-PGothic/MSPGothic-Regular/g' > $tmp_file
+  mv $tmp_file $file
+done
+

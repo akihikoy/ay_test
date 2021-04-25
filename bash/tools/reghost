@@ -1,0 +1,51 @@
+#!/bin/bash
+#--------------------------------------------------
+host=''
+ip=''
+hosts_file=/etc/hosts
+#--------------------------------------------------
+
+usage="`basename $0` [OPTIONS] HOST IP
+Replace the HOST entry in $hosts_file by IP.
+  OPTIONS:
+    [-help]    : show help
+  Example:  `basename $0` vernon 127.0.0.1
+"
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    -*) echo "invalid option: $1"; echo ""; echo "usage: $usage"; exit 0 ;;
+    '') break ;;
+    *)
+      if [ "$host" == "" ];then host="$1"; shift 1
+      elif [ "$ip" == "" ];then ip="$1"; shift 1
+      else echo "invalid option: $1"; echo ""; echo "usage: $usage"; exit 1
+      fi
+      ;;
+  esac
+done
+
+if [ "$host" == "" ] || [ "$ip" == "" ];then
+  echo "HOST and/or IP are not specified."
+  echo ""
+  echo "usage: $usage"
+  exit 1
+fi
+#--------------------------------------------------
+
+if [ "$(grep "^[0-9\.]*\s$host$" $hosts_file)" ];then
+  echo "Found entry!"
+  cat $hosts_file | sed "s/^[0-9\.]*\s$host$/$ip\t$host/g" > /tmp/hosts.new.$$
+  cp -aiv $hosts_file /tmp/hosts.old.$$
+  if [ -w $hosts_file ];then
+    > $hosts_file
+    cat /tmp/hosts.new.$$ >> $hosts_file
+  else
+    sudo mv -v /tmp/hosts.new.$$ $hosts_file
+  fi
+  echo "/tmp/hosts.new.$$ -> $hosts_file"
+else
+  echo "$host does not exist in $hosts_file."
+fi

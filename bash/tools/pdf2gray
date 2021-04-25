@@ -1,0 +1,59 @@
+#!/bin/bash
+#src: http://superuser.com/questions/104656/convert-a-pdf-to-greyscale-on-the-command-line-in-floss
+#--------------------------------------------------
+infile=""
+outfile=""
+#--------------------------------------------------
+
+usage="`basename $0` OPTIONS INPUT_FILE [OUTPUT_FILE]
+Convert INPUT_FILE (PDF) to OUTPUT_FILE (PDF) of grayscale.
+  OPTIONS:
+    [--]       : following options are directly used in convert
+    [-help]    : show help
+"
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    --|'') shift; break ;;
+    -*) echo "invalid option: $1"; echo ""; echo "usage: $usage"; exit 0 ;;
+    *)
+      if [ "$infile" == "" ];then
+        infile="$1"
+      else
+        outfile="$1"
+      fi
+      shift 1
+      ;;
+  esac
+done
+
+if [ "$infile" == "" ];then
+  echo "no input file"
+  echo ""
+  echo "usage: $usage"
+  exit 1
+fi
+if [ "$outfile" == "" ];then
+  outfile=$(basename "$infile")
+  if [ "$outfile" == "$infile" ];then
+    echo "specify output file"
+    echo ""
+    echo "usage: $usage"
+    exit 1
+  fi
+fi
+
+#--------------------------------------------------
+
+gs \
+ -sOutputFile=$outfile \
+ -sDEVICE=pdfwrite \
+ -sColorConversionStrategy=Gray \
+ -dProcessColorModel=/DeviceGray \
+ -dCompatibilityLevel=1.4 \
+ -dNOPAUSE \
+ -dBATCH \
+ $infile
+

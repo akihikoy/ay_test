@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in `find -type l`; do
+  if [ ! -e $i ]; then
+    echo $i
+  fi
+done

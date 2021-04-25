@@ -1,0 +1,63 @@
+#!/bin/bash
+
+function ask
+{
+  while true; do
+    echo -n '  (y|n) > '
+    read s
+    if [ "$s" == "y" ];then return 0; fi
+    if [ "$s" == "n" ];then return 1; fi
+  done
+}
+
+infile=
+outfile=
+angle=0
+
+while true; do
+  case "$1" in
+    -r|-rot)
+      case "$2" in
+	0)  angle=0 ;;
+	90)  angle=1 ;;
+	180)  angle=2 ;;
+	270)  angle=3 ;;
+	-90)  angle=3 ;;
+	-180)  angle=2 ;;
+	-270)  angle=1 ;;
+	*)  echo "choose angle from {-270,-180,-90,0,90,180,270}"; exit 1 ;;
+      esac
+      shift 2 ;;
+    '') shift; break ;;
+    *)
+      if [ -z "$infile" ];then  infile=$1
+      elif [ -z "$outfile" ];then  outfile=$1
+      else echo "too many options"; exit 1
+      fi
+      shift;;
+  esac
+done
+
+if ! [ -f $infile ];then
+  echo "input file does not exist: $infile"
+  exit 1
+fi
+if [ -z "$outfile" ];then outfile=$infile; fi
+
+bbox=`grep '%%BoundingBox' $infile | sed 's/.*BoundingBox\s*:\(\(\s[0-9]\+\)*\)/\1/g'`
+
+cp $infile /tmp/epsmanip$$.1
+for ((i=0;i<$angle;i+=1));do
+  epsffit -r $bbox /tmp/epsmanip$$.1 /tmp/epsmanip$$.2
+  mv /tmp/epsmanip$$.2 /tmp/epsmanip$$.1
+done
+
+if [ -f $outfile ];then
+  echo "output file exists: $outfile"
+  echo "overwrite?"
+  if ! ask; then
+    rm -f /tmp/epsmanip$$.1
+    exit 1;
+  fi
+fi
+mv /tmp/epsmanip$$.1 $outfile

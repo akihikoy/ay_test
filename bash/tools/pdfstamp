@@ -1,0 +1,140 @@
+#!/bin/bash
+usage="`basename $0` OPTIONS
+  OPTIONS:
+    -t TEXT
+    -o OUTPUT_FILENAME
+    [-m|-margin MARGIN](0.1cm)
+    [-p|-pos lt|ct|rt|lb|cb|rb](rt)
+    [-page PAGE_SIZE](a4j)
+    [-f] : force overwrite
+    [--] : terminate to parse option
+    [-help] : show help"
+#--------------------------------------------------
+
+text=
+output=
+# margin='0.5cm'
+margin='0.1cm'
+position='rt'
+pagesize=a4j
+force_overwrite=0
+
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -t) text="$2"; shift 2 ;;
+    -o) output="$2"; shift 2 ;;
+    -m|-margin) margin="$2"; shift 2 ;;
+    -p|-pos) position=$2; shift 2 ;;
+    -page) pagesize=$2; shift 2 ;;
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    -f) force_overwrite=1; shift ;;
+    ''|--) shift; break ;;
+    *) echo "unexpected option '$1'" >&2
+        echo ''
+        echo "usage: $usage"
+        exit 1 ;;
+  esac
+done
+
+if [ -z "$output" ];then
+  echo "error! specify the OUTPUT_FILENAME by -o XXX option."
+  echo ''
+  echo "usage: $usage"
+  exit 1
+fi
+
+#--------------------------------------------------
+
+mode=''
+case $position in
+  lt)
+    header="
+      \setlength{\headsep}{$margin}
+      \setlength{\oddsidemargin}{$margin}
+    "
+    mode='flushleft'
+    ;;
+  ct)
+    header="
+      \setlength{\headsep}{$margin}
+      \setlength{\textwidth}{\paperwidth}
+    "
+    mode='center'
+    ;;
+  rt)
+    header="
+      \setlength{\headsep}{$margin}
+      \setlength{\textwidth}{\paperwidth-$margin}
+    "
+    mode='flushright'
+    ;;
+  lb)
+    header="
+      \setlength{\textheight}{\paperheight-$margin}
+      \setlength{\oddsidemargin}{$margin}
+    "
+    topspace='\null\vfill'
+    mode='flushleft'
+    ;;
+  cb)
+    header="
+      \setlength{\textheight}{\paperheight-$margin}
+      \setlength{\textwidth}{\paperwidth}
+    "
+    topspace='\null\vfill'
+    mode='center'
+    ;;
+  rb)
+    header="
+      \setlength{\textheight}{\paperheight-$margin}
+      \setlength{\textwidth}{\paperwidth-$margin}
+    "
+    topspace='\null\vfill'
+    mode='flushright'
+    ;;
+  *)
+    echo "invalid position! : $position"
+    echo ''
+    echo "usage: $usage"
+    exit 1
+    ;;
+esac
+
+src="
+\documentclass[10pt,$pagesize]{jarticle}
+\usepackage{calc}
+% vertical
+\setlength{\topmargin}{0cm}
+\setlength{\hoffset}{-1in}
+\setlength{\voffset}{-1in}
+\setlength{\headheight}{0cm}
+\setlength{\footskip}{0cm}
+\setlength{\headsep}{0cm}
+% horizontal
+\setlength{\oddsidemargin} {0cm}
+\setlength{\evensidemargin}{0cm}
+$header
+\begin{document}
+\pagestyle{empty}%{plain}
+\begin{$mode}
+$topspace
+\texttt{$text}
+\end{$mode}
+\end{document}
+"
+
+tmpdir=/tmp/pdfstamp_pdf_$$
+mkdir $tmpdir
+cd $tmpdir
+echo "$src" > pdfstamp.tex
+platex pdfstamp.tex
+dvipdfmx -o pdfstamp.pdf pdfstamp.dvi
+cd -
+if [ $force_overwrite -eq 1 ];then
+  mv -v $tmpdir/pdfstamp.pdf $output
+else
+  mv -iv $tmpdir/pdfstamp.pdf $output
+fi
+rm -r $tmpdir

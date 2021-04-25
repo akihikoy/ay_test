@@ -1,0 +1,36 @@
+#!/bin/bash
+#--------------------------------------------------
+ext=''
+#--------------------------------------------------
+
+usage="`basename $0` COMMAND1 --- COMMAND2
+Compare results of two commands.
+  COMMAND1, COMMAND2:  Commands.
+  OPTIONS:
+    [-help]    : show help
+  e.g.
+    pdiff git ls-files --- git --git-dir ~/hoge/.git ls-files
+"
+#--------------------------------------------------
+
+cmd=''
+cmd1=''
+cmd2=''
+while true; do
+  case "$1" in
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    ---) cmd1=$cmd; cmd=''; shift 1 ;;
+    '') break ;;
+    *)  cmd="$cmd $1"; shift 1 ;;
+  esac
+done
+cmd2=$cmd
+
+#--------------------------------------------------
+
+fA=/tmp/snipdiff-$$-A$ext
+fB=/tmp/snipdiff-$$-B$ext
+$cmd1 > $fA
+$cmd2 > $fB
+
+kdiff3 $fA $fB  >& /dev/null &

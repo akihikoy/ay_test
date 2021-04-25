@@ -1,0 +1,74 @@
+#! /bin/bash
+usage="`basename $0` OPTIONS INPUT_FILENAME
+  Change file encoding directly.
+  OPTIONS:
+    [-e]    : change to EUC-JP
+    [-u8]   : change to UTF-8
+    [-s]    : change to SHIFT-JIS
+    [-i]    : interactive (ask when overwriting; default)
+    [-f]    : force (do not ask when overwriting)
+    [-help] : show help"
+#--------------------------------------------------
+
+tocode='-e'
+interactive=1
+file_list=""
+
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -e)  tocode='-e'; shift ;;
+    -u8) tocode='-w80'; shift ;;
+    -s)  tocode='-s'; shift ;;
+    -i) interactive=1; shift ;;
+    -f) interactive=0; shift ;;
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    '') shift; break ;;
+    # ''|--) shift; break ;;
+    *) file_list="$file_list $1"; shift ;;
+        # echo "unexpected option '$1'" >&2
+        # echo ''
+        # echo "usage: $usage"
+        # exit 1
+        # ;;
+  esac
+done
+
+if [ -z "$file_list" ];then
+  echo "no input file" >&2
+  echo ''
+  echo "usage: $usage"
+  exit 1
+fi
+
+#--------------------------------------------------
+
+tmp_file="/tmp/chcode-d.tmp"
+
+for tfile in $file_list; do
+  if [ ! -e $tfile ];then
+    echo "$tfile: file not found"
+    continue
+  fi
+  echo "processing ${tfile}..."
+  nkf $tocode -Lu ${tfile} > ${tmp_file}
+  if [ -n "`diff ${tfile} ${tmp_file}`" ];then
+    if [ $interactive -eq 1 ];then
+      if ask-yes-no;then
+        mv ${tmp_file} ${tfile}
+        becho "  ...changed"
+      else
+        rm ${tmp_file}
+        echo "  ...not changed"
+      fi
+    else
+        mv ${tmp_file} ${tfile}
+        becho "  ...changed"
+    fi
+  else
+    rm ${tmp_file}
+    echo "  ...not changed"
+  fi
+done
+

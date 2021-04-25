@@ -1,0 +1,7 @@
+#!/bin/bash
+#Get IP address of an interface
+interface=eth0
+if [[ $# -gt 0 ]]; then
+  interface=$1
+fi
+LANG=C ifconfig $interface | grep 'inet addr:' | sed -e 's/^.*inet addr://' -e 's/ .*//'

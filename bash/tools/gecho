@@ -1,0 +1,5 @@
+#! /bin/bash
+
+esc="\033["
+reset="0m"
+echo -e "${esc}32;1m$@${esc}${reset}"

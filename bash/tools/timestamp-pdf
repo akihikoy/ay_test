@@ -1,0 +1,11 @@
+#!/bin/bash
+usage='timestamp-pdf OUTPUT_FILENAME'
+
+if [ $# -ne 1 ];then
+  echo 'invalid arguments!'
+  echo $usage
+  exit 1
+fi
+output=$1
+
+pdfstamp -t "$(date -R)" -o $output

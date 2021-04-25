@@ -1,0 +1,121 @@
+#! /bin/bash
+# usage: lc [dir]
+
+DIRFLAG=""
+if [ $# -gt 1 ];  then
+  echo "too many arguments"
+  msg="usage: lc [dir]"
+  echo $msg
+  exit 1
+elif [ $# -eq 1 ]; then
+  if [ ! -d $1 ]; then
+    msg="$1: directory not found"
+    echo $msg
+    msg="usage: lc [dir]"
+    echo $msg
+    exit 1
+  fi
+  if [ -z `echo "$1" | sed 's/.\+\/$//g'` ]; then
+    DIRFLAG="$1"
+  else
+    DIRFLAG="$1/"
+  fi
+  echo "in ${DIRFLAG} :"
+fi
+
+esc="\033["
+reset="0m"
+
+function lsFout
+{
+  if [ -n "`file ${arg1} | grep 'text'`" ]; then
+    lines="${esc}30;1m(`wc -l ${arg1} | sed 's/^\([0-9]\+\)\(.\+\)/\1/g'`)${esc}${reset}"
+  else
+    lines=""
+  fi
+  if [ -h ${arg1} ]; then
+    echo -e "${esc}36;1m${str}${esc}${reset}${lines}@"
+  elif [ -p ${arg1} ]; then
+    echo -e "${esc}33;1m${str}${esc}${reset}${lines}|"
+  elif [ -d ${arg1} ]; then
+    echo -e "${esc}34;1m${str}${esc}${reset}${lines}/"
+  elif [ -x ${arg1} ]; then  # `echo "$str" | sed 's/.\+[\*]$//g'`
+    echo -e "${esc}32;1m${str}${esc}${reset}${lines}*"
+  else
+    echo -e "${arg1}${lines}"
+  fi
+}
+
+function tablist
+{
+  arg2="${esc}30;1m${arg2}${esc}${reset}"
+  if [ ${#arg1} -gt 15 ]; then
+    echo -e "${arg1}\t${arg2}"
+  elif [ ${#arg1} -gt 7 ]; then
+    echo -e "${arg1}\t\t${arg2}"
+  else
+    echo -e "${arg1}\t\t\t${arg2}"
+  fi
+}
+
+function showfiles
+{
+  if [ -n "${prefile}" ]; then
+    arg1="${prefile}"
+    arg2="${allext}"
+    tablist
+  fi
+  allext=""
+}
+
+prefile=""
+allext=""
+for str in `ls ${DIRFLAG}`; do
+  if [ -z `echo "${str}" | sed 's/.\+~$//g'` ]; then  # sed 's/.\+~[\*\@\/\|]\{0,1\}$//g'
+    continue  # skip backup(~) files
+  fi
+  if [ -h ${DIRFLAG}${str} ] || [ -p ${DIRFLAG}${str} ] || [ -d ${DIRFLAG}${str} ] || [ -x ${DIRFLAG}${str} ] ; then
+    # `echo "$str" | sed 's/.\+[\*\@\/\|]$//g'`
+    showfiles
+    arg1="${DIRFLAG}${str}"
+    lsFout
+    prefile=""
+    continue
+  fi
+  filename=`echo "${str}" | sed 's/\(.\+\)\(\..\{1,10\}$\)/\1/'`
+  if [ "${prefile}" != "${filename}" ]; then
+    showfiles
+    prefile="${filename}"
+  fi
+  ext=`echo "${str}" | sed 's/\(.\+\)\(\..\{1,10\}$\)/\2/'`
+  if [ "${ext}" == "${filename}" ]; then
+    ext=""
+  fi
+  if [ -n "`file ${DIRFLAG}${str} | grep 'text'`" ]; then
+    lines="(`wc -l ${DIRFLAG}${str} | sed 's/^\([0-9]\+\)\(.\+\)/\1/g'`)"
+  else
+    lines=""
+  fi
+  if [ -n "${allext}" ]; then
+    allext="${allext}, ${ext}${lines}"
+  else
+    if [ -n "${ext}" ]; then
+      allext="${ext}${lines}"
+    else
+      allext="${ext}(no ext)${lines}"
+    fi
+  fi
+done
+showfiles
+
+
+# 拡張子を除去するsed
+#x echo "hoge.tedddd" | sed 's/\..\{1,10\}$//g'
+#x echo "hoge.tedddd" | sed 's/\..\{1,10\}$/\.hege/g'  #ほかの拡張子に変える
+# つぎのやつの方が安定
+#echo "file.st.txt" | sed 's/\(.\+\)\(\..\{1,10\}$\)/\1/'
+#echo "file.st.txt" | sed 's/\(.\+\)\(\..\{1,10\}$\)/\1\.hoge/'  #ほかの拡張子に
+
+# 拡張子の取り出しsed (ピリオドつき, 拡張子がない場合，もとの文字列が出力されてしまう)
+#echo "hoge.tex" | sed 's/\(.\+\)\(\..\{1,10\}$\)/\2/'
+

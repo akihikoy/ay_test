@@ -1,0 +1,101 @@
+#!/bin/bash
+#--------------------------------------------------
+infile=""
+outfile=""
+# gresolution=150
+# mresolution=300
+# cresolution=150
+gresolution=300
+mresolution=300
+cresolution=300
+downsampleth=1.5
+# A number from 1 to 10 that represents the downsampling ratio.
+# For example, If setValue = 1.5 and the GrayImageResolution = 300,
+# then any image in the input file above 450 DPI (300 * 1.5 = 450) will be downsampled.
+#--------------------------------------------------
+
+usage="`basename $0` [OPTIONS] INPUT_FILE [OUTPUT_FILE]
+Compress INPUT_FILE (PDF) to OUTPUT_FILE (PDF).
+If OUTPUT_FILE is omitted, (basename INPUT_FILE) is saved in the current directory.
+  OPTIONS:
+    [--]       : following options are directly used in convert.
+    [-gr NUM]  : gray image resolution (default=$gresolution).
+    [-mr NUM]  : mono image resolution (default=$mresolution).
+    [-cr NUM]  : color image resolution (default=$cresolution).
+    [-dth NUM] : down sample threshold (default=$downsampleth).
+    [-a]       : aggressive-compression parameter setting.
+    [-help]    : show help.
+"
+#--------------------------------------------------
+
+while true; do
+  case "$1" in
+    -help|--help) echo "usage: $usage"; exit 0 ;;
+    -gr) gresolution=$2; shift 2 ;;
+    -mr) mresolution=$2; shift 2 ;;
+    -cr) cresolution=$2; shift 2 ;;
+    -dth) downsampleth=$2; shift 2 ;;
+    -a)
+      gresolution=72
+      mresolution=150
+      cresolution=72
+      downsampleth=1
+      shift 1 ;;
+    --|'') shift; break ;;
+    -*) echo "invalid option: $1"; echo ""; echo "usage: $usage"; exit 0 ;;
+    *)
+      if [ "$infile" == "" ];then
+        infile="$1"
+      else
+        outfile="$1"
+      fi
+      shift 1
+      ;;
+  esac
+done
+
+if [ "$infile" == "" ];then
+  echo "no input file"
+  echo ""
+  echo "usage: $usage"
+  exit 1
+fi
+if [ "$outfile" == "" ];then
+  outfile=$(basename "$infile")
+  if [ "$outfile" == "$infile" ];then
+    echo "specify output file"
+    echo ""
+    echo "usage: $usage"
+    exit 1
+  fi
+fi
+
+#--------------------------------------------------
+
+# -sPAPERSIZE=a0
+# -dEncodeColorImages=true
+
+ps2pdf  \
+  -dCompatibilityLevel=1.4              \
+  -dAutoFilterGrayImages=true           \
+  -dGrayImageFilter=/DCTEncode          \
+  -dEncodeGrayImages=true               \
+  -dDownsampleGrayImages=true           \
+  -dGrayImageDownsampleThreshold=$downsampleth \
+  -dGrayImageDownsampleType=/Bicubic    \
+  -dGrayImageResolution=$gresolution    \
+  -dMonoImageFilter=/CCITTFaxEncode     \
+  -dEncodeMonoImages=true               \
+  -dDownsampleMonoImages=true           \
+  -dMonoImageDownsampleThreshold=$downsampleth \
+  -dMonoImageDownsampleType=/Bicubic    \
+  -dMonoImageResolution=$mresolution    \
+  -dAutoFilterColorImages=true          \
+  -dColorImageFilter=/DCTEncode         \
+  -dDownsampleColorImages=true          \
+  -dColorImageResolution=$cresolution   \
+  -dColorImageDownsampleThreshold=$downsampleth \
+  -dColorImageDownsampleType=/Bicubic   \
+  -dCompressFonts=true -dSubsetFonts=true \
+  $infile $outfile
+
