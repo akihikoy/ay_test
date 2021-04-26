@@ -1,6 +1,7 @@
 #!/usr/bin/python
 DXL_ID= 1
 #BAUDRATE= 57600
+#BAUDRATE= 115200
 BAUDRATE= 2e6
 #DXL_TYPE= 'XM430-W350'  #Finger robot
 #DXL_TYPE= 'XH430-V350'  #Dynamixel gripper
