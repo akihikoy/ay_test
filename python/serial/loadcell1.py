@@ -33,6 +33,11 @@ if __name__=='__main__':
         print 'FPS:',40./(time.time()-t_prev)
         t_prev= time.time()
 
+      #ser.reset_input_buffer()
+      ##ser.flushInput()
+      #raw= ser.readline()
+      #time.sleep(0.01)
+
   finally:
     ser.close()
 
