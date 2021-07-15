@@ -16,41 +16,77 @@ g++ -g -Wall -O2 -o thinning_test.out thinning.cpp thinning_test.cpp -lopencv_co
 
 #include "thinning.hpp"
 
+#include <cstdio>
+#include <sys/time.h>  // gettimeofday
+
+#define LIBRARY
+#include "../float_trackbar.cpp"
+
 using namespace std;
 using namespace cv;
 
+
+inline double GetCurrentTime(void)
+{
+  struct timeval time;
+  gettimeofday (&time, NULL);
+  return static_cast<double>(time.tv_sec) + static_cast<double>(time.tv_usec)*1.0e-6;
+}
+
 int main(int argc, char **argv)
 {
-    Mat img = imread(argv[1], IMREAD_COLOR);
-    resize(img, img, Size(), 0.5, 0.5, INTER_LINEAR);
+  Mat img_in = imread(argv[1], IMREAD_COLOR);
+
+  float resize_factor(0.5);
+  bool inv_img(false);
+  cv::namedWindow("Input",1);
+  CreateTrackbar<bool>("Invert", "Input", &inv_img, &TrackbarPrintOnTrack);
+  CreateTrackbar<float>("resize_factor", "Input", &resize_factor, 0.1, 1.0, 0.1, &TrackbarPrintOnTrack);
+
+  while(true)
+  {
+    Mat img;
+    if(resize_factor!=1.0)
+      resize(img_in, img, Size(), resize_factor, resize_factor, INTER_LINEAR);
+    else
+      img= img_in;
 
     /// Threshold the input image
     Mat img_grayscale, img_binary;
     cvtColor(img, img_grayscale,COLOR_BGR2GRAY);
-    threshold(img_grayscale, img_binary, 0, 255, THRESH_OTSU | THRESH_BINARY_INV);
+    if(inv_img)
+      threshold(img_grayscale, img_binary, 0, 255, THRESH_OTSU | THRESH_BINARY_INV);
+    else
+      threshold(img_grayscale, img_binary, 0, 255, THRESH_OTSU | THRESH_BINARY);
 
     /// Apply thinning to get a skeleton
     Mat img_thinning_ZS, img_thinning_GH;
+    double t0= GetCurrentTime();
     ximgproc::thinning(img_binary, img_thinning_ZS, ximgproc::THINNING_ZHANGSUEN);
+    double t1= GetCurrentTime();
     ximgproc::thinning(img_binary, img_thinning_GH, ximgproc::THINNING_GUOHALL);
+    double t2= GetCurrentTime();
 
-    /// Make 3 channel images from thinning result
+    std::cout<<"Computation time:"<<endl
+      <<"  THINNING_ZHANGSUEN: "<<t1-t0<<" sec"<<endl
+      <<"  THINNING_GUOHALL: "<<t2-t1<<" sec"<<endl;
+
+    /// Visualize results
     Mat result_ZS(img.rows, img.cols, CV_8UC3), result_GH(img.rows, img.cols, CV_8UC3);
-
     Mat in[] = { img_thinning_ZS, img_thinning_ZS, img_thinning_ZS };
     Mat in2[] = { img_thinning_GH, img_thinning_GH, img_thinning_GH };
     int from_to[] = { 0,0, 1,1, 2,2 };
     mixChannels( in, 3, &result_ZS, 1, from_to, 3 );
     mixChannels( in2, 3, &result_GH, 1, from_to, 3 );
+    result_ZS= 0.5*img + result_ZS;
+    result_GH= 0.5*img + result_GH;
+    imshow("Input", img_in);
+    imshow("Thinning ZHANGSUEN", result_ZS);
+    imshow("Thinning GUOHALL", result_GH);
 
-    /// Combine everything into a canvas
-    Mat canvas(img.rows, img.cols * 3, CV_8UC3);
-    img.copyTo( canvas( Rect(0, 0, img.cols, img.rows) ) );
-    result_ZS.copyTo( canvas( Rect(img.cols, 0, img.cols, img.rows) ) );
-    result_GH.copyTo( canvas( Rect(img.cols*2, 0, img.cols, img.rows) ) );
+    char c(cv::waitKey(500));
+    if(c=='\x1b'||c=='q') break;
+  }
 
-    /// Visualize result
-    imshow("Skeleton", canvas); waitKey(0);
-
-    return 0;
+  return 0;
 }
