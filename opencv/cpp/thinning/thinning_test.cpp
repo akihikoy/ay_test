@@ -1,6 +1,6 @@
 /*
 
-g++ -g -Wall -O2 -o thinning_test.out thinning.cpp thinning_test.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o thinning_test.out thinning_test.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
 
 ./thinning_test.out ../sample/binary1.png
 ./thinning_test.out ../sample/opencv-logo.png
@@ -15,6 +15,8 @@ g++ -g -Wall -O2 -o thinning_test.out thinning.cpp thinning_test.cpp -lopencv_co
 #include <opencv2/highgui/highgui.hpp>
 
 #include "thinning.hpp"
+
+#include "thinning.cpp"
 
 #include <cstdio>
 #include <sys/time.h>  // gettimeofday

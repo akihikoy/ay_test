@@ -72,8 +72,15 @@ static void thinningIteration(Mat img, int iter, int thinningType){
 // Apply the thinning procedure to a given image
 void thinning(InputArray input, OutputArray output, int thinningType){
     Mat processed = input.getMat().clone();
-//FIXME: Type check is ignored.
-//     CV_CheckTypeEQ(processed.type(), CV_8UC1, "");
+    if(processed.type()!=CV_8UC1)
+    {
+        std::stringstream ss;
+        ss  << "thinning: type error of the input array." << std::endl
+            << "  expected: type = 'CV_8UC1' " << CV_8UC1 << ", where" << std::endl
+            << "            type = " << processed.type() << std::endl;
+        CV_Error(CV_StsAssert, ss.str());
+    }
+
     // Enforce the range of the input image to be in between 0 - 255
     processed /= 255;
 
