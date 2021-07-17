@@ -43,7 +43,7 @@ inline double GetCurrentTime(void)
 }
 //-------------------------------------------------------------------------------------------
 
-inline cv::Point NeighborDP(int dp)
+inline cv::Point DPToOffset(int dp)
 {
   switch(dp)
   {
@@ -61,6 +61,24 @@ inline cv::Point NeighborDP(int dp)
 }
 //-------------------------------------------------------------------------------------------
 
+inline int OppositeDP(int dp)
+{
+  switch(dp)
+  {
+    case 0:  return 0;
+    case 1:  return 5;
+    case 2:  return 6;
+    case 3:  return 7;
+    case 4:  return 8;
+    case 5:  return 1;
+    case 6:  return 2;
+    case 7:  return 3;
+    case 8:  return 4;
+  }
+  return -1;
+}
+//-------------------------------------------------------------------------------------------
+
 int CircularDP(int dp)  // Circular DP indexing where we consider 1,2,...,7,8,1,2,...
 {
   if(dp==0)  return 8;
@@ -71,7 +89,8 @@ int CircularDP(int dp)  // Circular DP indexing where we consider 1,2,...,7,8,1,
 
 enum TPointType
 {
-  ptIsolated=0,
+  ptNone=0,
+  ptIsolated,
   ptTerminal,
   ptIntersection,
   ptMiddleLine
@@ -94,7 +113,7 @@ struct TAllNeighbors
 
 void RemoveNonTrueNeighbors(TAllNeighbors &neighbors)
 {
-  for(int dp(1); dp<9; dp+=2)  // 1,3,5,7: dp at + neighbors.
+  for(int dp(1); dp<9; dp+=2)  // 1,3,5,7: dp at + (plus) neighbors.
   {
     if(neighbors[dp])  // If there is a point, remove the next and previous neighbors.
     {
@@ -155,9 +174,9 @@ struct TThinningGraph
   {
     int DP;    // Neighbor point (1-8).
     int Next;  // Neighbor node index.
-    double Dist;  // Path length to Next.
-    TNeighbor() : DP(0), Next(-1), Dist(-1.0)  {}
-    TNeighbor(int dp) : DP(dp), Next(-1), Dist(-1.0)  {}
+    int PathLen;  // Path length to Next.
+    TNeighbor() : DP(0), Next(-1), PathLen(-1)  {}
+    TNeighbor(int dp) : DP(dp), Next(-1), PathLen(-1)  {}
   };
   struct TNode
   {
@@ -199,21 +218,28 @@ inline t_element ExtendedAt(const cv::Mat &m, const cv::Point &p)
 }
 //-------------------------------------------------------------------------------------------
 
-TThinningGraph DetectNodesFromThinningImg(const cv::Mat &thinning_img)
+// Detect graph nodes (terminal and intersection points) on a thinning image;
+// Point types of each pixel are saved into point_types.
+TThinningGraph DetectNodesFromThinningImg(const cv::Mat &thinning_img, cv::Mat &point_types)
 {
   TThinningGraph graph;
+  point_types.create(thinning_img.size(), CV_32S);
   for(int y(0); y<thinning_img.rows; ++y)
   {
     for(int x(0); x<thinning_img.cols; ++x)
     {
       cv::Point px(x,y);
-      if(thinning_img.at<uchar>(px)==0)  continue;
+      if(thinning_img.at<uchar>(px)==0)
+      {
+        point_types.at<int>(px)= int(ptNone);
+        continue;
+      }
 //       TThinningGraph::TNode node(px);
       TAllNeighbors all_neighbors;
       for(int dp(1); dp<9; ++dp)
 //       {
-//         all_neighbors[dp]= thinning_img.at<uchar>(px+NeighborDP(dp))!=0;
-        all_neighbors[dp]= ExtendedAt<uchar>(thinning_img,px+NeighborDP(dp))!=0;
+//         all_neighbors[dp]= thinning_img.at<uchar>(px+DPToOffset(dp))!=0;
+        all_neighbors[dp]= ExtendedAt<uchar>(thinning_img,px+DPToOffset(dp))!=0;
 //         if(all_neighbors[dp])
 //           node.Neighbors.push_back(TThinningGraph::TNeighbor(dp));
 //       }
@@ -232,19 +258,146 @@ TThinningGraph DetectNodesFromThinningImg(const cv::Mat &thinning_img)
 
       RemoveNonTrueNeighbors(all_neighbors);
       TPointType type= CategorizeByNeighbors(all_neighbors);
+      point_types.at<int>(px)= int(type);
       if(type==ptTerminal or type==ptIntersection)
       {
-std::cerr<<"  "<<int(thinning_img.at<uchar>(px))<<"/"<<CountNonZero(all_neighbors);
+// std::cerr<<"  "<<px/*int(thinning_img.at<uchar>(px))*/<<"/"<<CountNonZero(all_neighbors);
         TThinningGraph::TNode node(px);
         for(int dp(1); dp<9; ++dp)
           if(all_neighbors[dp])
             node.Neighbors.push_back(TThinningGraph::TNeighbor(dp));
         graph.Nodes.push_back(node);
+        point_types.at<int>(px)+= (graph.Nodes.size()-1)*10;
       }
     }
   }
-std::cerr<<std::endl;
+// std::cerr<<std::endl;
   return graph;
+}
+//-------------------------------------------------------------------------------------------
+
+// Follow the path starting at nitr->P to neitr->DP.
+// return the node index at the reached point, and set path_len;
+void FollowPath(const cv::Point p, int dp, const cv::Mat &point_types, int &next_node, int &dp_from_next, int &path_len)
+{
+  path_len= 0;
+  int dp_prev(dp);
+  cv::Point px(p);
+
+  {
+    int type_nodeidx= ExtendedAt<int>(point_types,px+DPToOffset(dp));
+    TPointType type= TPointType(type_nodeidx%10);
+    if(type==ptTerminal || type==ptIntersection)
+    {
+      next_node= type_nodeidx/10;
+      dp_from_next= OppositeDP(dp);
+      return;
+    }
+  }
+
+  while(true)
+  {
+// std::cerr<<" "<<px<<" "<<ExtendedAt<int>(point_types,px)<<" "<<dp_prev<<" ("<<OppositeDP(dp_prev)<<")"<<std::endl;
+    px+= DPToOffset(dp_prev);
+    ++path_len;
+    dp_prev= OppositeDP(dp_prev);
+    int dp, type_nodeidx;
+    TPointType type;
+    for(dp=1; dp<9; ++dp)  // 1,3,5,7: dp at + (plus) neighbors.
+    {
+      if(dp==dp_prev)  continue;
+      type_nodeidx= ExtendedAt<int>(point_types,px+DPToOffset(dp));
+      type= TPointType(type_nodeidx%10);
+      if(type==ptTerminal || type==ptIntersection)
+      {
+        next_node= type_nodeidx/10;
+        dp_from_next= OppositeDP(dp);
+        return;
+      }
+    }
+//     bool found(false);
+//     for(dp=1; dp<9; dp+=2)  // 1,3,5,7: dp at + (plus) neighbors.
+//     {
+//       if(dp==dp_prev)  continue;
+//       if(TPointType(ExtendedAt<int>(point_types,px+DPToOffset(dp))%10)==ptMiddleLine)
+//       {
+//         found= true;
+//         break;
+//       }
+//     }
+//     if(!found)
+//     {
+//       for(dp=2; dp<9; dp+=2)  // 2,4,6,8: dp at x (corner) neighbors.
+//       {
+//         if(dp==dp_prev)  continue;
+//         if(TPointType(ExtendedAt<int>(point_types,px+DPToOffset(dp))%10)==ptMiddleLine)
+//         {
+//           found= true;
+//           break;
+//         }
+//       }
+//     }
+    bool found(false);
+    for(dp=1; dp<9; ++dp)
+    {
+      if(dp==dp_prev || dp==CircularDP(dp_prev+1) || dp==CircularDP(dp_prev-1))  continue;
+      if(TPointType(ExtendedAt<int>(point_types,px+DPToOffset(dp))%10)==ptMiddleLine)
+      {
+        found= true;
+        break;
+      }
+    }
+    if(!found)  throw;
+// if(dp==9)  {std::cerr<<" all_neighbors:";for(int dp(1); dp<9; ++dp)std::cerr<<" "<<(ExtendedAt<int>(point_types,px+DPToOffset(dp))%10);std::cerr<<std::endl;}
+    dp_prev= dp;
+  }
+}
+//-------------------------------------------------------------------------------------------
+
+// Connect nodes in graph where the node path lengths are also filled.
+void ConnectNodes(TThinningGraph &graph, const cv::Mat &point_types)
+{
+  typedef TThinningGraph::TNode TNode;
+  typedef TThinningGraph::TNeighbor TNeighbor;
+  int i_node(0);
+  for(std::vector<TNode>::iterator nitr(graph.Nodes.begin()),nitr_end(graph.Nodes.end()); nitr!=nitr_end; ++nitr,++i_node)
+  {
+    for(std::vector<TNeighbor>::iterator neitr(nitr->Neighbors.begin()),neitr_end(nitr->Neighbors.end()); neitr!=neitr_end; ++neitr)
+    {
+      if(neitr->PathLen>=0)  continue;
+      // Follow the path starting at nitr->P to neitr->DP.
+// std::cerr<<"path following: "<<nitr->P<<", "<<neitr->DP<<std::endl;
+      int i_next(-1), dp_from_next(-1), path_len(-1);
+      FollowPath(nitr->P, neitr->DP, point_types, i_next, dp_from_next, path_len);
+// std::cerr<<"path followed: "<<nitr->P<<", "<<neitr->DP<<" --> "<<graph.Nodes[i_next].P<<", "<<dp_from_next<<" / "<<path_len<<std::endl;
+      neitr->Next= i_next;
+      neitr->PathLen= path_len;
+      for(std::vector<TNeighbor>::iterator ne2itr(graph.Nodes[i_next].Neighbors.begin()),ne2itr_end(graph.Nodes[i_next].Neighbors.end()); ne2itr!=ne2itr_end; ++ne2itr)
+        if(ne2itr->DP==dp_from_next)
+        {
+          ne2itr->Next= i_node;
+          ne2itr->PathLen= path_len;
+        }
+    }
+  }
+}
+//-------------------------------------------------------------------------------------------
+
+void DrawThinningGraph(cv::Mat &img, const TThinningGraph &graph)
+{
+  typedef TThinningGraph::TNode TNode;
+  typedef TThinningGraph::TNeighbor TNeighbor;
+  for(std::vector<TNode>::const_iterator nitr(graph.Nodes.begin()),nitr_end(graph.Nodes.end()); nitr!=nitr_end; ++nitr)
+  {
+    for(std::vector<TNeighbor>::const_iterator neitr(nitr->Neighbors.begin()),neitr_end(nitr->Neighbors.end()); neitr!=neitr_end; ++neitr)
+      cv::line(img, nitr->P, graph.Nodes[neitr->Next].P, cv::Scalar(255,255,0), 1, 8, 0);
+    if(nitr->Neighbors.size()==1)
+      cv::circle(img, nitr->P, 3, cv::Scalar(0,255,0));
+    else if(nitr->Neighbors.size()==3)
+      cv::circle(img, nitr->P, 3, cv::Scalar(0,0,255));
+    else
+      cv::circle(img, nitr->P, 3, cv::Scalar(255,0,0));
+  }
 }
 //-------------------------------------------------------------------------------------------
 
@@ -282,10 +435,13 @@ int main(int argc, char **argv)
     cv::ximgproc::thinning(img_binary, img_thinning_GH, cv::ximgproc::THINNING_GUOHALL);
     double t2= GetCurrentTime();
 
-    // Apply the graph point detection.
-    TThinningGraph graph_ZS= DetectNodesFromThinningImg(img_thinning_ZS);
+    // Apply the graph point detection and connection.
+    cv::Mat point_types_ZS, point_types_GH;
+    TThinningGraph graph_ZS= DetectNodesFromThinningImg(img_thinning_ZS, point_types_ZS);
+    ConnectNodes(graph_ZS, point_types_ZS);
     double t3= GetCurrentTime();
-    TThinningGraph graph_GH= DetectNodesFromThinningImg(img_thinning_GH);
+    TThinningGraph graph_GH= DetectNodesFromThinningImg(img_thinning_GH, point_types_GH);
+    ConnectNodes(graph_GH, point_types_GH);
     double t4= GetCurrentTime();
 
     std::cout<<"Computation times:"<<endl
@@ -301,20 +457,8 @@ int main(int argc, char **argv)
     cv::mixChannels(in2, 3, &result_GH, 1, from_to, 3);
     result_ZS= 0.5*img + result_ZS;
     result_GH= 0.5*img + result_GH;
-    for(int i(0),i_end(graph_ZS.Nodes.size()); i<i_end; ++i)
-      if(graph_ZS.Nodes[i].Neighbors.size()==1)
-        cv::circle(result_ZS, graph_ZS.Nodes[i].P, 3, cv::Scalar(0,255,0));
-      else if(graph_ZS.Nodes[i].Neighbors.size()==3)
-        cv::circle(result_ZS, graph_ZS.Nodes[i].P, 3, cv::Scalar(0,0,255));
-      else
-        cv::circle(result_ZS, graph_ZS.Nodes[i].P, 3, cv::Scalar(255,0,0));
-    for(int i(0),i_end(graph_GH.Nodes.size()); i<i_end; ++i)
-      if(graph_GH.Nodes[i].Neighbors.size()==1)
-        cv::circle(result_GH, graph_GH.Nodes[i].P, 3, cv::Scalar(0,255,0));
-      else if(graph_GH.Nodes[i].Neighbors.size()==3)
-        cv::circle(result_GH, graph_GH.Nodes[i].P, 3, cv::Scalar(0,0,255));
-      else
-        cv::circle(result_GH, graph_GH.Nodes[i].P, 3, cv::Scalar(255,0,0));
+    DrawThinningGraph(result_ZS, graph_ZS);
+    DrawThinningGraph(result_GH, graph_GH);
     cv::imshow("Input", img_in);
     cv::imshow("Thinning ZHANGSUEN", result_ZS);
     cv::imshow("Thinning GUOHALL", result_GH);
