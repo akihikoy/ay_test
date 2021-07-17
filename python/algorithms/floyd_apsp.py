@@ -5,6 +5,8 @@
 #\version 0.1
 #\date    Jul.15, 2021
 
+#Reference: https://www.cs.rochester.edu/u/nelson/courses/csc_173/graphs/apsp.html
+
 import numpy as np
 
 
@@ -60,7 +62,7 @@ if __name__=='__main__':
     ((1,2),2.0),
     ((2,3),1.0),
     ((2,3),2.0),
-    #((3,4),2.0),  #Comment out this edge to make the graph two isolated parts.
+    ((3,4),2.0),  #Comment out this edge to make the graph two isolated parts.
     ((4,5),1.0),
     ((5,6),1.0),
     ((4,6),3.0),
