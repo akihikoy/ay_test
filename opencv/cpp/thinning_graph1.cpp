@@ -22,6 +22,7 @@ $ ./thinning_graph1.out sample/water_coins.jpg
 #include <cstdio>
 #include <sys/time.h>  // gettimeofday
 #define LIBRARY
+#include "floyd_apsp.cpp"
 #include "float_trackbar.cpp"
 //-------------------------------------------------------------------------------------------
 namespace loco_rabbits

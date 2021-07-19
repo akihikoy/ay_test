@@ -47,6 +47,17 @@ def ShortestPath(n1, n2, P):
   if path1!=None and path2!=None:  return path1+path2[1:]
   return None
 
+#From the output path matrix P of FloydAPSP, find isolated sub graphs.
+def IsolatedGraphs(P):
+  iso_graphs= []
+  remains= range(P.shape[0])
+  while len(remains)>0:
+    n1= remains[0]
+    sub_graph= [n2 for n2 in remains if P[n1,n2]!=-2]
+    remains= [n2 for n2 in remains if n2 not in sub_graph]
+    iso_graphs.append(sub_graph)
+  return iso_graphs
+
 if __name__=='__main__':
   '''
   Definition of a graph:
@@ -75,6 +86,7 @@ if __name__=='__main__':
   print D
   print 'Via points on the shortest path matrix:'
   print P
+  print 'Isolated graphs:',IsolatedGraphs(P)
 
   while True:
     print 'Type two node indexes (starting from 1) separating with space (0 0 to quit):'

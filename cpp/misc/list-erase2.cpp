@@ -51,6 +51,12 @@ int main(int argc, char**argv)
     --itr;
     if(3<=*itr && *itr<=5)  itr= a.erase(itr);
   }
+  // The same:
+//   for(std::list<int>::iterator itr(a.begin()); itr!=a.end();)
+//   {
+//     if(3<=*itr && *itr<=5)  itr= a.erase(itr);
+//     else ++itr;
+//   }
   printv(a);
   return 0;
 }

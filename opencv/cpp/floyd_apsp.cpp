@@ -103,7 +103,33 @@ bool ShortestPath(int n1, int n2, const cv::Mat &P, std::list<int> &path, bool _
 }
 //-------------------------------------------------------------------------------------------
 
+// From the output path matrix P of FloydAPSP, find isolated sub graphs.
+std::vector<std::vector<int> > IsolatedGraphs(const cv::Mat &P)
+{
+  std::vector<std::vector<int> > iso_graphs;
+  std::list<int> remains;
+  for(int n1(0); n1<P.rows; ++n1)  remains.push_back(n1);
+  while(remains.size()>0)
+  {
+    int n1= remains.front();
+    std::vector<int> sub_graph;
+    for(std::list<int>::iterator n2itr(remains.begin()); n2itr!=remains.end();)
+    {
+// std::cerr<<" "<<*n2itr<<" "<<P.at<int>(n1,*n2itr)<<std::endl;
+      if(P.at<int>(n1,*n2itr)!=-2)
+      {
+        sub_graph.push_back(*n2itr);
+        n2itr= remains.erase(n2itr);
+      }
+      else  ++n2itr;
+    }
+    iso_graphs.push_back(sub_graph);
+  }
+  return iso_graphs;
+}
+//-------------------------------------------------------------------------------------------
 
+#ifndef LIBRARY
 int main(int argc, char**argv)
 {
   /*
@@ -131,6 +157,16 @@ int main(int argc, char**argv)
   FloydAPSP(N, edges, D, P);
   std::cout<<"Lowest cost matrix:"<<std::endl<<D<<std::endl;
   std::cout<<"Via points on the shortest path matrix:"<<std::endl<<P<<std::endl;
+  std::vector<std::vector<int> > iso_graphs= IsolatedGraphs(P);
+  std::cout<<"Isolated graphs: ";
+  for(int i(0),i_end(iso_graphs.size());i<i_end;++i)
+  {
+    std::cout<<"[";
+    for(int j(0),j_end(iso_graphs[i].size());j<j_end;++j)
+      std::cout<<" "<<iso_graphs[i][j];
+    std::cout<<"]";
+  }
+  std::cout<<std::endl;
 
   while(true)
   {
@@ -149,4 +185,5 @@ int main(int argc, char**argv)
   }
   return 0;
 }
+#endif//LIBRARY
 //-------------------------------------------------------------------------------------------
