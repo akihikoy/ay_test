@@ -277,8 +277,9 @@ TThinningGraph DetectNodesFromThinningImg(const cv::Mat &thinning_img, cv::Mat &
 //-------------------------------------------------------------------------------------------
 
 // Follow the path starting at nitr->P to neitr->DP.
-// return the node index at the reached point, and set path_len;
-void FollowPath(const cv::Point p, int dp, const cv::Mat &point_types, int &next_node, int &dp_from_next, int &path_len)
+// point_types: Thinning image where each point is categorized.
+// return the node index at the reached point, DP from the point, and path length;
+void FollowPathOnImg(const cv::Point p, int dp, const cv::Mat &point_types, int &next_node, int &dp_from_next, int &path_len)
 {
   path_len= 0;
   int dp_prev(dp);
@@ -368,7 +369,7 @@ void ConnectNodes(TThinningGraph &graph, const cv::Mat &point_types)
       // Follow the path starting at nitr->P to neitr->DP.
 // std::cerr<<"path following: "<<nitr->P<<", "<<neitr->DP<<std::endl;
       int i_next(-1), dp_from_next(-1), path_len(-1);
-      FollowPath(nitr->P, neitr->DP, point_types, i_next, dp_from_next, path_len);
+      FollowPathOnImg(nitr->P, neitr->DP, point_types, i_next, dp_from_next, path_len);
 // std::cerr<<"path followed: "<<nitr->P<<", "<<neitr->DP<<" --> "<<graph.Nodes[i_next].P<<", "<<dp_from_next<<" / "<<path_len<<std::endl;
       neitr->Next= i_next;
       neitr->PathLen= path_len;
