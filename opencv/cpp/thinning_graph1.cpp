@@ -21,9 +21,15 @@ $ ./thinning_graph1.out sample/water_coins.jpg
 #include <vector>
 #include <cstdio>
 #include <sys/time.h>  // gettimeofday
-#define LIBRARY
-#include "floyd_apsp.cpp"
-#include "float_trackbar.cpp"
+#ifdef LIBRARY
+#  include "floyd_apsp.cpp"
+#  include "float_trackbar.cpp"
+#else
+#  define LIBRARY
+#  include "floyd_apsp.cpp"
+#  include "float_trackbar.cpp"
+#  undef LIBRARY
+#endif
 //-------------------------------------------------------------------------------------------
 namespace loco_rabbits
 {
@@ -34,14 +40,6 @@ using namespace loco_rabbits;
 //-------------------------------------------------------------------------------------------
 // #define print(var) PrintContainer((var), #var"= ")
 // #define print(var) std::cout<<#var"= "<<(var)<<std::endl
-//-------------------------------------------------------------------------------------------
-
-inline double GetCurrentTime(void)
-{
-  struct timeval time;
-  gettimeofday (&time, NULL);
-  return static_cast<double>(time.tv_sec) + static_cast<double>(time.tv_usec)*1.0e-6;
-}
 //-------------------------------------------------------------------------------------------
 
 inline cv::Point DPToOffset(int dp)
@@ -482,22 +480,41 @@ void ThinningGraphToSpinePolys(const TThinningGraph &graph, const cv::Mat &point
 }
 //-------------------------------------------------------------------------------------------
 
-void DrawThinningGraph(cv::Mat &img, const TThinningGraph &graph, const std::vector<std::vector<cv::Point> > &spine_polys)
+void DrawThinningGraph(cv::Mat &img, const TThinningGraph &graph, const std::vector<std::vector<cv::Point> > &spine_polys, const double &resize_factor=1.0)
 {
   typedef TThinningGraph::TNode TNode;
   typedef TThinningGraph::TNeighbor TNeighbor;
+  const double &f(resize_factor);
   for(std::vector<TNode>::const_iterator nitr(graph.Nodes.begin()),nitr_end(graph.Nodes.end()); nitr!=nitr_end; ++nitr)
   {
     for(std::vector<TNeighbor>::const_iterator neitr(nitr->Neighbors.begin()),neitr_end(nitr->Neighbors.end()); neitr!=neitr_end; ++neitr)
-      cv::line(img, nitr->P, graph.Nodes[neitr->Next].P, cv::Scalar(255,255,0), 1, 8, 0);
+      cv::line(img, f*nitr->P, f*graph.Nodes[neitr->Next].P, cv::Scalar(255,255,0), 1, 8, 0);
     if(nitr->Neighbors.size()==1)
-      cv::circle(img, nitr->P, 3, cv::Scalar(0,255,0));
+      cv::circle(img, f*nitr->P, 3, cv::Scalar(0,255,0));
     else if(nitr->Neighbors.size()==3)
-      cv::circle(img, nitr->P, 3, cv::Scalar(0,0,255));
+      cv::circle(img, f*nitr->P, 3, cv::Scalar(0,0,255));
     else
-      cv::circle(img, nitr->P, 3, cv::Scalar(255,0,0));
+      cv::circle(img, f*nitr->P, 3, cv::Scalar(255,0,0));
   }
-  cv::polylines(img, spine_polys, /*isClosed=*/false, cv::Scalar(0,255,255), 2);
+  std::vector<std::vector<cv::Point> > spine_polys_resized;
+  for(std::vector<std::vector<cv::Point> >::const_iterator i1(spine_polys.begin()),i1_e(spine_polys.end()); i1!=i1_e; ++i1)
+  {
+    spine_polys_resized.push_back(std::vector<cv::Point>());
+    for(std::vector<cv::Point>::const_iterator i2(i1->begin()),i2_e(i1->end()); i2!=i2_e; ++i2)
+      spine_polys_resized.back().push_back(f*(*i2));
+  }
+  cv::polylines(img, spine_polys_resized, /*isClosed=*/false, cv::Scalar(0,255,255), 2);
+}
+//-------------------------------------------------------------------------------------------
+
+
+#ifndef LIBRARY
+
+inline double GetCurrentTime(void)
+{
+  struct timeval time;
+  gettimeofday (&time, NULL);
+  return static_cast<double>(time.tv_sec) + static_cast<double>(time.tv_usec)*1.0e-6;
 }
 //-------------------------------------------------------------------------------------------
 
@@ -572,4 +589,5 @@ int main(int argc, char **argv)
 
   return 0;
 }
+#endif//LIBRARY
 //-------------------------------------------------------------------------------------------
