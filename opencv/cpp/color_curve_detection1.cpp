@@ -50,7 +50,11 @@ struct TCCDParameter
   int NDilate1;
   int NErode1;
 
-  std::string ThinningKind;  // ZHANGSUEN or GUOHALL
+  // Kind of thinning method; ZHANGSUEN or GUOHALL
+  std::string ThinningKind;
+
+  // Epsilon parameter of the polygon approximation method.
+  double ApproxEpsilon;
 
   TCCDParameter()
     {
@@ -63,6 +67,7 @@ struct TCCDParameter
       ThreshV2= 255;
       NDilate1= 2;
       NErode1= 2;
+      ApproxEpsilon= 3.0;
       ThinningKind= "GUOHALL";
     }
 };
@@ -89,6 +94,7 @@ int main(int argc, char**argv)
   CreateTrackbar<int>("NDilate1:", win, &params_.NDilate1, 0, 10, 1, &TrackbarPrintOnTrack);
   CreateTrackbar<int>("NErode1:", win, &params_.NErode1, 0, 10, 1, &TrackbarPrintOnTrack);
   CreateTrackbar<std::string>("ThinningKind:", win, &params_.ThinningKind, ThinningKindList, &TrackbarPrintOnTrack);
+  CreateTrackbar<double>("ApproxEpsilon", win, &params_.ApproxEpsilon, 0.0, 10.0, 0.1, &TrackbarPrintOnTrack);
 
   cv::Mat frame;
   while(true)
@@ -126,7 +132,7 @@ int main(int argc, char**argv)
     std::vector<std::vector<cv::Point> > spine_polys;
     TThinningGraph graph= DetectNodesFromThinningImg(img_thinning, point_types);
     ConnectNodes(graph, point_types);
-    ThinningGraphToSpinePolys(graph, point_types, spine_polys);
+    ThinningGraphToSpinePolys(graph, point_types, spine_polys, params_.ApproxEpsilon);
     double t2= GetCurrentTime();
 
     std::cout<<"Computation times:"<<endl

@@ -402,7 +402,8 @@ void ConnectNodes(TThinningGraph &graph, const cv::Mat &point_types)
 //-------------------------------------------------------------------------------------------
 
 // Analyze a thinning graph to get spine features (longest path per graph).
-void ThinningGraphToSpinePolys(const TThinningGraph &graph, const cv::Mat &point_types, std::vector<std::vector<cv::Point> > &spine_polys, int poly_step=10)
+// approx_epsilon: Polygon approximation epsilon (0: do nothing).
+void ThinningGraphToSpinePolys(const TThinningGraph &graph, const cv::Mat &point_types, std::vector<std::vector<cv::Point> > &spine_polys, const double &approx_epsilon=3.0)
 {
   typedef TThinningGraph::TNode TNode;
   typedef TThinningGraph::TNeighbor TNeighbor;
@@ -472,10 +473,14 @@ void ThinningGraphToSpinePolys(const TThinningGraph &graph, const cv::Mat &point
     }
     path_points.push_back(graph.Nodes[path.back()].P);
     std::vector<cv::Point> spine_poly;
+    int poly_step(1);
     for(int p(0),p_end(path_points.size()); p<p_end; p+= poly_step)
       spine_poly.push_back(path_points[p]);
     if(path_points.size()%poly_step!=0)  spine_poly.push_back(path_points.back());
-    spine_polys.push_back(spine_poly);
+    if(approx_epsilon>0.0)
+      cv::approxPolyDP(spine_poly, spine_poly, /*epsilon=*/approx_epsilon, /*closed=*/false);
+    if(spine_poly.size()>1)
+      spine_polys.push_back(spine_poly);
   }
 }
 //-------------------------------------------------------------------------------------------
