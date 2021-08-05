@@ -17,9 +17,11 @@ Setup kinematics simulation of Universal Robots UR3.
         name="tf_base_base_link" output="screen"
         args="0 0 0 0 0 0 1 base base_link" />-->
 
-  <!--<node pkg="ay_util" type="dummy_robot.py"
+  <node pkg="ay_util" type="dummy_robot.py"
         name="ur_dummy" output="screen"
-        args="100" />-->
+        args="125">
+    <remap from="/joint_speed_command" to="/ur_driver/joint_speed" />
+  </node>
 
   <node pkg="rviz" type="rviz" name="rviz"/>
 

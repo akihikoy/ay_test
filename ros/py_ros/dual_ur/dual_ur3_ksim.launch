@@ -1,0 +1,86 @@
+<!--
+Setup kinematics simulation of Universal Robots UR3.
+-->
+
+<launch>
+
+  <!--<include file="$(find ur_description)/launch/ur3_upload.launch">
+  </include>-->
+  <include file="$(env HOME)/prg/ay_test/ros/py_ros/dual_ur/dual_ur3_upload.launch">
+  </include>
+
+  <rosparam param="controller_joint_names">
+    [
+      "A_shoulder_pan_joint",
+      "A_shoulder_lift_joint",
+      "A_elbow_joint",
+      "A_wrist_1_joint",
+      "A_wrist_2_joint",
+      "A_wrist_3_joint",
+      "B_shoulder_pan_joint",
+      "B_shoulder_lift_joint",
+      "B_elbow_joint",
+      "B_wrist_1_joint",
+      "B_wrist_2_joint",
+      "B_wrist_3_joint"
+    ]
+  </rosparam>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher"
+        name="robot_state_publisher" output="screen" />
+
+  <node pkg="ay_util" type="dummy_robot.py"
+        name="ur_dummy" output="screen"
+        args="125">
+    <remap from="/joint_speed_command" to="/A/ur_driver/joint_speed" />
+  </node>
+
+<!--<group ns="armA">
+    <param name="tf_prefix" value="armA_tf" />
+
+    <include file="$(find ur_description)/launch/ur3_upload.launch">
+    </include>
+
+  <rosparam param="controller_joint_names">
+  ["shoulder_pan_joint","shoulder_lift_joint","elbow_joint",
+  "wrist_1_joint","wrist_2_joint","wrist_3_joint"]
+  </rosparam>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher"
+        name="robot_state_publisher" output="screen" />
+
+  <node pkg="ay_util" type="dummy_robot.py"
+        name="ur_dummy" output="screen"
+        args="125">
+    <remap from="/joint_states" to="/armA/joint_states" />
+    <remap from="/joint_speed_command" to="/armA/ur_driver/joint_speed" />
+  </node>
+
+</group>-->
+
+<!--<group ns="armB">
+    <param name="tf_prefix" value="armB_tf" />
+
+    <include file="$(find ur_description)/launch/ur3_upload.launch">
+    </include>
+
+  <rosparam param="controller_joint_names">
+  ["shoulder_pan_joint","shoulder_lift_joint","elbow_joint",
+  "wrist_1_joint","wrist_2_joint","wrist_3_joint"]
+  </rosparam>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher"
+        name="robot_state_publisher" output="screen" />
+
+  <node pkg="ay_util" type="dummy_robot.py"
+        name="ur_dummy" output="screen"
+        args="125">
+    <remap from="/joint_states" to="/armB/joint_states" />
+    <remap from="/joint_speed_command" to="/armB/ur_driver/joint_speed" />
+  </node>
+
+</group>-->
+
+  <node pkg="rviz" type="rviz" name="rviz"/>
+
+</launch>

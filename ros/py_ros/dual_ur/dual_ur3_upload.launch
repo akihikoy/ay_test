@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="limited" default="false" doc="NOT_IMPLEMENTED/If true, limits joint range [-PI, PI] on all joints." />
+  <arg name="transmission_hw_interface_A" default="hardware_interface/PositionJointInterface" />
+  <arg name="transmission_hw_interface_B" default="hardware_interface/PositionJointInterface" />
+  <arg name="kinematics_config_A" default="$(find ur_description)/config/ur3_default.yaml"/>
+  <arg name="kinematics_config_B" default="$(find ur_description)/config/ur3_default.yaml"/>
+
+  <!--$(find ur_description)/urdf/ur3_robot.urdf.xacro-->
+  <param unless="$(arg limited)" name="robot_description"
+         command="$(find xacro)/xacro --inorder '$(env HOME)/prg/ay_test/ros/py_ros/dual_ur/dual_ur3_robot.urdf.xacro'
+            transmission_hw_interface_A:=$(arg transmission_hw_interface_A)
+            transmission_hw_interface_B:=$(arg transmission_hw_interface_B)
+            kinematics_config_A:=$(arg kinematics_config_A)
+            kinematics_config_B:=$(arg kinematics_config_B)" />
+</launch>

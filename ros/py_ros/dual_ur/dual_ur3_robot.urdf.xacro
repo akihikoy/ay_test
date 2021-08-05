@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="ur3" >
+
+  <xacro:arg name="transmission_hw_interface_A" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="transmission_hw_interface_B" default="hardware_interface/PositionJointInterface"/>
+
+  <xacro:property name="A_x" value="0.0"/>
+  <xacro:property name="A_y" value="0.1"/>
+  <xacro:property name="A_z" value="0.0"/>
+  <xacro:property name="B_x" value="0.0"/>
+  <xacro:property name="B_y" value="-0.1"/>
+  <xacro:property name="B_z" value="0.0"/>
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find ur_description)/urdf/common.gazebo.xacro" />
+
+  <!-- ur3 -->
+  <xacro:include filename="$(find ur_description)/urdf/ur3.urdf.xacro" />
+
+  <!-- arm-A -->
+  <xacro:arg name="kinematics_config_A" default="$(find ur_description)/config/ur3_default.yaml"/>
+  <xacro:ur3_robot prefix="A_" joint_limited="false"
+    transmission_hw_interface="$(arg transmission_hw_interface_A)"
+    kinematics_file="${load_yaml('$(arg kinematics_config_A)')}"
+  />
+  <!-- arm-B -->
+  <xacro:arg name="kinematics_config_B" default="$(find ur_description)/config/ur3_default.yaml"/>
+  <xacro:ur3_robot prefix="B_" joint_limited="false"
+    transmission_hw_interface="$(arg transmission_hw_interface_B)"
+    kinematics_file="${load_yaml('$(arg kinematics_config_B)')}"
+  />
+
+  <link name="world" />
+
+  <joint name="world_A_joint" type="fixed">
+    <parent link="world" />
+    <child link = "A_base_link" />
+    <origin xyz="${A_x} ${A_y} ${A_z}" rpy="0.0 0.0 0.0" />
+  </joint>
+
+  <joint name="world_B_joint" type="fixed">
+    <parent link="world" />
+    <child link = "B_base_link" />
+    <origin xyz="${B_x} ${B_y} ${B_z}" rpy="0.0 0.0 ${pi}" />
+  </joint>
+
+</robot>
