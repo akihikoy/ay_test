@@ -8,6 +8,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d
+import time
 
 def Func(x):
   #return (x[:,0]+2.0*x[:,1]).reshape((-1,1))
@@ -95,6 +96,11 @@ if __name__=='__main__':
   #net= DefRegNN4()
   net= DefRegNN5()
 
+  #NOTE: Switch the device.
+  device= 'cpu'
+  #device= 'cuda'  # recommended to check by torch.cuda.is_available()
+  net= net.to(device)
+
   print(net)
 
   #NOTE: Switch the optimizer.
@@ -118,6 +124,7 @@ if __name__=='__main__':
           shuffle=True,
           num_workers=2)
 
+  t_0= time.time()
   net.train()  # training mode; using dropout.
   log_loss_per_epoch= []
   for i_epoch in range(N_epoch):
@@ -125,6 +132,7 @@ if __name__=='__main__':
     for i_step, (batch_x, batch_y) in enumerate(loader):
       b_x= torch.autograd.Variable(batch_x)
       b_y= torch.autograd.Variable(batch_y)
+      b_x,b_y= b_x.to(device),b_y.to(device)
 
       pred= net(b_x)
       err= loss(pred, b_y)  # must be (1. nn output, 2. target)
@@ -135,6 +143,7 @@ if __name__=='__main__':
       log_loss_per_epoch[-1]+= err.item()/len(loader)
       #print(i_epoch,i_step,err)
     print(i_epoch,log_loss_per_epoch[-1])
+  print('training time:',time.time()-t_0)
 
 
   #print(data_x,data_y)
@@ -147,7 +156,9 @@ if __name__=='__main__':
   ax_pred.scatter(data_x[:,0], data_x[:,1], data_y[:,0], color='blue', label='data')
 
   net.eval()  # evaluation mode; disabling dropout.
-  ax_pred.plot_wireframe(true_x[0], true_x[1], net(torch.from_numpy(true_x[:,:,:].reshape(2,-1).T).float()).data.reshape(true_x.shape[1:]), color='red', linewidth=2, label='nn_reg')
+  true_x_var= torch.from_numpy(true_x[:,:,:].reshape(2,-1).T).float()
+  true_x_var= true_x_var.to(device)
+  ax_pred.plot_wireframe(true_x[0], true_x[1], net(true_x_var).data.reshape(true_x.shape[1:]).cpu(), color='red', linewidth=2, label='nn_reg')
 
   ax_lc.plot(range(len(log_loss_per_epoch)), log_loss_per_epoch, color='blue', label='loss')
 
