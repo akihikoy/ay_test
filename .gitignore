@@ -26,6 +26,7 @@ old-*
 backup*
 trash
 result
+data_downloaded
 
 msg_gen
 srv_gen

@@ -172,4 +172,5 @@ if __name__=='__main__':
   ax_pred.set_ylabel('x[1]')
   ax_pred.set_zlabel('y')
   ax_pred.legend()
+  fig.tight_layout()
   plt.show()
