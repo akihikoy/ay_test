@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-#\file    cnn_sqptn1_1.py
-#\brief   Learning the square pattern task with CNN on PyTorch.
+#\file    cnn_mg1_1.py
+#\brief   Learning the mg1 dataset with CNN on PyTorch.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Aug.19, 2021
+#\date    Aug.26, 2021
 import numpy as np
 import torch
 import torchvision
@@ -12,14 +12,14 @@ import time
 from PIL import Image as PILImage
 import os
 
+LABEL_SCALE= 0.05
+
 '''
 Generate the dataset by:
-$ ./gen_sqptn1.py
-$ nano gen_sqptn1.py    #switch the train/test constant.
-$ ./gen_sqptn1.py
+$ ./gen_mg1.py DATA_DIR
 '''
-class SqPtn1Dataset(torch.utils.data.Dataset):
-  def __init__(self, root='data_generated/sqptn1/', transform=None, train=True):
+class MG1Dataset(torch.utils.data.Dataset):
+  def __init__(self, root='data_generated/mg1/S3c/0.04/', transform=None, train=True):
     self.transform= transform
     self.image_paths= []
     self.labels= []
@@ -37,7 +37,7 @@ class SqPtn1Dataset(torch.utils.data.Dataset):
          self.LoadLabel(os.path.join(self.root, dir_train, 'labels', filename+'.dat')) )
         for filename in os.listdir(os.path.join(self.root, dir_train, 'images')) ]
     self.image_paths= [image_path for image_path,label in image_paths__labels]
-    self.labels= [label for image_path,label in image_paths__labels]
+    self.labels= [label*LABEL_SCALE for image_path,label in image_paths__labels]
 
   def __getitem__(self, index):
     with open(self.image_paths[index],'rb') as f:
@@ -53,7 +53,7 @@ def GetDataTransforms(mode):
   if mode=='train':
     return torchvision.transforms.Compose([
         #torchvision.transforms.RandomResizedCrop(224),
-        torchvision.transforms.RandomHorizontalFlip(),
+        #torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
       ])
@@ -67,7 +67,7 @@ def GetDataTransforms(mode):
   if mode=='none':
     return torchvision.transforms.Compose([
         #torchvision.transforms.RandomResizedCrop(224),
-        torchvision.transforms.RandomHorizontalFlip(),
+        #torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.ToTensor()
       ])
 
@@ -107,8 +107,8 @@ class TAlexNet(torch.nn.Module):
     return self.net_estimator(x)
 
 if __name__=='__main__':
-  dataset_train= SqPtn1Dataset(transform=GetDataTransforms('train'), train=True)
-  dataset_test= SqPtn1Dataset(transform=GetDataTransforms('eval'), train=False)
+  dataset_train= MG1Dataset(transform=GetDataTransforms('train'), train=True)
+  dataset_test= MG1Dataset(transform=GetDataTransforms('eval'), train=False)
 
   #Show the dataset info.
   print('dataset_train size:',len(dataset_train))
@@ -126,7 +126,7 @@ if __name__=='__main__':
   for i in range(rows*cols):
     i_data= np.random.choice(range(len(dataset_train)))
     img,label= dataset_train[i_data]
-    label= label.item()
+    label= label.item()/LABEL_SCALE
     img= ((img+1.0)*(255.0/2.0)).type(torch.uint8)  #Convert image for imshow
     ax= fig.add_subplot(rows, cols, i+1)
     ax.set_title('train#{0}/l={1:.4f}'.format(i_data,label), fontsize=10)
@@ -158,8 +158,8 @@ if __name__=='__main__':
   loss= torch.nn.MSELoss()
 
   #NOTE: Adjust the batch and epoch sizes.
-  N_batch= 10
-  N_epoch= 20
+  N_batch= 20
+  N_epoch= 100
 
   loader_train= torch.utils.data.DataLoader(
                   dataset=dataset_train,
@@ -231,8 +231,8 @@ if __name__=='__main__':
   for i in range(rows*cols):
     i_data= np.random.choice(range(len(dataset_test)))
     img,label= dataset_test[i_data]
-    label= label.item()
-    pred= net(img.view((1,)+img.shape).to(device)).data.cpu().item()
+    label= label.item()/LABEL_SCALE
+    pred= net(img.view((1,)+img.shape).to(device)).data.cpu().item()/LABEL_SCALE
     img= ((img+1.0)*(255.0/2.0)).type(torch.uint8)  #Convert image for imshow
     ax= fig2.add_subplot(rows, cols, i+1)
     ax.set_title('test#{0}\n/l={1:.4f}\n/pred={2:.4f}'.format(i_data,label,pred), fontsize=8)
