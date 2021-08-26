@@ -107,6 +107,9 @@ class TAlexNet(torch.nn.Module):
     return self.net_estimator(x)
 
 if __name__=='__main__':
+  import sys
+  initial_model_file= sys.argv[1] if len(sys.argv)>1 else None
+
   dataset_train= MG1Dataset(transform=GetDataTransforms('train'), train=True)
   dataset_test= MG1Dataset(transform=GetDataTransforms('eval'), train=False)
 
@@ -144,6 +147,9 @@ if __name__=='__main__':
   device= 'cuda'  # recommended to check by torch.cuda.is_available()
   net= net.to(device)
 
+  if initial_model_file is not None:
+    net.load_state_dict(torch.load(initial_model_file))
+
   print(net)
 
   #NOTE: Switch the optimizer.
@@ -159,7 +165,7 @@ if __name__=='__main__':
 
   #NOTE: Adjust the batch and epoch sizes.
   N_batch= 20
-  N_epoch= 100
+  N_epoch= 10
 
   loader_train= torch.utils.data.DataLoader(
                   dataset=dataset_train,
@@ -213,6 +219,10 @@ if __name__=='__main__':
     print(i_epoch,log_loss_per_epoch[-1],log_loss_test_per_epoch[-1])
   print('training time:',np.sum(log_train_time))
   print('testing time:',np.sum(log_test_time))
+
+  #Save the model parameters into a file.
+  #To load it: net.load_state_dict(torch.load(FILEPATH))
+  torch.save(net.state_dict(), 'model_learned/cnn_mg1_1.pt')
 
   fig1= plt.figure()
   ax_lc= fig1.add_subplot(1,1,1)
