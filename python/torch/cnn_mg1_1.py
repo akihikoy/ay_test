@@ -8,6 +8,7 @@ import numpy as np
 import torch
 import torchvision
 import matplotlib.pyplot as plt
+import copy
 import time
 from PIL import Image as PILImage
 import os
@@ -157,15 +158,15 @@ if __name__=='__main__':
   #opt= torch.optim.Adam(net.parameters(), lr=0.001)
   ##opt= torch.optim.SGD(net.parameters(), lr=0.004)
   ##opt= torch.optim.SGD(net.parameters(), lr=0.002, momentum=0.95)
-  opt= torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
-  #opt= torch.optim.Adadelta(net.parameters(), rho=0.95, eps=1e-8)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
+  opt= torch.optim.Adadelta(net.parameters(), rho=0.95, eps=1e-8)
   ##opt= torch.optim.Adagrad(net.parameters())
   ##opt= torch.optim.RMSprop(net.parameters())
   loss= torch.nn.MSELoss()
 
   #NOTE: Adjust the batch and epoch sizes.
-  N_batch= 20
-  N_epoch= 10
+  N_batch= 30
+  N_epoch= 100
 
   loader_train= torch.utils.data.DataLoader(
                   dataset=dataset_train,
@@ -178,6 +179,8 @@ if __name__=='__main__':
                   shuffle=False,
                   num_workers=2)
 
+  best_net_state= None
+  best_net_loss= None
   log_train_time= []
   log_test_time= []
   log_loss_per_epoch= []
@@ -216,9 +219,16 @@ if __name__=='__main__':
         log_loss_test_per_epoch[-1]+= err.item()/len(loader_test)
         #print(i_epoch,i_step,err)
     log_test_time[-1]= time.time()-log_test_time[-1]
+    if best_net_state is None or log_loss_test_per_epoch[-1]<best_net_loss:
+      best_net_state= copy.deepcopy(net.state_dict())
+      best_net_loss= log_loss_test_per_epoch[-1]
     print(i_epoch,log_loss_per_epoch[-1],log_loss_test_per_epoch[-1])
   print('training time:',np.sum(log_train_time))
   print('testing time:',np.sum(log_test_time))
+  print('best loss:',best_net_loss)
+
+  #Recall the best net parameters:
+  net.load_state_dict(best_net_state)
 
   #Save the model parameters into a file.
   #To load it: net.load_state_dict(torch.load(FILEPATH))
