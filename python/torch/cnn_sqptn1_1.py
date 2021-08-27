@@ -145,11 +145,14 @@ if __name__=='__main__':
 
   #NOTE: Switch the device.
   #device= 'cpu'
-  device= 'cuda'  # recommended to check by torch.cuda.is_available()
+  device= 'cuda'
+  if device=='cuda' and not torch.cuda.is_available():
+    device= 'cpu'
+    print('device is modified to cpu since cuda is not available.')
   net= net.to(device)
 
   if initial_model_file is not None:
-    net.load_state_dict(torch.load(initial_model_file))
+    net.load_state_dict(torch.load(initial_model_file, map_location=device))
 
   print(net)
 
