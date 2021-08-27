@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.15, 2021
 
-$ g++ -O2 -g -W -Wall -o ros_capture2.out ros_capture2.cpp  -I../include -I/opt/ros/kinetic/include -pthread -llog4cxx -lpthread -L/opt/ros/kinetic/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -Wl,-rpath,/opt/ros/kinetic/lib
+$ g++ -O2 -g -W -Wall -o ros_capture2.out ros_capture2.cpp  -I/opt/ros/kinetic/include -pthread -llog4cxx -lpthread -L/opt/ros/kinetic/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -Wl,-rpath,/opt/ros/kinetic/lib
 
 $ ./ros_capture2.out
 
