@@ -28,6 +28,7 @@ trash
 result
 data_downloaded
 data_generated
+model_learned
 
 msg_gen
 srv_gen
