@@ -27,17 +27,19 @@ if __name__=='__main__':
 
   pred_x= np.linspace(0.,x_max,100).reshape(-1,1)
   pred= [lwr.Predict(x,with_var=True,with_grad=True) for x in pred_x]
-  pred_y= [np.asarray(p.Y).ravel() for p in pred]
+  pred_y= np.array([np.asarray(p.Y).ravel() for p in pred])
+  std_y= np.sqrt([np.asarray(p.Var).ravel() for p in pred])
   #print pred_x
   #print [x for x in pred_x]
   #print lwr.X
   #print lwr.Y
   #print pred
   #print pred_y
-  std_y= np.sqrt([p.Var for p in pred])
+  #print std_y
 
+  plt.fill_between(pred_x.reshape(-1), (pred_y-std_y).reshape(-1), (pred_y+std_y).reshape(-1), alpha=0.5)
+  plt.plot(pred_x, pred_y, color='blue', linewidth=3, label='LWR-mean')
   plt.scatter(data_x, data_y, color='red', label='sample')
-  plt.plot(pred_x, pred_y, color='blue', linewidth=1, label='linear')
   plt.title('LWR')
   plt.xlabel('x')
   plt.ylabel('y')
