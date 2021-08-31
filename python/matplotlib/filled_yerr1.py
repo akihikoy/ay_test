@@ -18,4 +18,5 @@ if __name__=='__main__':
   plt.xlabel('x')
   plt.ylabel('y')
   plt.legend(loc='upper left')
+  plt.rcParams['keymap.quit'].append('q')
   plt.show()

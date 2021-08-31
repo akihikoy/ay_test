@@ -45,4 +45,5 @@ if __name__=='__main__':
   plt.ylabel('y')
   plt.xlim(np.max(data_x), np.min(data_x))
   plt.legend(loc='upper left')
+  plt.rcParams['keymap.quit'].append('q')
   plt.show()
