@@ -16,7 +16,7 @@ if __name__=='__main__':
   data_y+= np.abs(data_x)/np.abs(x_max) * np.random.uniform(-y_err,y_err,size=(len(data_x),1))  #Error
 
   options= {}
-  options['kernel']= 'maxg'
+  #options['kernel']= 'maxg'
   options['c_min']= 0.01
   options['f_reg']= 0.0001
   lwr= TLWR()

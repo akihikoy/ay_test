@@ -5,6 +5,7 @@
 #\version 0.1
 #\date    Aug.30, 2021
 import numpy as np
+import numpy.linalg as la
 import six.moves.cPickle as pickle
 import copy
 
