@@ -20,7 +20,7 @@ Generate the dataset by:
 $ ./gen_mg1.py DATA_DIR
 '''
 class MG1Dataset(torch.utils.data.Dataset):
-  def __init__(self, root='data_generated/mg1/S3c/0.04/', transform=None, train=True):
+  def __init__(self, root='data_generated/mg1/S3c2/0.04/', transform=None, train=True):
     self.transform= transform
     self.image_paths= []
     self.labels= []
@@ -107,6 +107,42 @@ class TAlexNet(torch.nn.Module):
     x= x.view(x.size(0), -1)
     return self.net_estimator(x)
 
+class TAlexNetSmall(torch.nn.Module):
+  def __init__(self, img_shape, p_dropout=0.02):
+    super(TAlexNetSmall,self).__init__()
+    self.net_features= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          #torch.nn.Conv2d(192, 384, kernel_size=3, padding=1),
+          torch.nn.Conv2d(192, 128, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Conv2d(384, 256, kernel_size=3, padding=1),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Conv2d(256, 256, kernel_size=3, padding=1),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    n_feat_out= self.net_features(torch.FloatTensor(*((1,)+img_shape))).view(1,-1).shape[1]
+    self.net_estimator= torch.nn.Sequential(
+          #torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_feat_out, 4096),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(4096, 4096),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.Linear(4096, 1)
+          )
+
+  def forward(self, x):
+    x= self.net_features(x)
+    x= x.view(x.size(0), -1)
+    return self.net_estimator(x)
+
 if __name__=='__main__':
   import sys
   initial_model_file= sys.argv[1] if len(sys.argv)>1 else None
@@ -141,7 +177,8 @@ if __name__=='__main__':
 
   #NOTE: Switch the NN definition.
   #Setup a neural network.
-  net= TAlexNet(img_shape=dataset_train[0][0].shape)
+  #net= TAlexNet(img_shape=dataset_train[0][0].shape)
+  net= TAlexNetSmall(img_shape=dataset_train[0][0].shape)
 
   #NOTE: Switch the device.
   #device= 'cpu'
@@ -160,15 +197,16 @@ if __name__=='__main__':
   #Setup an optimizer and a loss function.
   #opt= torch.optim.Adam(net.parameters(), lr=0.001)
   ##opt= torch.optim.SGD(net.parameters(), lr=0.004)
-  ##opt= torch.optim.SGD(net.parameters(), lr=0.002, momentum=0.95)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.002, momentum=0.95)
   #opt= torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
-  opt= torch.optim.Adadelta(net.parameters(), rho=0.95, eps=1e-8)
+  opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=5e-4)
+  #opt= torch.optim.Adadelta(net.parameters(), rho=0.95, eps=1e-8)
   ##opt= torch.optim.Adagrad(net.parameters())
   ##opt= torch.optim.RMSprop(net.parameters())
   loss= torch.nn.MSELoss()
 
   #NOTE: Adjust the batch and epoch sizes.
-  N_batch= 30
+  N_batch= 40
   N_epoch= 100
 
   loader_train= torch.utils.data.DataLoader(
@@ -235,7 +273,7 @@ if __name__=='__main__':
 
   #Save the model parameters into a file.
   #To load it: net.load_state_dict(torch.load(FILEPATH))
-  torch.save(net.state_dict(), 'model_learned/cnn_mg1_1.pt')
+  torch.save(net.state_dict(), 'model_learned/cnn_mg1_2.pt')
 
   fig1= plt.figure()
   ax_lc= fig1.add_subplot(1,1,1)

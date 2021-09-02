@@ -18,7 +18,7 @@ if __name__=='__main__':
   fv2_name= '-fv-fvo2_2r-MV1'
   label_key= 'weight'
   category_key= 'g_ins'
-  tool_name= 'S3c'
+  tool_name= 'S3c2'
   out_dir_fmt= 'data_generated/mg1/{tool_name}/{cat}/{train_test}/{il}'
   train_data_ratio= 0.7
   out_img_ext= '.png'
