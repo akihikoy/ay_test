@@ -15,7 +15,8 @@ if __name__=='__main__':
 
   #NOTE: Switch the NN definition.
   #Setup a neural network.
-  net= TAlexNet(img_shape=dataset_test[0][0].shape)
+  #net= TAlexNet(img_shape=dataset_test[0][0].shape)
+  net= TAlexNetSmall(img_shape=dataset_test[0][0].shape)
 
   #NOTE: Switch the device.
   #device= 'cpu'
