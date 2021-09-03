@@ -8,10 +8,12 @@ from opencv.draw_squares1 import *
 import numpy as np
 import cv2
 import os
+import sys
 
 if __name__=='__main__':
-  out_dir,i_start,i_end= 'data_generated/sqptn1/train',0,400
-  #out_dir,i_start,i_end= 'data_generated/sqptn1/test',0,200
+  mode= sys.argv[1] if len(sys.argv)>1 else 'train'
+  if mode=='train':   out_dir,i_start,i_end= 'data_generated/sqptn1/train',0,400
+  elif mode=='test':  out_dir,i_start,i_end= 'data_generated/sqptn1/test',0,200
 
   try:
     os.makedirs(os.path.join(out_dir,'images'))
