@@ -12,8 +12,10 @@ import sys
 
 if __name__=='__main__':
   mode= sys.argv[1] if len(sys.argv)>1 else 'train'
-  if mode=='train':   out_dir,i_start,i_end= 'data_generated/sqptn2/train',0,400
-  elif mode=='test':  out_dir,i_start,i_end= 'data_generated/sqptn2/test',0,200
+  a_size= float(sys.argv[2]) if len(sys.argv)>2 else 0.5
+  if mode=='train':   i_start,i_end= 0,400
+  elif mode=='test':  i_start,i_end= 0,200
+  out_dir= 'data_generated/sqptn2/{}/{}'.format(a_size,mode)
 
   try:
     os.makedirs(os.path.join(out_dir,'input'))
@@ -24,8 +26,8 @@ if __name__=='__main__':
   except:
     pass
   for i in range(i_start,i_end):
-    density= np.random.uniform(0.25, 0.75)
-    addition= np.random.uniform(-0.25, 0.25)
+    density= np.random.uniform(a_size*0.5, 1.0-a_size*0.5)
+    addition= np.random.uniform(-a_size*0.5, a_size*0.5)
     img= GenSquarePattern1(N=int(100*(density+addition)))
     filename= '{0:06d}'.format(i)
     cv2.imwrite(os.path.join(out_dir,'input',filename+'.jpg'),img)

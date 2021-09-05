@@ -13,15 +13,19 @@ import time
 from PIL import Image as PILImage
 import os
 
-OUTFEAT_SCALE= 1.0
+#A_SIZE= 0.5
+#A_SIZE= 0.3
+A_SIZE= 0.2
+DATASET_ROOT= 'data_generated/sqptn2/{}/'.format(A_SIZE)
+OUTFEAT_SCALE= 1.0/A_SIZE
 
 '''
 Generate the dataset by:
-$ ./gen_sqptn2.py train
-$ ./gen_sqptn2.py test
+$ ./gen_sqptn2.py train [A_SIZE]
+$ ./gen_sqptn2.py test [A_SIZE]
 '''
 class SqPtn2Dataset(torch.utils.data.Dataset):
-  def __init__(self, root='data_generated/sqptn2/', transform=None, train=True):
+  def __init__(self, root=DATASET_ROOT, transform=None, train=True):
     self.transform= transform
     self.image_paths= []
     self.in_feats= []
@@ -114,6 +118,77 @@ class TAlexNet(torch.nn.Module):
     x= torch.cat((x,y),1)
     return self.net_fc(x)
 
+class TCNN1(torch.nn.Module):
+  def __init__(self, img_shape, p_dropout=0.02):
+    super(TCNN1,self).__init__()
+    self.net_img= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Conv2d(384, 256, kernel_size=3, padding=1),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Conv2d(256, 256, kernel_size=3, padding=1),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    n_img_out= self.net_img(torch.FloatTensor(*((1,)+img_shape))).view(1,-1).shape[1]
+    print('DEBUG:n_img_out:',n_img_out)
+    #self.net_fc1= torch.nn.Sequential(
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(n_img_out, 4096),
+          #torch.nn.ReLU(inplace=True),
+          ##torch.nn.Dropout(p=p_dropout),
+          ##torch.nn.Linear(4096, 4096),
+          #)
+    #self.net_fc2= torch.nn.Sequential(
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(4096+1, 4096),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(4096, 1),
+          #)
+    #self.net_fc= torch.nn.Sequential(
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(n_img_out+1, 4096),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(4096, 4096),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Linear(4096, 1)
+          #)
+    self.net_fc1= torch.nn.Sequential(
+          #torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(1, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(2048, 2048),
+          )
+    self.net_fc2= torch.nn.Sequential(
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_img_out+2048, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(2048, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Linear(2048, 1),
+          )
+
+  def forward(self, x, y):
+    x= self.net_img(x)
+    x= x.view(x.size(0), -1)
+    y= self.net_fc1(y)
+    x= torch.cat((x,y),1)
+    return self.net_fc2(x)
+    #x= x.view(x.size(0), -1)
+    #x= torch.cat((x,y),1)
+    #return self.net_fc(x)
+
 if __name__=='__main__':
   import sys
   initial_model_file= sys.argv[1] if len(sys.argv)>1 else None
@@ -148,7 +223,8 @@ if __name__=='__main__':
 
   #NOTE: Switch the NN definition.
   #Setup a neural network.
-  net= TAlexNet(img_shape=dataset_train[0][0].shape)
+  #net= TAlexNet(img_shape=dataset_train[0][0].shape)
+  net= TCNN1(img_shape=dataset_train[0][0].shape)
 
   #NOTE: Switch the device.
   #device= 'cpu'
@@ -244,7 +320,7 @@ if __name__=='__main__':
 
   #Save the model parameters into a file.
   #To load it: net.load_state_dict(torch.load(FILEPATH))
-  torch.save(net.state_dict(), 'model_learned/cnn_sqptn2_1.pt')
+  torch.save(net.state_dict(), 'model_learned/cnn_sqptn2_1-{}.pt'.format(A_SIZE))
 
   fig1= plt.figure()
   ax_lc= fig1.add_subplot(1,1,1)
