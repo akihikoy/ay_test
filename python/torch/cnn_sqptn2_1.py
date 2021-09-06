@@ -17,6 +17,8 @@ import os
 #A_SIZE= 0.3
 A_SIZE= 0.2
 DATASET_ROOT= 'data_generated/sqptn2/{}/'.format(A_SIZE)
+#DATASET_ROOT= 'data_generated/sqptn2s/{}/'.format(A_SIZE)  #Smaller dataset.
+#DATASET_ROOT= 'data_generated/sqptn2l/{}/'.format(A_SIZE)  #Larger dataset.
 OUTFEAT_SCALE= 1.0/A_SIZE
 
 '''
@@ -35,7 +37,7 @@ class SqPtn2Dataset(torch.utils.data.Dataset):
 
   def LoadValue(self, filepath):
     with open(filepath,'r') as fp:
-      return torch.autograd.Variable(torch.tensor([float(fp.read().strip())]))
+      return float(fp.read().strip())
 
   def MakeIOList(self, train):
     dir_train= 'train' if train else 'test'
@@ -54,7 +56,8 @@ class SqPtn2Dataset(torch.utils.data.Dataset):
       img= PILImage.open(f)
       img= img.convert('RGB')
     img= img if self.transform is None else self.transform(img)
-    return img, self.in_feats[index], self.out_feats[index]
+    tr_value= lambda v: torch.autograd.Variable(torch.tensor([v]))
+    return img, tr_value(self.in_feats[index]), tr_value(self.out_feats[index])
 
   def __len__(self):
     return len(self.image_paths)
@@ -189,6 +192,46 @@ class TCNN1(torch.nn.Module):
     #x= torch.cat((x,y),1)
     #return self.net_fc(x)
 
+class TCNN2(torch.nn.Module):
+  def __init__(self, img_shape, p_dropout=0.02):
+    super(TCNN2,self).__init__()
+    self.net_img= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 32, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(32, 64, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 32, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    n_img_out= self.net_img(torch.FloatTensor(*((1,)+img_shape))).view(1,-1).shape[1]
+    print('DEBUG:n_img_out:',n_img_out)
+    self.net_fc1= torch.nn.Sequential(
+          torch.nn.Linear(1, 1024),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(1024, 1024),
+          )
+    self.net_fc2= torch.nn.Sequential(
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_img_out+1024, 1024),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(1024, 1024),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Linear(1024, 1),
+          )
+
+  def forward(self, x, y):
+    x= self.net_img(x)
+    x= x.view(x.size(0), -1)
+    y= self.net_fc1(y)
+    x= torch.cat((x,y),1)
+    return self.net_fc2(x)
+
 if __name__=='__main__':
   import sys
   initial_model_file= sys.argv[1] if len(sys.argv)>1 else None
@@ -225,6 +268,7 @@ if __name__=='__main__':
   #Setup a neural network.
   #net= TAlexNet(img_shape=dataset_train[0][0].shape)
   net= TCNN1(img_shape=dataset_train[0][0].shape)
+  #net= TCNN2(img_shape=dataset_train[0][0].shape)
 
   #NOTE: Switch the device.
   #device= 'cpu'

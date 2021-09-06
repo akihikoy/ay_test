@@ -29,7 +29,7 @@ class SqPtn1Dataset(torch.utils.data.Dataset):
 
   def LoadLabel(self, filepath):
     with open(filepath,'r') as fp:
-      return torch.autograd.Variable(torch.tensor([float(fp.read().strip())]))
+      return float(fp.read().strip())
 
   def MakePathLabelList(self, train):
     dir_train= 'train' if train else 'test'
@@ -45,7 +45,8 @@ class SqPtn1Dataset(torch.utils.data.Dataset):
       img= PILImage.open(f)
       img= img.convert('RGB')
     img= img if self.transform is None else self.transform(img)
-    return img, self.labels[index]
+    tr_value= lambda v: torch.autograd.Variable(torch.tensor([v]))
+    return img, tr_value(self.labels[index])
 
   def __len__(self):
     return len(self.image_paths)
