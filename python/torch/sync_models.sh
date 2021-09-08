@@ -6,5 +6,5 @@
 #\date    Aug.27, 2021
 
 server=$1
-rsync -av -e 'ssh' $server:'prg/ay_test/python/torch/model_learned' .
+rsync -av -e 'ssh' $server:'prg/ay_test/python/torch/model_learned/*' model_learned/
 
