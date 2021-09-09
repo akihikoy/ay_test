@@ -339,6 +339,7 @@ if __name__=='__main__':
     #Test the network with the test data.
     log_loss_test_per_epoch.append(0.0)
     log_test_time.append(time.time())
+    mse= 0.0  #MSE test.
     net.eval()  # evaluation mode; disabling dropout.
     with torch.no_grad():  # suppress calculating gradients.
       for i_step, (batch_imgs, batch_infeats, batch_outfeats) in enumerate(loader_test):
@@ -349,12 +350,13 @@ if __name__=='__main__':
         pred= net(b_imgs,b_infeats)
         err= loss(pred, b_outfeats)  # must be (1. nn output, 2. target)
         log_loss_test_per_epoch[-1]+= err.item()/len(loader_test)
+        mse+= torch.mean((pred-b_outfeats)**2).item()/len(loader_test)
         #print(i_epoch,i_step,err)
     log_test_time[-1]= time.time()-log_test_time[-1]
     if best_net_state is None or log_loss_test_per_epoch[-1]<best_net_loss:
       best_net_state= copy.deepcopy(net.state_dict())
       best_net_loss= log_loss_test_per_epoch[-1]
-    print(i_epoch,log_loss_per_epoch[-1],log_loss_test_per_epoch[-1])
+    print(i_epoch,log_loss_per_epoch[-1],log_loss_test_per_epoch[-1],mse)
   print('training time:',np.sum(log_train_time))
   print('testing time:',np.sum(log_test_time))
   print('best loss:',best_net_loss)

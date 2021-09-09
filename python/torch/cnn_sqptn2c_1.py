@@ -33,6 +33,8 @@ def OutfeatToClass(out_feat):
   if out_feat<-0.25*A_SIZE:  return 0
   if out_feat<0.25*A_SIZE:   return 1
   return 2
+def ClassToOutfeat(cls):
+  return ((-0.25)*(cls==0) + (0.0)*(cls==1) + (0.25)*(cls==1)).reshape(-1,1)
 
 '''
 Generate the dataset by:
@@ -328,6 +330,7 @@ if __name__=='__main__':
   best_net_state= None
   best_net_loss= None
   best_net_acc= None
+  best_net_mse= None
   log_train_time= []
   log_test_time= []
   log_loss_per_epoch= []
@@ -362,6 +365,7 @@ if __name__=='__main__':
     log_loss_test_per_epoch.append(0.0)
     log_acc_test_per_epoch.append(0.0)
     log_test_time.append(time.time())
+    mse= 0.0  #MSE to compare with the regression.
     net.eval()  # evaluation mode; disabling dropout.
     with torch.no_grad():  # suppress calculating gradients.
       for i_step, (batch_imgs, batch_infeats, batch_outclasses) in enumerate(loader_test):
@@ -374,17 +378,20 @@ if __name__=='__main__':
         acc= (pred.max(1).indices==b_outclasses).sum().item()/len(b_outclasses)
         log_loss_test_per_epoch[-1]+= err.item()/len(loader_test)
         log_acc_test_per_epoch[-1]+= acc/len(loader_test)
+        mse+= torch.mean((ClassToOutfeat(pred.max(1).indices)-ClassToOutfeat(b_outclasses))**2).item()/len(loader_test)
         #print(i_epoch,i_step,err)
     log_test_time[-1]= time.time()-log_test_time[-1]
     if best_net_state is None or log_acc_test_per_epoch[-1]>best_net_acc:
       best_net_state= copy.deepcopy(net.state_dict())
       best_net_loss= log_loss_test_per_epoch[-1]
       best_net_acc= log_acc_test_per_epoch[-1]
-    print(i_epoch,log_loss_per_epoch[-1],log_loss_test_per_epoch[-1],log_acc_per_epoch[-1],log_acc_test_per_epoch[-1])
+      best_net_mse= mse
+    print(i_epoch,log_loss_per_epoch[-1],log_loss_test_per_epoch[-1],log_acc_per_epoch[-1],log_acc_test_per_epoch[-1],mse)
   print('training time:',np.sum(log_train_time))
   print('testing time:',np.sum(log_test_time))
   print('best loss:',best_net_loss)
   print('best acc:',best_net_acc)
+  print('best mse:',best_net_mse)
 
   #Recall the best net parameters:
   net.load_state_dict(best_net_state)
