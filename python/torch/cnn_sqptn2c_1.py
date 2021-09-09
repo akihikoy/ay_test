@@ -29,12 +29,14 @@ DATASET_ROOT= 'data_generated/sqptn2/{}/'.format(A_SIZE)
   #return 3
 NUM_CLASSES= 3
 def OutfeatToClass(out_feat):
-  #out_feat in [-0.5*A_SIZE, 0.5*A_SIZE]
-  if out_feat<-0.25*A_SIZE:  return 0
-  if out_feat<0.25*A_SIZE:   return 1
-  return 2
+  logical_and= torch.logical_and if isinstance(out_feat,torch.Tensor) else (np.logical_and if isinstance(out_feat,np.ndarray) else lambda a,b:a and b)
+  return (0*(out_feat<-0.25*A_SIZE)
+        + 1*(logical_and(-0.25*A_SIZE<=out_feat,out_feat<=0.25*A_SIZE))
+        + 2*(0.25*A_SIZE<out_feat))
 def ClassToOutfeat(cls):
-  return ((-0.25)*(cls==0) + (0.0)*(cls==1) + (0.25)*(cls==1)).reshape(-1,1)
+  return ((-0.25)*(cls==0)
+        + (0.0)*(cls==1)
+        + (0.25)*(cls==2)).reshape(-1,1)
 
 '''
 Generate the dataset by:
