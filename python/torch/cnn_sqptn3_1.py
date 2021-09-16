@@ -463,16 +463,21 @@ if __name__=='__main__':
 
   #NOTE: Switch the optimizer.
   #Setup an optimizer and a loss function.
-  #opt= torch.optim.Adam(net.parameters(), lr=0.001)
-  ##opt= torch.optim.SGD(net.parameters(), lr=0.004)
-  ##opt= torch.optim.SGD(net.parameters(), lr=0.002, momentum=0.95)
-  #opt= torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
-  opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=5e-4)
+  ##opt= torch.optim.Adam(net.parameters(), lr=0.001)
+  ###opt= torch.optim.SGD(net.parameters(), lr=0.004)
+  ###opt= torch.optim.SGD(net.parameters(), lr=0.002, momentum=0.95)
+  ##opt= torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=5e-4)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.01)
+  opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
   #opt= torch.optim.SGD(net.parameters(), lr=0.0005, momentum=0.95, weight_decay=5e-4)
-  #opt= torch.optim.Adadelta(net.parameters(), rho=0.95, eps=1e-8)
-  ##opt= torch.optim.Adagrad(net.parameters())
-  ##opt= torch.optim.RMSprop(net.parameters())
+  ##opt= torch.optim.Adadelta(net.parameters(), rho=0.95, eps=1e-8)
+  ###opt= torch.optim.Adagrad(net.parameters())
+  ###opt= torch.optim.RMSprop(net.parameters())
   loss= torch.nn.MSELoss()
+
+  #opt= torch.optim.SGD(net.parameters(), lr=0.005, momentum=0.95, weight_decay=0.0001)
+  #loss= torch.nn.L1Loss()
 
   #NOTE: Adjust the batch and epoch sizes.
   N_batch= 20
