@@ -783,7 +783,7 @@ if __name__=='__main__':
   #loss= torch.nn.L1Loss()
 
   #NOTE: Adjust the batch and epoch sizes.
-  N_batch= 20
+  N_batch= 40
   N_epoch= 200
 
   loader_train= torch.utils.data.DataLoader(
