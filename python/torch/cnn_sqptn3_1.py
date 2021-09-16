@@ -160,11 +160,12 @@ class TCNN3(torch.nn.Module):
     x1= self.net_fc2a(x1)
     x2= self.net_img1(x2)
     x2= x2.view(x2.size(0), -1)
-    x2= self.net_fc2a(x2)
+    x2= self.net_fc2b(x2)
     y= self.net_fc1(y)
     x= torch.cat((x1,x2,y),1)
     return self.net_fc3(x)
 
+'''
 class TCNN3a(torch.nn.Module):
   def __init__(self, img1_shape, img2_shape, p_dropout=0.02):
     super(TCNN3a,self).__init__()
@@ -237,7 +238,7 @@ class TCNN3a(torch.nn.Module):
     x1= self.net_fc2a(x1)
     x2= self.net_img1(x2)
     x2= x2.view(x2.size(0), -1)
-    x2= self.net_fc2a(x2)
+    x2= self.net_fc2b(x2)
     y= self.net_fc1(y)
     x= torch.cat((x1,x2,y),1)
     return self.net_fc3(x)
@@ -320,9 +321,309 @@ class TCNN3b(torch.nn.Module):
     x1= self.net_fc2a(x1)
     x2= self.net_img1(x2)
     x2= x2.view(x2.size(0), -1)
-    x2= self.net_fc2a(x2)
+    x2= self.net_fc2b(x2)
     y= self.net_fc1(y)
     x= torch.cat((x1,x2,y),1)
+    return self.net_fc3(x)
+'''
+
+class TCNN3c(torch.nn.Module):
+  def __init__(self, img1_shape, img2_shape, p_dropout=0.02):
+    super(TCNN3c,self).__init__()
+    self.net_img1= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Conv2d(384, 256, kernel_size=3, padding=1),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Conv2d(256, 256, kernel_size=3, padding=1),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    self.net_img2= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Conv2d(384, 256, kernel_size=3, padding=1),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Conv2d(256, 256, kernel_size=3, padding=1),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    n_img1_out= self.net_img1(torch.FloatTensor(*((1,)+img1_shape))).view(1,-1).shape[1]
+    n_img2_out= self.net_img2(torch.FloatTensor(*((1,)+img2_shape))).view(1,-1).shape[1]
+    print('DEBUG:n_img1_out,n_img2_out:',n_img1_out,n_img2_out)
+    self.net_fc1= torch.nn.Sequential(
+          torch.nn.Linear(1, 2048),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          )
+    self.net_fc2a= torch.nn.Sequential(
+          torch.nn.Linear(n_img1_out, 2048),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          )
+    self.net_fc2b= torch.nn.Sequential(
+          torch.nn.Linear(n_img2_out, 2048),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          )
+    self.net_fc3= torch.nn.Sequential(
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(2048+2048+2048, 2048),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.Linear(2048, 1),
+          )
+
+  def forward(self, x1, x2, y):
+    x1= self.net_img1(x1)
+    x1= x1.view(x1.size(0), -1)
+    x1= self.net_fc2a(x1)
+    x2= self.net_img1(x2)
+    x2= x2.view(x2.size(0), -1)
+    x2= self.net_fc2b(x2)
+    y= self.net_fc1(y)
+    x= torch.cat((x1,x2,y),1)
+    return self.net_fc3(x)
+
+class TCNN4(torch.nn.Module):
+  def __init__(self, img1_shape, img2_shape, p_dropout=0.02):
+    super(TCNN4,self).__init__()
+    self.net_img1= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    self.net_img2= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    self.net_imgc= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    n_img1_out= self.net_imgc(self.net_img1(torch.FloatTensor(*((1,)+img1_shape)))).view(1,-1).shape[1]
+    n_img2_out= self.net_imgc(self.net_img2(torch.FloatTensor(*((1,)+img2_shape)))).view(1,-1).shape[1]
+    print('DEBUG:n_img1_out,n_img2_out:',n_img1_out,n_img2_out)
+    self.net_fc1= torch.nn.Sequential(
+          torch.nn.Linear(1, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          )
+    self.net_fc2a= torch.nn.Sequential(
+          torch.nn.Linear(n_img1_out, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    self.net_fc2b= torch.nn.Sequential(
+          torch.nn.Linear(n_img2_out, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    #self.net_fc2x= torch.nn.Sequential(
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #)
+    self.net_fc3= torch.nn.Sequential(
+          torch.nn.Linear(2048+2048+2048, 2048),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.Linear(2048, 1),
+          )
+
+  def forward(self, x1, x2, y):
+    x1= self.net_imgc(self.net_img1(x1))
+    x1= x1.view(x1.size(0), -1)
+    x1= (self.net_fc2a(x1))
+    x2= self.net_imgc(self.net_img1(x2))
+    x2= x2.view(x2.size(0), -1)
+    x2= (self.net_fc2b(x2))
+    y= self.net_fc1(y)
+    x= torch.cat((x1,x2,y),1)
+    return self.net_fc3(x)
+
+class TCNN4a(torch.nn.Module):
+  def __init__(self, img1_shape, img2_shape, p_dropout=0.02):
+    super(TCNN4a,self).__init__()
+    self.net_img1= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    self.net_img2= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    self.net_imgc= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    n_img1_out= self.net_imgc(self.net_img1(torch.FloatTensor(*((1,)+img1_shape)))).view(1,-1).shape[1]
+    n_img2_out= self.net_imgc(self.net_img2(torch.FloatTensor(*((1,)+img2_shape)))).view(1,-1).shape[1]
+    print('DEBUG:n_img1_out,n_img2_out:',n_img1_out,n_img2_out)
+    self.net_fc1= torch.nn.Sequential(
+          torch.nn.Linear(1, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          )
+    self.net_fc2a= torch.nn.Sequential(
+          torch.nn.Linear(n_img1_out, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    self.net_fc2b= torch.nn.Sequential(
+          torch.nn.Linear(n_img2_out, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    #self.net_fc2x= torch.nn.Sequential(
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #)
+    self.net_fc3= torch.nn.Sequential(
+          torch.nn.Linear(2048+2048+2048, 2048),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.Linear(2048, 1),
+          )
+
+  def forward(self, x1, x2, y):
+    x1= self.net_imgc(self.net_img1(x1))
+    x1= x1.view(x1.size(0), -1)
+    x1= (self.net_fc2a(x1))
+    x2= self.net_imgc(self.net_img1(x2))
+    x2= x2.view(x2.size(0), -1)
+    x2= (self.net_fc2b(x2))
+    y= self.net_fc1(y)
+    x= torch.cat((x1,x2,y),1)
+    return self.net_fc3(x)
+
+class TCNN4b(torch.nn.Module):
+  def __init__(self, img1_shape, img2_shape, p_dropout=0.02):
+    super(TCNN4b,self).__init__()
+    self.net_img1= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    self.net_img2= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    self.net_imgc= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          )
+    n_img1_out= self.net_imgc(self.net_img1(torch.FloatTensor(*((1,)+img1_shape)))).view(1,-1).shape[1]
+    n_img2_out= self.net_imgc(self.net_img2(torch.FloatTensor(*((1,)+img2_shape)))).view(1,-1).shape[1]
+    print('DEBUG:n_img1_out,n_img2_out:',n_img1_out,n_img2_out)
+    self.net_fc1= torch.nn.Sequential(
+          torch.nn.Linear(1, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          )
+    self.net_fc2= torch.nn.Sequential(
+          torch.nn.Linear(n_img1_out+n_img2_out, 2048),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    #self.net_fc2a= torch.nn.Sequential(
+          #torch.nn.Linear(n_img1_out, 2048),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #)
+    #self.net_fc2b= torch.nn.Sequential(
+          #torch.nn.Linear(n_img2_out, 2048),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #)
+    #self.net_fc2x= torch.nn.Sequential(
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #)
+    self.net_fc3= torch.nn.Sequential(
+          torch.nn.Linear(2048+2048, 2048),
+          torch.nn.ReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #torch.nn.Linear(2048, 2048),
+          #torch.nn.ReLU(inplace=True),
+          torch.nn.Linear(2048, 1),
+          )
+
+  def forward(self, x1, x2, y):
+    x1= self.net_imgc(self.net_img1(x1))
+    x1= x1.view(x1.size(0), -1)
+    #x1= (self.net_fc2a(x1))
+    x2= self.net_imgc(self.net_img1(x2))
+    x2= x2.view(x2.size(0), -1)
+    #x2= (self.net_fc2b(x2))
+    x= self.net_fc2(torch.cat((x1,x2),1))
+    y= self.net_fc1(y)
+    x= torch.cat((x,y),1)
     return self.net_fc3(x)
 
 class TAlexCNN3(torch.nn.Module):
@@ -397,7 +698,7 @@ class TAlexCNN3(torch.nn.Module):
     x1= self.net_fc2a(x1)
     x2= self.net_img1(x2)
     x2= x2.view(x2.size(0), -1)
-    x2= self.net_fc2a(x2)
+    x2= self.net_fc2b(x2)
     y= self.net_fc1(y)
     x= torch.cat((x1,x2,y),1)
     return self.net_fc3(x)
@@ -443,9 +744,13 @@ if __name__=='__main__':
   #NOTE: Switch the NN definition.
   #Setup a neural network.
   img1_shape,img2_shape= dataset_train[0][0].shape,dataset_train[0][1].shape
-  net= TCNN3(img1_shape,img2_shape)
-  #net= TCNN3a(img1_shape,img2_shape)
-  #net= TCNN3b(img1_shape,img2_shape)
+  #net= TCNN3(img1_shape,img2_shape)
+  ##net= TCNN3a(img1_shape,img2_shape)
+  ##net= TCNN3b(img1_shape,img2_shape)
+  #net= TCNN3c(img1_shape,img2_shape)
+  net= TCNN4(img1_shape,img2_shape)
+  #net= TCNN4a(img1_shape,img2_shape)
+  #net= TCNN4b(img1_shape,img2_shape)
   #net= TAlexCNN3(img1_shape,img2_shape)
 
   #NOTE: Switch the device.
