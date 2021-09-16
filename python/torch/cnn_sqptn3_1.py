@@ -724,19 +724,17 @@ if __name__=='__main__':
   '''Uncomment to plot training dataset.
   fig= plt.figure(figsize=(8,8))
   rows,cols= 5,4
-  for i in range(0,rows*cols,2):
+  for i in range(0,rows*cols):
     i_data= np.random.choice(range(len(dataset_train)))
     img1,img2,in_feat,out_feat= dataset_train[i_data]
     in_feat= in_feat.item()
     out_feat= out_feat.item()/OUTFEAT_SCALE
     img1= ((img1+1.0)*(255.0/2.0)).type(torch.uint8)  #Convert image for imshow
     img2= ((img2+1.0)*(255.0/2.0)).type(torch.uint8)  #Convert image for imshow
-    ax1= fig.add_subplot(rows, cols, (i)+1)
-    ax1.set_title('train#{0}-1/in={1:.3f}\nout={2:.3f}'.format(i_data,in_feat,out_feat), fontsize=10)
-    ax1.imshow(img1.permute(1,2,0))
-    ax2= fig.add_subplot(rows, cols, (i+1)+1)
-    ax2.set_title('train#{0}-2/in={1:.3f}\nout={2:.3f}'.format(i_data,in_feat,out_feat), fontsize=10)
-    ax2.imshow(img2.permute(1,2,0))
+    img= torch.cat((img1,img2), axis=2)
+    ax= fig.add_subplot(rows, cols, i+1)
+    ax.set_title('train#{0}/in={1:.3f}\nout={2:.3f}'.format(i_data,in_feat,out_feat), fontsize=10)
+    ax.imshow(img.permute(1,2,0))
   fig.tight_layout()
   plt.show()
   '''
@@ -874,20 +872,18 @@ if __name__=='__main__':
   net.eval()  # evaluation mode; disabling dropout.
   fig2= plt.figure(figsize=(8,8))
   rows,cols= 5,4
-  for i in range(0,rows*cols,2):
+  for i in range(0,rows*cols):
     i_data= np.random.choice(range(len(dataset_test)))
     img1,img2,in_feat,out_feat= dataset_test[i_data]
     pred= net(img1.view((1,)+img1.shape).to(device),img2.view((1,)+img2.shape).to(device),in_feat.view((1,)+in_feat.shape).to(device)).data.cpu().item()/OUTFEAT_SCALE
     img1= ((img1+1.0)*(255.0/2.0)).type(torch.uint8)  #Convert image for imshow
     img2= ((img2+1.0)*(255.0/2.0)).type(torch.uint8)  #Convert image for imshow
+    img= torch.cat((img1,img2), axis=2)
     in_feat= in_feat.item()
     out_feat= out_feat.item()/OUTFEAT_SCALE
-    ax1= fig2.add_subplot(rows, cols, (i)+1)
-    ax1.set_title('test#{0}-1/in={1:.3f}\nout={2:.3f}\n/pred={3:.3f}'.format(i_data,in_feat,out_feat,pred), fontsize=8)
-    ax1.imshow(img1.permute(1,2,0))
-    ax2= fig2.add_subplot(rows, cols, (i+1)+1)
-    ax2.set_title('test#{0}-2/in={1:.3f}\nout={2:.3f}\n/pred={3:.3f}'.format(i_data,in_feat,out_feat,pred), fontsize=8)
-    ax2.imshow(img2.permute(1,2,0))
+    ax= fig2.add_subplot(rows, cols, i+1)
+    ax.set_title('test#{0}/in={1:.3f}\nout={2:.3f}\n/pred={3:.3f}'.format(i_data,in_feat,out_feat,pred), fontsize=8)
+    ax.imshow(img.permute(1,2,0))
   fig2.tight_layout()
 
   plt.show()
