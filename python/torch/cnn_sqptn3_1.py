@@ -766,17 +766,22 @@ if __name__=='__main__':
 
   #NOTE: Switch the optimizer.
   #Setup an optimizer and a loss function.
+  sch= None
   ##opt= torch.optim.Adam(net.parameters(), lr=0.001)
   ###opt= torch.optim.SGD(net.parameters(), lr=0.004)
   ###opt= torch.optim.SGD(net.parameters(), lr=0.002, momentum=0.95)
   ##opt= torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
   #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=5e-4)
   #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.01)
-  opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
   #opt= torch.optim.SGD(net.parameters(), lr=0.0005, momentum=0.95, weight_decay=5e-4)
   ##opt= torch.optim.Adadelta(net.parameters(), rho=0.95, eps=1e-8)
   ###opt= torch.optim.Adagrad(net.parameters())
   ###opt= torch.optim.RMSprop(net.parameters())
+  #TEST: Learning rate scheduler:
+  opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
+  sch= torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[125,150], gamma=0.5)
+  #sch= torch.optim.lr_scheduler.ExponentialLR(opt, gamma=0.98)
   loss= torch.nn.MSELoss()
 
   #opt= torch.optim.SGD(net.parameters(), lr=0.005, momentum=0.95, weight_decay=0.0001)
@@ -784,7 +789,7 @@ if __name__=='__main__':
 
   #NOTE: Adjust the batch and epoch sizes.
   N_batch= 40
-  N_epoch= 200
+  N_epoch= 300
 
   loader_train= torch.utils.data.DataLoader(
                   dataset=dataset_train,
@@ -823,6 +828,7 @@ if __name__=='__main__':
       opt.step()
       log_loss_per_epoch[-1]+= err.item()/len(loader_train)
       #print(i_epoch,i_step,err)
+    if sch is not None:  sch.step()
     log_train_time[-1]= time.time()-log_train_time[-1]
 
     #Test the network with the test data.
