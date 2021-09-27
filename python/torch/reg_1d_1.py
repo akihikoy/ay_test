@@ -9,13 +9,15 @@ import torch
 import matplotlib.pyplot as plt
 import time
 
+FUNC_KIND=3
 def Func(x):
   #NOTE: Switch the function to be learned.
-  #return x
-  #return (x[:,0]**2).reshape((-1,1))
-  #return (3.0-x[:,0]).reshape((-1,1))
-  return (x[:,0]+3.0*np.sin(x[:,0])).reshape((-1,1))
-  #return np.where(x[:,0]**2<1.0, 3.0, 0.0).reshape((-1,1))
+  global FUNC_KIND
+  if FUNC_KIND==0:  return x
+  if FUNC_KIND==1:  return (x[:,0]**2).reshape((-1,1))
+  if FUNC_KIND==2:  return (3.0-x[:,0]).reshape((-1,1))
+  if FUNC_KIND==3:  return (x[:,0]+3.0*np.sin(x[:,0])).reshape((-1,1))
+  if FUNC_KIND==4:  return np.where(x[:,0]**2<1.0, 3.0, 0.0).reshape((-1,1))
 
 def GenerateSample(xmin, xmax, N_sample, f, noise=1.0e-10):
   data_x= np.random.uniform(xmin,xmax,size=(N_sample,1))
@@ -110,10 +112,11 @@ if __name__=='__main__':
   #opt= torch.optim.Adagrad(net.parameters())
   #opt= torch.optim.RMSprop(net.parameters())
   loss= torch.nn.MSELoss()
+  #loss= torch.nn.HuberLoss(reduction='mean', delta=0.1)
 
   #NOTE: Adjust the batch and epoch sizes.
   N_batch= 50
-  N_epoch= 50
+  N_epoch= 100
 
   torch_dataset= torch.utils.data.TensorDataset(data_x, data_y)
   loader= torch.utils.data.DataLoader(
