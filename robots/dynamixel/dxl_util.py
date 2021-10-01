@@ -20,6 +20,9 @@
 #\version 0.6
 #\date    Jan.28, 2020
 #         Added PH54-200-S500, XH540-W270.
+#\version 0.7
+#\date    Sep.30, 2021
+#         Added PM54-060-S250.
 
 #cf. DynamixelSDK/python/tests/protocol2_0/read_write.py
 #DynamixelSDK: https://github.com/ROBOTIS-GIT/DynamixelSDK
@@ -266,8 +269,8 @@ class TDynamixel1(object):
         self.ADDR['ACC_LIMIT']= (None,None)
       self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
 
-    # For Dynamixel PH54-200-S500-R
-    elif type in ('PH54-200-S500',):
+    # For Dynamixel PH54-200-S500-R, PM54-060-S250-R
+    elif type in ('PH54-200-S500','PM54-060-S250'):
       #ADDR[NAME]=(ADDRESS,SIZE)
       self.ADDR={
         'MODEL_NUMBER'        : (0,2),
@@ -358,12 +361,13 @@ class TDynamixel1(object):
       'PWM'        : 16,  # PWM Control Mode (Voltage Control Mode)
       }
     #NOTE: 'RH-P12-RN': CURRENT and CURRPOS are available.
-    #NOTE: 'PH54-200-S500': CURRENT, VELOCITY, POSITION(default), EXTPOS, PWM are available.
+    #NOTE: 'PH54-200-S500','PM54-060-S250': CURRENT, VELOCITY, POSITION(default), EXTPOS, PWM are available.
 
     # Baud rates                                  0     1      2   3   4   5   6     7      8      9
     self.BAUD_RATE=                           [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6]
     if type=='RH-P12-RN':     self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,10.5e6]
     if type=='PH54-200-S500': self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
+    if type=='PM54-060-S250': self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
 
     self.TORQUE_ENABLE  = 1  # Value for enabling the torque
     self.TORQUE_DISABLE = 0  # Value for disabling the torque
@@ -374,20 +378,28 @@ class TDynamixel1(object):
     elif type=='PH54-200-S500':
       self.MIN_POSITION = -501433
       self.MAX_POSITION = 501433
+    elif type=='PM54-060-S250':
+      self.MIN_POSITION = -251173
+      self.MAX_POSITION = 251173
     if type=='XM430-W350':    self.MAX_CURRENT = 1193   # == Current Limit(38)
     elif type=='XH430-V350':  self.MAX_CURRENT = 689   # == Current Limit(38)
     elif type=='XH540-W270':  self.MAX_CURRENT = 2047
     elif type=='MX-64AR':     self.MAX_CURRENT = 1941   # == Current Limit(38)
     elif type=='RH-P12-RN':   self.MAX_CURRENT = 820
     elif type=='PH54-200-S500':   self.MAX_CURRENT = 22740
+    elif type=='PM54-060-S250':   self.MAX_CURRENT = 7980
     self.MAX_PWM = 885
     if type=='RH-P12-RN':  self.MAX_PWM = None
     elif type=='PH54-200-S500':  self.MAX_PWM = 2009
+    elif type=='PM54-060-S250':  self.MAX_PWM = 2009
 
     self.POSITION_UNIT= math.pi/2048.0
     self.POSITION_OFFSET= 2048.0
     if type=='PH54-200-S500':
-      self.POSITION_UNIT= math.pi/501924.0
+      self.POSITION_UNIT= math.pi/501923.0
+      self.POSITION_OFFSET= 0.0
+    elif type=='PM54-060-S250':
+      self.POSITION_UNIT= math.pi/251417.0
       self.POSITION_OFFSET= 0.0
     if type=='XM430-W350':
       self.CURRENT_UNIT= 2.69
@@ -405,6 +417,9 @@ class TDynamixel1(object):
       self.CURRENT_UNIT= 4.02
       self.VELOCITY_UNIT= 0.114*(2.0*math.pi)/60.0
     elif type=='PH54-200-S500':
+      self.CURRENT_UNIT= 1.0
+      self.VELOCITY_UNIT= 0.01*(2.0*math.pi)/60.0
+    elif type=='PM54-060-S250':
       self.CURRENT_UNIT= 1.0
       self.VELOCITY_UNIT= 0.01*(2.0*math.pi)/60.0
 
@@ -683,8 +698,9 @@ class TDynamixel1(object):
   def MoveTo(self, target, blocking=True):
     target = int(target)
     #FIXME: If OpMode allows multi turn, target could vary.
-    if target < self.MIN_POSITION:  target = self.MIN_POSITION
-    elif target > self.MAX_POSITION:  target = self.MAX_POSITION
+    if self.OpMode!='EXTPOS':
+      if target < self.MIN_POSITION:  target = self.MIN_POSITION
+      elif target > self.MAX_POSITION:  target = self.MAX_POSITION
 
     # Write goal position
     self.Write('GOAL_POSITION', target)

@@ -1,0 +1,18 @@
+#!/usr/bin/python
+
+#ID1: ROTATION
+#ID2: LINEAR (up/down)
+
+DXL_ID= [1,2]
+#BAUDRATE= 57600
+#BAUDRATE= 115200
+BAUDRATE= 2e6
+#DXL_TYPE= 'XM430-W350'  #Finger robot
+#DXL_TYPE= 'XH430-V350'  #Dynamixel gripper
+#DXL_TYPE= 'RH-P12-RN'  #Thormang3 gripper
+DXL_TYPE= ['PM54-060-S250', 'PH54-200-S500']
+
+OP_MODE= 'EXTPOS'
+
+#CURRENT_LIMIT= 2000
+CURRENT_LIMIT= 2000
