@@ -12,6 +12,7 @@ import copy
 import time
 from PIL import Image as PILImage
 import os
+from lr_sch_2 import ReduceLRAtCondition
 
 #A_SIZE1,A_SIZE2= 0.3,0.3
 A_SIZE1,A_SIZE2= 0.1,0.1
@@ -1287,6 +1288,18 @@ if __name__=='__main__':
   #opt= torch.optim.SGD(net.parameters(), lr=0.002, momentum=0.95, weight_decay=0.0)
   #sch= torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[125,150], gamma=0.5)
   ##sch= torch.optim.lr_scheduler.ExponentialLR(opt, gamma=0.98)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.95, weight_decay=0.005)
+  #sch= torch.optim.lr_scheduler.ReduceLROnPlateau(opt, mode='min', factor=0.8, patience=100, threshold=0.0001, threshold_mode='rel', verbose=True)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
+  #sch= torch.optim.lr_scheduler.ReduceLROnPlateau(opt,
+        #mode='min', factor=0.5, patience=100, cooldown=100,
+        #threshold=-0.001, threshold_mode='rel',
+        #verbose=True)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
+  #sch= ReduceLRAtCondition(opt,
+         #mode='gt', factor=0.5, patience=10, cooldown=200, threshold=0.001,
+         #verbose=True)
+  #sch= torch.optim.lr_scheduler.CyclicLR(opt, base_lr=0.0001, max_lr=0.1, step_size_up=100, mode='triangular2', verbose=True)
   #TEST: Stochastic Weight Averaging:
   #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
   #swa_model= torch.optim.swa_utils.AveragedModel(net)
@@ -1298,6 +1311,10 @@ if __name__=='__main__':
 
   #opt= torch.optim.SGD(net.parameters(), lr=0.005, momentum=0.95, weight_decay=0.0001)
   #loss= torch.nn.L1Loss()
+
+  #opt= torch.optim.SGD(net.parameters(), lr=0.004, momentum=0.95, weight_decay=0.005)
+  #sch= torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[125,150], gamma=0.5)
+  #loss= torch.nn.HuberLoss(reduction='mean', delta=0.1*OUTFEAT_SCALE)
 
   #NOTE: Adjust the batch and epoch sizes.
   N_batch= 40
@@ -1335,18 +1352,12 @@ if __name__=='__main__':
       opt.zero_grad()
       pred= net(b_imgs1,b_imgs2,b_infeats)
       err= loss(pred, b_outfeats)  # must be (1. nn output, 2. target)
+      #err= loss(pred, b_outfeats)*2.0
 
       err.backward()
       opt.step()
       log_loss_per_epoch[-1]+= err.item()/len(loader_train)
       #print(i_epoch,i_step,err)
-    if sch is not None and (swa_sch is None or i_epoch<=swa_start):
-      sch.step()
-    elif swa_sch is not None and i_epoch>swa_start:
-      swa_model.update_parameters(net)
-      swa_sch.step()
-      if i_epoch==N_epoch-1:
-        torch.optim.swa_utils.update_bn(loader_train, swa_model)
     log_train_time[-1]= time.time()-log_train_time[-1]
 
     #Test the network with the test data.
@@ -1373,6 +1384,25 @@ if __name__=='__main__':
     if best_net_state is None or log_loss_test_per_epoch[-1]<best_net_loss:
       best_net_state= copy.deepcopy(net.state_dict())
       best_net_loss= log_loss_test_per_epoch[-1]
+    if sch is not None:
+      if swa_sch is None or i_epoch<=swa_start:
+        if isinstance(sch, torch.optim.lr_scheduler.ReduceLROnPlateau):
+          #sch.step(log_loss_per_epoch[-1])
+          sch.step(log_loss_test_per_epoch[-1])
+          #sch.step(best_net_loss)
+        elif isinstance(sch, ReduceLRAtCondition):
+          N_maf= 20
+          #schmetric= np.std(log_loss_test_per_epoch[-N_maf:])
+          maf= [np.mean(log_loss_test_per_epoch[max(0,i+1-N_maf//2):i+1+N_maf//2]) for i in range(max(0,len(log_loss_test_per_epoch)-N_maf), len(log_loss_test_per_epoch))]
+          schmetric= np.std((np.array(log_loss_test_per_epoch)[-len(maf):]-maf))
+          sch.step(schmetric)
+        else:
+          sch.step()
+      elif swa_sch is not None and i_epoch>swa_start:
+        swa_model.update_parameters(net)
+        swa_sch.step()
+        if i_epoch==N_epoch-1:
+          torch.optim.swa_utils.update_bn(loader_train, swa_model)
     print(i_epoch,log_loss_per_epoch[-1],log_loss_test_per_epoch[-1],mse)
   print('training time:',np.sum(log_train_time))
   print('testing time:',np.sum(log_test_time))
@@ -1384,6 +1414,22 @@ if __name__=='__main__':
   #Save the model parameters into a file.
   #To load it: net.load_state_dict(torch.load(FILEPATH))
   torch.save(net.state_dict(), 'model_learned/cnn_sqptn3_1-{}_{}.pt'.format(A_SIZE1,A_SIZE2))
+
+  #Save the log into a file.
+  now= time.localtime()
+  time_stamp= '%04i.%02i.%02i-%02i.%02i.%02i' % (now.tm_year,now.tm_mon,now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
+  info_filename= 'data_generated/log/sqptn3-{}-{}-{}.info'.format(net.__class__.__name__,opt.__class__.__name__,time_stamp)
+  log_filename= 'data_generated/log/sqptn3-{}-{}-{}.log'.format(net.__class__.__name__,opt.__class__.__name__,time_stamp)
+  with open(info_filename,'w') as fp:
+    fp.write('net:\n'+str(net)+'\n\n')
+    fp.write('opt:\n'+str(opt)+'\n\n')
+    fp.write('sch:\n'+str(sch)+'\n\n')
+  with open(log_filename,'w') as fp:
+    fp.write('#i_epoch train_time test_time loss_train loss_test\n')
+    for i_epoch, (train_time, test_time, loss_train, loss_test) in enumerate(zip(log_train_time, log_test_time, log_loss_per_epoch, log_loss_test_per_epoch)):
+      fp.write('{} {} {} {} {}\n'.format(i_epoch, train_time, test_time, loss_train, loss_test))
+  print('saved info into:',info_filename)
+  print('saved log into:',log_filename)
 
   fig1= plt.figure()
   ax_lc= fig1.add_subplot(1,1,1)
