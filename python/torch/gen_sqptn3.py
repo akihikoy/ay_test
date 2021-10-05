@@ -17,6 +17,9 @@ if __name__=='__main__':
   if mode=='train':   i_start,i_end= 0,400
   elif mode=='test':  i_start,i_end= 0,200
   out_dir= 'data_generated/sqptn3/{}_{}/{}'.format(a_size1,a_size2,mode)
+  #if mode=='train':   i_start,i_end= 0,800
+  #elif mode=='test':  i_start,i_end= 0,400
+  #out_dir= 'data_generated/sqptn3l/{}_{}/{}'.format(a_size1,a_size2,mode)
 
   try:
     os.makedirs(os.path.join(out_dir,'input'))

@@ -14,9 +14,12 @@ from PIL import Image as PILImage
 import os
 from lr_sch_2 import ReduceLRAtCondition
 
+
+#sqptn3= 'sqptn3'
+sqptn3= 'sqptn3l'  #Larger dataset.
 #A_SIZE1,A_SIZE2= 0.3,0.3
 A_SIZE1,A_SIZE2= 0.1,0.1
-DATASET_ROOT= 'data_generated/sqptn3/{}_{}/'.format(A_SIZE1,A_SIZE2)
+DATASET_ROOT= 'data_generated/{}/{}_{}/'.format(sqptn3,A_SIZE1,A_SIZE2)
 OUTFEAT_SCALE= 1.0/(0.5*(A_SIZE1+A_SIZE2))
 
 '''
@@ -1196,6 +1199,153 @@ class TAlexCNN3(torch.nn.Module):
     x= torch.cat((x1,x2,y),1)
     return self.net_fc3(x)
 
+class TCNN5(torch.nn.Module):
+  def __init__(self, img1_shape, img2_shape, p_dropout=0.02, n_fc=3000):
+    super(TCNN5,self).__init__()
+    self.net_img1= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          #torch.nn.MaxPool2d(kernel_size=4, stride=4),
+          )
+    self.net_img2= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          #torch.nn.MaxPool2d(kernel_size=4, stride=4),
+          )
+    n_img1_out= self.net_img1(torch.FloatTensor(*((1,)+img1_shape))).view(1,-1).shape[1]
+    n_img2_out= self.net_img2(torch.FloatTensor(*((1,)+img2_shape))).view(1,-1).shape[1]
+    print('DEBUG:n_img1_out,n_img2_out:',n_img1_out,n_img2_out)
+    self.n_fc= n_fc
+    #self.net_fc1= torch.nn.Sequential(
+          #torch.nn.Linear(1, n_fc),
+          #torch.nn.LeakyReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #)
+    self.net_fc2a= torch.nn.Sequential(
+          torch.nn.Linear(n_img1_out, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    self.net_fc2b= torch.nn.Sequential(
+          torch.nn.Linear(n_img2_out, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    self.net_fc3= torch.nn.Sequential(
+          torch.nn.Linear(n_fc*3, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_fc, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_fc, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_fc, 1),
+          )
+
+  def forward(self, x1, x2, y):
+    x1= self.net_img1(x1)
+    x1= x1.view(x1.size(0), -1)
+    x1= self.net_fc2a(x1)
+    x2= self.net_img2(x2)
+    x2= x2.view(x2.size(0), -1)
+    x2= self.net_fc2b(x2)
+    #y= self.net_fc1(y)
+    y= y.repeat(1, self.n_fc)
+    x= torch.cat((x1,x2,y),1)
+    return self.net_fc3(x)
+
+class TCNN5a(torch.nn.Module):
+  def __init__(self, img1_shape, img2_shape, p_dropout=0.02, n_fc=3000):
+    super(TCNN5a,self).__init__()
+    self.net_img1= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          #torch.nn.MaxPool2d(kernel_size=4, stride=4),
+          )
+    self.net_img2= torch.nn.Sequential(
+          #torch.nn.Conv2d(in_channels, out_channels, ...)
+          torch.nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(64, 192, kernel_size=5, padding=2),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          torch.nn.Conv2d(192, 256, kernel_size=3, padding=1),
+          torch.nn.ReLU(inplace=True),
+          torch.nn.MaxPool2d(kernel_size=2, stride=2),
+          #torch.nn.MaxPool2d(kernel_size=4, stride=4),
+          )
+    n_img1_out= self.net_img1(torch.FloatTensor(*((1,)+img1_shape))).view(1,-1).shape[1]
+    n_img2_out= self.net_img2(torch.FloatTensor(*((1,)+img2_shape))).view(1,-1).shape[1]
+    print('DEBUG:n_img1_out,n_img2_out:',n_img1_out,n_img2_out)
+    self.n_fc= n_fc
+    #self.net_fc1= torch.nn.Sequential(
+          #torch.nn.Linear(1, n_fc),
+          #torch.nn.LeakyReLU(inplace=True),
+          #torch.nn.Dropout(p=p_dropout),
+          #)
+    self.net_fc2a= torch.nn.Sequential(
+          torch.nn.Linear(n_img1_out, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    self.net_fc2b= torch.nn.Sequential(
+          torch.nn.Linear(n_img2_out, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          )
+    self.net_fc3= torch.nn.Sequential(
+          torch.nn.Linear(n_fc*2+1, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_fc, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_fc, n_fc),
+          torch.nn.LeakyReLU(inplace=True),
+          torch.nn.Dropout(p=p_dropout),
+          torch.nn.Linear(n_fc, 1),
+          )
+
+  def forward(self, x1, x2, y):
+    x1= self.net_img1(x1)
+    x1= x1.view(x1.size(0), -1)
+    x1= self.net_fc2a(x1)
+    x2= self.net_img2(x2)
+    x2= x2.view(x2.size(0), -1)
+    x2= self.net_fc2b(x2)
+    #y= self.net_fc1(y)
+    #y= y.repeat(1, self.n_fc)
+    x= torch.cat((x1,x2,y),1)
+    return self.net_fc3(x)
+
+
 if __name__=='__main__':
   import sys
   initial_model_file= sys.argv[1] if len(sys.argv)>1 else None
@@ -1244,7 +1394,7 @@ if __name__=='__main__':
   #net= TCNN3e(img1_shape,img2_shape,p_dropout=0.1)
   #net= TCNN3f(img1_shape,img2_shape)
   #net= TCNN3f(img1_shape,img2_shape, n_fc=3000)
-  net= TCNN3f2(img1_shape,img2_shape, n_fc=3000)
+  #net= TCNN3f2(img1_shape,img2_shape, n_fc=3000)
   #net= TCNN3f2(img1_shape,img2_shape, n_fc=4000)
   #net= TCNN3f3(img1_shape,img2_shape, n_fc=3000)
   #net= TCNN3f2a(img1_shape,img2_shape, n_fc=3000)
@@ -1253,10 +1403,14 @@ if __name__=='__main__':
   #net= TCNN4a(img1_shape,img2_shape)
   #net= TCNN4b(img1_shape,img2_shape)
   #net= TAlexCNN3(img1_shape,img2_shape)
+  net= TCNN5(img1_shape,img2_shape)
+  #net= TCNN5(img1_shape,img2_shape, n_fc=500)
+  #net= TCNN5a(img1_shape,img2_shape)
 
   #NOTE: Switch the device.
   #device= 'cpu'
   device= 'cuda'
+  #device= 'cuda:1'  #Second GPU.
   if device=='cuda' and not torch.cuda.is_available():
     device= 'cpu'
     print('device is modified to cpu since cuda is not available.')
@@ -1283,8 +1437,8 @@ if __name__=='__main__':
   ###opt= torch.optim.Adagrad(net.parameters())
   ###opt= torch.optim.RMSprop(net.parameters())
   #TEST: Learning rate scheduler:
-  opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
-  sch= torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[125,150], gamma=0.5)
+  #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
+  #sch= torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[125,150], gamma=0.5)
   #opt= torch.optim.SGD(net.parameters(), lr=0.002, momentum=0.95, weight_decay=0.0)
   #sch= torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[125,150], gamma=0.5)
   ##sch= torch.optim.lr_scheduler.ExponentialLR(opt, gamma=0.98)
@@ -1295,10 +1449,11 @@ if __name__=='__main__':
         #mode='min', factor=0.5, patience=100, cooldown=100,
         #threshold=-0.001, threshold_mode='rel',
         #verbose=True)
+  opt= torch.optim.SGD(net.parameters(), lr=0.0005, momentum=0.95, weight_decay=0.005)
   #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
-  #sch= ReduceLRAtCondition(opt,
-         #mode='gt', factor=0.5, patience=10, cooldown=200, threshold=0.001,
-         #verbose=True)
+  sch= ReduceLRAtCondition(opt,
+         mode='gt', factor=0.5, patience=10, cooldown=200, threshold=0.001,
+         verbose=True)
   #sch= torch.optim.lr_scheduler.CyclicLR(opt, base_lr=0.0001, max_lr=0.1, step_size_up=100, mode='triangular2', verbose=True)
   #TEST: Stochastic Weight Averaging:
   #opt= torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.95, weight_decay=0.005)
@@ -1320,6 +1475,20 @@ if __name__=='__main__':
   N_batch= 40
   N_epoch= 3000
 
+  #Save the info into a file.
+  now= time.localtime()
+  time_stamp= '%04i.%02i.%02i-%02i.%02i.%02i' % (now.tm_year,now.tm_mon,now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
+  info_filename= 'data_generated/log/{}-{}-{}-{}.info'.format(sqptn3,net.__class__.__name__,opt.__class__.__name__,time_stamp)
+  with open(info_filename,'w') as fp:
+    fp.write('net:\n'+str(net)+'\n\n')
+    fp.write('opt:\n'+str(opt)+'\n\n')
+    fp.write('sch:\n'+str(sch)+'\n'+str(sch.state_dict())+'\n\n')
+    fp.write('loss:\n'+str(loss)+'\n'+str(loss.state_dict())+'\n\n')
+    fp.write('dataset_train: {} {}\n\n'.format(len(dataset_train),dataset_train.root))
+    fp.write('dataset_test: {} {}\n\n'.format(len(dataset_test),dataset_test.root))
+    fp.write('N_epoch,N_batch: {}, {}\n\n'.format(N_epoch,N_batch))
+  print('saved info into:',info_filename)
+
   loader_train= torch.utils.data.DataLoader(
                   dataset=dataset_train,
                   batch_size=N_batch,
@@ -1337,9 +1506,11 @@ if __name__=='__main__':
   log_test_time= []
   log_loss_per_epoch= []
   log_loss_test_per_epoch= []
+  log_lr= []
   for i_epoch in range(N_epoch):
     log_loss_per_epoch.append(0.0)
     log_train_time.append(time.time())
+    log_lr.append(opt.param_groups[0]['lr'])
     net.train()  # training mode; using dropout.
     for i_step, (batch_imgs1, batch_imgs2, batch_infeats, batch_outfeats) in enumerate(loader_train):
       #torch.autograd.Variable()
@@ -1413,21 +1584,14 @@ if __name__=='__main__':
 
   #Save the model parameters into a file.
   #To load it: net.load_state_dict(torch.load(FILEPATH))
-  torch.save(net.state_dict(), 'model_learned/cnn_sqptn3_1-{}_{}.pt'.format(A_SIZE1,A_SIZE2))
+  torch.save(net.state_dict(), 'model_learned/cnn_{}_1-{}_{}.pt'.format(sqptn3,A_SIZE1,A_SIZE2))
 
   #Save the log into a file.
-  now= time.localtime()
-  time_stamp= '%04i.%02i.%02i-%02i.%02i.%02i' % (now.tm_year,now.tm_mon,now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
-  info_filename= 'data_generated/log/sqptn3-{}-{}-{}.info'.format(net.__class__.__name__,opt.__class__.__name__,time_stamp)
-  log_filename= 'data_generated/log/sqptn3-{}-{}-{}.log'.format(net.__class__.__name__,opt.__class__.__name__,time_stamp)
-  with open(info_filename,'w') as fp:
-    fp.write('net:\n'+str(net)+'\n\n')
-    fp.write('opt:\n'+str(opt)+'\n\n')
-    fp.write('sch:\n'+str(sch)+'\n\n')
+  log_filename= 'data_generated/log/{}-{}-{}-{}.log'.format(sqptn3,net.__class__.__name__,opt.__class__.__name__,time_stamp)
   with open(log_filename,'w') as fp:
     fp.write('#i_epoch train_time test_time loss_train loss_test\n')
-    for i_epoch, (train_time, test_time, loss_train, loss_test) in enumerate(zip(log_train_time, log_test_time, log_loss_per_epoch, log_loss_test_per_epoch)):
-      fp.write('{} {} {} {} {}\n'.format(i_epoch, train_time, test_time, loss_train, loss_test))
+    for i_epoch, (train_time, test_time, loss_train, loss_test, lr) in enumerate(zip(log_train_time, log_test_time, log_loss_per_epoch, log_loss_test_per_epoch, log_lr)):
+      fp.write('{} {} {} {} {} {}\n'.format(i_epoch, train_time, test_time, loss_train, loss_test, lr))
   print('saved info into:',info_filename)
   print('saved log into:',log_filename)
 
