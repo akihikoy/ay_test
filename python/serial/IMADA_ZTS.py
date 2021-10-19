@@ -9,32 +9,32 @@ import sys
 import serial
 import time
 
+ZTS_UNIT_CODE= {
+  '00':'None',
+  '01':'mN',
+  '02':'N',
+  '03':'kN',
+  '04':'g',
+  '05':'kg',
+  '07':'gf',
+  '08':'kgf',
+  '10':'ozf',
+  '11':'lbf',
+  '12':'klbf',
+  '13':'N-cm',
+  '14':'N-m',
+  '16':'kgf-cm',
+  '17':'kgf-m',
+  '22':'ozf-in',
+  '23':'lbf-in',
+  }
+
 if __name__=='__main__':
   dev= sys.argv[1] if len(sys.argv)>1 else '/dev/ttyS3'  #COM3(Win); /dev/ttyACM0
   baudrate= int(sys.argv[2]) if len(sys.argv)>2 else 19200
 
   #serial.SEVENBITS
   ser= serial.Serial(dev,baudrate,serial.EIGHTBITS,serial.PARITY_NONE,serial.STOPBITS_ONE)
-
-  unit_code= {
-    '00':'None',
-    '01':'mN',
-    '02':'N',
-    '03':'kN',
-    '04':'g',
-    '05':'kg',
-    '07':'gf',
-    '08':'kgf',
-    '10':'ozf',
-    '11':'lbf',
-    '12':'klbf',
-    '13':'N-cm',
-    '14':'N-m',
-    '16':'kgf-cm',
-    '17':'kgf-m',
-    '22':'ozf-in',
-    '23':'lbf-in',
-    }
 
   try:
     '''
@@ -47,7 +47,7 @@ if __name__=='__main__':
     ser.write('XFC\r')
     raw= ser.read_until('\r')
     if raw[:3]=='XFC':
-      units= [unit_code[raw[i:i+2]] for i in range(3,15,2)]
+      units= [ZTS_UNIT_CODE[raw[i:i+2]] for i in range(3,15,2)]
     else:  units= ['None']*6
     print 'Units:',units
 
