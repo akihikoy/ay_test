@@ -7,13 +7,14 @@
 
 #NOTE: need to install: tmux rxvt-unicode-256color
 
-import sys
+import sys,os
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 class embeddedTerminal(QWidget):
 
     def __init__(self):
+        self.pid= str(os.getpid())
         QWidget.__init__(self)
         self._processes = []
         self.resize(600, 600)
@@ -25,7 +26,7 @@ class embeddedTerminal(QWidget):
             #['-into', str(self.terminal1.winId()),
             'urxvt',
             ['-embed', str(self.terminal1.winId()),
-             '-e', 'tmux', 'new', '-s', 'session1'])
+             '-e', 'tmux', 'new', '-s', self.pid+'-session1'])
         self.terminal2 = QWidget(self)
         layout.addWidget(self.terminal2)
         self._start_process(
@@ -33,7 +34,7 @@ class embeddedTerminal(QWidget):
             #['-into', str(self.terminal2.winId()),
             'urxvt',
             ['-embed', str(self.terminal2.winId()),
-             '-e', 'tmux', 'new', '-s', 'session2'])
+             '-e', 'tmux', 'new', '-s', self.pid+'-session2'])
         button = QPushButton('List files')
         layout.addWidget(button)
         button.clicked.connect(self._list_files)
@@ -52,15 +53,15 @@ class embeddedTerminal(QWidget):
 
     def _list_files(self):
         self._start_process(
-            'tmux', ['send-keys', '-t', 'session1:0', 'ls', 'Enter'])
+            'tmux', ['send-keys', '-t', self.pid+'-session1:0', 'ls', 'Enter'])
         self._start_process(
-            'tmux', ['send-keys', '-t', 'session2:0', 'ls /', 'Enter'])
+            'tmux', ['send-keys', '-t', self.pid+'-session2:0', 'ls /', 'Enter'])
 
     def _exit(self):
         self._start_process(
-            'tmux', ['send-keys', '-t', 'session1:0', 'exit', 'Enter'])
+            'tmux', ['send-keys', '-t', self.pid+'-session1:0', 'exit', 'Enter'])
         self._start_process(
-            'tmux', ['send-keys', '-t', 'session2:0', 'exit', 'Enter'])
+            'tmux', ['send-keys', '-t', self.pid+'-session2:0', 'exit', 'Enter'])
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
