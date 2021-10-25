@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.06, 2016
 
-g++ -g -Wall -O2 -o simple_blob_detector3.out simple_blob_detector3.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui
+g++ -g -Wall -O2 -o simple_blob_detector3.out simple_blob_detector3.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -90,7 +90,7 @@ int main(int argc, char**argv)
 
   // Set up the detector with default parameters.
   cv::Ptr<cv::SimpleBlobDetector> detector;
-  detector= new cv::SimpleBlobDetector(params);
+  detector= cv::SimpleBlobDetector::create(params);
 
   // Detect blobs.
   std::vector<cv::KeyPoint> keypoints;
@@ -120,7 +120,7 @@ int main(int argc, char**argv)
     if(ParamChanged)
     {
       AssignParams(params);
-      detector= new cv::SimpleBlobDetector(params);
+      detector= cv::SimpleBlobDetector::create(params);
       ParamChanged= false;
     }
 

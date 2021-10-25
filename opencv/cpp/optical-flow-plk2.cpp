@@ -5,13 +5,14 @@
     \version 0.1
     \date    Dec.23, 2020
 
-g++ -I -Wall -O2 optical-flow-plk2.cpp -o optical-flow-plk2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-plk2.cpp -o optical-flow-plk2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "opencv2/video/tracking.hpp"
 #include <iostream>
+#include <map>
 #include <ctype.h>
 #include "cap_open.h"
 #define LIBRARY
@@ -67,6 +68,7 @@ int main(int argc, char**argv)
   CreateTrackbar<int>("max_level", window, &max_level, 0, 10, 1,  &TrackbarPrintOnTrack);
   CreateTrackbar<double>("min_eig_th", window, &min_eig_th, 0.0, 0.1, 0.0001,  &TrackbarPrintOnTrack);
   CreateTrackbar<int>("optflow_flags", window, &optflow_flags, 0, 1, 1,  &TrackbarPrintOnTrack);
+  cv::imshow(window, cv::Mat(10, 200, CV_8UC3));
 
   cv::Mat frame_in, frame, frame_old;
   std::map<int,cv::Mat> history;

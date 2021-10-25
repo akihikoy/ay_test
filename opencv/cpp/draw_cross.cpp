@@ -5,12 +5,13 @@
     \version 0.1
     \date    Jul.14, 2015
 
-    g++ -g -Wall -O2 -o draw_cross.out draw_cross.cpp -lopencv_core -lopencv_highgui
+    g++ -g -Wall -O2 -o draw_cross.out draw_cross.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
 */
 //-------------------------------------------------------------------------------------------
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 //-------------------------------------------------------------------------------------------
 namespace loco_rabbits
 {

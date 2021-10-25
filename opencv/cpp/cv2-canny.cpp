@@ -7,7 +7,7 @@
 
 http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
 
-g++ -g -Wall -O2 -o cv2-canny.out cv2-canny.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-canny.out cv2-canny.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

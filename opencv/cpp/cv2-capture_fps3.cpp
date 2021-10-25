@@ -5,8 +5,8 @@
     \version 0.1
     \date    Jul.22, 2016
 
-g++ -g -Wall -O2 -o cv2-capture_fps3.out cv2-capture_fps3.cpp cv2e/cap_libv4l_2.cpp -I/usr/include/eigen3 -lopencv_core -lopencv_highgui -lv4l1 -lv4l2
-g++ -g -Wall -O2 -o cv2-capture_fps3.out cv2-capture_fps3.cpp cv2e/cap_libv4l_2.cpp -I$HOME/.local/include -I/usr/include/eigen3 -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui -lv4l1 -lv4l2
+g++ -g -Wall -O2 -o cv2-capture_fps3.out cv2-capture_fps3.cpp cv2e/cap_libv4l_2.cpp -I/usr/include/eigen3 -lopencv_core -lopencv_highgui -lv4l1 -lv4l2 -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-capture_fps3.out cv2-capture_fps3.cpp cv2e/cap_libv4l_2.cpp -I$HOME/.local/include -I/usr/include/eigen3 -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui -lv4l1 -lv4l2 -lopencv_videoio
 
 */
 //-------------------------------------------------------------------------------------------

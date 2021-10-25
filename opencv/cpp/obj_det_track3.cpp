@@ -8,7 +8,7 @@
 Based on obj_det_track1.cpp
 Provides a good interface for integration.
 
-g++ -I -Wall obj_det_track3.cpp -o obj_det_track3.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall obj_det_track3.cpp -o obj_det_track3.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -16,6 +16,7 @@ g++ -I -Wall obj_det_track3.cpp -o obj_det_track3.out -lopencv_core -lopencv_vid
 #include <opencv2/video/background_segm.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
+#include <list>
 #include "cv2-videoout2.h"
 #include "rotate90n.h"
 #include "cap_open.h"
@@ -291,7 +292,7 @@ void ReadFromYAML(std::vector<TObjDetTrackBSPParams> &params, const std::string 
 
 void TObjDetTrackBSP::Init()
 {
-  bkg_sbtr_= new cv::BackgroundSubtractorMOG2(params_.BS_History, params_.BS_VarThreshold, params_.BS_DetectShadows);
+  bkg_sbtr_= cv::createBackgroundSubtractorMOG2(params_.BS_History, params_.BS_VarThreshold, params_.BS_DetectShadows);
   i_frame_= 0;
 }
 //-------------------------------------------------------------------------------------------
@@ -314,7 +315,7 @@ void TObjDetTrackBSP::Step(const cv::Mat &frame)
   cv::inRange(frame_hsv, cv::Scalar(0, 0, 0), cv::Scalar(params_.ThreshBlkH, params_.ThreshBlkS, params_.ThreshBlkV), mask_nonblack);
   mask_nonblack= 255-mask_nonblack;
 
-  (*bkg_sbtr_)(frame_s, mask_bs_, 1./float(params_.BS_History));
+  bkg_sbtr_->apply(frame_s, mask_bs_, 1./float(params_.BS_History));
   mask_bs_&= mask_nonblack;  // Remove black background
   cv::erode(mask_bs_, mask_bser_, cv::Mat(), cv::Point(-1,-1), params_.NErode1);
   mask_bser_&= mask_nonblack;  // Remove black background

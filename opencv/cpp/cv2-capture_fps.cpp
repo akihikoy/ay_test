@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.22, 2016
 
-g++ -g -Wall -O2 -o cv2-capture_fps.out cv2-capture_fps.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-capture_fps.out cv2-capture_fps.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui  -lopencv_videoio
 
 We have to use source-build OpenCV otherwise we cannot set CV_CAP_PROP_FPS:
   HIGHGUI ERROR: V4L: Property <unknown property string>(5) not supported by device

@@ -4,7 +4,7 @@
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
     \date    Jun.15, 2021
-g++ -g -Wall -O2 -o cv2-stereo_cmp.out cv2-stereo_cmp.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-stereo_cmp.out cv2-stereo_cmp.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
 
 e.g.
 $ ./cv2-stereo_cmp.out sample/tsukuba_l.png sample/tsukuba_r.png
@@ -63,20 +63,20 @@ int main(int argc, char**argv)
     disparity.setTo(0);
     if(method==0)
     {
-      cv::StereoBM stereo(cv::StereoBM::BASIC_PRESET, /*ndisparities=*/n_disp, /*SADWindowSize=*/w_size);
+      cv::Ptr<cv::StereoBM> stereo= cv::StereoBM::create(/*ndisparities=*/n_disp, /*blockSize =*/w_size);
       cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
       cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
-      stereo(gray1, gray2, disparity, /*disptype=*/CV_32FC1);
+      stereo->compute(gray1, gray2, disparity);
     }
     else if(method==1)
     {
-      cv::StereoSGBM stereo(/*minDisparity=*/1, /*numDisparities=*/n_disp, /*SADWindowSize=*/w_size,
+      cv::Ptr<cv::StereoSGBM> stereo= cv::StereoSGBM::create(/*minDisparity=*/1, /*numDisparities=*/n_disp, /*blockSize =*/w_size,
                   // /*int P1=*/0, /*int P2=*/0, /*int disp12MaxDiff=*/0,
                   /*int P1=*/8*3*w_size*w_size, /*int P2=*/32*3*w_size*w_size, /*int disp12MaxDiff=*/0,
                   /*int preFilterCap=*/0, /*int uniquenessRatio=*/0,
-                  /*int speckleWindowSize=*/0, /*int speckleRange=*/0,
-                  /*bool fullDP=*/false);
-      stereo(frame1, frame2, disparity);
+                  /*int speckleWindowSize=*/0, /*int speckleRange=*/0
+                  /*, mode*/);
+      stereo->compute(frame1, frame2, disparity);
     }
 
     cv::normalize(disparity, disparity, 0, 255, CV_MINMAX, CV_8U);

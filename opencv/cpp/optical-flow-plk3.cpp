@@ -5,13 +5,14 @@
     \version 0.1
     \date    Jan.05, 2021
 
-g++ -I -Wall -O2 optical-flow-plk3.cpp -o optical-flow-plk3.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-plk3.cpp -o optical-flow-plk3.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "opencv2/video/tracking.hpp"
 #include <iostream>
+#include <map>
 #include <ctype.h>
 #include "cap_open.h"
 #define LIBRARY
@@ -44,7 +45,7 @@ int main(int argc, char**argv)
   CreateTrackbar<float>("v_max", window, &v_max, 0.0f, 1000.0f, 0.01f,  &TrackbarPrintOnTrack);
 
   cv::TermCriteria term_criteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03);
-  int grid_step(5);
+  int grid_step(5), viz_step(1);
   int subpix_win_size(10);
   int lk_win_size(11);
   int max_level(3);
@@ -52,10 +53,12 @@ int main(int argc, char**argv)
   int optflow_flags(0);
 
   CreateTrackbar<int>("grid_step", window, &grid_step, 1, 30, 1,  &TrackbarPrintOnTrack);
-  CreateTrackbar<int>("lk_win_size", window, &lk_win_size, 0, 50, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("viz_step", window, &viz_step, 1, 30, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("lk_win_size", window, &lk_win_size, 3, 50, 1,  &TrackbarPrintOnTrack);
   CreateTrackbar<int>("max_level", window, &max_level, 0, 10, 1,  &TrackbarPrintOnTrack);
   CreateTrackbar<double>("min_eig_th", window, &min_eig_th, 0.0, 0.1, 0.0001,  &TrackbarPrintOnTrack);
   CreateTrackbar<int>("optflow_flags", window, &optflow_flags, 0, 1, 1,  &TrackbarPrintOnTrack);
+  cv::imshow(window, cv::Mat(10, 200, CV_8UC3));
 
   cv::Mat frame_in, frame, frame_old;
   std::map<int,cv::Mat> history;
@@ -115,10 +118,9 @@ int main(int argc, char**argv)
       float vx,vy,spd,angle;
       int dx,dy;
       const float dt(1.0);
-      int step(1);
-      for (int i(step); i<frame_in.cols-step; i+=step)
+      for (int i(viz_step); i<frame_in.cols-viz_step; i+=viz_step)
       {
-        for (int j(step); j<frame_in.rows-step; j+=step)
+        for (int j(viz_step); j<frame_in.rows-viz_step; j+=viz_step)
         {
           vx= velx.at<float>(j, i);  // Index order is y,x
           vy= vely.at<float>(j, i);  // Index order is y,x

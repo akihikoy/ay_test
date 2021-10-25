@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.01, 2016
 
-g++ -g -Wall -O2 -o polygon_clip.out polygon_clip.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o polygon_clip.out polygon_clip.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 qplot -x /tmp/polygon.dat w l lw 2 t '"original"' /tmp/clip_rect.dat w l lw 2 t '"clip"' /tmp/polygon_clipped.dat w l lw 4 t '"clipped"'
 */

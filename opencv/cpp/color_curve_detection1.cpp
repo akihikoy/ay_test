@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.20, 2021
 
-g++ -g -Wall -O2 -o color_curve_detection1.out color_curve_detection1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o color_curve_detection1.out color_curve_detection1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 */
 //-------------------------------------------------------------------------------------------

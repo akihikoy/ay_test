@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.22, 2016
 
-g++ -I -Wall -O2 optical-flow-lk2.cpp -o optical-flow-lk2.out -lopencv_core -lopencv_legacy -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-lk2.cpp -o optical-flow-lk2.out -lopencv_core -lopencv_legacy -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

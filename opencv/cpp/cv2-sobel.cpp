@@ -7,7 +7,7 @@
 
 http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/sobel_derivatives/sobel_derivatives.html
 
-g++ -g -Wall -O2 -o cv2-sobel.out cv2-sobel.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-sobel.out cv2-sobel.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

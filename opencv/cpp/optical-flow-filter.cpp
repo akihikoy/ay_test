@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.05, 2021
 
-g++ -I -Wall -O2 optical-flow-filter.cpp -o optical-flow-filter.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-filter.cpp -o optical-flow-filter.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

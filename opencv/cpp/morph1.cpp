@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.21, 2018
 
-g++ -g -Wall -O2 -o morph1.out morph1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o morph1.out morph1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 The idea is learned from:
 http://www.learnopencv.com/face-morph-using-opencv-cpp-python/

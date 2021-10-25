@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.15, 2015
 
-    g++ -I -Wall iterator.cpp -o iterator.out -lopencv_core -lopencv_imgproc -lopencv_highgui
+    g++ -I -Wall iterator.cpp -o iterator.out -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

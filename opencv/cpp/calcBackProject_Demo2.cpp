@@ -1,4 +1,4 @@
-// g++ -I -Wall calcBackProject_Demo2.cpp -o calcBackProject_Demo2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+// g++ -I -Wall calcBackProject_Demo2.cpp -o calcBackProject_Demo2.out -lopencv_core -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
 
 // src. opencv/samples/cpp/tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp
 

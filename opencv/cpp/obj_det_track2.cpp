@@ -7,7 +7,7 @@
 
 NOTE: Found that the approach of obj_det_track1.cpp is better.
 
-g++ -I -Wall obj_det_track2.cpp -o obj_det_track2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall obj_det_track2.cpp -o obj_det_track2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -35,7 +35,7 @@ int main(int argc, char**argv)
   else         cap= CapOpen("0", /*width=*/0, /*height=*/0);
   if(!cap.isOpened())  return -1;
 
-  cv::BackgroundSubtractorMOG2 bkg_sbtr(/*history=*/30, /*varThreshold=*/10.0, /*detectShadows=*/true);
+  cv::Ptr<cv::BackgroundSubtractorMOG2> bkg_sbtr= cv::createBackgroundSubtractorMOG2(/*history=*/30, /*varThreshold=*/10.0, /*detectShadows=*/true);
 
   cv::namedWindow("BkgSbtr",1);
   int history(30);
@@ -69,7 +69,7 @@ int main(int argc, char**argv)
 
       // if(detecting)
       // {
-      bkg_sbtr(frame, mask, 1./float(history));
+      bkg_sbtr->apply(frame, mask, 1./float(history));
       cv::erode(mask,mask,cv::Mat(),cv::Point(-1,-1), 3);
       // cv::dilate(mask,mask,cv::Mat(),cv::Point(-1,-1), 2);
       // cv::erode(mask,mask,cv::Mat(),cv::Point(-1,-1), 3);

@@ -5,7 +5,7 @@
     \version 5.1
     \date    Jul.15, 2021
 
-g++ -g -Wall -O2 -o simple_blob_tracker5.out simple_blob_tracker5.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui
+g++ -g -Wall -O2 -o simple_blob_tracker5.out simple_blob_tracker5.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
 
 Run:
   $ ./simple_blob_tracker5.out
@@ -169,7 +169,7 @@ void DrawPointMoves2(cv::Mat &img, const std::vector<TPointMove2> &move,
 void TrackKeyPoints2(
     const cv::Mat &img_th,  // Preprocessed image
     bool is_thresholded,   // If img_th is thresholded
-    const cv::SimpleBlobDetector &detector,  // Blob detector
+    cv::SimpleBlobDetector &detector,  // Blob detector
     const std::vector<cv::KeyPoint> &orig,  // Original keypoints
     std::vector<TPointMove2> &move,  // Must be previous movement
     const float &s_width,  // Width of search ROI of each keypoint
@@ -348,7 +348,7 @@ void InitKeyPointMove(const std::vector<cv::KeyPoint> &orig, std::vector<TPointM
 void TrackKeyPoints2(
     const cv::Mat &img_th,  // Preprocessed image
     bool is_thresholded,   // If img_th is thresholded
-    const cv::SimpleBlobDetector &detector,  // Blob detector
+    cv::SimpleBlobDetector &detector,  // Blob detector
     const std::vector<cv::KeyPoint> &orig,  // Original keypoints
     std::vector<TPointMove2> &move,  // Must be previous movement
     const float &s_width,  // Width of search ROI of each keypoint
@@ -618,7 +618,7 @@ void ReadFromYAML(std::vector<TBlobTracker2Params> &blob_params, const std::stri
 
 void TBlobTracker2::Init()
 {
-  detector_= new cv::SimpleBlobDetector(params_.SBDParams);
+  detector_= cv::SimpleBlobDetector::create(params_.SBDParams);
 }
 //-------------------------------------------------------------------------------------------
 

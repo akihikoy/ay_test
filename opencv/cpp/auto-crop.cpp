@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.4, 2015
 
-    g++ -g -Wall -O2 -o auto-crop.out auto-crop.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+    g++ -g -Wall -O2 -o auto-crop.out auto-crop.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

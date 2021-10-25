@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.22, 2016
 
-g++ -I -Wall -O2 optical-flow-farn1.cpp -o optical-flow-farn1.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-farn1.cpp -o optical-flow-farn1.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -47,6 +47,7 @@ int main(int argc, char**argv)
   int poly_n(1);
   double poly_sigma(1.5);
   int flags(0);
+  int viz_step(1);
 
   CreateTrackbar<double>("pyr_scale:", window, &pyr_scale, 0.0, 0.99, 0.01, &TrackbarPrintOnTrack);
   CreateTrackbar<int   >("levels:", window, &levels, 1, 10, 1, &TrackbarPrintOnTrack);
@@ -55,6 +56,7 @@ int main(int argc, char**argv)
   CreateTrackbar<int   >("poly_n:", window, &poly_n, 0, 10, 1, &TrackbarPrintOnTrack);
   CreateTrackbar<double>("poly_sigma:", window, &poly_sigma, 0.0, 10.0, 0.01, &TrackbarPrintOnTrack);
   CreateTrackbar<int   >("flags:", window, &flags, 0, 1, 1, &TrackbarPrintOnTrack);
+  CreateTrackbar<int   >("viz_step:", window, &viz_step, 1, 30, 1, &TrackbarPrintOnTrack);
 
   cv::Mat frame_in, frame, frame_old;
   cap >> frame;
@@ -103,10 +105,9 @@ int main(int argc, char**argv)
       float vx,vy,spd,angle;
       int dx,dy;
       const float dt(0.1);
-      int step(1);
-      for (int i(step); i<frame_in.cols-step; i+=step)
+      for (int i(viz_step); i<frame_in.cols-viz_step; i+=viz_step)
       {
-        for (int j(step); j<frame_in.rows-step; j+=step)
+        for (int j(viz_step); j<frame_in.rows-viz_step; j+=viz_step)
         {
           vx= velx.at<float>(j, i);  // Index order is y,x
           vy= vely.at<float>(j, i);  // Index order is y,x

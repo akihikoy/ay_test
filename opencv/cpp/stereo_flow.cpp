@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.06, 2016
 
-g++ -g -Wall -O2 -o stereo_flow.out stereo_flow.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o stereo_flow.out stereo_flow.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -43,7 +43,7 @@ int main(int argc, char**argv)
   cv::Mat frame1, frame2;
 
   int n_disp(16*8), w_size(5);
-  cv::StereoBM stereo(cv::StereoBM::BASIC_PRESET, /*ndisparities=*/n_disp, /*SADWindowSize=*/w_size);
+  cv::Ptr<cv::StereoBM> stereo=cv::StereoBM::create(/*ndisparities=*/n_disp, /*blockSize=*/w_size);
 
   for(;;)
   {
@@ -65,7 +65,7 @@ int main(int argc, char**argv)
     cv::Mat disparity;
     cv::cvtColor(frame1, frame1, CV_BGR2GRAY);
     cv::cvtColor(frame2, frame2, CV_BGR2GRAY);
-    stereo(frame1, frame2, disparity, /*disptype=*/CV_32FC1);
+    stereo->compute(frame1, frame2, disparity);
     // /*TEST*/cv::erode(disparity,disparity,cv::Mat(),cv::Point(-1,-1), 2);
     cv::normalize(disparity, disparity, 0, 255, CV_MINMAX, CV_8U);
     cv::imshow("stereo_flow", disparity);

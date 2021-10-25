@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.08, 2017
 
-g++ -g -Wall -O2 -o cv2-laplacian.out cv2-laplacian.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-laplacian.out cv2-laplacian.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

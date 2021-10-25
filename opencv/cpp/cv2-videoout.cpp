@@ -1,4 +1,4 @@
-// g++ -g -Wall -O2 -o cv2-videoout.out cv2-videoout.cpp -lopencv_core -lopencv_highgui
+// g++ -g -Wall -O2 -o cv2-videoout.out cv2-videoout.cpp -lopencv_core -lopencv_highgui -lopencv_videoio
 
 // #define OPENCV_LEGACY
 #ifdef OPENCV_LEGACY

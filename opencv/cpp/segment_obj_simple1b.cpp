@@ -8,7 +8,7 @@
     \version 0.1
     \date    May.17, 2017
 
-g++ -g -Wall -O2 -o segment_obj_simple1b.out segment_obj_simple1b.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o segment_obj_simple1b.out segment_obj_simple1b.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 Based on:
   segment_obj_simple1.cpp

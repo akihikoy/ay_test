@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.08, 2017
 
-g++ -I -Wall -O2 optical-flow-canny-lk.cpp -o optical-flow-canny-lk.out -lopencv_core -lopencv_legacy -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-canny-lk.cpp -o optical-flow-canny-lk.out -lopencv_core -lopencv_legacy -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

@@ -1,5 +1,5 @@
 // From OpenCV sample.
-// g++ -g -Wall -O2 -o calibration.out calibration.cpp -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_highgui
+// g++ -g -Wall -O2 -o calibration.out calibration.cpp -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
 // ./calibration.out 1 -w 8 -h 6 -s 0.0247 -o camera.yml -op -oe
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.08, 2016
 
-g++ -g -Wall -O2 -o cv2-filter2d.out cv2-filter2d.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-filter2d.out cv2-filter2d.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

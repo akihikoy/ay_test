@@ -12,7 +12,7 @@
 #include <cstdio>
 
 // based on: http://stackoverflow.com/questions/10533233/opencv-c-obj-c-advanced-square-detection
-// compile: x++ -cv cv2-squares2.cpp -- -lopencv_core -lopencv_highgui -lopencv_imgproc
+// compile: g++ -O2 -o cv2-squares2.out cv2-squares2.cpp -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio
 
 using namespace cv;
 using namespace std;

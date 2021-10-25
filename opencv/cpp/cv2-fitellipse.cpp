@@ -1,4 +1,4 @@
-// g++ -g -Wall -O2 -o cv2-fitellipse.out cv2-fitellipse.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+// g++ -g -Wall -O2 -o cv2-fitellipse.out cv2-fitellipse.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
 
 // http://docs.opencv.org/master/de/dc7/fitellipse_8cpp-example.html#gsc.tab=0
 

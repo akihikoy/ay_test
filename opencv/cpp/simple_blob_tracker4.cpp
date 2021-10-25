@@ -19,7 +19,7 @@ We apply blob detection to the ROI per blob, and update the blob position.
 If multiple blobs or no blob are detected, it is considered as tracking failure.
 This approach enables more robustness.
 
-g++ -g -Wall -O2 -o simple_blob_tracker4.out simple_blob_tracker4.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui
+g++ -g -Wall -O2 -o simple_blob_tracker4.out simple_blob_tracker4.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
 
 Run:
   $ ./simple_blob_tracker4.out
@@ -281,7 +281,7 @@ void InitKeyPointMove(const std::vector<cv::KeyPoint> &orig, std::vector<TPointM
 
 void TrackKeyPoints2(
     const cv::Mat &img_th,  // Preprocessed image
-    const cv::SimpleBlobDetector &detector,  // Blob detector
+    cv::SimpleBlobDetector &detector,  // Blob detector
     const std::vector<cv::KeyPoint> &orig,  // Original keypoints
     std::vector<TPointMove2> &move,  // Must be previous movement
     const float &s_width,  // Width of search ROI of each keypoint
@@ -490,7 +490,7 @@ void ReadFromYAML(std::vector<TBlobTracker2Params> &blob_params, const std::stri
 
 void TBlobTracker2::Init()
 {
-  detector_= new cv::SimpleBlobDetector(params_.SBDParams);
+  detector_= cv::SimpleBlobDetector::create(params_.SBDParams);
 }
 //-------------------------------------------------------------------------------------------
 

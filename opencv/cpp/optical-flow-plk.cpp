@@ -7,7 +7,7 @@
 
 src. opencv/samples/cpp/lkdemo.cpp
 
-g++ -I -Wall -O2 optical-flow-plk.cpp -o optical-flow-plk.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall -O2 optical-flow-plk.cpp -o optical-flow-plk.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

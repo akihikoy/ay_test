@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.14, 2021
 
-g++ -O2 -g -W -Wall -o ros_proj_mat.out ros_proj_mat.cpp  -I../include -I/opt/ros/kinetic/include -pthread -llog4cxx -lpthread -L/opt/ros/kinetic/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -Wl,-rpath,/opt/ros/kinetic/lib
+g++ -O2 -g -W -Wall -o ros_proj_mat.out ros_proj_mat.cpp  -I../include -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

@@ -1,5 +1,5 @@
 // From OpenCV sample.
-// g++ -g -Wall -O2 -o calib_stereo_fs.out calib_stereo_fs.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_highgui
+// g++ -g -Wall -O2 -o calib_stereo_fs.out calib_stereo_fs.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
 // cd data/usbcam4g1_tltr1 && ../../calib_stereo_fs.out -w 8 -h 6 -s 0.0247 image_list.xml && cd -
 // Modified for fisheye.
 

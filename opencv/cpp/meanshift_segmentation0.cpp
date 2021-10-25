@@ -1,6 +1,6 @@
 // Meanshift sample
 // src: https://code.ros.org/trac/opencv/browser/trunk/opencv/samples/cpp/meanshift_segmentation.cpp?rev=3944
-// g++ -g -Wall -O2 -o meanshift_segmentation0.out meanshift_segmentation0.cpp -lopencv_imgproc -lopencv_legacy -lopencv_core -lopencv_highgui
+// g++ -g -Wall -O2 -o meanshift_segmentation0.out meanshift_segmentation0.cpp -lopencv_imgproc -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>

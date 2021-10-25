@@ -1,6 +1,6 @@
 // From OpenCV sample.
 // Modified for fisheye cameras.
-// g++ -g -Wall -O2 -o calibration_fs.out calibration_fs.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_highgui
+// g++ -g -Wall -O2 -o calibration_fs.out calibration_fs.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs -lopencv_videoio
 // ./calibration_fs.out 1 -w 8 -h 6 -s 0.0247 -o camera.yml -op -oe
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.16, 2021
 
-g++ -g -Wall -O2 -o thinning_graph1.out thinning_graph1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o thinning_graph1.out thinning_graph1.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
 
 $ ./thinning_graph1.out sample/binary1.png
 $ ./thinning_graph1.out sample/opencv-logo.png
@@ -450,7 +450,7 @@ void ThinningGraphToSpinePolys(const TThinningGraph &graph, const cv::Mat &point
     std::list<int> path;
     bool res= ShortestPath(n1_max, n2_max, P, path);
     std::cerr<<"Longest path in graph "<<i<<": ";
-    for(std::list<int>::const_iterator pitr(path.begin()), pitr_end(path.end()); pitr!=pitr_end; ++pitr) std::cerr<<" "<<*pitr;std::cerr<<std::endl;
+    {for(std::list<int>::const_iterator pitr(path.begin()), pitr_end(path.end()); pitr!=pitr_end; ++pitr) std::cerr<<" "<<*pitr;} std::cerr<<std::endl;
     if(!res || path.size()<=1)  continue;
     std::vector<cv::Point> path_points;
     std::list<int>::const_iterator pitr(path.begin()), pitr_end(path.end());

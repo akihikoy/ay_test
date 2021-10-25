@@ -1,4 +1,4 @@
-// g++ -g -Wall -O2 -o pyr_segmentation.out pyr_segmentation.cpp -lopencv_imgproc -lopencv_legacy -lopencv_core -lopencv_highgui
+// g++ -g -Wall -O2 -o pyr_segmentation.out pyr_segmentation.cpp -lopencv_imgproc -lopencv_legacy -lopencv_core -lopencv_highgui -lopencv_videoio
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>

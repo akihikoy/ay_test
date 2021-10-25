@@ -5,11 +5,12 @@
     \version 0.1
     \date    Apr.08, 2020
 
-g++ -g -Wall -O3 -o timer_video_rec.out timer_video_rec.cpp -lopencv_core -lopencv_highgui
+g++ -g -Wall -O3 -o timer_video_rec.out timer_video_rec.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <iostream>
 #include <iomanip>
 #include <cstdio>

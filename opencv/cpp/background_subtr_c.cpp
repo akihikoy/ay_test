@@ -6,7 +6,7 @@
     \version 0.1
     \date    Feb.23, 2017
 
-g++ -I -Wall background_subtr_c.cpp -o background_subtr_c.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall background_subtr_c.cpp -o background_subtr_c.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_highgui
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
   // cv::namedWindow("camera",1);
   // cv::namedWindow("mask",1);
 
-  cv::BackgroundSubtractorMOG2 bkg_sbtr(history, /*varThreshold=*/10.0, /*detectShadows=*/true);
+  cv::Ptr<cv::BackgroundSubtractorMOG2> bkg_sbtr= cv::createBackgroundSubtractorMOG2(history, /*varThreshold=*/10.0, /*detectShadows=*/true);
 
   cv::Mat frame, mask, mask_f, frame_masked;
   bool running(true);
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
       cap >> frame; // get a new frame from camera
 
       // cv::cvtColor(frame, frame, cv::COLOR_BGR2HSV);
-      bkg_sbtr(frame,mask,1./float(history));
+      bkg_sbtr->apply(frame,mask,1./float(history));
 
       cv::erode(mask,mask,cv::Mat(),cv::Point(-1,-1), 1);
       cv::dilate(mask,mask,cv::Mat(),cv::Point(-1,-1), 5);

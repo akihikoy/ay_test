@@ -5,7 +5,7 @@
     \version 0.1
     \date    May 14, 2019
 
-g++ -g -Wall -O2 -o morph3.out morph3.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o morph3.out morph3.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 */
 //-------------------------------------------------------------------------------------------

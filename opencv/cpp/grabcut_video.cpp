@@ -5,7 +5,7 @@
     \version 0.1
     \date    Sep.26, 2018
 
-g++ -I -Wall grabcut_video.cpp -o grabcut_video.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall grabcut_video.cpp -o grabcut_video.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 Src:
 https://docs.opencv.org/3.4.2/de/dd0/grabcut_8cpp-example.html

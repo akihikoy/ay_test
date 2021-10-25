@@ -1,4 +1,4 @@
-// g++ -I -Wall segment_objects.cpp -o segment_objects.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+// g++ -I -Wall segment_objects.cpp -o segment_objects.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 // src. opencv/samples/cpp/segment_objects.cpp
 
@@ -7,9 +7,11 @@
 #include "opencv2/video/background_segm.hpp"
 #include <stdio.h>
 #include <string>
+#include <vector>
 #include "cap_open.h"
 
 using namespace cv;
+using namespace std;
 
 static void help()
 {
@@ -82,8 +84,9 @@ int main(int argc, char** argv)
     namedWindow("video", 1);
     namedWindow("segmented", 1);
 
-    BackgroundSubtractorMOG bgsubtractor;
-    bgsubtractor.set("noiseSigma", 3);
+    // BackgroundSubtractorMOG bgsubtractor;
+    // bgsubtractor.set("noiseSigma", 3);
+    cv::Ptr<cv::BackgroundSubtractorMOG2> bgsubtractor=cv::createBackgroundSubtractorMOG2(/*int history=*/10, /*double varThreshold=*/5.0, /*bool detectShadows=*/true);
 
     for(;;)
     {
@@ -95,7 +98,7 @@ int main(int argc, char** argv)
           if(cap.WaitReopen()) continue;
           else break;
         }
-        bgsubtractor(tmp_frame, bgmask, update_bg_model ? -1 : 0);
+        bgsubtractor->apply(tmp_frame, bgmask, update_bg_model ? -1 : 0);
         refineSegments(tmp_frame, bgmask, out_frame);
         imshow("video", tmp_frame);
         imshow("segmented", out_frame);

@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.07, 2016
 
-g++ -g -Wall -O2 -o cv2-cap-stream.out cv2-cap-stream.cpp -lopencv_core -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-cap-stream.out cv2-cap-stream.cpp -lopencv_core -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

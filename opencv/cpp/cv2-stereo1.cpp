@@ -5,7 +5,7 @@
     \version 0.1
     \date    Mar.29, 2016
 
-g++ -g -Wall -O2 -o cv2-stereo1.out cv2-stereo1.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-stereo1.out cv2-stereo1.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -45,16 +45,16 @@ int main(int argc, char**argv)
   cv::namedWindow("disparity",1);
   cv::Mat frame1, frame2, gray1, gray2, disparity;
   int n_disp(16*3), w_size(5);
-  cv::StereoBM stereo(cv::StereoBM::BASIC_PRESET, /*ndisparities=*/n_disp, /*SADWindowSize=*/w_size);
+  cv::Ptr<cv::StereoBM> stereo=cv::StereoBM::create(/*ndisparities=*/n_disp, /*blockSize=*/w_size);
   for(;;)
   {
     cap1 >> frame1;
     cap2 >> frame2;
     cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
     cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
-    // stereo(gray1, gray2, disparity, /*disptype=*/CV_16S);
+    // stereo->compute(gray1, gray2, disparity);
     // disparity+= 16;
-    stereo(gray1, gray2, disparity, /*disptype=*/CV_32FC1);
+    stereo->compute(gray1, gray2, disparity);
     disparity+= 1.0;
     disparity/=100.0;
     cv::imshow("camera1", frame1);
@@ -69,7 +69,7 @@ int main(int argc, char**argv)
       else if(c==']')  {n_disp+= 16; print(n_disp);}
       else if(c==',')  {w_size-= 2; if(w_size<=5) w_size=5; print(w_size);}
       else if(c=='.')  {w_size+= 2; print(w_size);}
-      stereo.init(cv::StereoBM::BASIC_PRESET, /*ndisparities=*/n_disp, /*SADWindowSize=*/w_size);
+      stereo= cv::StereoBM::create(/*ndisparities=*/n_disp, /*blockSize=*/w_size);
     }
     // usleep(10000);
   }

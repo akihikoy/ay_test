@@ -9,7 +9,7 @@
 #include <cstdio>
 #include "cap_open.h"
 
-// g++ -I -Wall background_subtr.cpp -o background_subtr.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_photo -lopencv_legacy -lopencv_highgui
+// g++ -I -Wall background_subtr.cpp -o background_subtr.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_photo -lopencv_highgui
 
 int main(int argc, char **argv)
 {
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 
   // http://stackoverflow.com/questions/21873757/opencv-c-how-to-slow-down-background-adaptation-of-backgroundsubtractormog
   // cv::createBackgroundSubtractorMOG2 bkg_sbtr= cv::BackgroundSubtractorMOG(/*history=*/200, /*nmixtures=*/5, /*double backgroundRatio=*/0.7, /*double noiseSigma=*/0);
-  cv::BackgroundSubtractorMOG2 bkg_sbtr(/*int history=*/10, /*double varThreshold=*/5.0, /*bool detectShadows=*/true);
+  cv::Ptr<cv::BackgroundSubtractorMOG2> bkg_sbtr= cv::createBackgroundSubtractorMOG2(/*int history=*/10, /*double varThreshold=*/5.0, /*bool detectShadows=*/true);
 
   cv::namedWindow("camera",1);
   cv::namedWindow("mask",1);
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
       // cv::GaussianBlur(frame, frame, /*ksize=*/cv::Size(5,5), /*sigmaX=*/2.0);
 
 
-      bkg_sbtr(frame,mask);
+      bkg_sbtr->apply(frame,mask);
 
       cv::erode(mask,mask,cv::Mat(),cv::Point(-1,-1), 1);
       cv::dilate(mask,mask,cv::Mat(),cv::Point(-1,-1), 1);

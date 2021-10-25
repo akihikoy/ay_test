@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.19, 2021
 
-g++ -I -Wall points_contour1.cpp -o points_contour1.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall points_contour1.cpp -o points_contour1.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

@@ -1,6 +1,6 @@
 // Test watershed algorithm.
 // src: https://github.com/Itseez/opencv/blob/master/samples/cpp/watershed.cpp
-// g++ -g -Wall -O2 -o watershed0.out watershed0.cpp -lopencv_imgproc -lopencv_core -lopencv_highgui
+// g++ -g -Wall -O2 -o watershed0.out watershed0.cpp -lopencv_imgproc -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>

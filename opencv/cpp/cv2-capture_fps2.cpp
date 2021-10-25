@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.22, 2016
 
-g++ -g -Wall -O2 -o cv2-capture_fps2.out cv2-capture_fps2.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui -lv4l2
+g++ -g -Wall -O2 -o cv2-capture_fps2.out cv2-capture_fps2.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui -lv4l2 -lopencv_videoio
 
 This code failed:
   SetFPS ERROR: V4L: Unable to set camera FPS

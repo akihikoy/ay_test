@@ -10,7 +10,7 @@
 #include <ctime>
 #include "cap_open.h"
 
-// g++ -I -Wall motion_history.cpp -o motion_history.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_legacy -lopencv_highgui
+// g++ -I -Wall motion_history.cpp -o motion_history.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_legacy -lopencv_highgui -lopencv_videoio
 
 
 void draw_motion_comp(cv::Mat& img, int x_coordinate, int y_coordinate, int width, int height, double angle, cv::Mat& result)
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
   std::vector<cv::Rect> seg_bounds;
   cv::Mat silh_roi,orient_roi,mask_roi,mhi_roi;
 
-  cv::BackgroundSubtractorMOG2 bkg_sbtr(/*int history=*/10, /*double varThreshold=*/5.0, /*bool detectShadows=*/true);
+  // cv::Ptr<cv::BackgroundSubtractorMOG2> bkg_sbtr= cv::createBackgroundSubtractorMOG2(/*int history=*/10, /*double varThreshold=*/5.0, /*bool detectShadows=*/true);
 
   for(;;)
   {
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     cvtColor(frame_diff,gray_diff, CV_BGR2GRAY );
     threshold(gray_diff,ret,DEFAULT_THRESHOLD,255,0);
     motion_mask = ret.clone();
-    // bkg_sbtr(frame,motion_mask);
+    // bkg_sbtr->apply(frame,motion_mask);
 
     double timestamp= 1000.0*clock()/CLOCKS_PER_SEC;
     cv::updateMotionHistory(motion_mask,motion_history,timestamp,MHI_DURATION);

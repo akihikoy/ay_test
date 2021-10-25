@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.29, 2016
 
-g++ -g -Wall -O2 -o cv2-roi_poly.out cv2-roi_poly.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-roi_poly.out cv2-roi_poly.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

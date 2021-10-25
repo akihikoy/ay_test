@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jun.27, 2016
 
-g++ -g -Wall -O2 -o mouth_fit4.out mouth_fit4.cpp cma_es/cmaes.c cma_es/boundary_transformation.c -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lm
+g++ -g -Wall -O2 -o mouth_fit4.out mouth_fit4.cpp cma_es/cmaes.c cma_es/boundary_transformation.c -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lm -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

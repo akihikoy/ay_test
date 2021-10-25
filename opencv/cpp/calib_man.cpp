@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.10, 2020
 
-g++ -g -Wall -O2 -o calib_man.out calib_man.cpp -lopencv_core -lopencv_imgproc -lopencv_calib3d -lopencv_features2d -lopencv_highgui
+g++ -g -Wall -O2 -o calib_man.out calib_man.cpp -lopencv_core -lopencv_imgproc -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

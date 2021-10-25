@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.06, 2016
 
-g++ -g -Wall -O2 -o simple_blob_detector.out simple_blob_detector.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui
+g++ -g -Wall -O2 -o simple_blob_detector.out simple_blob_detector.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -72,7 +72,7 @@ int main(int argc, char**argv)
   params.minInertiaRatio = 0.01;
 
   // Set up the detector with default parameters.
-  cv::SimpleBlobDetector detector(params);
+  cv::Ptr<cv::SimpleBlobDetector> detector= cv::SimpleBlobDetector::create(params);
 
   // Detect blobs.
   std::vector<cv::KeyPoint> keypoints;
@@ -83,7 +83,7 @@ int main(int argc, char**argv)
   {
     cap >> frame; // get a new frame from camera
 
-    detector.detect(frame, keypoints);
+    detector->detect(frame, keypoints);
     cv::drawKeypoints(frame, keypoints, frame, cv::Scalar(0,0,255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
     cv::imshow("camera", frame);

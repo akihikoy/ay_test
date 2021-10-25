@@ -1,4 +1,4 @@
-// g++ -I -Wall camshiftdemo.cpp -o camshiftdemo.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+// g++ -I -Wall camshiftdemo.cpp -o camshiftdemo.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 // src. opencv/samples/cpp/camshiftdemo.cpp
 
 #include "opencv2/video/tracking.hpp"

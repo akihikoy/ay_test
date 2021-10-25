@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.26, 2018
 
-g++ -g -Wall -O2 -std=c++11 -o cvui_test.out cvui_test.cpp -lopencv_core -lopencv_highgui
+g++ -g -Wall -O2 -std=c++11 -o cvui_test.out cvui_test.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
 
 Document:
 https://www.learnopencv.com/cvui-gui-lib-built-on-top-of-opencv-drawing-primitives/

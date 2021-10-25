@@ -7,7 +7,7 @@
 
 Preliminary blob detection and tracking method used in the Humanoids2016b paper.
 
-g++ -g -Wall -O2 -o simple_blob_tracker2.out simple_blob_tracker2.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui
+g++ -g -Wall -O2 -o simple_blob_tracker2.out simple_blob_tracker2.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
 
 Run:
   $ ./simple_blob_tracker2.out
@@ -464,7 +464,7 @@ void ReadFromYAML(std::vector<TBlobTrackerParams> &blob_params, const std::strin
 
 void TBlobTracker::Init()
 {
-  detector_= new cv::SimpleBlobDetector(params_.SBDParams);
+  detector_= cv::SimpleBlobDetector::create(params_.SBDParams);
 }
 //-------------------------------------------------------------------------------------------
 

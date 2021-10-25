@@ -9,7 +9,7 @@
 
 #include "cap_open.h"
 
-// g++ -I -Wall lk_demo.cpp -o lk_demo.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_legacy -lopencv_highgui
+// g++ -I -Wall lk_demo.cpp -o lk_demo.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 using namespace cv;
 using namespace std;

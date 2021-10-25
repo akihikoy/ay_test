@@ -1,4 +1,4 @@
-// g++ -I -Wall calcHist_hsv.cpp -o calcHist_hsv.out -lopencv_core -lopencv_imgproc -lopencv_highgui
+// g++ -I -Wall calcHist_hsv.cpp -o calcHist_hsv.out -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 // src. opencv/samples/cpp/tutorial_code/Histograms_Matching/calcHist_Demo.cpp
 

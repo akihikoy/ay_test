@@ -8,7 +8,7 @@
   #include <opencv2/imgproc/imgproc.hpp>
 #endif
 #include <iostream>
-// g++ -I -Wall cv2-convert.cpp -o cv2-convert -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_legacy -lopencv_imgproc -lopencv_highgui
+// g++ -I -Wall cv2-convert.cpp -o cv2-convert -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 #define print(var) std::cout<<#var"= "<<(var)<<std::endl
 

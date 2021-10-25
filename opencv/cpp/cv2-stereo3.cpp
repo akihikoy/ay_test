@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.01, 2016
 
-g++ -g -Wall -O2 -o cv2-stereo3.out cv2-stereo3.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-stereo3.out cv2-stereo3.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -108,13 +108,13 @@ int main(int argc, char**argv)
   for(;;)
   {
     bool stereo_reset(false);
-    cv::StereoSGBM stereo(/*minDisparity=*/min_disp, /*numDisparities=*/n_disp, /*SADWindowSize=*/w_size,
+    cv::Ptr<cv::StereoSGBM> stereo=cv::StereoSGBM::create(/*minDisparity=*/min_disp, /*numDisparities=*/n_disp, /*blockSize=*/w_size,
                 // /*int P1=*/0, /*int P2=*/0, /*int disp12MaxDiff=*/0,
                 /*int P1=*/8*3*w_size*w_size, /*int P2=*/32*3*w_size*w_size, /*int disp12MaxDiff=*/0,
                 /*int preFilterCap=*/0, /*int uniquenessRatio=*/0,
-                /*int speckleWindowSize=*/0, /*int speckleRange=*/0,
-                /*bool fullDP=*/false);
-    // cv::StereoBM stereo(cv::StereoBM::BASIC_PRESET, /*ndisparities=*/n_disp, /*SADWindowSize=*/w_size);
+                /*int speckleWindowSize=*/0, /*int speckleRange=*/0
+                /*, mode*/);
+    // cv::Ptr<cv::StereoBM> stereo=cv::StereoBM::create(/*ndisparities=*/n_disp, /*blockSize=*/w_size);
     for(;!stereo_reset;)
     {
       cap1 >> frame1;
@@ -132,15 +132,15 @@ int main(int argc, char**argv)
       // TODO:FIXME: REDUCE THE IMAGE SIZES
 
       // StereoSGBM:
-      stereo(frame1, frame2, disparity);
+      stereo->compute(frame1, frame2, disparity);
       // StereoSGBM (gray):
       // cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
       // cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
-      // stereo(gray1, gray2, disparity);
+      // stereo->compute(gray1, gray2, disparity);
       // StereoBM:
       // cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
       // cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
-      // stereo(gray1, gray2, disparity, /*disptype=*/CV_16S);
+      // stereo->compute(gray1, gray2, disparity);
 
       // cv::filterSpeckles(disparity, /*newVal=*/0, /*maxSpeckleSize=*/10, /*maxDiff=*/16, buf);
 

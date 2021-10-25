@@ -5,12 +5,13 @@
     \version 0.1
     \date    Jun.06, 2019
 
-g++ -g -Wall -O2 -o drag_points.out drag_points.cpp -lopencv_core -lopencv_highgui
+g++ -g -Wall -O2 -o drag_points.out drag_points.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
 
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <iostream>
 #include "cap_open.h"
 //-------------------------------------------------------------------------------------------

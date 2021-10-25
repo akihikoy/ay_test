@@ -1,10 +1,11 @@
-// g++ -g -Wall -O2 -o cv2-draw.out cv2-draw.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+// g++ -g -Wall -O2 -o cv2-draw.out cv2-draw.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 #ifdef OPENCV_LEGACY
   #include <cv.h>
   #include <highgui.h>
 #else
   #include <opencv2/core/core.hpp>
   #include <opencv2/highgui/highgui.hpp>
+  #include <opencv2/imgproc.hpp>
 #endif
 #include <iostream>
 #include <vector>

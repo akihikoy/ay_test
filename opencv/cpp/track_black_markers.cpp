@@ -16,7 +16,7 @@ Blob detection gives a position and a size in float type, which looks very smoot
 Therefore we improved the robustness of blob-detection-based marker tracking.
 See simple_blob_tracker4.cpp
 
-g++ -g -Wall -O2 -o track_black_markers.out track_black_markers.cpp -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o track_black_markers.out track_black_markers.cpp -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 Based on:
   threshold_black.cpp

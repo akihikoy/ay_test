@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.14, 2015
 
-    g++ -I -Wall lk_mov_det.cpp -o lk_mov_det.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_legacy -lopencv_highgui
+    g++ -I -Wall lk_mov_det.cpp -o lk_mov_det.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

@@ -1,6 +1,6 @@
 // src. http://abhishek4273.com/tag/calcmotiongradient/
 
-// g++ -I -Wall motion_track.cpp -o motion_track.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_legacy -lopencv_highgui
+// g++ -I -Wall motion_track.cpp -o motion_track.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_legacy -lopencv_highgui -lopencv_videoio
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>

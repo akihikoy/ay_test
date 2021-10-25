@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jun.27, 2016
 
-g++ -g -Wall -O2 -o mouth_fit1.out mouth_fit1.cpp -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o mouth_fit1.out mouth_fit1.cpp -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

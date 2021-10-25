@@ -3,7 +3,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include "cap_open.h"
-// g++ -g -Wall -O2 -o cv2-edge.out cv2-edge.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+// g++ -g -Wall -O2 -o cv2-edge.out cv2-edge.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 int main( int argc, char** argv )
 {

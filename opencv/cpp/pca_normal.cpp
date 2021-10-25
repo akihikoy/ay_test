@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.13, 2021
 
-g++ -I -Wall pca_normal.cpp -o pca_normal.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall pca_normal.cpp -o pca_normal.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

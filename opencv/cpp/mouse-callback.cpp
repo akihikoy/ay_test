@@ -1,4 +1,4 @@
-// x++ mouse-callback.cpp -- -o mouse-callback.out -lopencv_core -lopencv_imgproc -lopencv_highgui
+// g++ -O2 mouse-callback.cpp -o mouse-callback.out -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 // NOTE: Click a point on the window, then the BGR and HSV color of the point is displayed.
 
 // #define OPENCV_LEGACY

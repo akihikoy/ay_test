@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.07, 2016
 
-g++ -g -Wall -O2 -o stereo_flow2.out stereo_flow2.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o stereo_flow2.out stereo_flow2.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -39,7 +39,7 @@ cv::Mat FlowStereo(int we, int wd, cv::Mat frame1, cv::Mat frame2, t_stereo &ste
   cv::dilate(frame2,frame2,cv::Mat(),cv::Point(-1,-1), wd);
 
   cv::Mat disparity;
-  stereo(frame1, frame2, disparity, /*disptype=*/CV_32FC1);
+  stereo->compute(frame1, frame2, disparity);
   return disparity;
 }
 //-------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void FlowStereo2(int we, int wd, cv::Mat &frame1, cv::Mat &frame2)
   // frame1*= 200;
   // frame2*= 200;
   cv::Mat seg1, seg2, tmp;
-  cv::vector<int> matched(frame1.rows);
+  std::vector<int> matched(frame1.rows);
   for(int y(0),y_end(std::min(frame1.rows,frame2.rows)-y_step); y<y_end; y+=y_step)
   {
     // cv::Mat seg1(frame1,cv::Rect(0,y,frame1.cols,y_step));
@@ -116,7 +116,7 @@ void FlowStereo2(int we, int wd, cv::Mat &frame1, cv::Mat &frame2)
   frame2c.copyTo(frame2);
 
   // cv::Mat disparity;
-  // stereo(frame1, frame2, disparity, /*disptype=*/CV_32FC1);
+  // stereo->compute(frame1, frame2, disparity);
   // return disparity;
 }
 //-------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ int main(int argc, char**argv)
   cv::Mat frame1, frame2;
 
   int n_disp(16*8), w_size(5);
-  cv::StereoBM stereo(cv::StereoBM::BASIC_PRESET, /*ndisparities=*/n_disp, /*SADWindowSize=*/w_size);
+  cv::Ptr<cv::StereoBM> stereo=cv::StereoBM::create(/*ndisparities=*/n_disp, /*blockSize=*/w_size);
 
   bool running(true);
   for(;;)

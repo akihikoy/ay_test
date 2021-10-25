@@ -1,11 +1,11 @@
 // see http://stackoverflow.com/questions/14974453/how-to-get-cvcalcopticalflowsf-to-work
 
-// g++ -I -Wall optical-flow-sf.cpp -o optical-flow-sf.out -I/usr/include/opencv2 -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui
+// g++ -I -Wall optical-flow-sf.cpp -o optical-flow-sf.out -I/usr/include/opencv2 -lopencv_core -lopencv_optflow -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/video/tracking.hpp>
+#include <opencv2/optflow.hpp>
 #include <iostream>
 #include "cap_open.h"
 //-------------------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ int main(int argc, char**argv)
     // medianBlur(frame, frame, 9);
 
     cv::Mat flow;
-    cv::calcOpticalFlowSF(frame_old, frame, flow, /*layers=*/3, /*avr_block_size*/2, /*max_flow*/4);
+    cv::optflow::calcOpticalFlowSF(frame_old, frame, flow, /*layers=*/3, /*avr_block_size*/2, /*max_flow*/4);
 
     // visualization
     frame_in*= 0.5;

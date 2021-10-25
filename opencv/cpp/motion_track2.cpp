@@ -1,4 +1,4 @@
-// g++ -I -Wall motion_track2.cpp -o motion_track2.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui
+// g++ -I -Wall motion_track2.cpp -o motion_track2.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 // src. https://dl.dropboxusercontent.com/u/28096936/tuts/motionTrackingTut/finalCode/motionTracking.cpp
 
 //motionTracking.cpp

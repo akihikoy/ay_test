@@ -1,5 +1,5 @@
 // From OpenCV sample.
-// g++ -g -Wall -O2 -o calib_stereo.out calib_stereo.cpp -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_highgui
+// g++ -g -Wall -O2 -o calib_stereo.out calib_stereo.cpp -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
 // cd data/usbcam4g1_tltr1 && ../../calib_stereo.out -w 8 -h 6 -s 0.0247 image_list.xml && cd -
 /* This is sample from the OpenCV book. The copyright notice is below */
 
@@ -175,12 +175,12 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
                     cameraMatrix[0], distCoeffs[0],
                     cameraMatrix[1], distCoeffs[1],
                     imageSize, R, T, E, F,
-                    TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 100, 1e-5),
                     CV_CALIB_FIX_ASPECT_RATIO +
                     CV_CALIB_ZERO_TANGENT_DIST +
                     CV_CALIB_SAME_FOCAL_LENGTH +
                     // CV_CALIB_RATIONAL_MODEL +
-                    CV_CALIB_FIX_K3 + CV_CALIB_FIX_K4 + CV_CALIB_FIX_K5);
+                    CV_CALIB_FIX_K3 + CV_CALIB_FIX_K4 + CV_CALIB_FIX_K5,
+                    TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 100, 1e-5));
     cout << "done with RMS error=" << rms << endl;
 
 // CALIBRATION QUALITY CHECK

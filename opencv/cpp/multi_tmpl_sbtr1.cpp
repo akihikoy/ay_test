@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.21, 2018
 
-g++ -g -Wall -O2 -o multi_tmpl_sbtr1.out multi_tmpl_sbtr1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o multi_tmpl_sbtr1.out multi_tmpl_sbtr1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 ./multi_tmpl_sbtr1.out  "http://aypi11:8080/?action=stream?dummy=file.mjpg"
 */

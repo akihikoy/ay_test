@@ -5,11 +5,12 @@
     \version 0.1
     \date    Feb.24, 2017
 
-g++ -g -Wall -O2 -o cv2-puttext.out cv2-puttext.cpp -lopencv_core -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-puttext.out cv2-puttext.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <iostream>
 #include <iomanip>
 #include <sstream>

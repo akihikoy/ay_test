@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.16, 2020
 
-g++ -g -Wall -O2 -o cv2-edge_cmp.out cv2-edge_cmp.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-edge_cmp.out cv2-edge_cmp.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

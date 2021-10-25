@@ -6,7 +6,7 @@
 #include <iostream>
 #include <iomanip>
 
-// g++ -I -Wall flow_finder_2.cpp -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_legacy -lopencv_imgproc -lopencv_highgui
+// g++ -I -Wall flow_finder_2.cpp -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_legacy -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 
 /*!\brief calculate optical flow */
 class TOpticalFlow
@@ -140,7 +140,7 @@ int main (int argc, char **argv)
   // #define USING_BKG_SBTR
 
   #ifdef USING_BKG_SBTR
-  cv::BackgroundSubtractorMOG2 bkg_sbtr(/*int history=*/10, /*double varThreshold=*/5.0, /*bool detectShadows=*/true);
+  cv::Ptr<cv::BackgroundSubtractorMOG2> bkg_sbtr= cv::createBackgroundSubtractorMOG2(/*int history=*/10, /*double varThreshold=*/5.0, /*bool detectShadows=*/true);
   #endif
 
   cv::namedWindow("camera",1);
@@ -153,7 +153,7 @@ int main (int argc, char **argv)
   {
     cap >> frame;
     #ifdef USING_BKG_SBTR
-      bkg_sbtr(frame,mask);
+      bkg_sbtr->apply(frame,mask);
       cv::erode(mask,mask,cv::Mat(),cv::Point(-1,-1), 1);
       cv::dilate(mask,mask,cv::Mat(),cv::Point(-1,-1), 1);
       // Use mask as an input image:

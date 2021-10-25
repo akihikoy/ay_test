@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.06, 2016
 
-g++ -g -Wall -O2 -o cv2-videoread.out cv2-videoread.cpp -lopencv_core -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-videoread.out cv2-videoread.cpp -lopencv_core -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

@@ -12,7 +12,7 @@
 #include <cstdio>
 
 // based on: https://code.ros.org/trac/opencv/browser/trunk/opencv/samples/cpp/squares.cpp?rev=4079
-// compile: x++ -cv cv2-squares.cpp -- -lopencv_core -lopencv_highgui -lopencv_imgproc
+// compile: g++ -O2 -o cv2-squares.out cv2-squares.cpp -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio
 
 // The "Square Detector" program.
 // It loads several images subsequentally and tries to find squares in

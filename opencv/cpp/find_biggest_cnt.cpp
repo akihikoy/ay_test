@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.01, 2015
 
-    g++ -g -Wall -O2 -o find_biggest_cnt.out find_biggest_cnt.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+    g++ -g -Wall -O2 -o find_biggest_cnt.out find_biggest_cnt.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

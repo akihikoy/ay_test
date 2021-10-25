@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.06, 2016
 
-g++ -g -Wall -O2 -o cv2-threshold.out cv2-threshold.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-threshold.out cv2-threshold.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

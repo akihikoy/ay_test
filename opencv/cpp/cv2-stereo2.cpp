@@ -5,7 +5,7 @@
     \version 0.1
     \date    Mar.29, 2016
 
-g++ -g -Wall -O2 -o cv2-stereo2.out cv2-stereo2.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o cv2-stereo2.out cv2-stereo2.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -54,17 +54,17 @@ int main(int argc, char**argv)
   for(;;)
   {
     bool stereo_reset(false);
-    cv::StereoSGBM stereo(/*minDisparity=*/1, /*numDisparities=*/n_disp, /*SADWindowSize=*/w_size,
+    cv::Ptr<cv::StereoSGBM> stereo=cv::StereoSGBM::create(/*minDisparity=*/1, /*numDisparities=*/n_disp, /*blockSize=*/w_size,
                 // /*int P1=*/0, /*int P2=*/0, /*int disp12MaxDiff=*/0,
                 /*int P1=*/8*3*w_size*w_size, /*int P2=*/32*3*w_size*w_size, /*int disp12MaxDiff=*/0,
                 /*int preFilterCap=*/0, /*int uniquenessRatio=*/0,
-                /*int speckleWindowSize=*/0, /*int speckleRange=*/0,
-                /*bool fullDP=*/false);
+                /*int speckleWindowSize=*/0, /*int speckleRange=*/0
+                /*, mode*/);
     for(;!stereo_reset;)
     {
       cap1 >> frame1;
       cap2 >> frame2;
-      stereo(frame1, frame2, disparity);
+      stereo->compute(frame1, frame2, disparity);
       cv::normalize(disparity, disparity, 0, 255, CV_MINMAX, CV_8U);
       cv::imshow("camera1", frame1);
       cv::imshow("camera2", frame2);
