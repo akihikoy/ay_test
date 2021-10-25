@@ -7,7 +7,7 @@
 
 import cv2
 
-cap= cv2.VideoCapture('http://aypi10:8080/?action=stream&dummy=file.mjpg')
+cap= cv2.VideoCapture('http://localhost:8080/?action=stream&dummy=file.mjpg')
 
 while(True):
   ret,frame= cap.read()

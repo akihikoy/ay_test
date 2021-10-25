@@ -34,7 +34,7 @@ if __name__=='__main__':
   disp_img('sure_bg',disp_int32(sure_bg))
 
   # Finding sure foreground area
-  dist_transform = cv2.distanceTransform(gray,cv2.cv.CV_DIST_L2,5)
+  dist_transform = cv2.distanceTransform(gray,cv2.DIST_L2,5)
   disp_img('dist_transform',dist_transform/10)
   ret, sure_fg = cv2.threshold(dist_transform,0.5*dist_transform.max(),255,0)
   print 'sure_fg\n',np.uint8(sure_fg/255)
@@ -49,7 +49,8 @@ if __name__=='__main__':
   #ret, markers = cv2.connectedComponents(sure_fg)
   ## Add one to all labels so that sure background is not 0, but 1
   #markers = markers+1
-  cnts,_= cv2.findContours(sure_fg, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+  fcres= cv2.findContours(sure_fg, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+  cnts= fcres[0] if len(fcres)==2 else fcres[1]
   print 'cnts\n',cnts
   markers = np.zeros(sure_fg.shape,np.int32)
   num_markers = len(cnts)

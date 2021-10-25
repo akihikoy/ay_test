@@ -10,7 +10,7 @@ import cv2
 
 def FindSegments(binary_img, dist_threshold=0.4):
   # Finding sure foreground area
-  dist_transform= cv2.distanceTransform(np.uint8(binary_img),cv2.cv.CV_DIST_L2,5)
+  dist_transform= cv2.distanceTransform(np.uint8(binary_img),cv2.DIST_L2,5)
   #disp_img('dist_transform',dist_transform/10)
   ret,sure_fg= cv2.threshold(dist_transform,dist_threshold*dist_transform.max(),255,0)
   #print 'sure_fg\n',np.uint8(sure_fg/255)
@@ -18,7 +18,8 @@ def FindSegments(binary_img, dist_threshold=0.4):
   sure_fg= np.uint8(sure_fg)
 
   #ret,segments= cv2.connectedComponents(sure_fg)
-  cnts,_= cv2.findContours(sure_fg, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+  fcres= cv2.findContours(sure_fg, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+  cnts= fcres[0] if len(fcres)==2 else fcres[1]
   #print 'cnts\n',cnts
   segments= np.zeros(sure_fg.shape,np.int32)
   num_segments= len(cnts)

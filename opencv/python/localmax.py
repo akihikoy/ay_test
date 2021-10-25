@@ -51,7 +51,8 @@ def findIsolatedLocalMaxima(greyScaleImage):
     #result.append((cX, cY))
   #return result
 
-  cnts,_= cv2.findContours(img_maxima, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+  fcres= cv2.findContours(img_maxima, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+  cnts= fcres[0] if len(fcres)==2 else fcres[1]
   print cnts
   result= []
   # loop over the contours
@@ -74,7 +75,8 @@ def FindLocalMaxima(img_depth, ground_depth):
   img_depth= cv2.erode(img_depth,np.ones((20,20),np.uint8),iterations=1)
   cv2.imshow('depth2',img_depth)
 
-  cnts,_= cv2.findContours(img_depth, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+  fcres= cv2.findContours(img_depth, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+  cnts= fcres[0] if len(fcres)==2 else fcres[1]
   print cnts, len(cnts)
   result= []
   for c in cnts:

@@ -31,7 +31,8 @@ def FindMultilevelContours(img, vmin, vmax, step, v_smaller=0, v_larger=1):
     img2[img>=v]= v_larger
     img2= img2.astype('uint8')
     #print img2.shape, img2.dtype
-    cnts,_= cv2.findContours(img2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    fcres= cv2.findContours(img2, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    cnts= fcres[0] if len(fcres)==2 else fcres[1]
     if len(cnts)>0:  contours.append((v,cnts))
     #img2= cv2.cvtColor(img2*128, cv2.COLOR_GRAY2BGR)
     #cv2.drawContours(img2, cnts, -1, (0,0,255), 1)
