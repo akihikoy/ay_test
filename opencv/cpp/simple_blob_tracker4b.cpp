@@ -759,6 +759,13 @@ int main(int argc, char**argv)
     if(c=='\x1b'||c=='q') break;
     else if(char(c)=='W')  vout.Switch();
     else if(c=='p')  tracker.SaveCalib("/dev/stdout");
+    else if(c=='P')
+    {
+      std::vector<TBlobTracker2Params> p;
+      p.push_back(tracker.Params());
+      WriteToYAML(p,"/tmp/blobtr_params.yaml");
+      std::cerr<<"Parameters of the tracker are saved into /tmp/blobtr_params.yaml"<<std::endl;
+    }
     else if(c=='C')
     {
       ++trackbar_mode;
@@ -768,8 +775,8 @@ int main(int argc, char**argv)
         CreateTrackbar<int>("NDilate1:", win, &tracker.Params().NDilate1, 0, 10, 1, &TrackbarPrintOnTrack);
         CreateTrackbar<int>("NErode1:", win, &tracker.Params().NErode1, 0, 10, 1, &TrackbarPrintOnTrack);
         CreateTrackbar<float>("SWidth:", win, &tracker.Params().SWidth, 0.0, 100.0, 0.1, &TrackbarPrintOnTrack);
-        CreateTrackbar<float>("NonZeroMin:", win, &tracker.Params().NonZeroMin, 0.0, 20.0, 0.1, &TrackbarPrintOnTrack);
-        CreateTrackbar<float>("NonZeroMax:", win, &tracker.Params().NonZeroMax, 0.0, 20.0, 0.1, &TrackbarPrintOnTrack);
+        CreateTrackbar<float>("NonZeroMin:", win, &tracker.Params().NonZeroMin, 0.0, 20.0, 0.01, &TrackbarPrintOnTrack);
+        CreateTrackbar<float>("NonZeroMax:", win, &tracker.Params().NonZeroMax, 0.0, 20.0, 0.01, &TrackbarPrintOnTrack);
         CreateTrackbar<float>("VPMax:", win, &tracker.Params().VPMax, 0.0, 20.0, 0.1, &TrackbarPrintOnTrack);
         CreateTrackbar<float>("VSMax:", win, &tracker.Params().VSMax, 0.0, 20.0, 0.1, &TrackbarPrintOnTrack);
         CreateTrackbar<int>("NReset:", win, &tracker.Params().NReset, 0, 20, 1, &TrackbarPrintOnTrack);
@@ -781,9 +788,9 @@ int main(int argc, char**argv)
         cv::namedWindow(win,1);
         CreateTrackbar<float>("SBDParams.minArea", win, &tracker.Params().SBDParams.minArea, 0.0, 20000.0, 1.0, &OnTrack2);
         CreateTrackbar<float>("SBDParams.maxArea", win, &tracker.Params().SBDParams.maxArea, 0.0, 20000.0, 1.0, &OnTrack2);
-        CreateTrackbar<float>("SBDParams.minCircularity:", win, &tracker.Params().SBDParams.minCircularity, 0.0, 10.0, 0.01, &OnTrack2);
-        CreateTrackbar<float>("SBDParams.minConvexity:", win, &tracker.Params().SBDParams.minConvexity, 0.0, 10.0, 0.01, &OnTrack2);
-        CreateTrackbar<float>("SBDParams.minInertiaRatio:", win, &tracker.Params().SBDParams.minInertiaRatio, 0.0, 10.0, 0.01, &OnTrack2);
+        CreateTrackbar<float>("SBDParams.minCircularity:", win, &tracker.Params().SBDParams.minCircularity, 0.0, 1.0, 0.01, &OnTrack2);
+        CreateTrackbar<float>("SBDParams.minConvexity:", win, &tracker.Params().SBDParams.minConvexity, 0.0, 1.0, 0.01, &OnTrack2);
+        CreateTrackbar<float>("SBDParams.minInertiaRatio:", win, &tracker.Params().SBDParams.minInertiaRatio, 0.0, 1.0, 0.01, &OnTrack2);
       }
       else
       {

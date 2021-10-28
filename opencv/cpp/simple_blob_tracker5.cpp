@@ -823,9 +823,9 @@ int main(int argc, char**argv)
         cv::namedWindow(win,1);
         CreateTrackbar<float>("SBDParams.minArea", win, &tracker.Params().SBDParams.minArea, 0.0, 20000.0, 1.0, &OnTrack2);
         CreateTrackbar<float>("SBDParams.maxArea", win, &tracker.Params().SBDParams.maxArea, 0.0, 20000.0, 1.0, &OnTrack2);
-        CreateTrackbar<float>("SBDParams.minCircularity:", win, &tracker.Params().SBDParams.minCircularity, 0.0, 10.0, 0.01, &OnTrack2);
-        CreateTrackbar<float>("SBDParams.minConvexity:", win, &tracker.Params().SBDParams.minConvexity, 0.0, 10.0, 0.01, &OnTrack2);
-        CreateTrackbar<float>("SBDParams.minInertiaRatio:", win, &tracker.Params().SBDParams.minInertiaRatio, 0.0, 10.0, 0.01, &OnTrack2);
+        CreateTrackbar<float>("SBDParams.minCircularity:", win, &tracker.Params().SBDParams.minCircularity, 0.0, 1.0, 0.01, &OnTrack2);
+        CreateTrackbar<float>("SBDParams.minConvexity:", win, &tracker.Params().SBDParams.minConvexity, 0.0, 1.0, 0.01, &OnTrack2);
+        CreateTrackbar<float>("SBDParams.minInertiaRatio:", win, &tracker.Params().SBDParams.minInertiaRatio, 0.0, 1.0, 0.01, &OnTrack2);
       }
       else
       {
