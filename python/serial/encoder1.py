@@ -79,6 +79,7 @@ if __name__=='__main__':
   try:
     while True:
       time.sleep(0.1)
+      if not isinstance(lin.Value,float):  print 'LIN invalid value:',lin.Raw; time.sleep(0.1); continue
       print '{n} Latest: {raw} ({l}), {v}'.format(n=lin.N, raw=repr(lin.Raw), l=len(lin.Raw), v=lin.Value)
 
   except KeyboardInterrupt:
