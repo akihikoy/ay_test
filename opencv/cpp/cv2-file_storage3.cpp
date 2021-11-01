@@ -25,13 +25,54 @@ using namespace std;
 namespace cv
 {
 
+// This worked with OpenCV 2.4, however in OpenCV 3.x,
+// this is already defined in opencv2/core/core.hpp
+// template<typename T>
+// void write(cv::FileStorage &fs, const cv::String&, const std::vector<std::vector<T> > &x)
+// {
+//   fs<<"[";
+//   for(typename std::vector<std::vector<T> >::const_iterator itr(x.begin()),end(x.end());itr!=end;++itr)
+//   {
+//     fs<<*itr;
+//   }
+//   fs<<"]";
+// }
+//-------------------------------------------------------------------------------------------
+
+// It seems that read for std::vector<T> is problematic in OpenCV 3.x.
+// So, we define an alternative.
 template<typename T>
-void write(cv::FileStorage &fs, const std::string&, const std::vector<std::vector<T> > &x)
+void vec_read(const FileNode& node, T &x, const T &x_default=T())
+{
+  read(node,x,x_default);
+}
+template<typename T>
+void vec_read(const FileNode& node, std::vector<T> &x, const std::vector<T> &x_default=std::vector<T>())
+{
+  x.clear();
+  for(FileNodeIterator itr(node.begin()),itr_end(node.end()); itr!=itr_end; ++itr)
+  {
+    T y;
+    vec_read(*itr,y);
+    x.push_back(y);
+  }
+}
+//-------------------------------------------------------------------------------------------
+
+// It seems that write for std::vector<T> is problematic in OpenCV 3.x.
+// So, we define an alternative.
+template<typename T>
+void vec_write(FileStorage &fs, const String&, const T &x)
+{
+  write(fs,"",x);
+}
+template<typename T>
+void vec_write(FileStorage &fs, const String&, const std::vector<T> &x)
 {
   fs<<"[";
-  for(typename std::vector<std::vector<T> >::const_iterator itr(x.begin()),end(x.end());itr!=end;++itr)
+  for(typename std::vector<T >::const_iterator itr(x.begin()),end(x.end());itr!=end;++itr)
   {
-    fs<<*itr;
+    vec_write(fs,"",*itr);
   }
   fs<<"]";
 }
@@ -48,7 +89,8 @@ int main(int argc, char**argv)
 
   {
     cv::FileStorage fs("/tmp/1.yaml", cv::FileStorage::WRITE);
-    fs<<"vec"<<vec1;
+    // fs<<"vec"<<vec1;
+    fs<<"vec"; vec_write(fs,"vec",vec1);
     fs.release();
   }
 
@@ -72,14 +114,16 @@ int main(int argc, char**argv)
 
   {
     cv::FileStorage fs("/tmp/2.yaml", cv::FileStorage::WRITE);
-    fs<<"vec"<<vec2;
+    // fs<<"vec"<<vec2;
+    fs<<"vec"; vec_write(fs,"vec",vec2);
     fs.release();
   }
 
   {
     vec2.clear();
     cv::FileStorage fs("/tmp/2.yaml", cv::FileStorage::READ);
-    fs["vec"]>>vec2;
+    // fs["vec"]>>vec2;
+    vec_read(fs["vec"],vec2);
     fs.release();
   }
 
@@ -100,14 +144,16 @@ int main(int argc, char**argv)
 
   {
     cv::FileStorage fs("/tmp/3.yaml", cv::FileStorage::WRITE);
-    fs<<"vec"<<vec3;
+    // fs<<"vec"<<vec3;
+    fs<<"vec"; vec_write(fs,"vec",vec3);
     fs.release();
   }
 
   {
     vec3.clear();
     cv::FileStorage fs("/tmp/3.yaml", cv::FileStorage::READ);
-    fs["vec"]>>vec3;
+    // fs["vec"]>>vec3;
+    vec_read(fs["vec"],vec3);
     fs.release();
   }
 
@@ -138,14 +184,16 @@ int main(int argc, char**argv)
 
   {
     cv::FileStorage fs("/tmp/4.yaml", cv::FileStorage::WRITE);
-    fs<<"vec"<<vec4;
+    // fs<<"vec"<<vec4;
+    fs<<"vec"; vec_write(fs,"vec",vec4);
     fs.release();
   }
 
   {
     vec4.clear();
     cv::FileStorage fs("/tmp/4.yaml", cv::FileStorage::READ);
-    fs["vec"]>>vec4;
+    // fs["vec"]>>vec4;
+    vec_read(fs["vec"],vec4);
     fs.release();
   }
 
@@ -166,10 +214,14 @@ int main(int argc, char**argv)
 
   {
     cv::FileStorage fs("/tmp/x.yaml", cv::FileStorage::WRITE);
-    fs<<"vec1"<<vec1;
-    fs<<"vec2"<<vec2;
-    fs<<"vec3"<<vec3;
-    fs<<"vec4"<<vec4;
+    // fs<<"vec1"<<vec1;
+    // fs<<"vec2"<<vec2;
+    // fs<<"vec3"<<vec3;
+    // fs<<"vec4"<<vec4;
+    fs<<"vec1"; vec_write(fs,"vec",vec1);
+    fs<<"vec2"; vec_write(fs,"vec",vec2);
+    fs<<"vec3"; vec_write(fs,"vec",vec3);
+    fs<<"vec4"; vec_write(fs,"vec",vec4);
     fs.release();
   }
 
@@ -179,10 +231,14 @@ int main(int argc, char**argv)
     vec3.clear();
     vec4.clear();
     cv::FileStorage fs("/tmp/x.yaml", cv::FileStorage::READ);
-    fs["vec1"]>>vec1;
-    fs["vec2"]>>vec2;
-    fs["vec3"]>>vec3;
-    fs["vec4"]>>vec4;
+    // fs["vec1"]>>vec1;
+    // fs["vec2"]>>vec2;
+    // fs["vec3"]>>vec3;
+    // fs["vec4"]>>vec4;
+    vec_read(fs["vec1"],vec1);
+    vec_read(fs["vec2"],vec2);
+    vec_read(fs["vec3"],vec3);
+    vec_read(fs["vec4"],vec4);
     fs.release();
   }
   std::cerr<<"=========="<<std::endl;
