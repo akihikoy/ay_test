@@ -35,6 +35,7 @@ srv_gen
 
 .pyhist
 .directory
+.ipynb_checkpoints
 
 robots/bioloid/res/
 opencv/cpp/frame/
