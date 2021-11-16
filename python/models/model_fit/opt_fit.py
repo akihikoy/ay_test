@@ -7,10 +7,12 @@
 import numpy as np
 import sklearn.neighbors
 import scipy.optimize
+import matplotlib.pyplot as plt
 
 model_func= lambda: None
 Sigmoid= lambda x,xt,beta: 1.0/(1.0+np.exp(-beta*(x-xt)))
-LogSigmoid= lambda x,xt,beta: (lambda xx:np.log(1.0/(1.0+np.exp(xx))) if xx<0.0 else -xx+np.log(1.0/(1.0+np.exp(-xx))))(-beta*(x-xt))
+sub_log_sigmoid= lambda xx:np.where(xx<0.0, np.log(1.0/(1.0+np.exp(xx))), -xx+np.log(1.0/(1.0+np.exp(-xx))) )
+LogSigmoid= lambda x,xt,beta: sub_log_sigmoid(-beta*(x-xt))
 #Two-mode linear model (parameter p=[xt,beta,f10,f11,f21])
 F2MLin= lambda x,p: (p[3]-p[4])/p[1]*LogSigmoid(x,p[0],p[1])+p[4]*x+(p[2]-(p[4]-p[3])*p[0])
 #Two-mode linear model crossing the origin (parameter p=[xt,beta,f11,f21])
@@ -28,14 +30,20 @@ def Error(seq,p):
   return sum((y-model_func(x,p))**2 for x,y in seq)
 
 def Plot(seq, p):
-  with open('/tmp/seq.dat','w') as fp:
-    for x,y in seq:
-      fp.write('%f %f\n' % (x,y))
-  with open('/tmp/model.dat','w') as fp:
-    for x in np.arange(np.min(seq,axis=0)[0],np.max(seq,axis=0)[0],(np.max(seq,axis=0)[0]-np.min(seq,axis=0)[0])/200.0):
-      fp.write('%f %f\n' % (x,model_func(x,p)))
-  print('#Plot by:')
-  print('qplot -x /tmp/seq.dat w p /tmp/model.dat w l')
+  #with open('/tmp/seq.dat','w') as fp:
+    #for x,y in seq:
+      #fp.write('%f %f\n' % (x,y))
+  #with open('/tmp/model.dat','w') as fp:
+    #for x in np.arange(np.min(seq,axis=0)[0],np.max(seq,axis=0)[0],(np.max(seq,axis=0)[0]-np.min(seq,axis=0)[0])/200.0):
+      #fp.write('%f %f\n' % (x,model_func(x,p)))
+  #print('#Plot by:')
+  #print('qplot -x /tmp/seq.dat w p /tmp/model.dat w l')
+  fig,ax= plt.subplots()
+  X= np.arange(np.min(seq,axis=0)[0],np.max(seq,axis=0)[0],(np.max(seq,axis=0)[0]-np.min(seq,axis=0)[0])/200.0)
+  ax.plot(X, model_func(X,p), linewidth=3, color='blue', label='Model')
+  ax.scatter(np.array(seq)[:,0], np.array(seq)[:,1], color='red', label='Sample')
+  ax.legend()
+  plt.show()
 
 def LoadSeq(filename,e1=0,e2=1):
   seq= []
@@ -72,7 +80,9 @@ if __name__=='__main__':
     popsize= 10
 
   tol= 1.0e-4
-  res= scipy.optimize.differential_evolution(lambda x:Error(seq,x), np.array([xmin,xmax]).T, strategy='best1bin', maxiter=300, popsize=popsize, tol=tol, mutation=(0.5, 1), recombination=0.7)
+  maxiter= 300
+  res= scipy.optimize.differential_evolution(lambda x:Error(seq,x), np.array([xmin,xmax]).T, strategy='best1bin',
+                      maxiter=maxiter, popsize=popsize, tol=tol, mutation=(0.5, 1), recombination=0.7)
   print(res)
   print('Result=',res.x,Error(seq,res.x))
   Plot(seq,res.x)
