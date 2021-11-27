@@ -12,6 +12,40 @@ import copy
 import matplotlib.pyplot as plt
 from PIL import Image as PILImage
 
+#Container class to share variables.
+class TContainer(object):
+  def __init__(self):
+    pass
+  def __del__(self):
+    pass
+  def __str__(self):
+    return str(self.__dict__)
+  def __repr__(self):
+    return str(self.__dict__)
+  def __iter__(self):
+    return self.__dict__.itervalues()
+  def items(self):
+    return self.__dict__.items()
+  def iteritems(self):
+    return self.__dict__.iteritems()
+  def keys(self):
+    return self.__dict__.keys()
+  def values(self):
+    return self.__dict__.values()
+  def __getitem__(self,key):
+    return self.__dict__[key]
+  def __setitem__(self,key,value):
+    self.__dict__[key]= value
+  def __delitem__(self,key):
+    del self.__dict__[key]
+  def __contains__(self,key):
+    return key in self.__dict__
+  def Cleanup(self):
+    keys= self.__dict__.keys()
+    for k in keys:
+      self.__dict__[k]= None
+      del self.__dict__[k]
+
 def MergeDict(d_base, d_new, allow_new_key=True):
   if isinstance(d_new, (list,tuple)):
     for d_new_i in d_new:
@@ -76,16 +110,16 @@ class TLogger(TCallbacks):
     self.t0= time.time()
   def cb_epoch_train_end(self, l):
     self.time_train.append(time.time()-self.t0)
-    if l['loss']:  self.loss_train.append(l['loss'])
-    if l['metric']:  self.metric_train.append(l['metric'])
+    if l.loss is not None:  self.loss_train.append(l.loss)
+    if l.metric is not None:  self.metric_train.append(l.metric)
   def cb_epoch_test_begin(self, l):
     self.t0= time.time()
   def cb_epoch_test_end(self, l):
     self.time_test.append(time.time()-self.t0)
-    if l['loss']:  self.loss_test.append(l['loss'])
-    if l['metric']:  self.metric_test.append(l['metric'])
+    if l.loss:  self.loss_test.append(l.loss)
+    if l.metric:  self.metric_test.append(l.metric)
   def cb_batch_train_end(self, l):
-    self.lr.append([param_group['lr'] for param_group in l['opt'].param_groups])
+    self.lr.append([param_group['lr'] for param_group in l.opt.param_groups])
 
   def Plot(self):
     fig= plt.figure(figsize=(10,5))
@@ -115,13 +149,13 @@ class TDisp(TCallbacks):
     self.t0= time.time()
   def cb_epoch_train_end(self, l):
     self.time_train= time.time()-self.t0
-    self.loss_train= l['loss']
+    self.loss_train= l.loss
   def cb_epoch_test_begin(self, l):
     self.t0= time.time()
   def cb_epoch_test_end(self, l):
     self.time_test= time.time()-self.t0
-    self.loss_test= l['loss']
-    self.metric_test= l['metric']
+    self.loss_test= l.loss
+    self.metric_test= l.metric
     print(f'{self.loss_train:.8f}\t{self.loss_test:.8f}\t{self.metric_test:.8f}\t{self.time_train+self.time_test:.6f}')
 
 '''
@@ -175,13 +209,17 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
         callbacks=None,
         lr=None,
         device=torch.device('cuda')):
-  #Default arguments.
-  assert(opt is not None)
-  assert(f_loss is not None)
+  #We use a container to store the  variables to be shared with the callbacks.
+  l= TContainer()
+  for k,v in locals().items(): l[k]= v
   
-  device= torch.device(device)  #For type(device)==str
-  if (device=='cuda' or device.type=='cuda') and not torch.cuda.is_available():
-    device= torch.device('cpu')
+  #Default arguments.
+  assert(l.opt is not None)
+  assert(l.f_loss is not None)
+
+  l.device= torch.device(l.device)  #For type(l.device)==str
+  if (l.device=='cuda' or l.device.type=='cuda') and not torch.cuda.is_available():
+    l.device= torch.device('cpu')
     print('Fit:WARNING: Device is switched to cpu as cuda is not available.')
 
   default_callbacks= {e:TFuncList() for e in 
@@ -189,63 +227,63 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
                        'epoch_train_begin', 'epoch_train_end', 'epoch_test_begin', 'epoch_test_end',
                        'batch_train_begin', 'batch_train_end', 'batch_test_begin', 'batch_test_end',
                        'train_after_prediction', 'test_after_prediction', 'train_after_backward')}
-  callbacks= MergeDictSum(default_callbacks, callbacks, allow_new_key=False) if callbacks is not None else default_callbacks
+  l.callbacks= MergeDictSum(default_callbacks, l.callbacks, allow_new_key=False) if l.callbacks is not None else default_callbacks
 
-  if lr is not None:  AssignParamGroups(opt, 'lr', lr)
+  if l.lr is not None:  AssignParamGroups(l.opt, 'lr', l.lr)
 
   try:
-    t_start= time.time()
-    callbacks['fit_begin'](locals())
-    for i_epoch in range(n_epoch):
+    l.t_start= time.time()
+    l.callbacks['fit_begin'](l)
+    for l.i_epoch in range(l.n_epoch):###############
       try:
-        if dl_train:
-          callbacks['epoch_train_begin'](locals())
-          sum_loss= 0.0
-          sum_metric= None
-          net.train()
-          for i_batch, batch in enumerate(dl_train):
+        if l.dl_train:
+          l.callbacks['epoch_train_begin'](l)
+          l.sum_loss= 0.0
+          l.sum_metric= None
+          l.net.train()
+          for l.i_batch, l.batch in enumerate(l.dl_train):
             try:
-              callbacks['batch_train_begin'](locals())
-              opt.zero_grad()
-              x,y,pred= PredBatch(net, batch, tfm_batch=tfm_batch, device=device)
-              callbacks['train_after_prediction'](locals())
-              loss= f_loss(pred, y)
-              loss.backward()
-              do_opt= True
-              callbacks['train_after_backward'](locals())
-              if do_opt: opt.step()
-              sum_loss+= float(loss)
+              l.callbacks['batch_train_begin'](l)
+              l.opt.zero_grad()
+              l.x,l.y_trg,l.pred= PredBatch(l.net, l.batch, tfm_batch=l.tfm_batch, device=l.device)
+              l.callbacks['train_after_prediction'](l)
+              l.loss= l.f_loss(l.pred, l.y_trg)
+              l.loss.backward()
+              l.do_opt= True
+              l.callbacks['train_after_backward'](l)
+              if l.do_opt: l.opt.step()
+              l.sum_loss+= float(l.loss)
             except CancelBatchException:
               pass
-            callbacks['batch_train_end'](locals())
-          loss= sum_loss/len(dl_train)
-          metric= None
-          callbacks['epoch_train_end'](locals())
+            l.callbacks['batch_train_end'](l)
+          l.loss= l.sum_loss/len(l.dl_train)
+          l.metric= None
+          l.callbacks['epoch_train_end'](l)
 
-        if dl_test:
-          callbacks['epoch_test_begin'](locals())
-          sum_loss= 0.0
-          sum_metric= 0.0
-          net.eval()
+        if l.dl_test:
+          l.callbacks['epoch_test_begin'](l)
+          l.sum_loss= 0.0
+          l.sum_metric= 0.0
+          l.net.eval()
           with torch.no_grad():
-            for i_batch, batch in enumerate(dl_test):
+            for l.i_batch, l.batch in enumerate(l.dl_test):
               try:
-                callbacks['batch_test_begin'](locals())
-                x,y,pred= PredBatch(net, batch, tfm_batch=tfm_batch, device=device)
-                callbacks['test_after_prediction'](locals())
-                sum_loss+= float(f_loss(pred, y))
-                if f_metric:  sum_metric+= float(f_metric(pred, y))
+                l.callbacks['batch_test_begin'](l)
+                l.x,l.y_trg,l.pred= PredBatch(l.net, l.batch, tfm_batch=l.tfm_batch, device=l.device)
+                l.callbacks['test_after_prediction'](l)
+                l.sum_loss+= float(l.f_loss(l.pred, l.y_trg))
+                if l.f_metric:  l.sum_metric+= float(l.f_metric(l.pred, l.y_trg))
               except CancelBatchException:
                 pass
-              callbacks['batch_test_end'](locals())
-          loss= sum_loss/len(dl_test)
-          metric= None if f_metric is None else sum_metric/len(dl_test)
-          callbacks['epoch_test_end'](locals())
+              l.callbacks['batch_test_end'](l)
+          l.loss= l.sum_loss/len(l.dl_test)
+          l.metric= None if l.f_metric is None else l.sum_metric/len(l.dl_test)
+          l.callbacks['epoch_test_end'](l)
       except CancelEpochException:
         pass
   except CancelFitException:
     pass
-  callbacks['fit_end'](locals())
+  l.callbacks['fit_end'](l)
 
 class TScheduler(object):
   def __init__(self, kind, start, end):
@@ -288,11 +326,11 @@ class TLRFinder(TCallbacks):
   def cb_batch_train_begin(self, l):
     pos= self.i_iter/self.num_iter
     self.log_lr.append(self.sch(pos))
-    AssignParamGroups(l['opt'], 'lr', self.log_lr[-1])
+    AssignParamGroups(l.opt, 'lr', self.log_lr[-1])
     if round(pos*100)%20==0:  print(f'FindLR progress: {pos*100}%')
     self.i_iter+= 1
   def cb_batch_train_end(self, l):
-    self.log_loss.append(float(l['loss']))
+    self.log_loss.append(float(l.loss))
     if self.log_loss[-1]<self.best_loss:  self.best_loss= self.log_loss[-1]
     if self.i_iter>self.num_iter:  raise CancelFitException()
     if self.r_div is not None and self.log_loss[-1]>self.r_div*self.best_loss:  raise CancelFitException()
@@ -350,7 +388,7 @@ class TOneCycleScheduler(TCallbacks):
   def cb_batch_train_begin(self, l):
     pos= self.i_iter/self.num_iter
     for key,sch in self.sch.items():
-      AssignParamGroups(l['opt'], key, sch(pos))
+      AssignParamGroups(l.opt, key, sch(pos))
     self.i_iter+= 1
 
 '''
