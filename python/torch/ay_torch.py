@@ -162,6 +162,7 @@ class TDisp(TCallbacks):
 Prediction helper.
 '''
 def PredBatch(net, batch, tfm_batch=None, device=None, with_x=True, with_y=True):
+  if device is None:  device= torch.device('cpu')
   if next(net.parameters()).device != device:
     net.to(device)
   x,y= tfm_batch(batch)
@@ -178,6 +179,23 @@ def PredBatch(net, batch, tfm_batch=None, device=None, with_x=True, with_y=True)
   else:
     if with_y:  return y,pred
     else:       return pred
+
+'''
+Evaluation helper.
+'''
+def Eval(net, x, device=None):
+  if device is None:  device= torch.device('cpu')
+  if next(net.parameters()).device != device:
+    net.to(device)
+  net.eval()
+  with torch.no_grad():
+    if isinstance(x,tuple):
+      x= (torch.stack(xi).to(device) if isinstance(xi,(tuple,list)) else xi.to(device) for xi in x)
+      pred= net(*x)
+    else:
+      x= torch.stack(x).to(device) if isinstance(x,(tuple,list)) else x.to(device)
+      pred= net(x)
+  return pred
 
 '''
 Helper to assign parameters.
@@ -408,6 +426,22 @@ def FitOneCycle(net, n_epoch, opt=None, f_loss=None, f_metric=None,
   Fit(net, n_epoch, opt=opt, f_loss=f_loss, f_metric=f_metric,
         dl_train=dl_train, dl_test=dl_test, tfm_batch=tfm_batch,
         callbacks=callbacks, device=device)
+
+
+# Visualization tools.
+
+def PlotImgGrid(imgs, labels, rows=3, cols=5, labelsize=10, figsize=None, perm_img=True):
+  assert(len(imgs)==len(labels))
+  rows= min(rows, np.ceil(len(imgs)/cols))
+  if figsize is None:  figsize= (12,12/cols*rows)
+  fig= plt.figure(figsize=figsize)
+  for i,(img,label) in enumerate(zip(imgs,labels)):
+    ax= fig.add_subplot(rows, cols, i+1)
+    ax.set_title(label, fontsize=labelsize)
+    ax.imshow(img.permute(1,2,0) if perm_img else img)
+  fig.tight_layout()
+  plt.show()
+
 
 if __name__=='__main__':
   pass
