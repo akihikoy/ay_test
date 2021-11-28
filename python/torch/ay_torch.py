@@ -10,6 +10,7 @@ import torchvision
 import time
 import copy
 import matplotlib.pyplot as plt
+import mpl_toolkits.mplot3d
 from PIL import Image as PILImage
 
 #Container class to share variables.
