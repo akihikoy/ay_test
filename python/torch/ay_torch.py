@@ -168,12 +168,13 @@ def PredBatch(net, batch, tfm_batch=None, device=None, with_x=True, with_y=True)
     net.to(device)
   x,y= tfm_batch(batch)
   if isinstance(x,(tuple,list)):
-    x= [xi.to(device) for xi in x]
+    x= (xi.to(device) for xi in x)
     pred= net(*x)
   else:
     x= x.to(device)
     pred= net(x)
-  if with_y:  y= y.to(device)
+  if with_y:
+    y= tuple(yi.to(device) for yi in y) if isinstance(y,(tuple,list)) else y.to(device)
   if with_x:
     if with_y:  return x,y,pred
     else:       return x,pred
@@ -265,9 +266,10 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
               l.callbacks['batch_train_begin'](l)
               l.opt.zero_grad()
               l.x,l.y_trg,l.pred= PredBatch(l.net, l.batch, tfm_batch=l.tfm_batch, device=l.device)
+              l.do_bkw= True
               l.callbacks['train_after_prediction'](l)
               l.loss= l.f_loss(l.pred, l.y_trg)
-              l.loss.backward()
+              if l.do_bkw: l.loss.backward()
               l.do_opt= True
               l.callbacks['train_after_backward'](l)
               if l.do_opt: l.opt.step()
