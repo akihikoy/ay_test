@@ -7,6 +7,7 @@
 import numpy as np
 import torch
 import torchvision
+import torchinfo
 import time
 import copy
 import matplotlib.pyplot as plt
