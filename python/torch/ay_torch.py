@@ -145,8 +145,10 @@ class TLogger(TCallbacks):
     plt.show()
 
 class TDisp(TCallbacks):
+  def __init__(self):
+    self.i_epoch= 0
   def cb_fit_begin(self, l):
-    print('loss(train)\tloss(test)\tmetric(test)\ttime')
+    print('i_epoch\tloss(train)\tloss(test)\tmetric(test)\ttime')
   def cb_epoch_train_begin(self, l):
     self.t0= time.time()
   def cb_epoch_train_end(self, l):
@@ -158,7 +160,8 @@ class TDisp(TCallbacks):
     self.time_test= time.time()-self.t0
     self.loss_test= l.loss
     self.metric_test= l.metric
-    print(f'{self.loss_train:.8f}\t{self.loss_test:.8f}\t{self.metric_test:.8f}\t{self.time_train+self.time_test:.6f}')
+    print(f'{self.i_epoch}\t{self.loss_train:.8f}\t{self.loss_test:.8f}\t{self.metric_test:.8f}\t{self.time_train+self.time_test:.6f}')
+    self.i_epoch+= 1
 
 '''
 Prediction helper.
@@ -371,7 +374,7 @@ def FindLongestDownhill(log_loss):
   return i_middle, (i_start, i_end)
 
 def FindLR(net, opt=None, f_loss=None, dl_train=None, tfm_batch=None, device=torch.device('cuda'),
-           start_lr=1e-7, end_lr=1, num_iter=100, r_div=None, with_suggest=True, n_filter=10, show_plot=True):
+           start_lr=1e-7, end_lr=1, num_iter=100, r_div=None, with_suggest=True, n_filter=20, show_plot=True):
   n_epoch= num_iter//len(dl_train)+1
   lrf= TLRFinder(start_lr, end_lr, num_iter, r_div)
   Fit(net, n_epoch, opt=opt, f_loss=f_loss, f_metric=None,
