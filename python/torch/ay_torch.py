@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d
 from PIL import Image as PILImage
 
+
+# General utilities.
+
 #Container class to share variables.
 class TContainer(object):
   def __init__(self):
@@ -162,6 +165,9 @@ class TDisp(TCallbacks):
     self.metric_test= l.metric
     print(f'{self.i_epoch}\t{self.loss_train:.8f}\t{self.loss_test:.8f}\t{self.metric_test:.8f}\t{self.time_train+self.time_test:.6f}')
     self.i_epoch+= 1
+
+
+# Learning utilities.
 
 '''
 Prediction helper.
@@ -433,6 +439,186 @@ def FitOneCycle(net, n_epoch, opt=None, f_loss=None, f_metric=None,
   Fit(net, n_epoch, opt=opt, f_loss=f_loss, f_metric=f_metric,
         dl_train=dl_train, dl_test=dl_test, tfm_batch=tfm_batch,
         callbacks=callbacks, device=device)
+
+
+# Network modules.
+
+'''
+Create a convolutional layer optionally with ReLu and normalization layers.
+Ref. https://github.com/fastai/fastai/tree/master/fastai/layers.py
+'''
+def ConvLayer(in_channels, out_channels, kernel_size, stride=1, padding=None,
+              bias=None, ndim=2, norm_type='batch', batchnorm_first=True,
+              activation=torch.nn.ReLU, transpose=False, init='auto', bias_std=0.01, **kwargs):
+  if padding is None: padding= ((kernel_size-1)//2 if not transpose else 0)
+  bn= norm_type in ('batch', 'batch_zero')
+  inn= norm_type in ('instance', 'instance_zero')
+  if bias is None: bias= not (bn or inn)
+  conv_func= getattr(torch.nn, f'Conv{"Transpose" if transpose else ""}{ndim}d')
+  conv= conv_func(in_channels, out_channels, kernel_size=kernel_size, 
+                  stride=stride, padding=padding, bias=bias, **kwargs)
+  act= None if activation is None else activation()
+  if getattr(conv,'bias',None) is not None and bias_std is not None:
+    if bias_std!=0: torch.nn.init.normal_(conv.bias, 0.0, bias_std)
+    else: conv.bias.data.zero_()
+  f_init= None
+  if act is not None and init=='auto':
+    if hasattr(act.__class__, '__default_init__'):
+      f_init= act.__class__.__default_init__
+    else:  f_init= getattr(act, '__default_init__', None)
+  if f_init is not None: f_init(conv.weight)
+  if   norm_type=='weight':   conv= torch.nn.utils.weight_norm(conv)
+  elif norm_type=='spectral': conv= torch.nn.utils.spectral_norm(conv)
+  layers= [conv]
+  act_bn= []
+  if act is not None: act_bn.append(act)
+  if bn: 
+    bnl= getattr(torch.nn, f'BatchNorm{ndim}d')(out_channels)
+    if bnl.affine:
+      bnl.bias.data.fill_(1e-3)
+      bnl.weight.data.fill_(0. if norm_type=='batch_zero' else 1.)
+    act_bn.append(bnl)
+  if inn: 
+    innl= getattr(torch.nn, f'InstanceNorm{ndim}d')(out_channels, affine=True)
+    if innl.affine:
+      innl.bias.data.fill_(1e-3)
+      innl.weight.data.fill_(0. if norm_type=='instance_zero' else 1.)
+    act_bn.append(innl)
+  if batchnorm_first: act_bn.reverse()
+  layers+= act_bn
+  return torch.nn.Sequential(*layers)
+
+'''
+Simple self attention.
+Ref. https://github.com/fastai/fastai/blob/master/fastai/layers.py
+'''
+class TSimpleSelfAttention(torch.nn.Module):
+  def __init__(self, in_channels, kernel_size=1, symmetric=False):
+    super(TSimpleSelfAttention,self).__init__()
+    self.symmetric,self.in_channels= symmetric,in_channels
+    conv= torch.nn.Conv1d(in_channels, in_channels, kernel_size, stride=1, padding=kernel_size//2, bias=False)
+    torch.nn.init.kaiming_normal_(conv.weight)
+    self.conv= torch.nn.utils.spectral_norm(conv)
+    self.gamma= torch.nn.Parameter(torch.tensor([0.]))
+
+  def forward(self, x):
+    if self.symmetric:
+      c= self.conv.weight.view(self.in_channels,self.in_channels)
+      c= (c + c.t())/2.0
+      self.conv.weight= c.view(self.in_channels,self.in_channels,1)
+    size= x.size()
+    x= x.view(*size[:2],-1)
+    convx= self.conv(x)
+    xxT= torch.bmm(x,x.permute(0,2,1).contiguous())
+    o= self.gamma * torch.bmm(xxT, convx) + x
+    return o.view(*size).contiguous()
+
+class TResBlockReduction(torch.nn.Module):
+  def __init__(self, in_channels, reduction, activation, ndim):
+    super(TResBlockReduction,self).__init__()
+    nf= np.ceil(in_channels//reduction/8)*8
+    self.red= torch.nn.Sequential(
+              getattr(torch.nn, f'AdaptiveAvgPool{ndim}d')(output_size=1),
+              ConvLayer(in_channels, nf, kernel_size=1, norm_type=None, activation=activation),
+              ConvLayer(nf, in_channels, kernel_size=1, norm_type=None, activation=torch.nn.Sigmoid))
+  def forward(self, x):
+    return x * self.red(x)
+
+'''
+ResNet block.
+Ref. https://github.com/fastai/fastai/blob/master/fastai/layers.py
+'''
+class TResBlock(torch.nn.Module):
+  def __init__(self, expansion, in_channels, out_channels, stride=1, 
+               groups=1, reduction=None, hidden1_channels=None, hidden2_channels=None, 
+               depthwise_conv=False, groups2=1, self_attention=False, sa_symmetric=False, 
+               norm_type='batch', activation=torch.nn.ReLU, ndim=2, kernel_size=3,
+               pool=None, pool_first=True, **kwargs):
+    super(TResBlock,self).__init__()
+    norm2= ('batch_zero' if norm_type=='batch' else
+            'instance_zero' if norm_type=='instance' else norm_type)
+    if hidden2_channels is None: hidden2_channels= out_channels
+    if hidden1_channels is None: hidden1_channels= hidden2_channels
+    out_channels,in_channels= out_channels*expansion,in_channels*expansion
+    kwargs1= dict(norm_type=norm_type, activation=activation, ndim=ndim, **kwargs)
+    kwargs2= dict(norm_type=norm2, activation=None, ndim=ndim, **kwargs)
+    if expansion==1:
+      convpath= [ConvLayer(in_channels, hidden2_channels, kernel_size, stride=stride, groups=in_channels if depthwise_conv else groups, **kwargs1),
+                 ConvLayer(hidden2_channels, out_channels, kernel_size, groups=groups2, **kwargs2)]
+    else: 
+      convpath= [ConvLayer(in_channels, hidden1_channels, 1, **kwargs1),
+                 ConvLayer(hidden1_channels, hidden2_channels, kernel_size, stride=stride, groups=hidden1_channels if depthwise_conv else groups, **kwargs1),
+                 ConvLayer(hidden2_channels, out_channels, 1, groups=groups2, **kwargs2)]
+    if reduction:  convpath.append(TResBlockReduction(out_channels, reduction=reduction, activation=activation, ndim=ndim))
+    if self_attention:  convpath.append(TSimpleSelfAttention(out_channels, kernel_size=1, symmetric=sa_symmetric))
+    self.convpath= torch.nn.Sequential(*convpath)
+    idpath= []
+    if in_channels!=out_channels: idpath.append(ConvLayer(in_channels, out_channels, kernel_size=1, activation=None, ndim=ndim, **kwargs))
+    if stride!=1: 
+      if pool is None:  pool= getattr(torch.nn, f'AvgPool{ndim}d')
+      idpath.insert((1,0)[pool_first], pool(kernel_size=stride, stride=None, padding=0, ceil_mode=True))
+    self.idpath= torch.nn.Sequential(*idpath)
+    self.act= torch.nn.ReLU(inplace=True) if activation==torch.nn.ReLU else activation()
+
+  def forward(self, x): 
+    return self.act(self.convpath(x) + self.idpath(x))
+
+def InitCNN(m):
+  if getattr(m, 'bias', None) is not None:  torch.nn.init.constant_(m.bias, 0)
+  if isinstance(m, (torch.nn.Conv1d, torch.nn.Conv2d, torch.nn.Conv3d, torch.nn.Linear)):  torch.nn.init.kaiming_normal_(m.weight)
+  for l in m.children(): InitCNN(l)
+
+class TResNet(torch.nn.Sequential):
+  def __init__(self, block, expansion, layers, p_dropout=0.0, in_channels=3, out_channels=1000, stem_sizes=(32,32,64),
+              widen=1.0, self_attention=False, activation=torch.nn.ReLU, ndim=2, kernel_size=3, stride=2, **kwargs):
+    self.block       = block      
+    self.expansion   = expansion  
+    self.activation  = activation 
+    self.ndim        = ndim       
+    self.kernel_size = kernel_size
+    if kernel_size%2==0:  raise Exception('kernel size has to be odd!')
+    stem_sizes= [in_channels, *stem_sizes]
+    stem= [ConvLayer(stem_sizes[i], stem_sizes[i+1], kernel_size=kernel_size, stride=stride if i==0 else 1,
+                      activation=activation, ndim=ndim)
+            for i in range(3)]
+
+    block_sizes= [int(o*widen) for o in [64,128,256,512] +[256]*(len(layers)-4)]
+    block_sizes= [64//expansion] + block_sizes
+    blocks= self.make_blocks(layers, block_sizes, self_attention, stride, **kwargs)
+
+    super(TResNet,self).__init__(
+          *stem, 
+          getattr(torch.nn, f"MaxPool{ndim}d")(kernel_size=kernel_size, stride=stride, padding=kernel_size//2),
+          *blocks,
+          getattr(torch.nn, f'AdaptiveAvgPool{ndim}d')(output_size=1), 
+          torch.nn.Flatten(), 
+          torch.nn.Dropout(p_dropout),
+          torch.nn.Linear(block_sizes[-1]*expansion, out_channels),
+          )
+    InitCNN(self)
+
+  def make_blocks(self, layers, block_sizes, self_attention, stride, **kwargs):
+    return [self.make_layer(ni=block_sizes[i], nf=block_sizes[i+1], n_blocks=l,
+                              stride=1 if i==0 else stride, self_attention=self_attention and i==len(layers)-4, **kwargs)
+            for i,l in enumerate(layers)]
+
+  def make_layer(self, ni, nf, n_blocks, stride, self_attention, **kwargs):
+    return torch.nn.Sequential(
+          *[self.block(self.expansion, ni if i==0 else nf, nf, stride=stride if i==0 else 1,
+                    self_attention=self_attention and i==(n_blocks-1), activation=self.activation, ndim=self.ndim, kernel_size=self.kernel_size, **kwargs)
+            for i in range(n_blocks)])
+
+def TResNet18 (**kwargs): return TResNet(TResBlock, 1, [2, 2,  2, 2], **kwargs)
+def TResNet34 (**kwargs): return TResNet(TResBlock, 1, [3, 4,  6, 3], **kwargs)
+def TResNet50 (**kwargs): return TResNet(TResBlock, 4, [3, 4,  6, 3], **kwargs)
+def TResNet101(**kwargs): return TResNet(TResBlock, 4, [3, 4, 23, 3], **kwargs)
+def TResNet152(**kwargs): return TResNet(TResBlock, 4, [3, 8, 36, 3], **kwargs)
+def TResNet18_deep  (**kwargs): return TResNet(TResBlock, 1, [2,2,2,2,1,1], **kwargs)
+def TResNet34_deep  (**kwargs): return TResNet(TResBlock, 1, [3,4,6,3,1,1], **kwargs)
+def TResNet50_deep  (**kwargs): return TResNet(TResBlock, 4, [3,4,6,3,1,1], **kwargs)
+def TResNet18_deeper(**kwargs): return TResNet(TResBlock, 1, [2,2,1,1,1,1,1,1], **kwargs)
+def TResNet34_deeper(**kwargs): return TResNet(TResBlock, 1, [3,4,6,3,1,1,1,1], **kwargs)
+def TResNet50_deeper(**kwargs): return TResNet(TResBlock, 4, [3,4,6,3,1,1,1,1], **kwargs)
 
 
 # Visualization tools.
