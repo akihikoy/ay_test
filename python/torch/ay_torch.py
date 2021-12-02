@@ -144,6 +144,7 @@ class TLogger(TCallbacks):
     fig= plt.figure()
     ax_lr= fig.add_subplot(1,1,1,title='Learning rate',xlabel='iteration',ylabel='lr')
     ax_lr.plot(range(len(self.lr)), self.lr, color='blue', label='lr')
+    ax_lr.set_yscale('log')
     ax_lr.legend()
     plt.show()
 
@@ -623,6 +624,64 @@ def TResNet50_deep  (**kwargs): return TResNet(TResBlock, 4, [3,4,6,3,1,1], **kw
 def TResNet18_deeper(**kwargs): return TResNet(TResBlock, 1, [2,2,1,1,1,1,1,1], **kwargs)
 def TResNet34_deeper(**kwargs): return TResNet(TResBlock, 1, [3,4,6,3,1,1,1,1], **kwargs)
 def TResNet50_deeper(**kwargs): return TResNet(TResBlock, 4, [3,4,6,3,1,1,1,1], **kwargs)
+
+
+'''
+Make a dense (fully-connected linear) layer optionally with a normalization and an activation layers.
+'''
+def DenseLayer(in_channels, out_channels,
+              bias=True, norm_type='batch', batchnorm_first=True,
+              activation=torch.nn.LeakyReLU, init='auto', bias_std=0.5):
+  bn= norm_type in ('batch', 'batch_zero')
+  dense= torch.nn.Linear(in_channels, out_channels, bias=bias)
+  act= (None if activation is None else 
+        activation(inplace=True) if activation in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU) else
+        activation())
+  if getattr(dense,'bias',None) is not None and bias_std is not None:
+    if bias_std!=0: torch.nn.init.normal_(dense.bias, 0.0, bias_std)
+    else: dense.bias.data.zero_()
+  f_init= None
+  if act is not None and init=='auto':
+    if hasattr(act.__class__, '__default_init__'):
+      f_init= act.__class__.__default_init__
+    else:  f_init= getattr(act, '__default_init__', None)
+    if f_init is None and act in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU):
+      f_init= torch.nn.init.xavier_uniform_
+  if f_init is not None: f_init(dense.weight,gain=torch.nn.init.calculate_gain('leaky_relu'))
+  if   norm_type=='weight':   dense= torch.nn.utils.weight_norm(dense)
+  elif norm_type=='spectral': dense= torch.nn.utils.spectral_norm(dense)
+  layers= [dense]
+  act_bn= []
+  if act is not None: act_bn.append(act)
+  if bn:
+    bnl= torch.nn.BatchNorm1d(out_channels)
+    if bnl.affine:
+      bnl.bias.data.fill_(1e-3)
+      bnl.weight.data.fill_(0. if norm_type=='batch_zero' else 1.)
+    act_bn.append(bnl)
+  if batchnorm_first: act_bn.reverse()
+  layers+= act_bn
+  return torch.nn.Sequential(*layers)
+
+'''
+ResNet block of dense network.
+ref. https://www.mdpi.com/1099-4300/22/2/193/pdf
+'''
+class TResDenseBlock(torch.nn.Module):
+  def __init__(self, in_channels, out_channels, hidden_channels=None,
+               activation=torch.nn.LeakyReLU, **kwargs):
+    super(TResDenseBlock,self).__init__()
+    if hidden_channels is None: hidden_channels= out_channels
+    densepath= [DenseLayer(in_channels, hidden_channels, activation=activation, **kwargs),
+                DenseLayer(hidden_channels, out_channels, activation=None, **kwargs)]
+    self.densepath= torch.nn.Sequential(*densepath)
+    idpath= []
+    if in_channels!=out_channels: idpath.append(DenseLayer(in_channels, out_channels, activation=None, **kwargs))
+    self.idpath= torch.nn.Sequential(*idpath)
+    self.act= activation(inplace=True) if activation in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU) else activation()
+
+  def forward(self, x): 
+    return self.act(self.densepath(x) + self.idpath(x))
 
 
 # Visualization tools.
