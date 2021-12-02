@@ -457,7 +457,9 @@ def ConvLayer(in_channels, out_channels, kernel_size, stride=1, padding=None,
   conv_func= getattr(torch.nn, f'Conv{"Transpose" if transpose else ""}{ndim}d')
   conv= conv_func(in_channels, out_channels, kernel_size=kernel_size, 
                   stride=stride, padding=padding, bias=bias, **kwargs)
-  act= None if activation is None else activation()
+  act= (None if activation is None else 
+        activation(inplace=True) if activation in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU) else
+        activation())
   if getattr(conv,'bias',None) is not None and bias_std is not None:
     if bias_std!=0: torch.nn.init.normal_(conv.bias, 0.0, bias_std)
     else: conv.bias.data.zero_()
@@ -466,6 +468,8 @@ def ConvLayer(in_channels, out_channels, kernel_size, stride=1, padding=None,
     if hasattr(act.__class__, '__default_init__'):
       f_init= act.__class__.__default_init__
     else:  f_init= getattr(act, '__default_init__', None)
+    if f_init is None and act in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU):
+      f_init= torch.nn.init.kaiming_uniform_
   if f_init is not None: f_init(conv.weight)
   if   norm_type=='weight':   conv= torch.nn.utils.weight_norm(conv)
   elif norm_type=='spectral': conv= torch.nn.utils.spectral_norm(conv)
@@ -558,7 +562,7 @@ class TResBlock(torch.nn.Module):
       if pool is None:  pool= getattr(torch.nn, f'AvgPool{ndim}d')
       idpath.insert((1,0)[pool_first], pool(kernel_size=stride, stride=None, padding=0, ceil_mode=True))
     self.idpath= torch.nn.Sequential(*idpath)
-    self.act= torch.nn.ReLU(inplace=True) if activation==torch.nn.ReLU else activation()
+    self.act= activation(inplace=True) if activation in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU) else activation()
 
   def forward(self, x): 
     return self.act(self.convpath(x) + self.idpath(x))
