@@ -575,41 +575,53 @@ def InitCNN(m):
 
 class TResNet(torch.nn.Sequential):
   def __init__(self, block, expansion, layers, p_dropout=0.0, in_channels=3, out_channels=1000, stem_sizes=(32,32,64),
-              widen=1.0, self_attention=False, activation=torch.nn.ReLU, ndim=2, kernel_size=3, stride=2, **kwargs):
+               widen=1.0, with_fc=True, self_attention=False, activation=torch.nn.ReLU, ndim=2, kernel_size=3, 
+               stride=2, stem_stride=None, pool_stride=None, **kwargs):
     self.block       = block      
     self.expansion   = expansion  
     self.activation  = activation 
     self.ndim        = ndim       
     self.kernel_size = kernel_size
     if kernel_size%2==0:  raise Exception('kernel size has to be odd!')
-    stem_sizes= [in_channels, *stem_sizes]
-    stem= [ConvLayer(stem_sizes[i], stem_sizes[i+1], kernel_size=kernel_size, stride=stride if i==0 else 1,
-                      activation=activation, ndim=ndim)
-            for i in range(3)]
+    if stem_stride is None:  stem_stride= stride
+    if pool_stride is None:  pool_stride= stride
 
+    stem= self.make_stem(in_channels, stem_sizes, stem_stride)
     block_sizes= [int(o*widen) for o in [64,128,256,512] +[256]*(len(layers)-4)]
     block_sizes= [64//expansion] + block_sizes
     blocks= self.make_blocks(layers, block_sizes, self_attention, stride, **kwargs)
+    pool= getattr(torch.nn, f"MaxPool{ndim}d")(kernel_size=kernel_size, stride=pool_stride, padding=kernel_size//2)
 
-    super(TResNet,self).__init__(
-          *stem, 
-          getattr(torch.nn, f"MaxPool{ndim}d")(kernel_size=kernel_size, stride=stride, padding=kernel_size//2),
-          *blocks,
-          getattr(torch.nn, f'AdaptiveAvgPool{ndim}d')(output_size=1), 
-          torch.nn.Flatten(), 
-          torch.nn.Dropout(p_dropout),
-          torch.nn.Linear(block_sizes[-1]*expansion, out_channels),
-          )
+    if with_fc:
+      super(TResNet,self).__init__(
+            *stem, pool, *blocks,
+            getattr(torch.nn, f'AdaptiveAvgPool{ndim}d')(output_size=1), 
+            torch.nn.Flatten(), 
+            torch.nn.Dropout(p_dropout),
+            torch.nn.Linear(block_sizes[-1]*expansion, out_channels),
+            )
+      self.out_channels= out_channels
+    else:
+      super(TResNet,self).__init__(*stem, pool, *blocks)
+      self.out_channels= block_sizes[len(layers)]
     InitCNN(self)
+
+  def make_stem(self, in_channels, stem_sizes, stride):
+    stem_sizes= [in_channels, *stem_sizes]
+    return [ConvLayer(stem_sizes[i], stem_sizes[i+1], kernel_size=self.kernel_size, 
+                       stride=(1 if i==0 else stride) if isinstance(stride,int) else stride[i],
+                       activation=self.activation, ndim=self.ndim)
+             for i in range(len(stem_sizes)-1)]
 
   def make_blocks(self, layers, block_sizes, self_attention, stride, **kwargs):
     return [self.make_layer(ni=block_sizes[i], nf=block_sizes[i+1], n_blocks=l,
-                              stride=1 if i==0 else stride, self_attention=self_attention and i==len(layers)-4, **kwargs)
+                            stride=(1 if i==0 else stride) if isinstance(stride,int) else stride[i], 
+                            self_attention=self_attention and i==len(layers)-4, **kwargs)
             for i,l in enumerate(layers)]
 
   def make_layer(self, ni, nf, n_blocks, stride, self_attention, **kwargs):
     return torch.nn.Sequential(
-          *[self.block(self.expansion, ni if i==0 else nf, nf, stride=stride if i==0 else 1,
+          *[self.block(self.expansion, ni if i==0 else nf, nf, stride=(1 if i==0 else stride) if isinstance(stride,int) else stride[i],
                     self_attention=self_attention and i==(n_blocks-1), activation=self.activation, ndim=self.ndim, kernel_size=self.kernel_size, **kwargs)
             for i in range(n_blocks)])
 
