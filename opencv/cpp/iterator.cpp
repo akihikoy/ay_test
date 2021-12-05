@@ -12,6 +12,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>  // only for medianBlur
 #include <iostream>
+#include <sys/time.h>  // gettimeofday
 //-------------------------------------------------------------------------------------------
 namespace loco_rabbits
 {
@@ -134,7 +135,7 @@ int main(int argc, char**argv)
     // disp_img= ModImg2(frame);
     // disp_img= ModImg3(frame);
     disp_img= ModImg4(frame);
-    std::cerr<<"Computation time: "<<GetCurrentTime()=t_start<<std::endl;
+    std::cerr<<"Computation time: "<<GetCurrentTime()-t_start<<std::endl;
 
     cv::imshow("camera", disp_img);
     int c(cv::waitKey(10));
