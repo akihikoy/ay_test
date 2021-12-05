@@ -57,10 +57,34 @@ cv::Mat ModImg3(const cv::Mat &img)
   for(; itr!=itr_end; ++itr,++itr_res)
   {
     (*itr_res)[0]= float((*itr)[0]) / 255.0;
-    (*itr_res)[1]= float((*itr)[1]) / 255.0;
+    (*itr_res)[1]= float((*itr)[1]) / 128.0;
     (*itr_res)[2]= float((*itr)[2]) / 255.0;
   }
   // std::cerr<<res<<std::endl;
+  return res;
+}
+//-------------------------------------------------------------------------------------------
+
+cv::Mat ModImg4(const cv::Mat &img)
+{
+  cv::Mat res(img.rows, img.cols,CV_8UC3);
+  cv::MatConstIterator_<cv::Vec3b> itr= img.begin<cv::Vec3b>();
+  // cv::MatConstIterator_<cv::Vec3b> itr_end= img.end<cv::Vec3b>();
+  cv::MatIterator_<cv::Vec3b> itr_res= res.begin<cv::Vec3b>();
+  for(int r(0); r<img.rows; ++r)
+    for(int c(0); c<img.cols; ++c,++itr,++itr_res)
+    {
+      (*itr_res)[0]= (*itr)[0] * float(r)/float(img.rows);
+      (*itr_res)[1]= (*itr)[1] * float(c)/float(img.cols);
+      (*itr_res)[2]= (*itr)[2];
+    }
+//   for(int c(0); c<img.cols; ++c)
+//     for(int r(0); r<img.rows; ++r,++itr,++itr_res)
+//     {
+//       (*itr_res)[0]= (*itr)[0] * float(r)/float(img.rows);
+//       (*itr_res)[1]= (*itr)[1] * float(c)/float(img.cols);
+//       (*itr_res)[2]= (*itr)[2];
+//     }
   return res;
 }
 //-------------------------------------------------------------------------------------------
@@ -98,7 +122,8 @@ int main(int argc, char**argv)
 
     // disp_img= ModImg1(frame);
     // disp_img= ModImg2(frame);
-    disp_img= ModImg3(frame);
+    // disp_img= ModImg3(frame);
+    disp_img= ModImg4(frame);
 
     cv::imshow("camera", disp_img);
     int c(cv::waitKey(10));
