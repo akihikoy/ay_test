@@ -16,6 +16,15 @@
 namespace loco_rabbits
 {
 
+inline double GetCurrentTime(void)
+{
+  struct timeval time;
+  gettimeofday (&time, NULL);
+  return static_cast<double>(time.tv_sec) + static_cast<double>(time.tv_usec)*1.0e-6;
+  // return ros::Time::now().toSec();
+}
+//-------------------------------------------------------------------------------------------
+
 cv::Mat ModImg1(const cv::Mat &img)
 {
   cv::Mat res(img.rows, img.cols,CV_8UC3);
@@ -120,10 +129,12 @@ int main(int argc, char**argv)
   {
     cap >> frame; // get a new frame from camera
 
+    double t_start= GetCurrentTime();
     // disp_img= ModImg1(frame);
     // disp_img= ModImg2(frame);
     // disp_img= ModImg3(frame);
     disp_img= ModImg4(frame);
+    std::cerr<<"Computation time: "<<GetCurrentTime()=t_start<<std::endl;
 
     cv::imshow("camera", disp_img);
     int c(cv::waitKey(10));
