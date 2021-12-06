@@ -157,13 +157,13 @@ class TDisp(TCallbacks):
     self.t0= time.time()
   def cb_epoch_train_end(self, l):
     self.time_train= time.time()-self.t0
-    self.loss_train= l.loss
+    self.loss_train= l.loss if l.loss is not None else np.nan
   def cb_epoch_test_begin(self, l):
     self.t0= time.time()
   def cb_epoch_test_end(self, l):
     self.time_test= time.time()-self.t0
-    self.loss_test= l.loss
-    self.metric_test= l.metric
+    self.loss_test= l.loss if l.loss is not None else np.nan
+    self.metric_test= l.metric if l.metric is not None else np.nan
     print(f'{self.i_epoch}\t{self.loss_train:.8f}\t{self.loss_test:.8f}\t{self.metric_test:.8f}\t{self.time_train+self.time_test:.6f}')
     self.i_epoch+= 1
 
@@ -704,6 +704,7 @@ def PlotImgGrid(imgs, labels, rows=3, cols=5, labelsize=10, figsize=None, perm_i
   if figsize is None:  figsize= (12,12/cols*rows)
   fig= plt.figure(figsize=figsize)
   for i,(img,label) in enumerate(zip(imgs,labels)):
+    if i+1>rows*cols:  break
     ax= fig.add_subplot(rows, cols, i+1)
     ax.set_title(label, fontsize=labelsize)
     ax.imshow(img.permute(1,2,0) if perm_img else img)
