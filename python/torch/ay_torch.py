@@ -222,6 +222,50 @@ class CancelBatchException(Exception): pass
 class CancelEpochException(Exception): pass
 
 '''
+Save state_dict of net, opt, f_loss into a destination dst.
+dst can be a dict (deep-copied) or a file (saved).
+'''
+def SaveStateDict(dst, net=None, opt=None, f_loss=None):
+  states= {
+    'net': net.state_dict() if hasattr(net,'state_dict') else None,
+    'opt': opt.state_dict() if hasattr(opt,'state_dict') else None,
+    'f_loss': f_loss.state_dict() if hasattr(f_loss,'state_dict') else None,
+    }
+  if isinstance(dst,dict):
+    for obj,st in states.items():
+      dst[obj]= copy.deepcopy(st)
+  elif isinstance(dst,str):
+    torch.save(states, dst)
+  else:
+    raise Exception(f'SaveStateDict: unrecognized destination type: {type(dst)}')
+
+'''
+Load state_dict of net, opt, f_loss from a source src.
+src can be a dict or a file.
+'''
+def LoadStateDict(src, net=None, opt=None, f_loss=None, device=None, strict=True, with_exception=False):
+  if device is None:  device= 'cpu'
+  if isinstance(src,dict):
+    states= src
+  elif isinstance(src,str):
+    states= torch.load(src, map_location=device)
+  else:
+    raise Exception(f'LoadStateDict: unrecognized source type: {type(src)}')
+  if net is not None:  net.to(device)
+  dst= dict(net=(net,dict(strict=strict)), opt=(opt,dict()), f_loss=(f_loss,dict()))
+  for obj in dst.keys():
+    if dst[obj][0] is not None:  
+      if obj in states and hasattr(dst[obj][0],'load_state_dict'):  
+        dst[obj][0].load_state_dict(states[obj], **dst[obj][1])
+      else:  
+        print(f'LoadStateDict:WARNING: failed to load "{obj}".')
+        print(f'  {obj} in states: {obj in states}')
+        print(f'  hasattr({obj},load_state_dict): {hasattr(dst[obj][0],"load_state_dict")}')
+        if with_exception:
+          raise Exception(f'LoadStateDict: failed to load "{obj}"')
+  
+
+'''
 net: Network model.
 n_epoch: Numer of epochs.
 opt: Optimizer.
@@ -367,9 +411,10 @@ class TLRFinder(TCallbacks):
     if self.i_iter>self.num_iter:  raise CancelFitException()
     if self.r_div is not None and self.log_loss[-1]>self.r_div*self.best_loss:  raise CancelFitException()
   def cb_fit_begin(self, l):
-    self.states= {obj:copy.deepcopy(l[obj].state_dict()) for obj in ('net','opt','f_loss')}
+    self.states= {}
+    SaveStateDict(self.states, net=l.net, opt=l.opt, f_loss=l.f_loss)
   def cb_fit_end(self, l):
-    for obj,st in self.states.items():  l[obj].load_state_dict(st)
+    LoadStateDict(self.states, net=l.net, opt=l.opt, f_loss=l.f_loss, device=l.device, with_exception=True)
 
 def FindLongestDownhill(log_loss):
   l_dwnhill= [1]*len(log_loss)
