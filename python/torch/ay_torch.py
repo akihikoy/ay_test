@@ -752,7 +752,10 @@ def PlotImgGrid(imgs, labels, rows=3, cols=5, labelsize=10, figsize=None, perm_i
     if i+1>rows*cols:  break
     ax= fig.add_subplot(rows, cols, i+1)
     ax.set_title(label, fontsize=labelsize)
-    ax.imshow(img.permute(1,2,0) if perm_img else img)
+    if img.shape[0]==1:
+      ax.imshow(np.repeat(img,3,axis=0).permute(1,2,0) if perm_img else img)
+    else:
+      ax.imshow(img.permute(1,2,0) if perm_img else img)
   fig.tight_layout()
   plt.show()
 
