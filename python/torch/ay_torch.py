@@ -317,6 +317,8 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
           l.sum_metric= None
           l.net.train()
           for l.i_batch, l.batch in enumerate(l.dl_train):
+            l.forward_value_error= True
+            l.value_error= None
             try:
               l.callbacks['batch_train_begin'](l)
               l.opt.zero_grad()
@@ -331,6 +333,9 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
               l.sum_loss+= float(l.loss)
             except CancelBatchException:
               pass
+            except ValueError as e:
+              l.value_error= e
+              if l.forward_value_error:  raise e
             l.callbacks['batch_train_end'](l)
           l.loss= l.sum_loss/len(l.dl_train)
           l.metric= None
@@ -343,6 +348,8 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
           l.net.eval()
           with torch.no_grad():
             for l.i_batch, l.batch in enumerate(l.dl_test):
+              l.forward_value_error= True
+              l.value_error= None
               try:
                 l.callbacks['batch_test_begin'](l)
                 l.x,l.y_trg,l.pred= PredBatch(l.net, l.batch, tfm_batch=l.tfm_batch, device=l.device)
@@ -351,6 +358,9 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
                 if l.f_metric:  l.sum_metric+= float(l.f_metric(l.pred, l.y_trg))
               except CancelBatchException:
                 pass
+              except ValueError as e:
+                l.value_error= e
+                if l.forward_value_error:  raise e
               l.callbacks['batch_test_end'](l)
           l.loss= l.sum_loss/len(l.dl_test)
           l.metric= None if l.f_metric is None else l.sum_metric/len(l.dl_test)
@@ -400,12 +410,17 @@ class TLRFinder(TCallbacks):
     self.log_loss= []
     self.log_lr= []
   def cb_batch_train_begin(self, l):
+    l.forward_value_error= False
     pos= self.i_iter/self.num_iter
     self.log_lr.append(self.sch(pos))
     AssignParamGroups(l.opt, 'lr', self.log_lr[-1])
     if round(pos*100)%20==0:  print(f'FindLR progress: {pos*100}%')
     self.i_iter+= 1
   def cb_batch_train_end(self, l):
+    if l.value_error is not None:
+      self.log_lr.pop(-1)
+      print('FindLR is terminated due to a ValueError')
+      raise CancelFitException()
     self.log_loss.append(float(l.loss))
     if self.log_loss[-1]<self.best_loss:  self.best_loss= self.log_loss[-1]
     if self.i_iter>self.num_iter:  raise CancelFitException()
@@ -492,11 +507,30 @@ def FitOneCycle(net, n_epoch, opt=None, f_loss=None, f_metric=None,
 '''
 Create a convolutional layer optionally with ReLu and normalization layers.
 Ref. https://github.com/fastai/fastai/tree/master/fastai/layers.py
+In transpose case, padding and output_padding are automatically computed if they are None 
+so that the transposed conv is the exact reverse in terms of the shape as conv 
+with the same kernel_size and stride.
 '''
 def ConvLayer(in_channels, out_channels, kernel_size, stride=1, padding=None,
               bias=None, ndim=2, norm_type='batch', batchnorm_first=True,
               activation=torch.nn.ReLU, transpose=False, init='auto', bias_std=0.01, **kwargs):
-  if padding is None: padding= ((kernel_size-1)//2 if not transpose else 0)
+  if not transpose:
+    if padding is None: padding= (kernel_size-1)//2
+  else:
+    if padding is None:
+      if kwargs.get('output_padding') is not None:
+        output_padding= kwargs['output_padding']
+        padding= (kernel_size-stride+output_padding)//2
+      else:
+        if stride>kernel_size:
+          output_padding= stride-kernel_size
+          padding= 0
+        else:
+          output_padding= (kernel_size-stride)%2
+          padding= (kernel_size-stride+output_padding)//2
+    else:
+      output_padding= kwargs.get('output_padding', stride-kernel_size+2*padding)
+    kwargs['output_padding']= output_padding
   bn= norm_type in ('batch', 'batch_zero')
   inn= norm_type in ('instance', 'instance_zero')
   if bias is None: bias= not (bn or inn)
@@ -577,13 +611,14 @@ class TResBlockReduction(torch.nn.Module):
 '''
 ResNet block.
 Ref. https://github.com/fastai/fastai/blob/master/fastai/layers.py
+In transpose case, upsample is added to the idpath.
 '''
 class TResBlock(torch.nn.Module):
   def __init__(self, expansion, in_channels, out_channels, stride=1, 
                groups=1, reduction=None, hidden1_channels=None, hidden2_channels=None, 
                depthwise_conv=False, groups2=1, self_attention=False, sa_symmetric=False, 
                norm_type='batch', activation=torch.nn.ReLU, ndim=2, kernel_size=3,
-               pool=None, pool_first=True, **kwargs):
+               pool=None, pool_first=True, upsample=torch.nn.Upsample, upsample_first=False, **kwargs):
     super(TResBlock,self).__init__()
     norm2= ('batch_zero' if norm_type=='batch' else
             'instance_zero' if norm_type=='instance' else norm_type)
@@ -605,8 +640,11 @@ class TResBlock(torch.nn.Module):
     idpath= []
     if in_channels!=out_channels: idpath.append(ConvLayer(in_channels, out_channels, kernel_size=1, activation=None, ndim=ndim, **kwargs))
     if stride!=1: 
-      if pool is None:  pool= getattr(torch.nn, f'AvgPool{ndim}d')
-      idpath.insert((1,0)[pool_first], pool(kernel_size=stride, stride=None, padding=0, ceil_mode=True))
+      if not kwargs.get('transpose',False):
+        if pool is None:  pool= getattr(torch.nn, f'AvgPool{ndim}d')
+        idpath.insert((1,0)[pool_first], pool(kernel_size=stride, stride=None, padding=0, ceil_mode=True))
+      else:
+        idpath.insert((1,0)[upsample_first], upsample(scale_factor=stride, mode='nearest'))
     self.idpath= torch.nn.Sequential(*idpath)
     self.act= activation(inplace=True) if activation in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU) else activation()
 
@@ -739,6 +777,81 @@ class TResDenseBlock(torch.nn.Module):
 
   def forward(self, x): 
     return self.act(self.densepath(x) + self.idpath(x))
+
+
+'''
+ResNet in inverse order.
+'''
+class TResNetDecoder(torch.nn.Sequential):
+  def __init__(self, block, expansion, layers, p_dropout=0.0, in_channels=100, out_imgshape=(3,32,32),
+               first_imgshape=(1,1), stem_sizes=(64,32,32), upsample_method='upsample',
+               widen=1.0, self_attention=False, activation=torch.nn.ReLU, ndim=2, kernel_size=3, 
+               stride=2, stem_stride=None, **kwargs):
+    self.block       = block
+    self.expansion   = expansion
+    self.upsample_method = upsample_method
+    self.activation  = activation
+    self.ndim        = ndim
+    self.kernel_size = kernel_size
+    if kernel_size%2==0:  raise Exception('kernel size has to be odd!')
+    if stem_stride is None:  stem_stride= stride
+
+    block_sizes= [int(o*widen) for o in [256]*(len(layers)-4) + [512,256,128,64]]
+    block_sizes= block_sizes + [64//expansion]
+    blocks= self.make_blocks(layers, block_sizes, self_attention, stride, **kwargs)
+    stem= self.make_stem(block_sizes[-1]*expansion, stem_sizes, stem_stride)
+
+    super(TResNetDecoder,self).__init__(
+          torch.nn.Linear(in_channels, block_sizes[0]*expansion*first_imgshape[0]*first_imgshape[1]), 
+          torch.nn.Unflatten(1,(block_sizes[0]*expansion,first_imgshape[0],first_imgshape[1])),
+          *blocks,
+          # ConvLayer(block_sizes[-1]*expansion, out_imgshape[0], kernel_size=1, activation=None, ndim=ndim),
+          *stem,
+          ConvLayer(stem_sizes[-1], out_imgshape[0], kernel_size=1, activation=None, ndim=ndim),
+          torch.nn.Upsample(size=out_imgshape[1:]),
+          )
+    InitCNN(self)
+
+  def make_blocks(self, layers, block_sizes, self_attention, stride, **kwargs):
+    return [self.make_layer(ni=block_sizes[i], nf=block_sizes[i+1], n_blocks=l,
+                            stride=(1 if i==len(layers)-1 else stride) if isinstance(stride,int) else stride[i], 
+                            self_attention=self_attention and i==3, **kwargs)
+            for i,l in enumerate(layers)]
+
+  def make_layer(self, ni, nf, n_blocks, stride, self_attention, **kwargs):
+    if self.upsample_method=='transpose':
+      # Using transpose to upsample
+      return torch.nn.Sequential(
+            *[self.block(self.expansion, ni, nf if i==(n_blocks-1) else ni, stride=(1 if i==(n_blocks-1) else stride) if isinstance(stride,int) else stride[i],
+                      self_attention=self_attention and i==0, activation=self.activation, ndim=self.ndim, kernel_size=self.kernel_size, transpose=True, **kwargs)
+              for i in range(n_blocks)])
+    elif self.upsample_method=='upsample':
+      # Using Upsample to upsample
+      return torch.nn.Sequential(
+              *sum([[self.block(self.expansion, ni, nf if i==(n_blocks-1) else ni, stride=1,
+                                self_attention=self_attention and i==0, activation=self.activation, ndim=self.ndim, kernel_size=self.kernel_size,
+                                transpose=False, **kwargs),
+                     torch.nn.Upsample(scale_factor=(1 if i==(n_blocks-1) else stride) if isinstance(stride,int) else stride[i])
+                     ] for i in range(n_blocks)],[]) )
+
+  def make_stem(self, in_channels, stem_sizes, stride):
+    stem_sizes= [in_channels, *stem_sizes]
+    if self.upsample_method=='transpose':
+      # Using transpose to upsample
+      stem= [ConvLayer(stem_sizes[i], stem_sizes[i+1], kernel_size=self.kernel_size, 
+                       stride=(1 if i==(len(stem_sizes)-1) else stride) if isinstance(stride,int) else stride[i],
+                       activation=(None if i==(len(stem_sizes)-1) else self.activation), ndim=self.ndim, transpose=True)
+               for i in range(len(stem_sizes)-1)]
+    elif self.upsample_method=='upsample':
+      # Using Upsample to upsample
+      stem= sum([[ConvLayer(stem_sizes[i], stem_sizes[i+1], kernel_size=self.kernel_size, stride=1,
+                            activation=(None if i==(len(stem_sizes)-1) else self.activation), ndim=self.ndim,
+                            transpose=False),
+                  torch.nn.Upsample(scale_factor=(1 if i==(len(stem_sizes)-1) else stride) if isinstance(stride,int) else stride[i])
+                  ] for i in range(len(stem_sizes)-1)],[])
+    return stem
+
+def TResNet18Decoder(**kwargs): return TResNetDecoder(TResBlock, 1, [2, 2, 2, 2], **kwargs)
 
 
 # Visualization tools.
