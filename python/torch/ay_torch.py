@@ -227,7 +227,7 @@ def FreezeParametersExceptFor(net, unfrozen):
 '''
 Unfreeze all parameters.
 '''
-def UnfrozenAllParameters(net):
+def UnfreezeAllParameters(net):
   for p in net.parameters():
     p.requires_grad= True
 
@@ -885,6 +885,28 @@ def PlotImgGrid(imgs, labels, rows=3, cols=5, labelsize=10, figsize=None, perm_i
       ax.imshow(img.permute(1,2,0) if perm_img else img)
   fig.tight_layout()
   plt.show()
+
+def HStackImages(*imgs,margin=1):
+  if len(imgs)==0:  return None
+  height= max(img.shape[1] for img in imgs)
+  width= sum(img.shape[2] for img in imgs)+margin*(len(imgs)-1)
+  catimg= torch.zeros((imgs[0].shape[0],height,width),dtype=imgs[0].dtype)
+  x= 0
+  for img in imgs:
+    catimg[:,:img.shape[1],x:x+img.shape[2]]= img
+    x+= img.shape[2]+margin
+  return catimg
+
+def VStackImages(*imgs,margin=1):
+  if len(imgs)==0:  return None
+  height= sum(img.shape[1] for img in imgs)+margin*(len(imgs)-1)
+  width= max(img.shape[2] for img in imgs)
+  catimg= torch.zeros((imgs[0].shape[0],height,width),dtype=imgs[0].dtype)
+  y= 0
+  for img in imgs:
+    catimg[:,y:y+img.shape[1],:img.shape[2]]= img
+    y+= img.shape[1]+margin
+  return catimg
 
 
 if __name__=='__main__':
