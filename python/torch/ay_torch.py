@@ -217,6 +217,20 @@ def AssignParamGroups(obj, key, params):
   for i, param_group in enumerate(obj.param_groups):
     param_group[key]= params if isinstance(params,(int,float)) else params[i]
 
+'''
+Freeze parameters except for sub-network in unfrozen.
+'''
+def FreezeParametersExceptFor(net, unfrozen):
+  ids_unfrozen= [id(p) for pg in unfrozen for p in pg.parameters()] if isinstance(unfrozen,(tuple,list)) else [id(p) for p in unfrozen.parameters()]
+  for p in net.parameters():
+    p.requires_grad= id(p) in ids_unfrozen
+'''
+Unfreeze all parameters.
+'''
+def UnfrozenAllParameters(net):
+  for p in net.parameters():
+    p.requires_grad= True
+
 class CancelFitException(Exception): pass
 class CancelBatchException(Exception): pass
 class CancelEpochException(Exception): pass
