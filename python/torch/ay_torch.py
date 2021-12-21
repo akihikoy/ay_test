@@ -519,6 +519,21 @@ def FitOneCycle(net, n_epoch, opt=None, f_loss=None, f_metric=None,
 # Network modules.
 
 '''
+Do nothing function.
+'''
+def Noop(x, *args, **kwargs):
+  return x
+
+'''
+Do nothing module.
+'''
+class TNoop(torch.nn.Module):
+  def __init__(self, *args, **kwargs):
+    super(TNoop,self).__init__()
+  def forward(self, x):
+    return x
+
+'''
 Create a convolutional layer optionally with ReLu and normalization layers.
 Ref. https://github.com/fastai/fastai/tree/master/fastai/layers.py
 In transpose case, padding and output_padding are automatically computed if they are None 
@@ -673,7 +688,7 @@ def InitCNN(m):
 class TResNet(torch.nn.Sequential):
   def __init__(self, block, expansion, layers, p_dropout=0.0, in_channels=3, out_channels=1000, stem_sizes=(32,32,64),
                widen=1.0, with_fc=True, self_attention=False, activation=torch.nn.ReLU, ndim=2, kernel_size=3, 
-               stride=2, stem_stride=None, pool_stride=None, **kwargs):
+               stride=2, stem_stride=None, rnpool=None, rnpool_stride=None, **kwargs):
     self.block       = block      
     self.expansion   = expansion  
     self.activation  = activation 
@@ -681,13 +696,14 @@ class TResNet(torch.nn.Sequential):
     self.kernel_size = kernel_size
     if kernel_size%2==0:  raise Exception('kernel size has to be odd!')
     if stem_stride is None:  stem_stride= stride
-    if pool_stride is None:  pool_stride= stride
+    if rnpool_stride is None:  rnpool_stride= stride
 
     stem= self.make_stem(in_channels, stem_sizes, stem_stride)
     block_sizes= [int(o*widen) for o in [64,128,256,512] +[256]*(len(layers)-4)]
     block_sizes= [64//expansion] + block_sizes
     blocks= self.make_blocks(layers, block_sizes, self_attention, stride, **kwargs)
-    pool= getattr(torch.nn, f"MaxPool{ndim}d")(kernel_size=kernel_size, stride=pool_stride, padding=kernel_size//2)
+    if rnpool is None:  rnpool= getattr(torch.nn, f"MaxPool{ndim}d")
+    pool= rnpool(kernel_size=kernel_size, stride=rnpool_stride, padding=kernel_size//2)
 
     if with_fc:
       super(TResNet,self).__init__(
