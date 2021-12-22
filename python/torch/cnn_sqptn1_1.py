@@ -20,8 +20,9 @@ $ nano gen_sqptn1.py    #switch the train/test constant.
 $ ./gen_sqptn1.py
 '''
 class SqPtn1Dataset(torch.utils.data.Dataset):
-  def __init__(self, root='data_generated/sqptn1/', transform=None, train=True):
+  def __init__(self, root='data_generated/sqptn1/', transform=None, train=True, label_tsfm=False):
     self.transform= transform
+    self.label_tsfm= label_tsfm
     self.image_paths= []
     self.labels= []
     self.root= root
@@ -29,7 +30,9 @@ class SqPtn1Dataset(torch.utils.data.Dataset):
 
   def LoadLabel(self, filepath):
     with open(filepath,'r') as fp:
-      return float(fp.read().strip())
+      label= float(fp.read().strip())
+      if self.label_tsfm:  label= int(100.*np.random.uniform(0.0, 1.0))/100.
+      return label
 
   def MakePathLabelList(self, train):
     dir_train= 'train' if train else 'test'

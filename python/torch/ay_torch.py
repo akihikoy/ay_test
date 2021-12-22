@@ -184,6 +184,13 @@ class TDisp(TCallbacks):
 
 # Learning utilities.
 
+def FindDevice(device=torch.device('cuda')):
+  device= torch.device(device)  #For type(l.device)==str
+  if (device=='cuda' or device.type=='cuda') and not torch.cuda.is_available():
+    device= torch.device('cpu')
+    print('WARNING: Device is switched to cpu as cuda is not available.')
+  return device
+
 '''
 Prediction helper.
 '''
@@ -223,6 +230,22 @@ def Eval(net, x, device=None):
       x= torch.stack(x).to(device) if isinstance(x,(tuple,list)) else x.to(device)
       pred= net(x)
   return pred
+
+'''
+Calculate average loss f_loss (or metric) for a dataset (dset) or a data-loader (dl).
+'''
+def EvalLoss(net, f_loss=None, dl=None, dset=None, tfm_batch=None, device=torch.device('cuda'), dl_args=None):
+  assert((dl is None)!=(dset is None))
+  device= FindDevice(device)
+  if dset is not None:
+    default_dl_args= dict(batch_size=64, shuffle=False, num_workers=2)
+    dl_args= MergeDict(default_dl_args,dl_args) if dl_args else default_dl_args
+    dl= torch.utils.data.DataLoader(dataset=dset, **dl_args)
+  net.eval()
+  with torch.no_grad():
+    loss= sum((float(f_loss(*reversed(PredBatch(net, batch, tfm_batch=tfm_batch, device=device, with_x=False))))
+                for batch in dl)) / len(dl)
+  return loss
 
 '''
 Helper to assign parameters.
@@ -320,10 +343,7 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
   assert(l.opt is not None)
   assert(l.f_loss is not None)
 
-  l.device= torch.device(l.device)  #For type(l.device)==str
-  if (l.device=='cuda' or l.device.type=='cuda') and not torch.cuda.is_available():
-    l.device= torch.device('cpu')
-    print('Fit:WARNING: Device is switched to cpu as cuda is not available.')
+  l.device= FindDevice(l.device)
 
   default_callbacks= {e:TFuncList() for e in 
                       ('fit_begin', 'fit_end', 
@@ -901,6 +921,13 @@ def TResNet18Decoder(**kwargs): return TResNetDecoder(TResBlock, 1, [2, 2, 2, 2]
 
 
 # Visualization tools.
+
+def Summary(net, input_size=None, input_data=None, **kwargs):
+  default_kwargs= dict(depth=7, row_settings=['var_names'], col_names=['input_size','output_size','num_params'])
+  kwargs= MergeDict(default_kwargs, kwargs)
+  if input_size is not None:  print(f'input_size={input_size}')
+  if input_data is not None:  print(f'input_data.shape={input_data.shape}')
+  return torchinfo.summary(net, input_size=input_size, input_data=input_data, **kwargs)
 
 def PlotImgGrid(imgs, labels, rows=3, cols=5, labelsize=10, figsize=None, perm_img=True):
   assert(len(imgs)==len(labels))
