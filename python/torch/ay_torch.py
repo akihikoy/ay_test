@@ -126,7 +126,20 @@ class TLogger(TCallbacks):
   def cb_batch_train_end(self, l):
     self.lr.append([param_group['lr'] for param_group in l.opt.param_groups])
 
-  def Plot(self):
+  def Show(self, mode='all', with_show=True):
+    if mode in ('all','summary'):
+      print(f'total epochs: {len(self.time_train)}')
+      print(f'total time: {sum(self.time_train)/60.:.2f}min')
+      if len(self.loss_train)>0:  print(f'best loss(train): {min(self.loss_train)}@{self.loss_train.index(min(self.loss_train))}')
+      if len(self.loss_test)>0:  print(f'best loss(test): {min(self.loss_test)}@{self.loss_test.index(min(self.loss_test))}')
+      if len(self.metric_train)>0:  print(f'best metric(train): {min(self.metric_train)}@{self.metric_train.index(min(self.metric_train))}')
+      if len(self.metric_test)>0:  print(f'best metric(test): {min(self.metric_test)}@{self.metric_test.index(min(self.metric_test))}')
+    if mode in ('all','plot'):
+      self.Plot(with_show=False)
+      self.PlotLR(with_show=False)
+      if with_show:  plt.show()
+
+  def Plot(self, with_show=True):
     fig= plt.figure(figsize=(10,5))
     ax_loss= fig.add_subplot(1,2,1,title='Learning curve (loss)',xlabel='epoch',ylabel='loss')
     ax_loss.plot(range(len(self.loss_train)), self.loss_train, color='blue', label='loss(train)')
@@ -138,33 +151,34 @@ class TLogger(TCallbacks):
     ax_metric.plot(range(len(self.metric_test)), self.metric_test, color='red', label='metric(test)')
     ax_metric.set_yscale('log')
     ax_metric.legend()
-    plt.show()
+    if with_show:  plt.show()
 
-  def PlotLR(self):
+  def PlotLR(self, with_show=True):
     fig= plt.figure()
     ax_lr= fig.add_subplot(1,1,1,title='Learning rate',xlabel='iteration',ylabel='lr')
     ax_lr.plot(range(len(self.lr)), self.lr, color='blue', label='lr')
     ax_lr.set_yscale('log')
     ax_lr.legend()
-    plt.show()
+    if with_show:  plt.show()
 
 class TDisp(TCallbacks):
   def __init__(self):
     self.i_epoch= 0
   def cb_fit_begin(self, l):
-    print('i_epoch\tloss(train)\tloss(test)\tmetric(test)\ttime')
+    print('i_epoch\tloss(train)\tloss(test)\tmetric(train)\tmetric(test)\t time')
   def cb_epoch_train_begin(self, l):
     self.t0= time.time()
   def cb_epoch_train_end(self, l):
     self.time_train= time.time()-self.t0
     self.loss_train= l.loss if l.loss is not None else np.nan
+    self.metric_train= l.metric if l.metric is not None else np.nan
   def cb_epoch_test_begin(self, l):
     self.t0= time.time()
   def cb_epoch_test_end(self, l):
     self.time_test= time.time()-self.t0
     self.loss_test= l.loss if l.loss is not None else np.nan
     self.metric_test= l.metric if l.metric is not None else np.nan
-    print(f'{self.i_epoch}\t{self.loss_train:.8f}\t{self.loss_test:.8f}\t{self.metric_test:.8f}\t{self.time_train+self.time_test:.6f}')
+    print(f'{self.i_epoch}\t{self.loss_train:.8f}\t{self.loss_test:.8f}\t{self.metric_train:.8f}\t{self.metric_test:.8f}\t {self.time_train+self.time_test:.6f}')
     self.i_epoch+= 1
 
 
@@ -328,7 +342,7 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
         if l.dl_train:
           l.callbacks['epoch_train_begin'](l)
           l.sum_loss= 0.0
-          l.sum_metric= None
+          l.sum_metric= 0.0
           l.net.train()
           for l.i_batch, l.batch in enumerate(l.dl_train):
             l.forward_value_error= True
@@ -345,6 +359,8 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
               l.callbacks['train_after_backward'](l)
               if l.do_opt: l.opt.step()
               l.sum_loss+= float(l.loss)
+              if l.f_metric:
+                with torch.no_grad():  l.sum_metric+= float(l.f_metric(l.pred, l.y_trg))
             except CancelBatchException:
               pass
             except ValueError as e:
@@ -352,7 +368,7 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
               if l.forward_value_error:  raise e
             l.callbacks['batch_train_end'](l)
           l.loss= l.sum_loss/len(l.dl_train)
-          l.metric= None
+          l.metric= None if l.f_metric is None else l.sum_metric/len(l.dl_train)
           l.callbacks['epoch_train_end'](l)
 
         if l.dl_test:
