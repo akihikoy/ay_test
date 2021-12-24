@@ -31,7 +31,7 @@ class SqPtn1Dataset(torch.utils.data.Dataset):
   def LoadLabel(self, filepath):
     with open(filepath,'r') as fp:
       label= float(fp.read().strip())
-      if self.label_tsfm:  label= int(100.*np.random.uniform(0.0, 1.0))/100.
+      if self.label_tsfm:  label= int(100.*label)/100.
       return label
 
   def MakePathLabelList(self, train):
