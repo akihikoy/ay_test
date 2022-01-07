@@ -126,14 +126,15 @@ class TLogger(TCallbacks):
   def cb_batch_train_end(self, l):
     self.lr.append([param_group['lr'] for param_group in l.opt.param_groups])
 
-  def Show(self, mode='all', with_show=True):
+  def Show(self, mode='all', with_show=True, rev_metric=False):
     if mode in ('all','summary'):
+      fmin_metric= min if not rev_metric else max
       print(f'total epochs: {len(self.time_train)}')
       print(f'total time: {sum(self.time_train)/60.:.2f}min')
       if len(self.loss_train)>0:  print(f'best loss(train): {min(self.loss_train)}@{self.loss_train.index(min(self.loss_train))}')
       if len(self.loss_test)>0:  print(f'best loss(test): {min(self.loss_test)}@{self.loss_test.index(min(self.loss_test))}')
-      if len(self.metric_train)>0:  print(f'best metric(train): {min(self.metric_train)}@{self.metric_train.index(min(self.metric_train))}')
-      if len(self.metric_test)>0:  print(f'best metric(test): {min(self.metric_test)}@{self.metric_test.index(min(self.metric_test))}')
+      if len(self.metric_train)>0:  print(f'best metric(train): {fmin_metric(self.metric_train)}@{self.metric_train.index(fmin_metric(self.metric_train))}')
+      if len(self.metric_test)>0:  print(f'best metric(test): {fmin_metric(self.metric_test)}@{self.metric_test.index(fmin_metric(self.metric_test))}')
     if mode in ('all','plot'):
       self.Plot(with_show=False)
       self.PlotLR(with_show=False)
@@ -555,6 +556,21 @@ def FitOneCycle(net, n_epoch, opt=None, f_loss=None, f_metric=None,
 # Network modules.
 
 '''
+Return the output shape of net for the input shape.
+'''
+def OutputShape(net, in_shape, n_batch=3, device=None):
+  net.eval()
+  if device is None:
+    device= torch.device('cpu')
+    try:
+      device= next(net.parameters()).device
+    except StopIteration:
+      pass
+  input= torch.randn((n_batch,)+in_shape).to(device)
+  with torch.no_grad():
+    return net(input).shape[1:]
+
+'''
 Do nothing function.
 '''
 def Noop(x, *args, **kwargs):
@@ -716,10 +732,11 @@ class TResBlock(torch.nn.Module):
   def forward(self, x): 
     return self.act(self.convpath(x) + self.idpath(x))
 
-def InitCNN(m):
+def InitCNN(m, extra_rule=None):
   if getattr(m, 'bias', None) is not None:  torch.nn.init.constant_(m.bias, 0)
   if isinstance(m, (torch.nn.Conv1d, torch.nn.Conv2d, torch.nn.Conv3d, torch.nn.Linear)):  torch.nn.init.kaiming_normal_(m.weight)
-  for l in m.children(): InitCNN(l)
+  if extra_rule is not None:  extra_rule(m)
+  for l in m.children(): InitCNN(l, extra_rule)
 
 class TResNet(torch.nn.Sequential):
   def __init__(self, block, expansion, layers, p_dropout=0.0, in_channels=3, out_channels=1000, stem_sizes=(32,32,64),
@@ -864,12 +881,17 @@ class TResNetDecoder(torch.nn.Sequential):
 
     block_sizes= [int(o*widen) for o in [256]*(len(layers)-4) + [512,256,128,64]]
     block_sizes= block_sizes + [64//expansion]
+    block_sizes= block_sizes[-len(layers)-1:]
     blocks= self.make_blocks(layers, block_sizes, self_attention, stride, **kwargs)
     stem= self.make_stem(block_sizes[-1]*expansion, stem_sizes, stem_stride)
+    if isinstance(in_channels,int):
+      root= [torch.nn.Linear(in_channels, block_sizes[0]*expansion*first_imgshape[0]*first_imgshape[1]), 
+             torch.nn.Unflatten(1,(block_sizes[0]*expansion,first_imgshape[0],first_imgshape[1])) ]
+    else:  #in_channels is a tuple or list.
+      root= [ConvLayer(in_channels[0], block_sizes[0]*expansion, kernel_size=1, activation=None, ndim=ndim)]
 
     super(TResNetDecoder,self).__init__(
-          torch.nn.Linear(in_channels, block_sizes[0]*expansion*first_imgshape[0]*first_imgshape[1]), 
-          torch.nn.Unflatten(1,(block_sizes[0]*expansion,first_imgshape[0],first_imgshape[1])),
+          *root,
           *blocks,
           # ConvLayer(block_sizes[-1]*expansion, out_imgshape[0], kernel_size=1, activation=None, ndim=ndim),
           *stem,
