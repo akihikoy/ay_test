@@ -944,18 +944,36 @@ def TResNet18Decoder(**kwargs): return TResNetDecoder(TResBlock, 1, [2, 2, 2, 2]
 
 # Visualization tools.
 
-def Summary(net, input_size=None, input_data=None, **kwargs):
+'''
+torchinfo.summary wrapper.
+'''
+def Summary(net, input_size=None, input_data=None, out_form='print', **kwargs):
   default_kwargs= dict(depth=7, row_settings=['var_names'], col_names=['input_size','output_size','num_params'])
   kwargs= MergeDict(default_kwargs, kwargs)
-  if input_size is not None:  print(f'input_size={input_size}')
-  if input_data is not None:  print(f'input_data.shape={input_data.shape}')
-  return torchinfo.summary(net, input_size=input_size, input_data=input_data, **kwargs)
+  in_info= ''
+  if input_size is not None:  in_info+= f'input_size={input_size}'
+  if isinstance(input_data,torch.Tensor):  in_info+= f'input_data.shape={input_data.shape}'
+  elif isinstance(input_data,tuple):  in_info+= f'input_data={tuple(x.shape if isinstance(x,torch.Tensor) else "???" for x in input_data)}'
+  elif input_data is not None:  in_info+= f'input_data=???'
+  sum_info= torchinfo.summary(net, input_size=input_size, input_data=input_data, **kwargs)
+  if out_form=='print':
+    print(in_info)
+    print(sum_info)
+  elif out_form=='tuple':
+    return in_info,sum_info
+  else:
+    print(in_info)
+    return sum_info
 
-def PlotImgGrid(imgs, labels, rows=3, cols=5, labelsize=10, figsize=None, perm_img=True):
+#perm_img: Permute image or not (channel,h,w to h,w,channel).  If None, automatically decided.
+def PlotImgGrid(imgs, labels, rows=3, cols=5, labelsize=10, figsize=None, perm_img=None, suptitle=None, suptitlesize=16):
   assert(len(imgs)==len(labels))
+  if len(imgs)==0:  return
   rows= min(rows, np.ceil(len(imgs)/cols))
   if figsize is None:  figsize= (12,12/cols*rows)
   fig= plt.figure(figsize=figsize)
+  if perm_img is None:
+    perm_img= isinstance(imgs[0],torch.Tensor) and imgs[0].shape[0]==3
   for i,(img,label) in enumerate(zip(imgs,labels)):
     if i+1>rows*cols:  break
     ax= fig.add_subplot(rows, cols, i+1)
@@ -964,7 +982,11 @@ def PlotImgGrid(imgs, labels, rows=3, cols=5, labelsize=10, figsize=None, perm_i
       ax.imshow(np.repeat(img,3,axis=0).permute(1,2,0) if perm_img else img)
     else:
       ax.imshow(img.permute(1,2,0) if perm_img else img)
-  fig.tight_layout()
+  if suptitle is not None:
+    fig.suptitle(suptitle, fontsize=suptitlesize)
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+  else:
+    fig.tight_layout()
   plt.show()
 
 def HStackImages(*imgs,margin=1):
