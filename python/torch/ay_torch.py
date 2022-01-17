@@ -195,8 +195,8 @@ def FindDevice(device=torch.device('cuda')):
 '''
 Prediction helper.
 '''
-def PredBatch(net, batch, tfm_batch=None, device=None, with_x=True, with_y=True):
-  if device is None:  device= torch.device('cpu')
+def PredBatch(net, batch, tfm_batch=None, device=torch.device('cuda'), with_x=True, with_y=True):
+  device= FindDevice(device)
   if next(net.parameters()).device != device:
     net.to(device)
   x,y= tfm_batch(batch)
@@ -218,8 +218,8 @@ def PredBatch(net, batch, tfm_batch=None, device=None, with_x=True, with_y=True)
 '''
 Evaluation helper.
 '''
-def Eval(net, x, device=None):
-  if device is None:  device= torch.device('cpu')
+def Eval(net, x, device=torch.device('cuda')):
+  device= FindDevice(device)
   if next(net.parameters()).device != device:
     net.to(device)
   net.eval()
@@ -233,9 +233,14 @@ def Eval(net, x, device=None):
   return pred
 
 '''
-Calculate average loss f_loss (or metric) for a dataset (dset) or a data-loader (dl).
+Calculate loss f_loss (or metric) for a dataset (dset) or a data-loader (dl).
+reduction: Specifies the reduction to apply to the output.
+  'none': Return the output as a list.
+  'mean': Mean of the output.
+  'sum': Sum of the output.
 '''
-def EvalLoss(net, f_loss=None, dl=None, dset=None, tfm_batch=None, device=torch.device('cuda'), dl_args=None):
+def EvalLoss(net, f_loss=None, dl=None, dset=None, tfm_batch=None, reduction='mean',
+             device=torch.device('cuda'), dl_args=None):
   assert((dl is None)!=(dset is None))
   device= FindDevice(device)
   if dset is not None:
@@ -244,9 +249,29 @@ def EvalLoss(net, f_loss=None, dl=None, dset=None, tfm_batch=None, device=torch.
     dl= torch.utils.data.DataLoader(dataset=dset, **dl_args)
   net.eval()
   with torch.no_grad():
-    loss= sum((float(f_loss(*reversed(PredBatch(net, batch, tfm_batch=tfm_batch, device=device, with_x=False))))
-                for batch in dl)) / len(dl)
-  return loss
+    output= (float(f_loss(*reversed(PredBatch(net, batch, tfm_batch=tfm_batch, device=device, with_x=False))))
+             for batch in dl)
+  if reduction=='none':  return list(output)
+  elif reduction=='mean':  return sum(output)/len(dl)
+  elif reduction=='sum':  return sum(output)
+  raise Exception(f'EvalLoss:Unknown reduction:{reduction}')
+
+'''
+Evaluation a part of dataset.
+'''
+def EvalDataSet(net, dset, idxes=None, tfm_batch=None, device=torch.device('cuda'), with_x=False, with_y=False):
+  device= FindDevice(device)
+  if idxes is None:  idxes= range(len(dset))
+  if len(idxes)==0:  return None
+  X= [tfm_batch(dset[i])[0] for i in idxes]
+  if with_y: Y= [tfm_batch(dset[i])[1] for i in idxes]
+  if isinstance(X[0],tuple):  X= tuple([X[ix][ielem] for ix in range(len(X))] for ielem in range(len(X[0])))
+  if with_y and isinstance(Y[0],tuple):  Y= tuple([Y[iy][ielem] for iy in range(len(Y))] for ielem in range(len(Y[0])))
+  pred= Eval(net,X,device=device)
+  if with_x and with_y:  return X,Y,pred
+  if with_x:  return X,pred
+  if with_y:  return Y,pred
+  return pred
 
 '''
 Helper to assign parameters.
@@ -982,9 +1007,9 @@ class TResDenseNetWithAE(torch.nn.Module):
                encoder_args=None, decoder_args=None, latent_dim=256,
                n_hiddens=1, hidden_channels=None, n_hiddens2=1, hidden_channels2=None, p_dropout=0.0):
     super(TResDenseNetWithAE,self).__init__()
-    default_encoder_args= {'expansion':1}
+    default_encoder_args= dict(expansion=1)
     encoder_args= MergeDict(default_encoder_args,encoder_args) if encoder_args else default_encoder_args
-    default_decoder_args= {'expansion':1, stem_sizes=(64,64,32,32)}
+    default_decoder_args= dict(expansion=1, stem_sizes=(64,64,32,32))
     decoder_args= MergeDict(default_decoder_args,decoder_args) if decoder_args else default_decoder_args
     self.encoder= TResNet(TResBlock, **encoder_args, layers=layers, in_channels=in_imgshape[0], with_fc=False)
     ndim_encoder= torch.flatten(self.encoder(torch.zeros((3,)+tuple(in_imgshape))),1).shape[1]
