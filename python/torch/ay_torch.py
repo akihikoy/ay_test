@@ -735,6 +735,7 @@ class TResBlock(torch.nn.Module):
 def InitCNN(m, extra_rule=None):
   if getattr(m, 'bias', None) is not None:  torch.nn.init.constant_(m.bias, 0)
   if isinstance(m, (torch.nn.Conv1d, torch.nn.Conv2d, torch.nn.Conv3d, torch.nn.Linear)):  torch.nn.init.kaiming_normal_(m.weight)
+  if isinstance(m, TLocallyConnected2d):  torch.nn.init.xavier_uniform_(m.weight, gain=torch.nn.init.calculate_gain('leaky_relu'))
   if extra_rule is not None:  extra_rule(m)
   for l in m.children(): InitCNN(l, extra_rule)
 
@@ -863,6 +864,36 @@ class TResDenseBlock(torch.nn.Module):
 
 
 '''
+ResNet + ResDenseBlock
+'''
+class TResDenseNet(torch.nn.Module):
+  def __init__(self, in_imgshape, out_channels, resnet_args=None,
+               n_hiddens=2, hidden_channels=256, p_dropout=0.0):
+    super(TResDenseNet,self).__init__()
+    default_resnet_args= dict(expansion=1, layers=[2, 2, 2, 2])
+    resnet_args= MergeDict(default_resnet_args,resnet_args) if resnet_args else default_resnet_args
+    self.resnet= TResNet(TResBlock, **resnet_args, in_channels=in_imgshape[0], with_fc=False)
+    ndim_resnet= torch.flatten(self.resnet(torch.zeros((3,)+tuple(in_imgshape))),1).shape[1]
+    if hidden_channels is not None:
+      self.fc= torch.nn.Sequential(
+            torch.nn.Flatten(),
+            TResDenseBlock(ndim_resnet, hidden_channels),
+            torch.nn.Dropout(p_dropout),
+            *[TResDenseBlock(hidden_channels, hidden_channels) for i in range(n_hiddens-1)],
+            torch.nn.Dropout(p_dropout) if n_hiddens-1>0 else TNoop(),
+            torch.nn.Linear(hidden_channels, out_channels),
+            )
+    else:
+      self.fc= torch.nn.Sequential(
+            torch.nn.Flatten(),
+            torch.nn.Linear(ndim_resnet, out_channels),
+            )
+    InitCNN(self)
+  def forward(self, x):
+    return self.fc(self.resnet(x))
+
+
+'''
 ResNet in inverse order.
 '''
 class TResNetDecoder(torch.nn.Sequential):
@@ -940,6 +971,465 @@ class TResNetDecoder(torch.nn.Sequential):
     return stem
 
 def TResNet18Decoder(**kwargs): return TResNetDecoder(TResBlock, 1, [2, 2, 2, 2], **kwargs)
+
+
+
+'''
+ResNet + ResDenseBlock + ResNetDecoder (Auto Encoder).
+'''
+class TResDenseNetWithAE(torch.nn.Module):
+  def __init__(self, in_imgshape, out_channels, layers=[2, 2, 2, 2], 
+               encoder_args=None, decoder_args=None, latent_dim=256,
+               n_hiddens=1, hidden_channels=None, n_hiddens2=1, hidden_channels2=None, p_dropout=0.0):
+    super(TResDenseNetWithAE,self).__init__()
+    default_encoder_args= {'expansion':1}
+    encoder_args= MergeDict(default_encoder_args,encoder_args) if encoder_args else default_encoder_args
+    default_decoder_args= {'expansion':1, stem_sizes=(64,64,32,32)}
+    decoder_args= MergeDict(default_decoder_args,decoder_args) if decoder_args else default_decoder_args
+    self.encoder= TResNet(TResBlock, **encoder_args, layers=layers, in_channels=in_imgshape[0], with_fc=False)
+    ndim_encoder= torch.flatten(self.encoder(torch.zeros((3,)+tuple(in_imgshape))),1).shape[1]
+    if hidden_channels is not None:
+      self.fc_latent= torch.nn.Sequential(
+            torch.nn.Flatten(),
+            TResDenseBlock(ndim_encoder, hidden_channels),
+            torch.nn.Dropout(p_dropout),
+            *[TResDenseBlock(hidden_channels, hidden_channels) for i in range(n_hiddens)],
+            torch.nn.Dropout(p_dropout) if n_hiddens>0 else TNoop(),
+            # torch.nn.Linear(hidden_channels, latent_dim),
+            TResDenseBlock(hidden_channels, latent_dim),
+            )
+    else:
+      self.fc_latent= torch.nn.Sequential(
+            torch.nn.Flatten(),
+            # torch.nn.Linear(ndim_encoder, latent_dim),
+            TResDenseBlock(ndim_encoder, latent_dim),
+            )
+    if hidden_channels2 is not None:
+      self.fc_out= torch.nn.Sequential(
+            TResDenseBlock(latent_dim, hidden_channels2),
+            torch.nn.Dropout(p_dropout),
+            *[TResDenseBlock(hidden_channels2, hidden_channels2) for i in range(n_hiddens2)],
+            torch.nn.Dropout(p_dropout) if n_hiddens2>0 else TNoop(),
+            torch.nn.Linear(hidden_channels2, out_channels),
+            )
+    else:
+      self.fc_out= torch.nn.Linear(latent_dim, out_channels)
+    self.decoder= TResNetDecoder(TResBlock, **decoder_args, layers=layers, in_channels=latent_dim, out_imgshape=in_imgshape)
+    InitCNN(self)
+  def forward(self, x):
+    x_encoded= self.encoder(x)
+    h= self.fc_latent(x_encoded)
+    y= self.fc_out(h)
+    x_reconstructed= self.decoder(h)
+    return y, x_reconstructed, h
+'''
+A loss module for [regression]+[image-reconstruction](i.e. auto-encoding) task.
+'''
+class TRegressionWithAELoss(torch.nn.Module):
+  def __init__(self, w_xtrg=0.5, f_loss_y=torch.nn.functional.l1_loss, f_loss_x=torch.nn.functional.l1_loss,
+               reduction_y='mean', reduction_x='mean'):
+    super(TRegressionWithAELoss,self).__init__()
+    self.w_xtrg= w_xtrg
+    self.f_loss_y,self.f_loss_x= f_loss_y,f_loss_x
+    self.reduction_y,self.reduction_x= reduction_y,reduction_x
+  def state_dict(self):
+    return {'w_xtrg':self.w_xtrg}
+  def load_state_dict(self, d):
+    self.w_xtrg= d['w_xtrg']
+  def __call__(self, y_pred, y_trg):
+    y,x_reconstructed,h= y_pred
+    y_trg,x_trg= y_trg
+    if self.w_xtrg==0:
+      return self.f_loss_y(y, y_trg, reduction=self.reduction_y)
+    elif self.w_xtrg==1:
+      return self.f_loss_x(x_reconstructed, x_trg, reduction=self.reduction_x)
+    else:
+      x_loss= self.f_loss_x(x_reconstructed, x_trg, reduction=self.reduction_x)
+      y_loss= self.f_loss_y(y, y_trg, reduction=self.reduction_y)
+      return self.w_xtrg*x_loss + (1.0-self.w_xtrg)*y_loss
+'''
+A metric module for [regression]+[image-reconstruction](i.e. auto-encoding) task.
+'''
+class TRegressionWithAEMetric(torch.nn.Module):
+  def __init__(self):
+    super(TRegressionWithAEMetric,self).__init__()
+  def state_dict(self):
+    return {}
+  def load_state_dict(self, d):
+    pass
+  def __call__(self, y_pred, y_trg):
+    y,x_reconstructed,h= y_pred
+    y_trg,x_trg= y_trg
+    return torch.sqrt(torch.nn.functional.mse_loss(y, y_trg))
+
+
+
+'''
+Locally-Connected network (2d version).
+in_shape: Tuple or list of (in_channels, in_h, in_w).
+'''
+class TLocallyConnected2d(torch.nn.Module):
+  def __init__(self, in_shape, out_channels, kernel_size, stride=1, padding=0, bias=True, padding_mode='zeros', device=None, dtype=None):
+    super(TLocallyConnected2d, self).__init__()
+    self.kernel_size= torch.nn.modules.utils._pair(kernel_size)
+    self.stride= torch.nn.modules.utils._pair(stride)
+    self.padding= torch.nn.modules.utils._pair(padding)
+    out_h= int((in_shape[1]+2*self.padding[0]-1*(self.kernel_size[0]-1)-1)/self.stride[0]+1)
+    out_w= int((in_shape[2]+2*self.padding[1]-1*(self.kernel_size[1]-1)-1)/self.stride[1]+1)
+    self.out_shape= (out_h,out_w)
+    valid_padding_modes= {'zeros', 'reflect', 'replicate', 'circular'}
+    assert(padding_mode in valid_padding_modes)
+    self.padding_mode= padding_mode
+    factory_kwargs= dict(device=device, dtype=dtype)
+    self.weight= torch.nn.Parameter(torch.empty((out_channels,in_shape[0])+self.out_shape+self.kernel_size, **factory_kwargs))
+    if bias:
+      self.bias= torch.nn.Parameter(torch.empty((out_channels,)+self.out_shape, **factory_kwargs))
+    else:
+      self.register_parameter('bias', None)
+
+  def forward(self, x):
+    view_shape= x.shape[:2]+self.out_shape+self.kernel_size
+    if self.padding_mode=='zeros':
+      x= torch.nn.functional.pad(x, tuple(p for p in reversed(self.padding) for _ in range(2)), mode='constant', value=0.0)
+    else:
+      x= torch.nn.functional.pad(x, tuple(p for p in reversed(self.padding) for _ in range(2)), mode=padding_mode)
+    strides= x.stride()[:2]+tuple(np.array(x.stride()[2:])*self.stride)+x.stride()[2:]
+    sub_matrices= torch.as_strided(x, view_shape, strides)
+    x= torch.einsum('ijmnkl,bjmnkl->bimn', self.weight, sub_matrices)
+    return x if self.bias is None else x+self.bias
+
+'''
+Wrapper of TLocallyConnected2d with a normalization and activation modules.
+'''
+def LocallyConnectedLayer2d(in_shape, out_channels, kernel_size, stride=1,
+              padding=None, bias=True, padding_mode='zeros',
+              norm_type='batch', batchnorm_first=True,
+              activation=torch.nn.LeakyReLU, init='auto', bias_std=0.5):
+  bn= norm_type in ('batch', 'batch_zero')
+  if padding is None: padding= (kernel_size-1)//2
+  lc= TLocallyConnected2d(in_shape, out_channels, kernel_size, stride=stride, padding=padding, bias=bias, padding_mode=padding_mode)
+  act= (None if activation is None else
+        activation(inplace=True) if activation in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU) else
+        activation())
+  if getattr(lc,'bias',None) is not None and bias_std is not None:
+    if bias_std!=0: torch.nn.init.normal_(lc.bias, 0.0, bias_std)
+    else: lc.bias.data.zero_()
+  f_init= None
+  if act is not None and init=='auto':
+    if hasattr(act.__class__, '__default_init__'):
+      f_init= act.__class__.__default_init__
+    else:  f_init= getattr(act, '__default_init__', None)
+    if f_init is None and act in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU):
+      f_init= torch.nn.init.xavier_uniform_  #FIXME: Consider the initialization of weight.
+  if f_init is not None: f_init(lc.weight,gain=torch.nn.init.calculate_gain('leaky_relu'))
+  if   norm_type=='weight':   lc= torch.nn.utils.weight_norm(lc)
+  elif norm_type=='spectral': lc= torch.nn.utils.spectral_norm(lc)
+  layers= [lc]
+  act_bn= []
+  if act is not None: act_bn.append(act)
+  if bn:
+    bnl= torch.nn.BatchNorm2d(out_channels)
+    if bnl.affine:
+      bnl.bias.data.fill_(1e-3)
+      bnl.weight.data.fill_(0. if norm_type=='batch_zero' else 1.)
+    act_bn.append(bnl)
+  if batchnorm_first: act_bn.reverse()
+  layers+= act_bn
+  return torch.nn.Sequential(*layers)
+
+'''
+EXPERIMENTAL: ResBlock of TLocallyConnected2d.
+'''
+class TResLCBlock2d(torch.nn.Module):
+  def __init__(self, in_shape, out_channels, kernel_size, stride=1,
+               hidden_channels=None, pattern=['LC','Conv'], id_mod='LC',
+               activation=torch.nn.LeakyReLU, lc_args=None, conv_args=None):
+    super(TResLCBlock2d,self).__init__()
+    default_lc_args= dict()
+    lc_args= MergeDict(default_lc_args,lc_args) if lc_args else default_lc_args
+    default_conv_args= dict(ndim=2)
+    conv_args= MergeDict(default_conv_args,conv_args) if conv_args else default_conv_args
+    if hidden_channels is None: hidden_channels= out_channels
+    lcpath= []
+    for i,m in enumerate(pattern):
+      stride2= stride if i==0 else 1
+      activation2= None if i==len(pattern)-1 else activation
+      in_shape2= OutputShape(torch.nn.Sequential(*lcpath),in_shape)
+      out_channels2= out_channels if i==len(pattern)-1 else hidden_channels
+      if m=='LC':
+        mod= LocallyConnectedLayer2d(in_shape2, out_channels2, kernel_size, stride=stride2, activation=activation2, **lc_args)
+      elif m=='Conv':
+        mod= ConvLayer(in_shape2[0], out_channels2, kernel_size, stride=stride2, activation=activation2, **conv_args)
+      lcpath.append(mod)
+    self.lcpath= torch.nn.Sequential(*lcpath)
+    idpath= []
+    if in_shape[0]!=out_channels or stride!=1:
+      if id_mod=='LC':
+        idpath.append(LocallyConnectedLayer2d(in_shape, out_channels, kernel_size=stride, stride=stride, activation=None, **lc_args))
+      elif id_mod=='Conv':
+        if in_shape[0]!=out_channels:
+          idpath.append(ConvLayer(in_shape[0], out_channels, kernel_size=1, activation=None, **conv_args))
+        if stride!=1:
+          pool= torch.nn.AvgPool2d
+          pool_first= True
+          idpath.insert((1,0)[pool_first], pool(kernel_size=stride, stride=None, padding=0, ceil_mode=True))
+    self.idpath= torch.nn.Sequential(*idpath)
+    self.act= activation(inplace=True) if activation in (torch.nn.ReLU,torch.nn.ReLU6,torch.nn.LeakyReLU) else activation()
+
+  def forward(self, x):
+    return self.act(self.lcpath(x) + self.idpath(x))
+
+
+
+'''
+Network generator utility.
+'''
+class TNetGenerator(torch.nn.Sequential):
+  def __init__(self, in_shape, layers, kernel_size=3,
+               conv_args=None, res_args=None, dense_args=None, resdense_args=None, lc_args=None, reslc_args=None):
+    default_conv_args= dict(kernel_size=kernel_size, ndim=2)
+    conv_args= MergeDict(default_conv_args,conv_args) if conv_args else default_conv_args
+    default_res_args= dict(kernel_size=kernel_size, ndim=2)
+    res_args= MergeDict(default_res_args,res_args) if res_args else default_res_args
+    default_dense_args= dict()
+    dense_args= MergeDict(default_dense_args,dense_args) if dense_args else default_dense_args
+    default_resdense_args= dict()
+    resdense_args= MergeDict(default_resdense_args,resdense_args) if resdense_args else default_resdense_args
+    default_lc_args= dict(kernel_size=kernel_size)
+    lc_args= MergeDict(default_lc_args,lc_args) if lc_args else default_lc_args
+    default_reslc_args= dict(kernel_size=kernel_size)
+    reslc_args= MergeDict(default_reslc_args,reslc_args) if reslc_args else default_reslc_args
+    blocks= []
+    for l in layers:
+      if isinstance(l,tuple):
+        type,args= l
+        h_shape= OutputShape(torch.nn.Sequential(*blocks),in_shape)
+        if type=='Conv':  mod= ConvLayer(h_shape[0], **MergeDict(copy.deepcopy(conv_args),args))
+        elif type=='Res':  mod= TResBlock(**MergeDict(MergeDict(copy.deepcopy(res_args),args),dict(expansion=1,in_channels=h_shape[0])))
+        elif type=='Dense':  mod= DenseLayer(in_channels=h_shape[0],**MergeDict(copy.deepcopy(dense_args),args))
+        elif type=='ResDense':  mod= TResDenseBlock(in_channels=h_shape[0],**MergeDict(copy.deepcopy(resdense_args),args))
+        elif type=='LC':  mod= LocallyConnectedLayer2d(h_shape, **MergeDict(copy.deepcopy(lc_args),args))
+        elif type=='ResLC':  mod= TResLCBlock2d(h_shape, **MergeDict(copy.deepcopy(reslc_args),args))
+        elif type=='Linear':  mod= torch.nn.Linear(h_shape[0],**args)
+      else:
+        mod= l
+      blocks.append(mod)
+    super(TNetGenerator,self).__init__(*blocks)
+    InitCNN(self)
+
+'''
+Parameters for TNetGenerator.
+Equivalent to TResNet18.
+'''
+def NGenResNet18(out_features=3, kernel_size=3, p_dropout=0.0):
+  return dict(
+    kernel_size=kernel_size,
+    layers=[
+      ('Conv',dict(out_channels=32,stride=1)),
+      ('Conv',dict(out_channels=32,stride=2)),
+      ('Conv',dict(out_channels=64,stride=2)),
+      torch.nn.MaxPool2d(kernel_size=kernel_size, stride=2, padding=kernel_size//2),
+      ('Res',dict(out_channels=64,stride=1)),
+      ('Res',dict(out_channels=64,stride=1)),
+      ('Res',dict(out_channels=128,stride=1)),
+      ('Res',dict(out_channels=128,stride=2)),
+      ('Res',dict(out_channels=256,stride=1)),
+      ('Res',dict(out_channels=256,stride=2)),
+      ('Res',dict(out_channels=512,stride=1)),
+      ('Res',dict(out_channels=512,stride=2)),
+      torch.nn.AdaptiveAvgPool2d(output_size=1),
+      torch.nn.Flatten(),
+      torch.nn.Dropout(p_dropout),
+      ('Linear',dict(out_features=out_features)),
+      ], )
+
+'''
+Parameters for TNetGenerator.
+ResDenseNet with the LeakyReLU activation.
+'''
+def NGenResNetDenseNetLeakyReLU(out_features=3, kernel_size=3, p_dropout=0.0, activation=torch.nn.LeakyReLU):
+  return dict(
+    kernel_size=kernel_size,
+    layers=[
+      ('Conv',dict(out_channels=32,stride=1,activation=activation)),
+      ('Conv',dict(out_channels=32,stride=2,activation=activation)),
+      ('Conv',dict(out_channels=64,stride=2,activation=activation)),
+      torch.nn.MaxPool2d(kernel_size=kernel_size, stride=2, padding=kernel_size//2),
+      ('Res',dict(out_channels=64,stride=1,activation=activation)),
+      ('Res',dict(out_channels=64,stride=1,activation=activation)),
+      ('Res',dict(out_channels=128,stride=1,activation=activation)),
+      ('Res',dict(out_channels=128,stride=2,activation=activation)),
+      ('Res',dict(out_channels=256,stride=1,activation=activation)),
+      ('Res',dict(out_channels=256,stride=2,activation=activation)),
+      ('Res',dict(out_channels=512,stride=1,activation=activation)),
+      ('Res',dict(out_channels=512,stride=2,activation=activation)),
+      # torch.nn.AdaptiveAvgPool2d(output_size=1),
+      # torch.nn.Flatten(),
+      # torch.nn.Dropout(p_dropout),
+      # ('Linear',dict(out_features=out_features)),
+      torch.nn.Flatten(),
+      ('ResDense',dict(out_channels=256)),
+      torch.nn.Dropout(p_dropout),
+      ('ResDense',dict(out_channels=256)),
+      torch.nn.Dropout(p_dropout),
+      ('Linear',dict(out_features=out_features)),
+      ], )
+
+'''
+ResNet + LocallyConnectedLayer2d + ResDenseBlock + ResNetDecoder.
+Forming an Auto Encoder.
+'''
+class TResLCDenseNetWithAE(torch.nn.Module):
+  def __init__(self, in_imgshape, out_channels,
+               encoder_args=None, decoder_args=None, latent_args=None, p_dropout=0.0):
+    super(TResLCDenseNetWithAE,self).__init__()
+    default_encoder_args= dict(
+      kernel_size=3,
+      layers=[
+        ('Conv',dict(out_channels=32,stride=1,activation=torch.nn.LeakyReLU)),
+        ('Conv',dict(out_channels=32,stride=2,activation=torch.nn.LeakyReLU)),
+        ('Res',dict(out_channels=64,stride=1,activation=torch.nn.LeakyReLU)),
+        ('Res',dict(out_channels=64,stride=2,activation=torch.nn.LeakyReLU)),
+        ('Res',dict(out_channels=128,stride=1,activation=torch.nn.LeakyReLU)),
+        ('Res',dict(out_channels=128,stride=2,activation=torch.nn.LeakyReLU)),
+        ('LC',dict(out_channels=32,stride=2,kernel_size=2)),
+        #('Res',dict(out_channels=64,stride=1,activation=torch.nn.LeakyReLU)),
+        #('LC',dict(out_channels=32,stride=4,kernel_size=4)),
+      ])
+    encoder_args= MergeDict(default_encoder_args,encoder_args) if encoder_args else default_encoder_args
+    default_decoder_args= dict(expansion=1, layers=[2,2,2], stem_sizes=(32,))
+    decoder_args= MergeDict(default_decoder_args,decoder_args) if decoder_args else default_decoder_args
+    default_latent_args= dict(
+      kernel_size=3,
+      layers=[
+        torch.nn.Flatten(),
+        torch.nn.Dropout(p_dropout),
+        ('ResDense',dict(out_channels=256)),
+        ('Linear',dict(out_features=out_channels)),
+      ])
+    latent_args= MergeDict(default_latent_args,latent_args) if latent_args else default_latent_args
+
+    self.encoder= TResFlexNet2d(in_imgshape, **encoder_args)
+    shape_encoder= OutputShape(self.encoder,in_imgshape)
+    self.fc_latent= TResFlexNet2d(shape_encoder, **latent_args)
+    self.decoder= TResNetDecoder(TResBlock, **decoder_args, in_channels=shape_encoder, out_imgshape=in_imgshape)
+    InitCNN(self)
+  def forward(self, x):
+    x_encoded= self.encoder(x)
+    y= self.fc_latent(x_encoded)
+    x_reconstructed= self.decoder(x_encoded)
+    return y, x_reconstructed, x_encoded
+
+'''
+ResNet + ResDenseBlock + ResNetDecoder.
+Forming an Auto Encoder where the latent variable is a small image.
+'''
+class TResDenseNetWithAELatentImage(torch.nn.Module):
+  def __init__(self, in_imgshape, out_channels,
+               encoder_args=None, decoder_args=None, latent_args=None, p_dropout=0.0):
+    super(TResDenseNetWithAELatentImage,self).__init__()
+    ks_default= 3
+    default_encoder_args= dict(
+      kernel_size=ks_default,
+      layers=[
+        ('Conv',dict(out_channels=32,stride=1)),
+        ('Conv',dict(out_channels=32,stride=2)),
+        ('Conv',dict(out_channels=64,stride=2)),
+        torch.nn.MaxPool2d(kernel_size=ks_default, stride=2, padding=ks_default//2),
+        ('Res',dict(out_channels=64,stride=1)),
+        ('Res',dict(out_channels=64,stride=1)),
+        ('Res',dict(out_channels=128,stride=1)),
+        ('Res',dict(out_channels=128,stride=2)),
+      ])
+    encoder_args= MergeDict(default_encoder_args,encoder_args) if encoder_args else default_encoder_args
+    default_decoder_args= dict(expansion=1, layers=[2,2,2], stem_sizes=(32,))
+    decoder_args= MergeDict(default_decoder_args,decoder_args) if decoder_args else default_decoder_args
+    default_latent_args= dict(
+      kernel_size=ks_default,
+      layers=[
+        ('Res',dict(out_channels=256,stride=1)),
+        ('Res',dict(out_channels=256,stride=2)),
+        ('Res',dict(out_channels=512,stride=1)),
+        ('Res',dict(out_channels=512,stride=2)),
+        torch.nn.AdaptiveAvgPool2d(output_size=1),
+        #torch.nn.Flatten(),
+        #torch.nn.Dropout(p_dropout),
+        #('Linear',dict(out_features=3)),
+        torch.nn.Flatten(),
+        torch.nn.Dropout(p_dropout),
+        ('ResDense',dict(out_channels=256)),
+        ('Linear',dict(out_features=out_channels)),
+      ])
+    latent_args= MergeDict(default_latent_args,latent_args) if latent_args else default_latent_args
+
+    self.encoder= TResFlexNet2d(in_imgshape, **encoder_args)
+    shape_encoder= OutputShape(self.encoder,in_imgshape)
+    self.fc_latent= TResFlexNet2d(shape_encoder, **latent_args)
+    self.decoder= TResNetDecoder(TResBlock, **decoder_args, in_channels=shape_encoder, out_imgshape=in_imgshape)
+    InitCNN(self)
+  def forward(self, x):
+    x_encoded= self.encoder(x)
+    y= self.fc_latent(x_encoded)
+    x_reconstructed= self.decoder(x_encoded)
+    return y, x_reconstructed, x_encoded
+
+'''
+ResNet + LocallyConnectedLayer2d + ResDenseBlock + ResNetDecoder.
+Forming an Auto Encoder where the latent variable is a small image.
+'''
+class TResLCDenseNetWithAELatentImage(torch.nn.Module):
+  def __init__(self, in_imgshape, out_channels,
+               encoder_args=None, decoder_args=None, latent_args=None, p_dropout=0.0):
+    super(TResLCDenseNetWithAELatentImage,self).__init__()
+    ks_default= 3
+    default_encoder_args= dict(
+      kernel_size=ks_default,
+      layers=[
+        ('Conv',dict(out_channels=32,stride=1)),
+        ('Conv',dict(out_channels=32,stride=2)),
+        ('Conv',dict(out_channels=64,stride=2)),
+        torch.nn.MaxPool2d(kernel_size=ks_default, stride=2, padding=ks_default//2),
+        ('Res',dict(out_channels=64,stride=1)),
+        ('Res',dict(out_channels=64,stride=1)),
+        ('Res',dict(out_channels=128,stride=1)),
+        ('Res',dict(out_channels=128,stride=2)),
+      ])
+    encoder_args= MergeDict(default_encoder_args,encoder_args) if encoder_args else default_encoder_args
+    default_decoder_args= dict(expansion=1, layers=[2,2,2], stem_sizes=(32,))
+    decoder_args= MergeDict(default_decoder_args,decoder_args) if decoder_args else default_decoder_args
+    default_latent_args= dict(
+      kernel_size=ks_default,
+      layers=[
+        # ('Res',dict(out_channels=256,stride=1)),
+        # ('Res',dict(out_channels=256,stride=2)),
+        # ('Res',dict(out_channels=512,stride=1)),
+        # ('Res',dict(out_channels=512,stride=2)),
+        # torch.nn.AdaptiveAvgPool2d(output_size=1),
+        ('LC',dict(out_channels=64,stride=2,kernel_size=2)),
+        ('LC',dict(out_channels=32,stride=2,kernel_size=2)),
+        #torch.nn.Flatten(),
+        #torch.nn.Dropout(p_dropout),
+        #('Linear',dict(out_features=3)),
+        torch.nn.Flatten(),
+        torch.nn.Dropout(p_dropout),
+        ('ResDense',dict(out_channels=256)),
+        ('Linear',dict(out_features=out_channels)),
+      ])
+    latent_args= MergeDict(default_latent_args,latent_args) if latent_args else default_latent_args
+
+    self.encoder= TResFlexNet2d(in_imgshape, **encoder_args)
+    shape_encoder= OutputShape(self.encoder,in_imgshape)
+    self.fc_latent= TResFlexNet2d(shape_encoder, **latent_args)
+    self.decoder= TResNetDecoder(TResBlock, **decoder_args, in_channels=shape_encoder, out_imgshape=in_imgshape)
+    def extra_rule(m):
+      if isinstance(m,TLocallyConnected2d):  torch.nn.init.xavier_uniform_(m.weight,gain=torch.nn.init.calculate_gain('leaky_relu'))
+    InitCNN(self, extra_rule)
+  def forward(self, x):
+    x_encoded= self.encoder(x)
+    y= self.fc_latent(x_encoded)
+    x_reconstructed= self.decoder(x_encoded)
+    return y, x_reconstructed, x_encoded
+
 
 
 # Visualization tools.
