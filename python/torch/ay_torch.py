@@ -1526,6 +1526,114 @@ def VStackImages(*imgs,margin=1):
     y+= img.shape[1]+margin
   return catimg
 
+class TVisualizer(object):
+  def __init__(self, net, dset_train=None, dset_test=None, logger=None,
+               tfm_batch=None, f_loss=None, f_metric=None, f_viz=None,
+               device=torch.device('cuda')):
+    self.net, self.dset_train, self.dset_test, self.logger= net, dset_train, dset_test, logger
+    self.tfm_batch, self.f_loss, self.f_metric, self.f_viz= tfm_batch, f_loss, f_metric, f_viz
+    self.device= device
+
+    self.loss_train= None
+    self.n_loss_train= None
+    self.loss_test= None
+    self.n_loss_test= None
+    self.metric_train= None
+    self.n_metric_train= None
+    self.metric_test= None
+    self.n_metric_test= None
+
+  '''
+  Evaluate dataset with f_loss or f_metric.
+  mode: 'loss'|'metric'|'both'
+  dset: 'train'|'test'|'both'
+  '''
+  def Eval(self, mode='both', dset='both'):
+    n_epoch= len(self.logger.time_train) if self.logger is not None else None
+    update= lambda n: n is None or n_epoch is None or n!=n_epoch
+    p= [False]
+    printprogress= lambda s:(p.__setitem__(0,True),print(f'calculating {s}..',end='')) if not p[0] else print(f' {s}..',end='')
+    if mode in ('both','loss'):
+      if dset in ('both','train') and update(self.n_loss_train):
+        printprogress('loss_train')
+        self.loss_train= EvalLoss(self.net, f_loss=self.f_loss, dset=self.dset_train, tfm_batch=self.tfm_batch, reduction='none', device=self.device, dl_args=dict(batch_size=1))
+        self.n_loss_train= n_epoch
+      if dset in ('both','test') and update(self.n_loss_test):
+        printprogress('loss_test')
+        self.loss_test= EvalLoss(self.net, f_loss=self.f_loss, dset=self.dset_test, tfm_batch=self.tfm_batch, reduction='none', device=self.device, dl_args=dict(batch_size=1))
+        self.n_loss_test= n_epoch
+    if mode in ('both','metric'):
+      if dset in ('both','train') and update(self.n_metric_train):
+        printprogress('metric_train')
+        self.metric_train= EvalLoss(self.net, f_loss=self.f_metric, dset=self.dset_train, tfm_batch=self.tfm_batch, reduction='none', device=self.device, dl_args=dict(batch_size=1))
+        self.n_metric_train= n_epoch
+      if dset in ('both','test') and update(self.n_metric_test):
+        printprogress('metric_test')
+        self.metric_test= EvalLoss(self.net, f_loss=self.f_metric, dset=self.dset_test, tfm_batch=self.tfm_batch, reduction='none', device=self.device, dl_args=dict(batch_size=1))
+        self.n_metric_test= n_epoch
+    if p[0]:  print()
+
+  '''
+  Plot histogram of loss/metric.
+  mode: 'loss'|'metric'|'both'
+  dset: 'train'|'test'|'both'
+  '''
+  def PlotHist(self, mode='both', dset='both', **hist_args):
+    self.Eval(mode,dset)
+    fig= plt.figure(figsize=(10,5))
+    hist_args= MergeDict(dict(bins=20, alpha=0.75), hist_args)
+    m= 2 if mode=='both' else 1
+    if mode in ('both','loss'):
+      axl= fig.add_subplot(1,m,1,title='Histogram of loss',xlabel='loss',ylabel='frequency')
+      if dset in ('both','test'):   axl.hist(self.loss_test, color='red', label='loss(test)', **hist_args)
+      if dset in ('both','train'):  axl.hist(self.loss_train, color='blue', label='loss(train)', **hist_args)
+      axl.legend()
+    if mode in ('both','metric'):
+      axm= fig.add_subplot(1,m,m,title='Histogram of metric',xlabel='metric',ylabel='frequency')
+      if dset in ('both','test'):   axm.hist(self.metric_test, color='red', label='metric(test)', **hist_args)
+      if dset in ('both','train'):  axm.hist(self.metric_train, color='blue', label='metric(train)', **hist_args)
+      axm.legend()
+    plt.show()
+
+  '''Sort a dataset and return the indexes.'''
+  def Sort(self, mode, dset, N=None, disp=False):
+    d= getattr(self, f'dset_{dset}')
+    N= min(len(d),N) if N is not None else len(d)
+    if disp or mode.endswith('loss'):  self.Eval('loss',dset)
+    if disp or mode.endswith('metric'):  self.Eval('metric',dset)
+    loss= getattr(self, f'loss_{dset}')
+    metric= getattr(self, f'metric_{dset}')
+    def argsort_N(a, N, reverse=False):
+      if not reverse:
+        idxes= np.argpartition(a,N)[:N]
+        return idxes[np.argsort(np.array(a)[idxes])]
+      else:
+        idxes= np.argpartition(a,-N)[-N:]
+        return idxes[np.argsort(np.array(a)[idxes])[::-1]]
+    if mode=='random':  idxes= np.random.permutation(len(d))[:N]
+    elif mode=='lowest_loss':  idxes= argsort_N(loss, N)
+    elif mode=='highest_loss':  idxes= argsort_N(loss, N, reverse=True)
+    elif mode=='lowest_metric':  idxes= argsort_N(metric, N)
+    elif mode=='highest_metric':  idxes= argsort_N(metric, N, reverse=True)
+    else:  raise Exception(f'Unknown sort mode: {mode}')
+    if disp:
+      print(f'{mode}({dset}):',' '.join([f'{idx}(l:{loss[idx]:.04f}/m:{metric[idx]:.04f})' for idx in idxes]))
+    return idxes
+
+  def Visualize(self, mode='random', dset='test', N=15, **viz_args):
+    d= getattr(self, f'dset_{dset}')
+    N= min(len(d),N) if N is not None else len(d)
+    idxes= self.Sort(mode,dset,N)
+    x,y,pred= EvalDataSet(self.net, d, idxes=idxes, tfm_batch=self.tfm_batch, device=self.device, with_x=True, with_y=True)
+    print(f'{mode}({dset}/{N}):')
+    self.f_viz(x, y, pred, idxes, dset=='train', **viz_args)
+
+  def Show(self, logger_mode='all', hist_args={}, viz_args={}):
+    if self.logger is not None and logger_mode is not None:  self.logger.Show(logger_mode)
+    if hist_args is not None:  self.PlotHist(**hist_args)
+    if viz_args is not None:  self.Visualize(**viz_args)
+
+
 
 if __name__=='__main__':
   pass
