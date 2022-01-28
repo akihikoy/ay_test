@@ -194,6 +194,10 @@ def FindDevice(device=torch.device('cuda')):
 
 '''
 Prediction helper.
+We do a prediction of a network for a batch like this:
+  x,y= tfm_batch(batch)
+  pred= net(x)
+  return (x,y,pred) | (x,pred) | (y,pred) | pred
 '''
 def PredBatch(net, batch, tfm_batch=None, device=torch.device('cuda'), with_x=True, with_y=True):
   device= FindDevice(device)
@@ -201,7 +205,7 @@ def PredBatch(net, batch, tfm_batch=None, device=torch.device('cuda'), with_x=Tr
     net.to(device)
   x,y= tfm_batch(batch)
   if isinstance(x,(tuple,list)):
-    x= (xi.to(device) for xi in x)
+    x= tuple(xi.to(device) for xi in x)
     pred= net(*x)
   else:
     x= x.to(device)
@@ -217,6 +221,15 @@ def PredBatch(net, batch, tfm_batch=None, device=torch.device('cuda'), with_x=Tr
 
 '''
 Evaluation helper.
+We do an evaluation (prediction with evaluation mode, no grad calculation) of a network for an input x like this:
+  if   x is tuple of (tuple|list):  pred=net(*(stack(xi) for xi in x))
+  elif x is tuple:                  pred=net(*x)
+  elif x is list:                   pred=net(stack(x))
+  else:                             pred=net(x)
+  return pred
+Note:
+- In case x is a tuple, we assume multiple input is given to a network (e.g. net(x1,x2)).
+- In case x is a list, we assume x is a batch.
 '''
 def Eval(net, x, device=torch.device('cuda')):
   device= FindDevice(device)
@@ -233,7 +246,26 @@ def Eval(net, x, device=torch.device('cuda')):
   return pred
 
 '''
-Calculate loss f_loss (or metric) for a dataset (dset) or a data-loader (dl).
+Evaluate a part of dataset.
+'''
+def EvalDataSet(net, dset, idxes=None, tfm_batch=None, device=torch.device('cuda'), with_x=False, with_y=False):
+  device= FindDevice(device)
+  if idxes is None:  idxes= range(len(dset))
+  if len(idxes)==0:  return None
+  X= [tfm_batch(dset[i])[0] for i in idxes]
+  if with_y: Y= [tfm_batch(dset[i])[1] for i in idxes]
+  if isinstance(X[0],tuple):  X= tuple([X[ix][ielem] for ix in range(len(X))] for ielem in range(len(X[0])))
+  if with_y and isinstance(Y[0],tuple):  Y= tuple([Y[iy][ielem] for iy in range(len(Y))] for ielem in range(len(Y[0])))
+  pred= Eval(net,X,device=device)
+  if with_x and with_y:  return X,Y,pred
+  if with_x:  return X,pred
+  if with_y:  return Y,pred
+  return pred
+
+'''
+Calculate loss f_loss (loss or metric) for a dataset (dset) or a data-loader (dl).
+f_loss is applied to each batch of dl, and then a reduction method is applied to the all outputs.
+If dset is given, dset is converted to a data loader with dl_args.
 reduction: Specifies the reduction to apply to the output.
   'none': Return the output as a list.
   'mean': Mean of the output.
@@ -257,21 +289,26 @@ def EvalLoss(net, f_loss=None, dl=None, dset=None, tfm_batch=None, reduction='me
   raise Exception(f'EvalLoss:Unknown reduction:{reduction}')
 
 '''
-Evaluation a part of dataset.
+Calculate an arbitrary function f for a dataset (dset) or a data-loader (dl).
+f is applied to each batch of dl.
+If dset is given, dset is converted to a data loader with dl_args.
+Note: Use batch_size=1 to apply f for each item in dset (this is default).
+f(x,y,pred): A function applied to evaluation for each batch from dl.
+             x,y=tfm_batch(batch), pred=net(x).
 '''
-def EvalDataSet(net, dset, idxes=None, tfm_batch=None, device=torch.device('cuda'), with_x=False, with_y=False):
+def EvalF(net, f=None, dl=None, dset=None, tfm_batch=None,
+          device=torch.device('cuda'), dl_args=None):
+  assert((dl is None)!=(dset is None))
   device= FindDevice(device)
-  if idxes is None:  idxes= range(len(dset))
-  if len(idxes)==0:  return None
-  X= [tfm_batch(dset[i])[0] for i in idxes]
-  if with_y: Y= [tfm_batch(dset[i])[1] for i in idxes]
-  if isinstance(X[0],tuple):  X= tuple([X[ix][ielem] for ix in range(len(X))] for ielem in range(len(X[0])))
-  if with_y and isinstance(Y[0],tuple):  Y= tuple([Y[iy][ielem] for iy in range(len(Y))] for ielem in range(len(Y[0])))
-  pred= Eval(net,X,device=device)
-  if with_x and with_y:  return X,Y,pred
-  if with_x:  return X,pred
-  if with_y:  return Y,pred
-  return pred
+  if dset is not None:
+    default_dl_args= dict(batch_size=1, shuffle=False, num_workers=2)
+    dl_args= MergeDict(default_dl_args,dl_args) if dl_args else default_dl_args
+    dl= torch.utils.data.DataLoader(dataset=dset, **dl_args)
+  net.eval()
+  with torch.no_grad():
+    output= (f(*PredBatch(net, batch, tfm_batch=tfm_batch, device=device))
+             for batch in dl)
+  return list(output)
 
 '''
 Helper to assign parameters.
