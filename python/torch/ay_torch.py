@@ -1670,7 +1670,14 @@ class TVisualizer(object):
     if hist_args is not None:  self.PlotHist(**hist_args)
     if viz_args is not None:  self.Visualize(**viz_args)
 
-
+  def Show2(self, logger_mode='all', extra_viz=[('highest_metric','test'),('highest_loss','train')],
+            hist_args={}, viz_args={}, sort_args={}):
+    if sort_args is not None:  sort_args= MergeDict(dict(N=10, disp=True), sort_args)
+    self.Show(logger_mode, hist_args, viz_args)
+    if extra_viz is None or viz_args is None:  return
+    for mode,dset in extra_viz:
+      self.Sort(mode=mode, dset=dset, **sort_args)
+      self.Visualize(mode=mode, dset=dset, **viz_args)
 
 if __name__=='__main__':
   pass
