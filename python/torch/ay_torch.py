@@ -1371,9 +1371,9 @@ class TResLCDenseNetWithAE(torch.nn.Module):
       ])
     latent_args= MergeDict(default_latent_args,latent_args) if latent_args else default_latent_args
 
-    self.encoder= TResFlexNet2d(in_imgshape, **encoder_args)
+    self.encoder= TNetGenerator(in_imgshape, **encoder_args)
     shape_encoder= OutputShape(self.encoder,in_imgshape)
-    self.fc_latent= TResFlexNet2d(shape_encoder, **latent_args)
+    self.fc_latent= TNetGenerator(shape_encoder, **latent_args)
     self.decoder= TResNetDecoder(TResBlock, **decoder_args, in_channels=shape_encoder, out_imgshape=in_imgshape)
     InitCNN(self)
   def forward(self, x):
@@ -1424,9 +1424,9 @@ class TResDenseNetWithAELatentImage(torch.nn.Module):
       ])
     latent_args= MergeDict(default_latent_args,latent_args) if latent_args else default_latent_args
 
-    self.encoder= TResFlexNet2d(in_imgshape, **encoder_args)
+    self.encoder= TNetGenerator(in_imgshape, **encoder_args)
     shape_encoder= OutputShape(self.encoder,in_imgshape)
-    self.fc_latent= TResFlexNet2d(shape_encoder, **latent_args)
+    self.fc_latent= TNetGenerator(shape_encoder, **latent_args)
     self.decoder= TResNetDecoder(TResBlock, **decoder_args, in_channels=shape_encoder, out_imgshape=in_imgshape)
     InitCNN(self)
   def forward(self, x):
@@ -1479,9 +1479,9 @@ class TResLCDenseNetWithAELatentImage(torch.nn.Module):
       ])
     latent_args= MergeDict(default_latent_args,latent_args) if latent_args else default_latent_args
 
-    self.encoder= TResFlexNet2d(in_imgshape, **encoder_args)
+    self.encoder= TNetGenerator(in_imgshape, **encoder_args)
     shape_encoder= OutputShape(self.encoder,in_imgshape)
-    self.fc_latent= TResFlexNet2d(shape_encoder, **latent_args)
+    self.fc_latent= TNetGenerator(shape_encoder, **latent_args)
     self.decoder= TResNetDecoder(TResBlock, **decoder_args, in_channels=shape_encoder, out_imgshape=in_imgshape)
     def extra_rule(m):
       if isinstance(m,TLocallyConnected2d):  torch.nn.init.xavier_uniform_(m.weight,gain=torch.nn.init.calculate_gain('leaky_relu'))
