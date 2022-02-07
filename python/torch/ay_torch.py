@@ -1483,9 +1483,7 @@ class TResLCDenseNetWithAELatentImage(torch.nn.Module):
     shape_encoder= OutputShape(self.encoder,in_imgshape)
     self.fc_latent= TNetGenerator(shape_encoder, **latent_args)
     self.decoder= TResNetDecoder(TResBlock, **decoder_args, in_channels=shape_encoder, out_imgshape=in_imgshape)
-    def extra_rule(m):
-      if isinstance(m,TLocallyConnected2d):  torch.nn.init.xavier_uniform_(m.weight,gain=torch.nn.init.calculate_gain('leaky_relu'))
-    InitCNN(self, extra_rule)
+    InitCNN(self)
   def forward(self, x):
     x_encoded= self.encoder(x)
     y= self.fc_latent(x_encoded)
