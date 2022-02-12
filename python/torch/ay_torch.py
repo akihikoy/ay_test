@@ -121,8 +121,8 @@ class TLogger(TCallbacks):
     self.t0= time.time()
   def cb_epoch_test_end(self, l):
     self.time_test.append(time.time()-self.t0)
-    if l.loss:  self.loss_test.append(l.loss)
-    if l.metric:  self.metric_test.append(l.metric)
+    if l.loss is not None:  self.loss_test.append(l.loss)
+    if l.metric is not None:  self.metric_test.append(l.metric)
   def cb_batch_train_end(self, l):
     self.lr.append([param_group['lr'] for param_group in l.opt.param_groups])
 
@@ -135,6 +135,10 @@ class TLogger(TCallbacks):
       if len(self.loss_test)>0:  print(f'best loss(test): {min(self.loss_test)}@{self.loss_test.index(min(self.loss_test))}')
       if len(self.metric_train)>0:  print(f'best metric(train): {fmin_metric(self.metric_train)}@{self.metric_train.index(fmin_metric(self.metric_train))}')
       if len(self.metric_test)>0:  print(f'best metric(test): {fmin_metric(self.metric_test)}@{self.metric_test.index(fmin_metric(self.metric_test))}')
+      if len(self.loss_train)>0:  print(f'last loss(train): {self.loss_train[-1]}@{len(self.loss_train)}')
+      if len(self.loss_test)>0:  print(f'last loss(test): {self.loss_test[-1]}@{len(self.loss_test)}')
+      if len(self.metric_train)>0:  print(f'last metric(train): {self.metric_train[-1]}@{len(self.metric_train)}')
+      if len(self.metric_test)>0:  print(f'last metric(test): {self.metric_test[-1]}@{len(self.metric_test)}')
     if mode in ('all','plot'):
       self.Plot(with_show=False)
       self.PlotLR(with_show=False)
@@ -191,6 +195,15 @@ def FindDevice(device=torch.device('cuda')):
     device= torch.device('cpu')
     print('WARNING: Device is switched to cpu as cuda is not available.')
   return device
+
+'''Estimate a batch size from a mini batch.'''
+def GetBatchSize(batch):
+  x= batch
+  try:
+    while not isinstance(x,torch.Tensor):  x= x[0]
+  except TypeError:
+    raise TypeError('Failed to get the batch size. Note: batch or batch[0] or batch[0][0]... should be a Tensor.')
+  return x.shape[0]
 
 '''
 Prediction helper.
@@ -270,8 +283,9 @@ reduction: Specifies the reduction to apply to the output.
   'none': Return the output as a list.
   'mean': Mean of the output.
   'sum': Sum of the output.
+with_batch_sizes: When reduction=='none', return also the actual batch sizes.
 '''
-def EvalLoss(net, f_loss=None, dl=None, dset=None, tfm_batch=None, reduction='mean',
+def EvalLoss(net, f_loss=None, dl=None, dset=None, tfm_batch=None, reduction='mean', with_batch_sizes=False,
              device=torch.device('cuda'), dl_args=None):
   assert((dl is None)!=(dset is None))
   device= FindDevice(device)
@@ -281,11 +295,14 @@ def EvalLoss(net, f_loss=None, dl=None, dset=None, tfm_batch=None, reduction='me
     dl= torch.utils.data.DataLoader(dataset=dset, **dl_args)
   net.eval()
   with torch.no_grad():
-    output= (float(f_loss(*reversed(PredBatch(net, batch, tfm_batch=tfm_batch, device=device, with_x=False))))
-             for batch in dl)
-  if reduction=='none':  return list(output)
-  elif reduction=='mean':  return sum(output)/len(dl)
-  elif reduction=='sum':  return sum(output)
+    output_bs= [(float(f_loss(*reversed(PredBatch(net, batch, tfm_batch=tfm_batch, device=device, with_x=False)))),
+                 GetBatchSize(batch))
+                for batch in dl]
+  output,batch_sizes= [out for out,bs in output_bs], [bs for out,bs in output_bs]
+  if reduction=='none':  return output if not with_batch_sizes else (output,batch_sizes)
+  output,batch_sizes= np.array(output),np.array(batch_sizes)
+  if reduction=='mean':  return np.sum(output*batch_sizes)/np.sum(batch_sizes)
+  if reduction=='sum':  return np.sum(output*(batch_sizes/batch_sizes[0]))
   raise Exception(f'EvalLoss:Unknown reduction:{reduction}')
 
 '''
@@ -401,15 +418,15 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
   #We use a container to store the  variables to be shared with the callbacks.
   l= TContainer()
   for k,v in locals().items(): l[k]= v
-  
+
   #Default arguments.
   assert(l.opt is not None)
   assert(l.f_loss is not None)
 
   l.device= FindDevice(l.device)
 
-  default_callbacks= {e:TFuncList() for e in 
-                      ('fit_begin', 'fit_end', 
+  default_callbacks= {e:TFuncList() for e in
+                      ('fit_begin', 'fit_end',
                        'epoch_train_begin', 'epoch_train_end', 'epoch_test_begin', 'epoch_test_end',
                        'batch_train_begin', 'batch_train_end', 'batch_test_begin', 'batch_test_end',
                        'train_after_prediction', 'test_after_prediction', 'train_after_backward')}
@@ -424,8 +441,8 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
       try:
         if l.dl_train:
           l.callbacks['epoch_train_begin'](l)
-          l.sum_loss= 0.0
-          l.sum_metric= 0.0
+          l.sum_loss,l.n_loss= 0.0,0
+          l.sum_metric,l.n_metric= 0.0,0
           l.net.train()
           for l.i_batch, l.batch in enumerate(l.dl_train):
             l.forward_value_error= True
@@ -441,23 +458,26 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
               l.do_opt= True
               l.callbacks['train_after_backward'](l)
               if l.do_opt: l.opt.step()
-              l.sum_loss+= float(l.loss)
+              n_batch= GetBatchSize(l.x)
+              l.sum_loss+= float(l.loss)*n_batch
+              l.n_loss+= n_batch
               if l.f_metric:
-                with torch.no_grad():  l.sum_metric+= float(l.f_metric(l.pred, l.y_trg))
+                with torch.no_grad():  l.sum_metric+= float(l.f_metric(l.pred, l.y_trg))*n_batch
+                l.n_metric+= n_batch
             except CancelBatchException:
               pass
             except ValueError as e:
               l.value_error= e
               if l.forward_value_error:  raise e
             l.callbacks['batch_train_end'](l)
-          l.loss= l.sum_loss/len(l.dl_train)
-          l.metric= None if l.f_metric is None else l.sum_metric/len(l.dl_train)
+          l.loss= l.sum_loss/l.n_loss
+          l.metric= None if l.n_metric==0 else l.sum_metric/l.n_metric
           l.callbacks['epoch_train_end'](l)
 
         if l.dl_test:
           l.callbacks['epoch_test_begin'](l)
-          l.sum_loss= 0.0
-          l.sum_metric= 0.0
+          l.sum_loss,l.n_loss= 0.0,0
+          l.sum_metric,l.n_metric= 0.0,0
           l.net.eval()
           with torch.no_grad():
             for l.i_batch, l.batch in enumerate(l.dl_test):
@@ -467,22 +487,27 @@ def Fit(net, n_epoch, opt=None, f_loss=None, f_metric=None,
                 l.callbacks['batch_test_begin'](l)
                 l.x,l.y_trg,l.pred= PredBatch(l.net, l.batch, tfm_batch=l.tfm_batch, device=l.device)
                 l.callbacks['test_after_prediction'](l)
-                l.sum_loss+= float(l.f_loss(l.pred, l.y_trg))
-                if l.f_metric:  l.sum_metric+= float(l.f_metric(l.pred, l.y_trg))
+                n_batch= GetBatchSize(l.x)
+                l.sum_loss+= float(l.f_loss(l.pred, l.y_trg))*n_batch
+                l.n_loss+= n_batch
+                if l.f_metric:
+                  l.sum_metric+= float(l.f_metric(l.pred, l.y_trg))*n_batch
+                  l.n_metric+= n_batch
               except CancelBatchException:
                 pass
               except ValueError as e:
                 l.value_error= e
                 if l.forward_value_error:  raise e
               l.callbacks['batch_test_end'](l)
-          l.loss= l.sum_loss/len(l.dl_test)
-          l.metric= None if l.f_metric is None else l.sum_metric/len(l.dl_test)
+          l.loss= l.sum_loss/l.n_loss
+          l.metric= None if l.n_metric==0 else l.sum_metric/l.n_metric
           l.callbacks['epoch_test_end'](l)
       except CancelEpochException:
         pass
   except CancelFitException:
     pass
   l.callbacks['fit_end'](l)
+
 
 class TScheduler(object):
   def __init__(self, kind, start, end):
