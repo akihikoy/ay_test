@@ -102,7 +102,7 @@ class TCallbacks(object):
     return {fname[3:]:getattr(self,fname) for fname in dir(self) if fname.startswith('cb_')}
 
 class TLogger(TCallbacks):
-  def __init__(self):
+  def __init__(self, negative_metric=True, store_states=True, storage='memory', file_fmt='/tmp/logger_{timestamp}-{key}.pt'):
     self.time_train= []
     self.time_test= []
     self.loss_train= []
@@ -110,31 +110,57 @@ class TLogger(TCallbacks):
     self.metric_train= []
     self.metric_test= []
     self.lr= []
+    self.negative_metric=negative_metric
+    self.store_states= store_states
+    self.storage= storage
+    st_keys= ('best_loss_train', 'best_loss_test', 'best_metric_train', 'best_metric_test', 'last')
+    if self.storage=='memory':
+      self.states= {key:{} for key in st_keys}
+    elif self.storage=='file':
+      timestamp= str(int(time.time()*1e6))
+      self.states= {key:file_fmt.format(timestamp=timestamp,key=key) for key in st_keys}
 
   def cb_epoch_train_begin(self, l):
     self.t0= time.time()
   def cb_epoch_train_end(self, l):
+    fbest_metric= min if self.negative_metric else max
     self.time_train.append(time.time()-self.t0)
     if l.loss is not None:  self.loss_train.append(l.loss)
     if l.metric is not None:  self.metric_train.append(l.metric)
+    if self.store_states and l.loss is not None and min(self.loss_train)==self.loss_train[-1]:
+      SaveStateDict(self.states['best_loss_train'], net=l.net, opt=l.opt, f_loss=l.f_loss)
+    if self.store_states and l.metric is not None and fbest_metric(self.metric_train)==self.metric_train[-1]:
+      SaveStateDict(self.states['best_metric_train'], net=l.net, opt=l.opt, f_loss=l.f_loss)
   def cb_epoch_test_begin(self, l):
     self.t0= time.time()
   def cb_epoch_test_end(self, l):
+    fbest_metric= min if self.negative_metric else max
     self.time_test.append(time.time()-self.t0)
     if l.loss is not None:  self.loss_test.append(l.loss)
     if l.metric is not None:  self.metric_test.append(l.metric)
+    if self.store_states and l.loss is not None and min(self.loss_test)==self.loss_test[-1]:
+      SaveStateDict(self.states['best_loss_test'], net=l.net, opt=l.opt, f_loss=l.f_loss)
+    if self.store_states and l.metric is not None and fbest_metric(self.metric_test)==self.metric_test[-1]:
+      SaveStateDict(self.states['best_metric_test'], net=l.net, opt=l.opt, f_loss=l.f_loss)
   def cb_batch_train_end(self, l):
     self.lr.append([param_group['lr'] for param_group in l.opt.param_groups])
+  def cb_fit_end(self, l):
+    if self.store_states:
+      SaveStateDict(self.states['last'], net=l.net, opt=l.opt, f_loss=l.f_loss)
 
-  def Show(self, mode='all', with_show=True, rev_metric=False):
+  def Show(self, mode='all', with_show=True, rev_metric=None):
+    if rev_metric is not None:
+      raise Exception('''TLogger.Show: rev_metric is deprecated.
+        Instead, use TLogger.__init__(negative_metric), negative_metric=True for rev_metric=False,
+        or, set the self.negative_metric value.''')
+    fbest_metric= min if self.negative_metric else max
     if mode in ('all','summary'):
-      fmin_metric= min if not rev_metric else max
       print(f'total epochs: {len(self.time_train)}')
       print(f'total time: {sum(self.time_train)/60.:.2f}min')
       if len(self.loss_train)>0:  print(f'best loss(train): {min(self.loss_train)}@{self.loss_train.index(min(self.loss_train))}')
       if len(self.loss_test)>0:  print(f'best loss(test): {min(self.loss_test)}@{self.loss_test.index(min(self.loss_test))}')
-      if len(self.metric_train)>0:  print(f'best metric(train): {fmin_metric(self.metric_train)}@{self.metric_train.index(fmin_metric(self.metric_train))}')
-      if len(self.metric_test)>0:  print(f'best metric(test): {fmin_metric(self.metric_test)}@{self.metric_test.index(fmin_metric(self.metric_test))}')
+      if len(self.metric_train)>0:  print(f'best metric(train): {fbest_metric(self.metric_train)}@{self.metric_train.index(fbest_metric(self.metric_train))}')
+      if len(self.metric_test)>0:  print(f'best metric(test): {fbest_metric(self.metric_test)}@{self.metric_test.index(fbest_metric(self.metric_test))}')
       if len(self.loss_train)>0:  print(f'last loss(train): {self.loss_train[-1]}@{len(self.loss_train)}')
       if len(self.loss_test)>0:  print(f'last loss(test): {self.loss_test[-1]}@{len(self.loss_test)}')
       if len(self.metric_train)>0:  print(f'last metric(train): {self.metric_train[-1]}@{len(self.metric_train)}')
@@ -165,6 +191,25 @@ class TLogger(TCallbacks):
     ax_lr.set_yscale('log')
     ax_lr.legend()
     if with_show:  plt.show()
+
+  def LoadStateDict(self, key='best_loss_train', net=None, opt=None, f_loss=None, device=None):
+    LoadStateDict(self.states[key], net=net, opt=opt, f_loss=f_loss, device=device, with_exception=True)
+
+  def SaveStateDict(self, dst, key='best_loss_train', device=torch.device('cpu')):
+    device= FindDevice(device)
+    if isinstance(self.states[key],dict):
+      states= self.states[key]
+    elif isinstance(self.states[key],str):
+      states= torch.load(src, map_location=device)
+    else:
+      raise Exception(f'TLogger.SaveStateDict: self.states[key] for key: {key}, {type(self.states[key])}')
+    if isinstance(dst,dict):
+      for obj,st in states.items():
+        dst[obj]= copy.deepcopy(st)
+    elif isinstance(dst,str):
+      torch.save(states, dst)
+    else:
+      raise Exception(f'TLogger.SaveStateDict: unrecognized destination type: {type(dst)}')
 
 class TDisp(TCallbacks):
   def __init__(self):
@@ -374,8 +419,8 @@ def SaveStateDict(dst, net=None, opt=None, f_loss=None):
 Load state_dict of net, opt, f_loss from a source src.
 src can be a dict or a file.
 '''
-def LoadStateDict(src, net=None, opt=None, f_loss=None, device=None, strict=True, with_exception=False):
-  if device is None:  device= 'cpu'
+def LoadStateDict(src, net=None, opt=None, f_loss=None, device=torch.device('cpu'), strict=True, with_exception=False):
+  device= FindDevice(device)
   if isinstance(src,dict):
     states= src
   elif isinstance(src,str):
