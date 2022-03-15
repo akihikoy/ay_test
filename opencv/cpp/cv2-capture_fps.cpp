@@ -4,12 +4,14 @@
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
     \date    Jul.22, 2016
+    \version 0.2
+    \date    Mar.16, 2022
 
 g++ -g -Wall -O2 -o cv2-capture_fps.out cv2-capture_fps.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui  -lopencv_videoio
 
-We have to use source-build OpenCV otherwise we cannot set CV_CAP_PROP_FPS:
-  HIGHGUI ERROR: V4L: Property <unknown property string>(5) not supported by device
-
+xxx We have to use source-build OpenCV otherwise we cannot set CV_CAP_PROP_FPS:
+xxx   HIGHGUI ERROR: V4L: Property <unknown property string>(5) not supported by device
+Note@2022-03-16 with OpenCV 3.2.0: CV_CAP_PROP_FPS is available.
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -94,8 +96,8 @@ int main(int argc, char**argv)
   // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
   // cap.set(CV_CAP_PROP_FOURCC,CV_FOURCC('Y','U','Y','V'));
   // cap.set(CV_CAP_PROP_AUTO_EXPOSURE, 0);
-  cap.set(CV_CAP_PROP_EXPOSURE, 0.0);
-  cap.set(CV_CAP_PROP_GAIN, 0.0);
+  // cap.set(CV_CAP_PROP_EXPOSURE, 0.0);
+  // cap.set(CV_CAP_PROP_GAIN, 0.0);
 
   // cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
   // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
@@ -105,9 +107,10 @@ int main(int argc, char**argv)
   // cap.set(CV_CAP_PROP_FPS, 60);
   // cap.set(CV_CAP_PROP_FPS, 120);
   // cap.set(CV_CAP_PROP_FPS, 61612./513.);  // Doesn't work with ELP USBFHD01M-L180 as we are using YUYV? BGR3?
-  cap.set(CV_CAP_PROP_FRAME_WIDTH, 800);
-  cap.set(CV_CAP_PROP_FRAME_HEIGHT, 600);
-  cap.set(CV_CAP_PROP_FPS, 30);  // Doesn't work with ELP USBFHD01M-L180 as we are using YUYV? BGR3?
+  cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+  cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+  cap.set(CV_CAP_PROP_FPS, 60);  // Doesn't work with ELP USBFHD01M-L180 as we are using YUYV? BGR3?
+  // Note: CV_CAP_PROP_FPS worked with an Asahi-CM camera.
 
   TFPSEstimator fps;
   int show_fps(0);
