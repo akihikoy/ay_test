@@ -27,6 +27,35 @@ skills= {
       [ 0.0706, 0.2915, 0.3682, 0.7517 ],
       ],
     t_traj= [1.0,2.0,3.0,4.0,5.0] ),
+  'g': dict(
+    q_traj= [
+      #[ 0.2838, 0.2869, -0.2930, 0.7470 ],
+      #[ 0.0813, 0.1427, -0.0184, 0.6949 ],
+      #[ 0.0491, 0.1887, -0.0614, 0.6796 ],
+      [ 0.2761, 0.2915, -0.3620, 0.7501 ],
+      [ 0.2025, 0.2915, -0.9894, 0.7501 ],
+      [ 0.0322, 0.2915, -0.5630, 0.7517 ],
+      [ -0.0629, 0.1825, -0.2071, 0.7010 ],
+      ],
+    t_traj= [1.0,2.0,3.0,4.0] ),
+  'p': dict(
+    q_traj= [
+      [ -0.1733, 0.1994, -0.2961, 0.6964 ],
+      ],
+    t_traj= [1.0] ),
+  'o': dict(
+    q_traj= [
+      [ -0.0905, 0.2899, 0.2102, 0.7532 ],
+      [ 0.2838, 0.2899, 0.0736, 0.7517 ],
+      ],
+    t_traj= [1.0,2.0] ),
+  'r': dict(
+    q_traj= [
+      [ -0.2777, 0.2500, 0.6151, 0.6796 ],
+      [ -0.3973, 0.2746, -0.4771, 0.6351 ],
+      [ -0.0015, 0.2884, -0.4556, 0.7547 ],
+      ],
+    t_traj= [1.0,2.0,3.0] ),
   }
 
 print skills
@@ -36,8 +65,8 @@ try:
   while True:
     c= kbhit.KBHit()
     if c=='q':  break
-    elif c is not None:
-      gripper.FollowTrajectory(gripper.JointNames(), skills['a']['q_traj'], skills['a']['t_traj'], blocking=True)
+    elif c in skills:
+      gripper.FollowTrajectory(gripper.JointNames(), skills[c]['q_traj'], skills[c]['t_traj'], blocking=True)
     time.sleep(0.0025)
 except KeyboardInterrupt:
   pass

@@ -10,9 +10,10 @@ gripper= TFD2F4DoF()
 gripper.Setup()
 
 #Relax mode:
-#gripper.EnableTorque()
-#gripper.SetPWM({jname:0 for jname in gripper.JointNames()})
-gripper.DisableTorque()
+gripper.EnableTorque()
+gripper.SetPWM({jname:0 for jname in gripper.JointNames()})
+#Disabled mode:
+#gripper.DisableTorque()
 
 gripper.StartStateObs()
 
