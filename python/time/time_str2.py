@@ -7,7 +7,7 @@
 import datetime
 
 def TimeStr(fmt='short2', now=None):
-  if now is None:  now= datetime.datetime.utcnow()
+  if now is None:  now= datetime.datetime.now()
   if fmt=='normal':  return now.strftime('%Y.%m.%d-%H.%M.%S')
   if fmt=='normal_ms':  return now.strftime('%Y.%m.%d-%H.%M.%S.%f')[:-3]
   if fmt=='normal_us':  return now.strftime('%Y.%m.%d-%H.%M.%S.%f')
@@ -18,7 +18,7 @@ def TimeStr(fmt='short2', now=None):
 
 if __name__=='__main__':
   import time
-  now= datetime.datetime.utcnow()
+  now= datetime.datetime.now()
   print 'datetime.datetime.utcnow:', now
   print 'time.time()*1e6:', time.time()*1e6
   print 'short:', TimeStr('short',now)
