@@ -1,9 +1,9 @@
 #!/usr/bin/python
-#\file    virtual_joy2.py
+#\file    virtual_joy3.py
 #\brief   Virtual joystick example.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Apr.26, 2022
+#\date    Apr.30, 2022
 
 #Ref. https://stackoverflow.com/questions/55876713/how-to-create-a-joystick-controller-widget-in-pyqt/55899694#55899694
 
@@ -16,11 +16,12 @@ class TVirtualJoyStick(QtGui.QWidget):
     #self.setMinimumSize(100, 100)
     self.setBackgroundRole(QtGui.QPalette.Base)
 
-    self.kind= 'circle'  #circle, ellipse
-    self.bg_color= [200]*3
+    self.kind= 'circle'  #circle, ellipse, hbox, vbox
+    self.bg_color= [200]*3  #Color of movable range.
+    self.bg_height= 0.3  #Display height of movable range (effective with kind==hbox,vbox).
     self.resetStickPos()
     self.stick_grabbed= False
-    self.stick_rad= 0.3  #Stick radius per width of movable range.
+    self.stick_size= 0.6  #Stick size per width/height of movable range.
     self.stick_color= [128, 128, 255]
 
   def resetStickPos(self):
@@ -30,8 +31,9 @@ class TVirtualJoyStick(QtGui.QWidget):
   def center(self):
     return QtCore.QPointF(self.width()/2, self.height()/2)
 
-  #def minimumSizeHint(self):
+  def minimumSizeHint(self):
     #return QtCore.QSize(100, self.heightForWidth(100))
+    return QtCore.QSize(20, 20)
 
   #def sizeHint(self):
     #return QtCore.QSize(400, self.heightForWidth(400))
@@ -43,10 +45,13 @@ class TVirtualJoyStick(QtGui.QWidget):
     return self.stick_pos.p2(), self.stick_pos.length(), self.stick_pos.angle()
 
   def getGradient(self, color, bounds, reverse=False):
+    col0= QtGui.QColor(min(255,1.5*color[0]), min(255,1.5*color[1]), min(255,1.5*color[2]))
     col1= QtGui.QColor(*color)
     col2= QtGui.QColor(0.6*color[0], 0.6*color[1], 0.6*color[2])
+    col3= QtGui.QColor(0.2*color[0], 0.2*color[1], 0.2*color[2])
     positions= [0.0,0.2,0.8,1.0]
-    colors= [QtCore.Qt.white,col1,col2,QtCore.Qt.black]
+    #colors= [QtCore.Qt.white,col1,col2,QtCore.Qt.black]
+    colors= [col0,col1,col2,col3]
     linear_gradient= QtGui.QLinearGradient(bounds.topLeft(), bounds.bottomRight())
     for pos,col in zip(positions, colors if not reverse else reversed(colors)):
       linear_gradient.setColorAt(pos, col)
@@ -58,11 +63,29 @@ class TVirtualJoyStick(QtGui.QWidget):
     elif self.kind=='circle':
       l= min(self.width(), self.height())
       return l,l
+    elif self.kind=='hbox':
+      return self.width(), self.width()*self.bg_height
+    elif self.kind=='vbox':
+      return self.height()*self.bg_height, self.height()
+
+  def getStickSize(self):
+    mw,mh= self.getMovableRange()
+    if self.kind in ('ellipse','circle'):
+      return mw*self.stick_size, mw*self.stick_size
+    elif self.kind=='hbox':
+      return mw*self.stick_size, mh
+    elif self.kind=='vbox':
+      return mw, mh*self.stick_size
 
   def getStickRange(self):
     mw,mh= self.getMovableRange()
-    stick_rad= mw*self.stick_rad
-    return mw/2.0-stick_rad, mh/2.0-stick_rad
+    sw,sh= self.getStickSize()
+    if self.kind in ('ellipse','circle'):
+      return mw/2.0-sw/2.0, mh/2.0-sh/2.0
+    elif self.kind=='hbox':
+      return mw/2.0-sw/2.0, 0
+    elif self.kind=='vbox':
+      return 0, mh/2.0-sh/2.0
 
   def paintEvent(self, event):
     painter= QtGui.QPainter(self)
@@ -71,25 +94,32 @@ class TVirtualJoyStick(QtGui.QWidget):
 
     #Drawing movable range.
     mw,mh= self.getMovableRange()
-    bounds= QtCore.QRectF(-mw/2+1, -mh/2+1, mw-2, mh-2  ).translated(self.center())
+    bounds= QtCore.QRectF(-mw/2+1, -mh/2+1, mw-2, mh-2).translated(self.center())
     painter.setBrush(self.getGradient(self.bg_color, bounds, reverse=True))
-    painter.drawEllipse(bounds)
+    if self.kind in ('ellipse','circle'):
+      painter.drawEllipse(bounds)
+    elif self.kind in ('hbox','vbox'):
+      painter.drawRect(bounds)
 
     #Drawing stick.
-    mw,mh= self.getMovableRange()
     sx,sy= self.getStickRange()
     stick_displacement= self.center()+QtCore.QPointF(self.stick_pos.p2().x()*sx,-self.stick_pos.p2().y()*sy)
-    stick_rad= mw*self.stick_rad
-    bounds= QtCore.QRectF(-stick_rad, -stick_rad, stick_rad*2, stick_rad*2).translated(stick_displacement)
+    sw,sh= self.getStickSize()
+    bounds= QtCore.QRectF(-sw/2.0+1, -sh/2.0+1, sw-2, sh-2).translated(stick_displacement)
     painter.setBrush(self.getGradient(self.stick_color, bounds))
     #painter.setBrush(QtCore.Qt.black)
-    painter.drawEllipse(bounds)
+    if self.kind in ('ellipse','circle'):
+      painter.drawEllipse(bounds)
+    elif self.kind in ('hbox','vbox'):
+      painter.drawRect(bounds)
 
   def mousePressEvent(self, event):
     dp= QtCore.QLineF(self.center(), event.pos())
-    mw,mh= self.getMovableRange()
-    stick_rad= mw*self.stick_rad
-    self.stick_grabbed= dp.length()<stick_rad
+    sw,sh= self.getStickSize()
+    if self.kind in ('ellipse','circle'):
+      self.stick_grabbed= dp.length()<sw
+    elif self.kind in ('hbox','vbox'):
+      self.stick_grabbed= abs(dp.dx())<sw/2.0 and abs(dp.dy())<sh/2.0
     if self.stick_grabbed:  self.pos_grabbed= event.pos()
     return super(TVirtualJoyStick, self).mousePressEvent(event)
 
@@ -102,9 +132,8 @@ class TVirtualJoyStick(QtGui.QWidget):
     if self.stick_grabbed:
       dp= QtCore.QPointF(event.pos()-self.pos_grabbed)
       sx,sy= self.getStickRange()
-      self.stick_pos= QtCore.QLineF(QtCore.QPointF(0,0), QtCore.QPointF(dp.x()/sx,-dp.y()/sy))
+      self.stick_pos= QtCore.QLineF(QtCore.QPointF(0,0), QtCore.QPointF(dp.x()/sx if sx>0 else 0,-dp.y()/sy if sy>0 else 0))
       if self.stick_pos.length()>1.0:  self.stick_pos.setLength(1.0)
-      #print 'debug', self.stick_pos, self.stick_pos.p2(), self.stick_pos.length(), self.stick_pos.angle()
       self.update()
     print self.position()
 
@@ -129,10 +158,22 @@ class TVirtualJoyStickTest(QtGui.QWidget):
     #self.setLayout(mainlayout)
 
     joystick1= TVirtualJoyStick(self)
-    joystick1.move(40, 70)
+    joystick1.move(10, 10)
     joystick1.resize(100, 100)
     self.joystick1= joystick1
     #mainlayout.addWidget(joystick1)
+
+    joystick2= TVirtualJoyStick(self)
+    joystick2.kind= 'hbox'
+    joystick2.move(10, 120)
+    joystick2.resize(100, 40)
+    self.joystick2= joystick2
+
+    joystick3= TVirtualJoyStick(self)
+    joystick3.kind= 'vbox'
+    joystick3.move(120, 10)
+    joystick3.resize(40, 100)
+    self.joystick3= joystick3
 
     # Add a button
     btn1= QtGui.QPushButton('_________Exit?_________', self)
@@ -161,11 +202,11 @@ class TVirtualJoyStickTest2(QtGui.QWidget):
 
     mainlayout= QtGui.QGridLayout()
 
-    cmbbx1= QtGui.QComboBox(self)
-    cmbbx1.addItem('aaaaaa')
-    cmbbx1.setCurrentIndex(0)
-    self.cmbbx1= cmbbx1
-    mainlayout.addWidget(self.cmbbx1,0,0,1,2)
+    joystick2= TVirtualJoyStick(self)
+    joystick2.kind= 'hbox'
+    joystick2.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    self.joystick2= joystick2
+    mainlayout.addWidget(self.joystick2,0,0,1,2)
 
     joystick1= TVirtualJoyStick(self)
     joystick1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -180,9 +221,15 @@ class TVirtualJoyStickTest2(QtGui.QWidget):
 
     btn2= QtGui.QPushButton('Exit', self)
     btn2.clicked.connect(lambda:self.close())
-    btn2.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    btn2.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
     self.btn2= btn2
     mainlayout.addWidget(self.btn2,2,0,1,2)
+
+    joystick3= TVirtualJoyStick(self)
+    joystick3.kind= 'vbox'
+    joystick3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    self.joystick3= joystick3
+    mainlayout.addWidget(self.joystick3,0,2,3,1)
 
     self.setLayout(mainlayout)
 
