@@ -11,6 +11,7 @@ import sys
 from PyQt4 import QtCore,QtGui
 
 class TVirtualJoyStick(QtGui.QWidget):
+  onstickmoved= QtCore.pyqtSignal(list)
   def __init__(self, *args, **kwargs):
     super(TVirtualJoyStick, self).__init__(*args, **kwargs)
     #self.setMinimumSize(100, 100)
@@ -23,6 +24,25 @@ class TVirtualJoyStick(QtGui.QWidget):
     self.stick_grabbed= False
     self.stick_size= 0.6  #Stick size per width/height of movable range.
     self.stick_color= [128, 128, 255]
+
+  #kind: 2d-joy: circle, ellipse, 1d-joy: hbox, vbox
+  def setKind(self, kind):
+    self.kind= kind
+
+  #Set color of movable range.
+  def setBGColor(self, bg_color):
+    self.bg_color= bg_color
+
+  #Set display height of movable range (effective with kind==hbox,vbox).
+  def setBGHeight(self, bg_height):
+    self.bg_height= bg_height
+
+  #Set stick size per width/height of movable range.
+  def setStickSize(self, stick_size):
+    self.stick_size= stick_size
+
+  def setStickColor(self, stick_color):
+    self.stick_color= stick_color
 
   def resetStickPos(self):
     #Normalized stick position:
@@ -41,8 +61,15 @@ class TVirtualJoyStick(QtGui.QWidget):
   #def heightForWidth(self, width):
     #return width*1.2
 
+  #Return the current joystick position.
   def position(self):
-    return self.stick_pos.p2(), self.stick_pos.length(), self.stick_pos.angle()
+    #return self.stick_pos.p2(), self.stick_pos.length(), self.stick_pos.angle()
+    if self.kind in ('ellipse','circle'):
+      return [self.stick_pos.p2().x(), self.stick_pos.p2().y()]
+    elif self.kind=='hbox':
+      return [self.stick_pos.p2().x()]
+    elif self.kind=='vbox':
+      return [self.stick_pos.p2().y()]
 
   def getGradient(self, color, bounds, reverse=False):
     col0= QtGui.QColor(min(255,1.5*color[0]), min(255,1.5*color[1]), min(255,1.5*color[2]))
@@ -121,12 +148,14 @@ class TVirtualJoyStick(QtGui.QWidget):
     elif self.kind in ('hbox','vbox'):
       self.stick_grabbed= abs(dp.dx())<sw/2.0 and abs(dp.dy())<sh/2.0
     if self.stick_grabbed:  self.pos_grabbed= event.pos()
+    self.onstickmoved.emit(self.position())
     return super(TVirtualJoyStick, self).mousePressEvent(event)
 
   def mouseReleaseEvent(self, event):
     self.stick_grabbed= False
     self.resetStickPos()
     self.update()
+    self.onstickmoved.emit(self.position())
 
   def mouseMoveEvent(self, event):
     if self.stick_grabbed:
@@ -135,7 +164,8 @@ class TVirtualJoyStick(QtGui.QWidget):
       self.stick_pos= QtCore.QLineF(QtCore.QPointF(0,0), QtCore.QPointF(dp.x()/sx if sx>0 else 0,-dp.y()/sy if sy>0 else 0))
       if self.stick_pos.length()>1.0:  self.stick_pos.setLength(1.0)
       self.update()
-    print self.position()
+      self.onstickmoved.emit(self.position())
+    #print self.position()
 
 
 def Print(*s):
@@ -164,13 +194,13 @@ class TVirtualJoyStickTest(QtGui.QWidget):
     #mainlayout.addWidget(joystick1)
 
     joystick2= TVirtualJoyStick(self)
-    joystick2.kind= 'hbox'
+    joystick2.setKind('hbox')
     joystick2.move(10, 120)
     joystick2.resize(100, 40)
     self.joystick2= joystick2
 
     joystick3= TVirtualJoyStick(self)
-    joystick3.kind= 'vbox'
+    joystick3.setKind('vbox')
     joystick3.move(120, 10)
     joystick3.resize(40, 100)
     self.joystick3= joystick3
@@ -203,13 +233,15 @@ class TVirtualJoyStickTest2(QtGui.QWidget):
     mainlayout= QtGui.QGridLayout()
 
     joystick2= TVirtualJoyStick(self)
-    joystick2.kind= 'hbox'
+    joystick2.setKind('hbox')
     joystick2.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    joystick2.onstickmoved.connect(lambda p:self.btn2.setText('Exit({})'.format(p)))
     self.joystick2= joystick2
     mainlayout.addWidget(self.joystick2,0,0,1,2)
 
     joystick1= TVirtualJoyStick(self)
     joystick1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    joystick1.onstickmoved.connect(lambda p:self.btn2.setText('Exit({})'.format(p)))
     self.joystick1= joystick1
     mainlayout.addWidget(self.joystick1,1,0)
 
@@ -226,8 +258,9 @@ class TVirtualJoyStickTest2(QtGui.QWidget):
     mainlayout.addWidget(self.btn2,2,0,1,2)
 
     joystick3= TVirtualJoyStick(self)
-    joystick3.kind= 'vbox'
+    joystick3.setKind('vbox')
     joystick3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    joystick3.onstickmoved.connect(lambda p:self.btn2.setText('Exit({})'.format(p)))
     self.joystick3= joystick3
     mainlayout.addWidget(self.joystick3,0,2,3,1)
 
