@@ -10,7 +10,7 @@ from kbhit2 import TKBHit
 from time_str import TimeStr
 
 if __name__=='__main__':
-  dev= sys.argv[1] if len(sys.argv)>1 else '/dev/ttyS3'  #Com3(win); ttyUSB0
+  dev= sys.argv[1] if len(sys.argv)>1 else '/dev/ttyUSB0'  #ttyS3:Com3(win); ttyUSB0
   baudrate= int(sys.argv[2]) if len(sys.argv)>2 else 2400
 
   ser= serial.Serial(dev,baudrate,serial.SEVENBITS,serial.PARITY_EVEN)
@@ -23,13 +23,15 @@ if __name__=='__main__':
   try:
     with TKBHit() as kbhit:
       while True:
-        log_request= False
+        request= None
         if kbhit.IsActive():
           key= kbhit.KBHit()
           if key=='q':
             break;
+          elif key in ('p',):
+            request= 'print'
           elif key in (' ','l'):
-            log_request= True
+            request= 'log'
         else:
           break
         raw= ser.readline()
@@ -38,8 +40,9 @@ if __name__=='__main__':
           continue
         else:
           value= float(raw[3:12])
-        print '"{raw}" / {v} ({l})'.format(raw=repr(raw), v=value, l=len(raw))
-        if log_request:
+        if request=='print':
+          print '"{raw}" / {v} ({l})'.format(raw=repr(raw), v=value, l=len(raw))
+        elif request=='log':
           if log_fp is None:
             log_fp= open(log_file_name,'w')
             print 'Opened a log file:',log_file_name
