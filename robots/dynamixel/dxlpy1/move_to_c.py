@@ -22,7 +22,7 @@ print 'Current position=',dxl.Position()
 print 'Current current=',dxl.Current()
 
 p_trg= 2040  #Close
-c_trg= 100
+c_trg= 50
 #c_trg= int(raw_input('type current: '))
 
 #Move to a target position

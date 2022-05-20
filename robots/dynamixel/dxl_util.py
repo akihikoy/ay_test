@@ -562,7 +562,8 @@ class TDynamixel1(object):
 
   #Memorize the current RAM state for setting them again after reopen.
   def MemorizeState(self):
-    for address in self.ADDR:
+    for address,(addr,size) in self.ADDR.iteritems():
+      if addr is None:  continue
       self.state_memory[address]= self.Read(address)
 
   def RecallState(self):
@@ -630,8 +631,8 @@ class TDynamixel1(object):
   #Print status
   def PrintStatus(self):
     status= []
-    for address in self.ADDR.iterkeys():
-      addr= self.ADDR[address][0]
+    for address,(addr,size) in self.ADDR.iteritems():
+      if addr is None:  continue
       value= self.Read(address)
       if not self.CheckTxRxResult():  value= (value,'(error)')
       status.append([addr,address,value])
