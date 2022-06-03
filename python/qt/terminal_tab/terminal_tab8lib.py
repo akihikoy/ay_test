@@ -11,14 +11,15 @@
 #         Option (combobox) interface is added.
 #Requirements: tmux rxvt-unicode-256color
 
-import sys
+import sys, os
 import signal
 from PyQt4 import QtCore,QtGui,QtTest
 
 class TTerminalTab(QtGui.QWidget):
-  def __init__(self,title,widgets,exit_command):
+  def __init__(self,title,widgets,exit_command,size=(800,400),horizontal=True,no_focus=True):
     QtGui.QWidget.__init__(self)
-    self.InitUI(title,widgets,exit_command)
+    self.pid= str(os.getpid())+'-'
+    self.InitUI(title,widgets,exit_command,size,horizontal,no_focus)
 
   # Get a dict of option name: option content
   def ExpandOpt(self):
@@ -32,10 +33,11 @@ class TTerminalTab(QtGui.QWidget):
     if cmd[0]==':all':  return lambda:self.SendCmdToAll([c.format(**self.ExpandOpt()) for c in cmd[1:]])
     return lambda:self.SendCmd(term,[c.format(**self.ExpandOpt()) for c in cmd])
 
-  def InitUI(self,title,widgets,exit_command):
+  def InitUI(self,title,widgets,exit_command,size,horizontal,no_focus,grid_type='vhbox'):
     # Set window size.
-    self.resize(800, 400)
+    self.resize(*size)
     self.Processes= []
+    self.TermProcesses= []
 
     # Set window title
     self.WinTitle= title
@@ -49,72 +51,97 @@ class TTerminalTab(QtGui.QWidget):
     self.term_to_idx= {term:r for r,(term,row) in enumerate(self.Terminals)}
 
     # Horizontal box layout
-    hBoxlayout= QtGui.QHBoxLayout()
-    self.setLayout(hBoxlayout)
+    if horizontal:  boxlayout= QtGui.QHBoxLayout()
+    else:           boxlayout= QtGui.QVBoxLayout()
+    self.setLayout(boxlayout)
 
     self.qttabs= self.MakeTabs()
-    hBoxlayout.addWidget(self.qttabs)
+    boxlayout.addWidget(self.qttabs)
 
     # Grid layout
-    grid= QtGui.QGridLayout()
+
     wg= QtGui.QWidget()
+    grid= QtGui.QGridLayout()
+    #if grid_type=='grid':  grid= QtGui.QGridLayout()
+    #elif grid_type=='vhbox':  grid= QtGui.QVBoxLayout()
     wg.setLayout(grid)
-    hBoxlayout.addWidget(wg)
+    boxlayout.addWidget(wg)
 
     # Add widgets on grid
     for r,line in enumerate(self.Widgets):
+      gcol= [0]
+      if grid_type=='grid':
+        def add_widget(w):
+          grid.addWidget(w, r, gcol[0])
+          gcol[0]+= 1
+      elif grid_type=='vhbox':
+        gline= QtGui.QHBoxLayout()
+        def add_widget(w):
+          if gcol[0]==0:
+            grid.addWidget(w, r, 0)
+            grid.addLayout(gline, r, 1)
+            gcol[0]+= 1
+          else:
+            w.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+            #w.setMaximumWidth(5)
+            #w.resize(w.sizeHint().width(), w.sizeHint().height()*2)
+            gline.addWidget(w)
       if isinstance(line,(tuple,list)) and len(line)>1 and line[1]==':radio':
         name,_,options= line
         label= QtGui.QLabel()
         label.setText(name)
         label.setAlignment(QtCore.Qt.AlignCenter)
-        grid.addWidget(label, r, 0)
+        add_widget(label)
         group= QtGui.QButtonGroup()
         for i,opt in enumerate(options):
           radbtn= QtGui.QRadioButton(opt)
           radbtn.setCheckable(True)
-          radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
+          if no_focus:  radbtn.setFocusPolicy(QtCore.Qt.NoFocus)
           if i==0:  radbtn.setChecked(True)
           group.addButton(radbtn,1)
-          grid.addWidget(radbtn, r, 1+i)
+          add_widget(radbtn)
         self.RBOptions[name]= group
       elif isinstance(line,(tuple,list)) and len(line)>1 and line[1]==':cmb':
         name,_,options= line
         label= QtGui.QLabel()
         label.setText(name)
         label.setAlignment(QtCore.Qt.AlignCenter)
-        grid.addWidget(label, r, 0)
+        add_widget(label)
         cmbbx= QtGui.QComboBox(self)
         for opt in options:
           cmbbx.addItem(opt)
         cmbbx.setCurrentIndex(0)
-        grid.addWidget(cmbbx, r, 1)
+        add_widget(cmbbx)
         self.CBOptions[name]= cmbbx
       elif isinstance(line,(tuple,list)) and len(line)>1 and isinstance(line[1],(tuple,list)):
         term,row= line
         btn0= QtGui.QPushButton('({term})'.format(term=term))
         btn0.setFlat(True)
-        btn0.setFocusPolicy(QtCore.Qt.NoFocus)
+        if no_focus:  btn0.setFocusPolicy(QtCore.Qt.NoFocus)
         btn0.clicked.connect(lambda clicked,term=term:self.ShowTermTab(term))
-        grid.addWidget(btn0, r, 0)
-        for c,commands in enumerate(row):
+        add_widget(btn0)
+        for commands in row:
           if commands[0]==':pair':
             name1,f1= commands[1][0],self.CmdToLambda(term,commands[1][1])
             name2,f2= commands[2][0],self.CmdToLambda(term,commands[2][1])
             btn= QtGui.QPushButton(name1)
+            btn.setStyleSheet('padding:5px 10px 5px 10px')
             btn.setCheckable(True)
-            btn.setFocusPolicy(QtCore.Qt.NoFocus)
+            if no_focus:  btn.setFocusPolicy(QtCore.Qt.NoFocus)
             btn.clicked.connect(lambda b,btn=btn,name1=name1,f1=f1,name2=name2,f2=f2:
                                   (f1(),btn.setText(name2)) if btn.isChecked() else (f2(),btn.setText(name1)))
-            grid.addWidget(btn, r, 1+c)
+            add_widget(btn)
           else:
             name,f= commands[0],self.CmdToLambda(term,commands[1])
             btn= QtGui.QPushButton(name)
-            btn.setFocusPolicy(QtCore.Qt.NoFocus)
+            btn.setStyleSheet('padding:5px 10px 5px 10px')
+            if no_focus:  btn.setFocusPolicy(QtCore.Qt.NoFocus)
             btn.clicked.connect(f)
-            grid.addWidget(btn, r, 1+c)
+            add_widget(btn)
       else:
         raise Exception('Unknown syntax:',line)
+      if grid_type=='vhbox':
+        gline.addSpacerItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
 
     # Show window
     self.show()
@@ -140,42 +167,47 @@ class TTerminalTab(QtGui.QWidget):
     self.qttabs.setCurrentIndex(self.term_to_idx[term])
 
   def StartProc(self, prog, args):
-      child= QtCore.QProcess()
-      self.Processes.append(child)
-      child.start(prog, args)
+    child= QtCore.QProcess()
+    self.Processes.append(child)
+    child.start(prog, args)
+    return child
 
   def SendCmd(self, term, cmd):
     self.ShowTermTab(term)
-    self.StartProc('tmux', ['send-keys', '-t', term+':0'] + list(cmd))
+    self.StartProc('tmux', ['send-keys', '-t', self.pid+term+':0'] + list(cmd))
 
   def SendCmdToAll(self, cmd):
     for r,(term,row) in enumerate(self.Terminals):
       self.ShowTermTab(term)
-      self.StartProc('tmux', ['send-keys', '-t', term+':0'] + list(cmd))
+      self.StartProc('tmux', ['send-keys', '-t', self.pid+term+':0'] + list(cmd))
 
   def CreateTerminals(self):
     for r,(term,row) in enumerate(self.Terminals):
       self.qttabs.setCurrentIndex(r)
-      self.StartProc(
+      self.TermProcesses.append(
+        self.StartProc(
           'urxvt',
           ['-embed', str(self.qtterm[term].winId()),
-            '-e', 'tmux', 'new', '-s', term])
+            '-e', 'tmux', 'new', '-s', self.pid+term]) )
+      #print 'new terminal proc:',self.pid+term,self.TermProcesses[-1].pid()
       #QtTest.QTest.qWait(100)
     QtTest.QTest.qWait(200)
     #QtTest.QTest.qWait(200*len(self.Terminals))
     #for r,(term,row) in enumerate(self.Terminals):
-      #self.StartProc('tmux', ['send-keys', '-t', term+':0'] + self.InitCommand)
+      #self.StartProc('tmux', ['send-keys', '-t', self.pid+term+':0'] + self.InitCommand)
     self.qttabs.setCurrentIndex(0)
 
   def Exit(self):
     for r,(term,row) in enumerate(self.Terminals):
       self.qttabs.setCurrentIndex(r)
-      self.StartProc('tmux', ['send-keys', '-t', term+':0'] + self.ExitCommand)
+      self.StartProc('tmux', ['send-keys', '-t', self.pid+term+':0'] + self.ExitCommand)
     QtTest.QTest.qWait(200)
     for r,(term,row) in enumerate(self.Terminals):
       self.qttabs.setCurrentIndex(r)
-      self.StartProc('tmux', ['send-keys', '-t', term+':0', 'exit', 'Enter'])
-    QtTest.QTest.qWait(500)
+      self.StartProc('tmux', ['send-keys', '-t', self.pid+term+':0', 'exit', 'Enter'])
+    QtTest.QTest.qWait(200)
+    for proc in self.TermProcesses:
+      os.kill(proc.pid(), signal.SIGTERM)
 
   # Override closing event
   def closeEvent(self, event):
@@ -188,9 +220,9 @@ class TTerminalTab(QtGui.QWidget):
     else:
       event.ignore()
 
-def RunTerminalTab(title,widgets,exit_command):
+def RunTerminalTab(title,widgets,exit_command,size=(800,400),horizontal=True,no_focus=True):
   app= QtGui.QApplication(sys.argv)
-  win= TTerminalTab(title,widgets,exit_command)
+  win= TTerminalTab(title,widgets,exit_command,size=size,horizontal=horizontal,no_focus=no_focus)
   signal.signal(signal.SIGINT, lambda signum,frame,win=win: (win.Exit(),QtGui.QApplication.quit()) )
   timer= QtCore.QTimer()
   timer.start(500)  # You may change this if you wish.

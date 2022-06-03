@@ -31,8 +31,14 @@ class TButton(QtGui.QWidget):
     btn1.setToolTip('Click to activate Exit button')
     btn1.clicked.connect(lambda b,btn1=btn1: Print('Enabled') if btn1.isChecked() else Print('Disabled'))
     btn1.toggled.connect(lambda checked,btn1=btn1: btn1.setText('Disable') if checked else btn1.setText('Enable'))
-    btn1.resize(btn1.sizeHint())
+    #btn1.resize(btn1.sizeHint())
     btn1.move(100, 60)
+
+    btn1.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+    #btn1.setMinimumWidth(btn1.minimumSizeHint().width()*0.5)
+    #btn1.resize(btn1.minimumSizeHint().width(), btn1.sizeHint().height())
+    #btn1.setContentsMargins(0, 0, 0, 0)
+    btn1.setStyleSheet('padding:5px 10px 5px 10px')
 
     btn2= QtGui.QPushButton('Exit', self)
     btn2.setToolTip('Click to exit')
