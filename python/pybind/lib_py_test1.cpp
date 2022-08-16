@@ -1,0 +1,72 @@
+//-------------------------------------------------------------------------------------------
+/*! \file    lib_py_test1.cpp
+    \brief   Wrapper of lib_cpp_test1 for Python binding.
+    \author  Akihiko Yamaguchi, info@akihikoy.net
+    \version 0.1
+    \date    Aug.15, 2022
+
+Compile:
+
+g++ -std=c++11 -O3 -Wall -shared -fPIC -I/usr/include/python2.7 `python -m pybind11 --includes` lib_py_test1.cpp lib_cpp_test1.cpp -o lib_py_test1`python3-config --extension-suffix`
+ln -s lib_py_test1.cpython-36m-x86_64-linux-gnu.so lib_py_test1.so
+
+Run:
+python
+> import lib_py_test1
+> lib_py_test1.Add(100,200)
+300
+> lib_py_test1.Add(100.,200.)
+TypeError
+> lib_py_test1.VecConcatenate([1,2,3,4],[5,6,7,8])
+[1, 2, 3, 4, 5, 6, 7, 8]
+> lib_py_test1.VecConcatenate(np.array([1,2,3,4]),np.array([5,6,7,8]))
+[1, 2, 3, 4, 5, 6, 7, 8]
+> lib_py_test1.MatAdd([[1,2],[3,4]],[[5,6],[7,8]])
+[[6, 8], [10, 12]]
+> lib_py_test1.MatAdd(np.array([[1,2],[3,4]]),np.array([[5,6],[7,8]]))
+[[6, 8], [10, 12]]
+> lib_py_test1.MatAdd(np.array([1,2,3,4]).reshape(-1,2),np.array([5,6,7,8]).reshape(-1,2))
+[[6, 8], [10, 12]]
+> type(lib_py_test1.MatAdd(np.array([1,2,3,4]).reshape(-1,2),np.array([5,6,7,8]).reshape(-1,2)))
+< type 'list' >
+
+*/
+//-------------------------------------------------------------------------------------------
+// #include "lib_py_test1.h"
+#include "lib_cpp_test1.h"
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+//-------------------------------------------------------------------------------------------
+namespace test_py
+{
+
+using namespace test;
+
+namespace py= pybind11;
+PYBIND11_PLUGIN(lib_py_test1)
+{
+  py::module m("lib_py_test1", "Wrapper of lib_cpp_test1 with pybind11");
+  m.def("Add", &Add);
+  m.def("VecConcatenate", &VecConcatenate);
+  m.def("MatAdd", &MatAdd);
+
+  py::class_<TTest>(m, "TTest")
+    .def(py::init<int,int>())
+    .def("X", static_cast<int& (TTest::*)()>(&TTest::X))
+    .def("X", static_cast<const int& (TTest::*)() const>(&TTest::X))
+    .def("Y", static_cast<int& (TTest::*)()>(&TTest::Y))
+    .def("Y", static_cast<const int& (TTest::*)() const>(&TTest::Y))
+//     .def("X", py::overloaded_cast<void>(&TTest::X,py::const_))
+//     .def("Y", py::overloaded_cast<void>(&TTest::Y,py::const_))
+//     .def("X", &TTest::X)
+//     .def("Y", &TTest::Y)
+    .def("Sum", &TTest::Sum)
+    .def("XY", &TTest::XY);
+}
+//-------------------------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------------------------
+}  // end of test_py
+//-------------------------------------------------------------------------------------------
+
