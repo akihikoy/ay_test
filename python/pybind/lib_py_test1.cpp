@@ -30,6 +30,17 @@ TypeError
 > type(lib_py_test1.MatAdd(np.array([1,2,3,4]).reshape(-1,2),np.array([5,6,7,8]).reshape(-1,2)))
 < type 'list' >
 
+> import lib_py_test1
+> test= lib_py_test1.TTest(10,20,)
+> test.X()
+10
+> test.XY()
+[10, 20]
+> test.Sum()
+30
+> test.Y()= 30
+SyntaxError: can't assign to function call
+
 */
 //-------------------------------------------------------------------------------------------
 // #include "lib_py_test1.h"
