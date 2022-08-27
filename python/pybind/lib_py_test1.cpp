@@ -67,10 +67,6 @@ PYBIND11_PLUGIN(lib_py_test1)
     .def("X", static_cast<const int& (TTest::*)() const>(&TTest::X))
     .def("Y", static_cast<int& (TTest::*)()>(&TTest::Y))
     .def("Y", static_cast<const int& (TTest::*)() const>(&TTest::Y))
-//     .def("X", py::overloaded_cast<void>(&TTest::X,py::const_))
-//     .def("Y", py::overloaded_cast<void>(&TTest::Y,py::const_))
-//     .def("X", &TTest::X)
-//     .def("Y", &TTest::Y)
     .def("Sum", &TTest::Sum)
     .def("XY", &TTest::XY);
 }
