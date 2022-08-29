@@ -10,7 +10,20 @@
 */
 //-------------------------------------------------------------------------------------------
 #include <sys/time.h>
-#include <unistd.h>
+#include <chrono>
+#include <thread>
+
+#ifdef __linux__
+  #include <inttypes.h>  // int64_t
+  #include <sys/time.h>  // gettimeofday
+#elif _WIN32
+  #include <stdint.h>
+  #define NOMINMAX  // Disabling min and max macros in Windows.h
+  #include <Windows.h>
+  #undef GetCurrentTime  // Remove the macro defined in Windows.h
+#else
+  #error OS detection failed
+#endif
 
 inline double GetCurrentTime(void)
 {
@@ -39,7 +52,7 @@ public:
         expected_cycle_time_(1.0 / frequency),
         actual_cycle_time_(0.0)
     {}
-  bool Sleep()
+  void Sleep()
     {
       const Time &expected_curr_start(expected_next_start_);
       Time expected_next_end= expected_curr_start + expected_cycle_time_;
@@ -52,9 +65,9 @@ public:
       if(sleep_time <= Duration(0.0))
       {
         if(actual_prev_end > expected_next_end+expected_cycle_time_)  expected_next_start_= actual_prev_end;
-        return true;
+        return;
       }
-      return usleep(sleep_time*1.0e6);
+      std::this_thread::sleep_for(std::chrono::nanoseconds(int(sleep_time*1.0e9)));
     }
   void Reset()  {expected_next_start_= GetCurrentTime();}
   Duration ActualCycleTime() const {return actual_cycle_time_;}
