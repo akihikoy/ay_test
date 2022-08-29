@@ -15,7 +15,7 @@ namespace test
 {
 //-------------------------------------------------------------------------------------------
 
-int Add(int x, int y);
+int Add(int x, int y=1);
 
 std::vector<int> VecConcatenate(const std::vector<int> &x, const std::vector<int> &y);
 

@@ -17,6 +17,10 @@ python
 300
 > lib_py_test1.Add(100.,200.)
 TypeError
+> lib_py_test1.Add(100,y=100)
+200
+> lib_py_test1.Add(100)
+101
 > lib_py_test1.VecConcatenate([1,2,3,4],[5,6,7,8])
 [1, 2, 3, 4, 5, 6, 7, 8]
 > lib_py_test1.VecConcatenate(np.array([1,2,3,4]),np.array([5,6,7,8]))
@@ -57,7 +61,8 @@ namespace py= pybind11;
 PYBIND11_PLUGIN(lib_py_test1)
 {
   py::module m("lib_py_test1", "Wrapper of lib_cpp_test1 with pybind11");
-  m.def("Add", &Add);
+  m.def("Add", &Add, "Add two integers.",
+        py::arg("x"), py::arg("y")=1);
   m.def("VecConcatenate", &VecConcatenate);
   m.def("MatAdd", &MatAdd);
 
