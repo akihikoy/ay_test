@@ -1,0 +1,5 @@
+%YAML:1.0
+pkg_dir: "/tmp"
+cam_config: "hoge/hoge.yaml"
+target_fps: 90
+camera_auto_reopen: 0
