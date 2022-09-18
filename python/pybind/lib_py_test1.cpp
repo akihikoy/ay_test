@@ -44,7 +44,11 @@ TypeError
 30
 > test.Y()= 30
 SyntaxError: can't assign to function call
-
+> tt= lib_py_test1.TTestTest()
+> tt.test1.XY()
+[10, 20]
+> tt.test2.XY()
+[30, 40]
 */
 //-------------------------------------------------------------------------------------------
 // #include "lib_py_test1.h"
@@ -74,6 +78,11 @@ PYBIND11_PLUGIN(lib_py_test1)
     .def("Y", static_cast<const int& (TTest::*)() const>(&TTest::Y))
     .def("Sum", &TTest::Sum)
     .def("XY", &TTest::XY);
+
+  py::class_<TTestTest>(m, "TTestTest")
+    .def(py::init<>())
+    .def_readwrite("test1", &TTestTest::test1)
+    .def_readwrite("test2", &TTestTest::test2);
 }
 //-------------------------------------------------------------------------------------------
 
