@@ -26,6 +26,9 @@
 #\version 0.8
 #\date    May.19, 2022
 #         Added XD540-T270.
+#\version 0.9
+#\date    Sep.19, 2022
+#         Added RH-P12-RN(A).
 
 #cf. DynamixelSDK/python/tests/protocol2_0/read_write.py
 #DynamixelSDK: https://github.com/ROBOTIS-GIT/DynamixelSDK
@@ -354,6 +357,47 @@ class TDynamixel1(object):
         }
       self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
 
+    # For RH-P12-RN(A)
+    elif type in ('RH-P12-RN(A)',):
+      #ADDR[NAME]=(ADDRESS,SIZE)
+      self.ADDR={
+        'MODEL_NUMBER'        : (0,2),
+        'MODEL_INFORMATION'   : (2,4),
+        'FIRMWARE_VERSION'    : (6,1),
+        'ID'                  : (7,1),
+        'BAUD_RATE'           : (8,1),
+        'RETURN_DELAY_TIME'   : (9,1),
+        'OPERATING_MODE'      : (11,1),
+        'TEMP_LIMIT'          : (31,1),
+        'MAX_VOLT_LIMIT'      : (32,2),
+        'MIN_VOLT_LIMIT'      : (34,2),
+        'PWM_LIMIT'           : (36,2),
+        'CURRENT_LIMIT'       : (38,2),
+        'ACC_LIMIT'           : (40,4),
+        'VEL_LIMIT'           : (44,4),
+        'MAX_POS_LIMIT'       : (48,4),
+        'MIN_POS_LIMIT'       : (52,4),
+        'SHUTDOWN'            : (63,1),
+        'TORQUE_ENABLE'       : (512,1),
+        'HARDWARE_ERR_ST'     : (518,1),
+        'VEL_I_GAIN'          : (524,2),
+        'VEL_P_GAIN'          : (526,2),
+        'POS_D_GAIN'          : (528,2),
+        'POS_I_GAIN'          : (530,2),
+        'POS_P_GAIN'          : (532,2),
+        'GOAL_PWM'            : (548,2),
+        'GOAL_CURRENT'        : (550,2),
+        'GOAL_VELOCITY'       : (552,4),
+        'GOAL_POSITION'       : (564,4),
+        'PRESENT_PWM'         : (572,2),
+        'PRESENT_CURRENT'     : (574,2),
+        'PRESENT_VELOCITY'    : (576,4),
+        'PRESENT_POSITION'    : (580,4),
+        'PRESENT_IN_VOLT'     : (592,2),
+        'PRESENT_TEMP'        : (594,1),
+        }
+      self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
+
     # Operation modes
     self.OP_MODE={
       'CURRENT'    : 0,   # Current Control Mode
@@ -363,12 +407,13 @@ class TDynamixel1(object):
       'CURRPOS'    : 5,   # Current-based Position Control Mode
       'PWM'        : 16,  # PWM Control Mode (Voltage Control Mode)
       }
-    #NOTE: 'RH-P12-RN': CURRENT and CURRPOS are available.
+    #NOTE: 'RH-P12-RN','RH-P12-RN(A)': CURRENT and CURRPOS are available.
     #NOTE: 'PH54-200-S500','PM54-060-S250': CURRENT, VELOCITY, POSITION(default), EXTPOS, PWM are available.
 
     # Baud rates                                  0     1      2   3   4   5   6     7      8      9
     self.BAUD_RATE=                           [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6]
     if type=='RH-P12-RN':     self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,10.5e6]
+    if type=='RH-P12-RN(A)':  self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
     if type=='PH54-200-S500': self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
     if type=='PM54-060-S250': self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
 
@@ -376,7 +421,7 @@ class TDynamixel1(object):
     self.TORQUE_DISABLE = 0  # Value for disabling the torque
     self.MIN_POSITION = 0  # Dynamixel will rotate between this value
     self.MAX_POSITION = 4095  # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
-    if type=='RH-P12-RN':
+    if type in ('RH-P12-RN','RH-P12-RN(A)'):
       self.MAX_POSITION = 1150
     elif type=='PH54-200-S500':
       self.MIN_POSITION = -501433
@@ -389,10 +434,12 @@ class TDynamixel1(object):
     elif type in ('XH540-W270','XD540-T270'):  self.MAX_CURRENT = 2047   # == Current Limit(38)
     elif type=='MX-64AR':     self.MAX_CURRENT = 1941   # == Current Limit(38)
     elif type=='RH-P12-RN':   self.MAX_CURRENT = 820
+    elif type=='RH-P12-RN(A)':   self.MAX_CURRENT = 1984
     elif type=='PH54-200-S500':   self.MAX_CURRENT = 22740
     elif type=='PM54-060-S250':   self.MAX_CURRENT = 7980
     self.MAX_PWM = 885
     if type=='RH-P12-RN':  self.MAX_PWM = None
+    elif type=='RH-P12-RN(A)':  self.MAX_PWM = 2009
     elif type=='PH54-200-S500':  self.MAX_PWM = 2009
     elif type=='PM54-060-S250':  self.MAX_PWM = 2009
 
@@ -419,6 +466,9 @@ class TDynamixel1(object):
     elif type=='RH-P12-RN':
       self.CURRENT_UNIT= 4.02
       self.VELOCITY_UNIT= 0.114*(2.0*math.pi)/60.0
+    elif type=='RH-P12-RN(A)':
+      self.CURRENT_UNIT= 1.0
+      self.VELOCITY_UNIT= 0.01*(2.0*math.pi)/60.0
     elif type=='PH54-200-S500':
       self.CURRENT_UNIT= 1.0
       self.VELOCITY_UNIT= 0.01*(2.0*math.pi)/60.0
@@ -432,7 +482,7 @@ class TDynamixel1(object):
     #self.Baudrate= 1000000
     self.DevName= dev  # Port name.  e.g. Win:'COM1', Linux:'/dev/ttyUSB0'
     self.OpMode= 'POSITION'
-    if type=='RH-P12-RN':  self.OpMode= 'CURRPOS'
+    if type in ('RH-P12-RN','RH-P12-RN(A)'):  self.OpMode= 'CURRPOS'
     self.CurrentLimit= self.MAX_CURRENT
     '''Shutdown mode:
       0x01: Input Voltage Error
