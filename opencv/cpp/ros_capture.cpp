@@ -27,13 +27,33 @@ $ sudo ln -s /usr/lib/x86_64-linux-gnu/libcv_bridge.so.0d libcv_bridge.so
 #include <boost/bind.hpp>
 //-------------------------------------------------------------------------------------------
 
+// Get the image encoding of a ROS image topic.
+// If convert_cv is true, the encoding is converted for OpenCV image conversion.
+std::string GetImageEncoding(const std::string &img_topic, ros::NodeHandle &node, bool convert_cv=false, const double &time_out=5.0)
+{
+  sensor_msgs::ImageConstPtr ptr_img_header;
+  ptr_img_header= ros::topic::waitForMessage<sensor_msgs::Image>(img_topic, node, ros::Duration(time_out));
+  if(ptr_img_header==NULL)
+  {
+    std::cerr<<"Failed to receive the image topic: "<<img_topic<<std::endl;
+    return "";
+  }
+  const std::string &encoding(ptr_img_header->encoding);
+  if(!convert_cv)  return encoding;
+  if(encoding=="rgb8")  return "bgr8";
+  if(encoding=="RGB8")  return "BGR8";
+  // TODO: Add more conversion if necessary.
+  return encoding;
+}
+//-------------------------------------------------------------------------------------------
+
 typedef void(*TCVCallback)(const cv::Mat&);
 
 void ImageCallback(const sensor_msgs::ImageConstPtr& msg, const std::string &encoding, TCVCallback callback, bool debug)
 {
   if(debug)
   {
-    std::cerr<<"msg->header: "<<msg->header<<std::endl;
+    std::cerr<<"msg->header: "<<msg->header;
     std::cerr<<"msg->height: "<<msg->height<<std::endl;
     std::cerr<<"msg->width: "<<msg->width<<std::endl;
     std::cerr<<"msg->encoding: "<<msg->encoding<<std::endl;
@@ -68,10 +88,11 @@ void FinishLoop()
 }
 //-------------------------------------------------------------------------------------------
 
-void StartLoop(int argc, char**argv, const std::string &img_topic, const std::string &encoding, TCVCallback callback, const std::string &node_name="img_node")
+void StartLoop(int argc, char**argv, const std::string &img_topic, std::string encoding, TCVCallback callback, const std::string &node_name="img_node")
 {
   ros::init(argc, argv, node_name);
   ros::NodeHandle node("~");
+  if(encoding=="")  encoding= GetImageEncoding(img_topic, node, /*convert_cv=*/true);
 
   ros::Subscriber sub_img= node.subscribe<sensor_msgs::Image>(img_topic, 1, boost::bind(&ImageCallback,_1,encoding,callback,false));
 
@@ -83,7 +104,7 @@ void StartLoop(int argc, char**argv, const std::string &img_topic, const std::st
 #ifndef LIBRARY
 void CVCallback(const cv::Mat &frame)
 {
-  cv::imshow("camera", frame);
+  if(!frame.empty())  cv::imshow("camera", frame);
   char c(cv::waitKey(1));
   if(c=='\x1b'||c=='q')  FinishLoop();
 }
@@ -91,7 +112,7 @@ void CVCallback(const cv::Mat &frame)
 
 int main(int argc, char**argv)
 {
-  std::string img_topic("/camera/color/image_raw"), encoding(sensor_msgs::image_encodings::BGR8);
+  std::string img_topic("/camera/color/image_raw"), encoding(""/*sensor_msgs::image_encodings::BGR8*/);
   if(argc>1)  img_topic= argv[1];
   if(argc>2)  encoding= argv[2];
   cv::namedWindow("camera",1);
