@@ -14,8 +14,6 @@ g++ -g -Wall -O2 -o cv2-edge_cmp.out cv2-edge_cmp.cpp -lopencv_core -lopencv_img
 #include <iostream>
 #include <unistd.h>
 #include "cap_open.h"
-#define LIBRARY
-#include "float_trackbar.cpp"
 //-------------------------------------------------------------------------------------------
 
 // Canny
@@ -24,7 +22,9 @@ cv::Mat GetCanny(const cv::Mat &src,
   const double &threshold2=100.0,
   int aperture_size=3,
   int blur_size=7,
-  const double &blur_std=1.5
+  const double &blur_std=1.5,
+  bool is_depth=false,
+  const double &depth_scale=0.3
 )
 {
   cv::Mat gray, edges;
@@ -32,7 +32,13 @@ cv::Mat GetCanny(const cv::Mat &src,
     cv::GaussianBlur(src, gray, cv::Size(blur_size,blur_size), blur_std, blur_std);
   else
     gray= src;
-  cv::cvtColor(gray, gray, CV_BGR2GRAY);
+  if(!is_depth)
+    cv::cvtColor(gray, gray, CV_BGR2GRAY);
+  else
+  {
+    gray= depth_scale*gray;
+    gray.convertTo(gray, CV_8U);
+  }
   cv::Canny(gray, edges, threshold1, threshold2, aperture_size);
   return edges;
 }
@@ -43,7 +49,8 @@ cv::Mat GetLaplacian(const cv::Mat &src,
   const double &scale=1.0,
   const double &delta=0.0,
   int blur_size=7,
-  const double &blur_std=1.5
+  const double &blur_std=1.5,
+  bool is_depth=false
 )
 {
   cv::Mat gray, edges;
@@ -51,7 +58,7 @@ cv::Mat GetLaplacian(const cv::Mat &src,
     cv::GaussianBlur(src, gray, cv::Size(blur_size,blur_size), blur_std, blur_std);
   else
     gray= src;
-  cv::cvtColor(gray, gray, CV_BGR2GRAY);
+  if(!is_depth)  cv::cvtColor(gray, gray, CV_BGR2GRAY);
   cv::Laplacian(gray, edges, CV_16S, ksize, scale, delta, cv::BORDER_DEFAULT);
   cv::convertScaleAbs(edges, edges);
   return edges;
@@ -63,7 +70,8 @@ cv::Mat GetSobel(const cv::Mat &src,
   const double &scale=1.0,
   const double &delta=0.0,
   int blur_size=7,
-  const double &blur_std=1.5
+  const double &blur_std=1.5,
+  bool is_depth=false
 )
 {
   cv::Mat gray, edges;
@@ -71,7 +79,7 @@ cv::Mat GetSobel(const cv::Mat &src,
     cv::GaussianBlur(src, gray, cv::Size(blur_size,blur_size), blur_std, blur_std);
   else
     gray= src;
-  cv::cvtColor(gray, gray, CV_BGR2GRAY);
+  if(!is_depth)  cv::cvtColor(gray, gray, CV_BGR2GRAY);
   cv::Mat grad_x, grad_y;
   // Gradient X
   // if(ksize==3)
@@ -94,6 +102,11 @@ std::ostream& operator<<(std::ostream &os, const cv::Scalar_<double> &v)
   os<<v(0)<<" "<<v(1)<<" "<<v(2)<<" "<<v(3);
   return os;
 }
+
+
+#ifndef LIBRARY
+#define LIBRARY
+#include "float_trackbar.cpp"
 
 int main(int argc, char**argv)
 {
@@ -195,4 +208,5 @@ int main(int argc, char**argv)
 
   return 0;
 }
+#endif//LIBRARY
 //-------------------------------------------------------------------------------------------
