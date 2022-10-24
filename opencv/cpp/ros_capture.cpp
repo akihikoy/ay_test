@@ -90,7 +90,7 @@ void FinishLoop()
 
 void StartLoop(int argc, char**argv, const std::string &img_topic, std::string encoding, TCVCallback callback, const std::string &node_name="img_node")
 {
-  ros::init(argc, argv, node_name);
+  if(node_name!="")  ros::init(argc, argv, node_name);
   ros::NodeHandle node("~");
   if(encoding=="")  encoding= GetImageEncoding(img_topic, node, /*convert_cv=*/true);
 
