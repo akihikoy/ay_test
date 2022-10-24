@@ -37,10 +37,12 @@ def ImageCallback(msg, fmt):
   key= cv2.waitKey(1)&0xFF
   if key==ord(' '):
     for i in range(10000):
-      filename= '/tmp/img{:05d}.png'.format(i)
+      filename= '/tmp/img{:05d}({}).png'.format(i,fmt)
       if not os.path.exists(filename):  break
-    cv2.imwrite(filename, img_viz)
-    print 'Saved image into:', filename
+    #cv2.imwrite(filename, img_viz)
+    cv2.imwrite(filename, img)
+    print 'Saved image into: {} ({})'.format(filename,fmt)
+    #NOTE: Use cv2.imread(filename, cv2.IMREAD_ANYDEPTH) to read depth image (16UC1).
   elif key==ord('q'):
     rospy.signal_shutdown('quit.')
     cv2.destroyAllWindows()
