@@ -24,7 +24,7 @@ def DepthToNormalCore(img_depth, proj_mat):
   nz= ((u+v+(-Cx-Cy+1))*d1*d2 + (-u+v+(+Cx-Cy+1))*d2*d3 + (-u-v+(Cx+Cy+1))*d3*d4 + (u-v+(-Cx+Cy+1))*d1*d4)/(Fx*Fy*Fz*Fz)
   alpha= np.arctan2(ny, nx)  #Angle of the normal projected on xy plane from x axis
   beta= np.abs(np.arctan2(nz, np.sqrt(nx*nx+ny*ny)))  #Angle of the normal from xy plane
-  print np.min(nz), np.max(nz)
+  #print np.min(nz), np.max(nz)
   return alpha,beta
 
 def DepthToNormal(img_depth, proj_mat, resize_ratio=0.5, ks_gauss=5):

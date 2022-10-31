@@ -21,6 +21,7 @@ std::string GetPixelVal(const cv::Mat &m, int x, int y)
   else if(m.type()==CV_16UC1)  ss<<m.at<unsigned short>(y,x);
   else if(m.type()==CV_16SC1)  ss<<m.at<short>(y,x);
   else if(m.type()==CV_32FC1)  ss<<m.at<float>(y,x);
+  else if(m.type()==CV_32FC3)  ss<<m.at<cv::Vec3f>(y,x);
   else  ss<<"unknown type";
   return ss.str();
 }

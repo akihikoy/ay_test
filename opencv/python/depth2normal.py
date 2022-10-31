@@ -20,7 +20,7 @@ def DepthToNormalImg(img_depth, with_amp=False, amp_beta=5.0):
   nx= np.pad((m[:,2:]-m[:,:-2])/2.0, ((0,0),(1,1)), 'constant')
   ny= np.pad((m[2:,:]-m[:-2,:])/2.0, ((1,1),(0,0)), 'constant')
   nz= np.zeros_like(nx)
-  img_norm= np.stack((nx,ny,nz)).transpose((1,2,0))
+  img_norm= np.stack((ny,nx,nz)).transpose((1,2,0))
   if with_amp:
     img_amp= np.linalg.norm(img_norm,axis=2)
     img_amp= (np.arctan(img_amp/amp_beta))*512./np.pi

@@ -95,10 +95,10 @@ void CVCallback(const cv::Mat &frame)
   }
 
   std::vector<std::vector<cv::Point> > contours;
-  cv::findContours(edge_binary, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(edge_binary, contours, /*CV_RETR_EXTERNAL*/CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
   cv::Mat edge_contour,edge_bin_col;
   edge_contour= dim_image*img_disp;
-  cv::Mat edge_bin_col_decom[3]= {128.0*edge_binary,128.0*edge_binary,128.0*edge_binary+128.0*edge_binary}, mask_objectsc;
+  cv::Mat edge_bin_col_decom[3]= {128.0*edge_binary,128.0*edge_binary,128.0*edge_binary+128.0*edge_binary};
   cv::merge(edge_bin_col_decom,3,edge_bin_col);
   edge_contour+= dim_edge_bin*edge_bin_col;
   for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
