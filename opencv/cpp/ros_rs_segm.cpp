@@ -122,10 +122,10 @@ void CVCallback(const cv::Mat &frame_depth, const cv::Mat &frame_rgb)
   }
 
 
-  cv::Mat normal_img;
+  cv::Mat normal_img, cloud_img;
   DepthImgToNormalImg(
     frame_depth, proj_mat,
-    normal_img, wsize, resize_ratio, /*type=*/TCD2NType(cd2ntype));  // cd2ntSimple,cd2ntRobust
+    normal_img, cloud_img, wsize, resize_ratio, /*type=*/TCD2NType(cd2ntype));  // cd2ntSimple,cd2ntRobust
 
   cv::Mat alpha_beta_img;
   PolarizeNormalImg(normal_img, alpha_beta_img);
