@@ -40,6 +40,14 @@ void GetCameraProjectionMatrix(const std::string &cam_info_topic, std::string &f
 }
 //-------------------------------------------------------------------------------------------
 
+// Get a projection matrix for resized image.
+void GetProjMatForResizedImg(const cv::Mat &proj_mat, const double &resize_ratio, cv::Mat &proj_mat_s)
+{
+  proj_mat_s= resize_ratio*proj_mat;
+  proj_mat_s.at<double>(2,2)= 1.0;
+}
+//-------------------------------------------------------------------------------------------
+
 
 #ifndef LIBRARY
 int main(int argc, char**argv)

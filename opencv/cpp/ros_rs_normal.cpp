@@ -179,6 +179,28 @@ void DepthImgToNormalImg(
 }
 //-------------------------------------------------------------------------------------------
 
+void GetProjMatForResizedImg(const cv::Mat &proj_mat, const double &resize_ratio, cv::Mat &proj_mat_s);
+
+/* Estimate normal and store it as an image (with resizing depth_img).
+    wsize: Window size for computing normal (should be odd).  */
+void DepthImgToNormalImg(
+    const cv::Mat &depth_img, const cv::Mat &proj_mat,
+    cv::Mat &normal_img, int wsize, const float &resize_ratio=1.0f, TCD2NType type=cd2ntSimple)
+{
+  if(resize_ratio==1.0f)
+  {
+    DepthImgToNormalImg(depth_img, proj_mat, normal_img, wsize, type);
+    return;
+  }
+  cv::Mat img_depth_s, proj_mat_s;
+  cv::resize(depth_img, img_depth_s, cv::Size(), resize_ratio, resize_ratio, cv::INTER_LINEAR);
+  GetProjMatForResizedImg(proj_mat, resize_ratio, proj_mat_s);
+  cv::Mat normal_img_s;
+  DepthImgToNormalImg(img_depth_s, proj_mat_s, normal_img_s, wsize, type);
+  cv::resize(normal_img_s, normal_img, depth_img.size(), 0, 0, cv::INTER_LINEAR);
+}
+//-------------------------------------------------------------------------------------------
+
 
 // Convert a normal image (each element is a normal vector) to an image
 // whose element consists of alpha and beta, where:
@@ -286,6 +308,7 @@ cv::Mat proj_mat;
 
 int wsize(3);
 int cd2ntype(cd2ntSimple);
+float resize_ratio(1.0);
 
 float beta_min(0.0), beta_max(0.2);
 double dim_image=0.5;
@@ -314,7 +337,7 @@ void CVCallback(const cv::Mat &frame)
   cv::Mat normal_img;
   DepthImgToNormalImg(
     frame, proj_mat,
-    normal_img, /*wsize=*/wsize, /*type=*/TCD2NType(cd2ntype));  // cd2ntSimple,cd2ntRobust
+    normal_img, wsize, resize_ratio, /*type=*/TCD2NType(cd2ntype));  // cd2ntSimple,cd2ntRobust
 
   cv::Mat alpha_beta_img;
   PolarizeNormalImg(normal_img, alpha_beta_img);
@@ -376,6 +399,7 @@ int main(int argc, char**argv)
   setMouseCallback("normal", onMouse, "normal");
   CreateTrackbar<int>("wsize", "normal", &wsize, 1, 15, 2,  &TrackbarPrintOnTrack);
   CreateTrackbar<int>("cd2ntype", "normal", &cd2ntype, 0, 1, 1,  &TrackbarPrintOnTrack);
+  CreateTrackbar<float>("resize_ratio", "normal", &resize_ratio, 0.0f, 1.0f, 0.01f,  &TrackbarPrintOnTrack);
 
   cv::namedWindow("alpha_beta",1);
   setMouseCallback("alpha_beta", onMouse, "alpha_beta");
@@ -384,8 +408,8 @@ int main(int argc, char**argv)
   setMouseCallback("filtered_beta", onMouse, "filtered_beta");
   CreateTrackbar<double>("dim_image", "filtered_beta", &dim_image, 0.0, 1.0, 0.01, &TrackbarPrintOnTrack);
   CreateTrackbar<double>("dim_filtered_beta", "filtered_beta", &dim_filtered_beta, 0.0, 1.0, 0.01, &TrackbarPrintOnTrack);
-  CreateTrackbar<float>("beta_min", "filtered_beta", &beta_min, -1.0f, 1.0f, 0.01,  &TrackbarPrintOnTrack);
-  CreateTrackbar<float>("beta_max", "filtered_beta", &beta_max, -1.0f, 1.0f, 0.01,  &TrackbarPrintOnTrack);
+  CreateTrackbar<float>("beta_min", "filtered_beta", &beta_min, -1.0f, 1.0f, 0.01f,  &TrackbarPrintOnTrack);
+  CreateTrackbar<float>("beta_max", "filtered_beta", &beta_max, -1.0f, 1.0f, 0.01f,  &TrackbarPrintOnTrack);
 
   cv::namedWindow("normal_col",1);
   setMouseCallback("normal_col", onMouse, "normal_col");
