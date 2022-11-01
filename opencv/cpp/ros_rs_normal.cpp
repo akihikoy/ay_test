@@ -14,37 +14,6 @@ $ g++ -O2 -g -W -Wall -o ros_rs_normal.out ros_rs_normal.cpp -I/opt/ros/$ROS_DIS
 #include <iostream>
 #include <unistd.h>
 #include "cap_open.h"
-#define LIBRARY
-#include "ros_proj_mat.cpp"
-#include "ros_capture.cpp"
-#include "float_trackbar.cpp"
-#include "cv2-print_elem.cpp"
-//-------------------------------------------------------------------------------------------
-
-bool mouse_event_detected(false);
-int x_mouse(0), y_mouse(0);
-std::string win_mouse("");
-void setMouseCallback(const std::string &winname, cv::MouseCallback onMouse, const char *userdata)
-{
-  cv::setMouseCallback(winname, onMouse, const_cast<char*>(userdata));
-}
-static void onMouse(int event, int x, int y, int /*flags*/, void* param)
-{
-  if(event == CV_EVENT_LBUTTONDOWN)
-  {
-    mouse_event_detected= true;
-    x_mouse= x; y_mouse= y;
-    win_mouse= std::string(reinterpret_cast<const char*>(param));
-  }
-}
-void ProcMouseEvent(const std::string &win, const cv::Mat &m)
-{
-  if(mouse_event_detected && win_mouse==win)
-  {
-    std::cout<<win<<": clicked: ("<<x_mouse<<","<<y_mouse<<"): value= "<<GetPixelVal(m,x_mouse,y_mouse)<<std::endl;
-    mouse_event_detected= false;
-  }
-}
 //-------------------------------------------------------------------------------------------
 
 inline bool IsValidDepth(int d, int d_max=10000)
@@ -74,6 +43,62 @@ inline cv::Vec3f ImgPointTo3D(int u, int v, const t_img_depth &depth, const cv::
 }
 //-------------------------------------------------------------------------------------------
 
+// Convert a depth_img to a point cloud (2d array of xyz 3d points).
+// void DepthImgToPointCloud(const cv::Mat &depth_img, const cv::Mat &proj_mat, cv::Mat &cloud_img)
+// {
+//   cloud_img.create(depth_img.size(), CV_32FC3);
+//   const float Fx= proj_mat.at<double>(0,0);
+//   const float Fy= proj_mat.at<double>(1,1);
+//   const float Cx= proj_mat.at<double>(0,2);
+//   const float Cy= proj_mat.at<double>(1,2);
+//   float d;
+//   cv::MatConstIterator_<unsigned short> itr_depth= depth_img.begin<unsigned short>();
+//   cv::MatIterator_<cv::Vec3f> itr_cloud= cloud_img.begin<cv::Vec3f>();
+//   for(int y(0); y<depth_img.rows; ++y)
+//     for(int x(0); x<depth_img.cols; ++x,++itr_cloud,++itr_depth)
+//     {
+//       d= (*itr_depth)*0.001f;
+//       if(d>0)
+//       {
+//         (*itr_cloud)[0]= (x-Cx)/Fx*d;
+//         (*itr_cloud)[1]= (y-Cy)/Fy*d;
+//         (*itr_cloud)[2]= d;
+//       }
+//       else
+//       {
+//         (*itr_cloud)[0]= 0.0f;
+//         (*itr_cloud)[1]= 0.0f;
+//         (*itr_cloud)[2]= 0.0f;
+//       }
+//     }
+// }
+//-------------------------------------------------------------------------------------------
+
+// Convert a depth_img to a point cloud (2d array of xyz 3d points).
+void DepthImgToPointCloud(const cv::Mat &depth_img, const cv::Mat &proj_mat, cv::Mat &cloud_img)
+{
+  const float Fx= proj_mat.at<double>(0,0);
+  const float Fy= proj_mat.at<double>(1,1);
+  const float Cx= proj_mat.at<double>(0,2);
+  const float Cy= proj_mat.at<double>(1,2);
+  cv::Mat x_img(depth_img.size(), CV_32FC1), y_img(depth_img.size(), CV_32FC1), z_img(depth_img.size(), CV_32FC1);
+  cv::MatIterator_<float> itr_x= x_img.begin<float>();
+  cv::MatIterator_<float> itr_y= y_img.begin<float>();
+  for(int y(0); y<depth_img.rows; ++y)
+    for(int x(0); x<depth_img.cols; ++x,++itr_x,++itr_y)
+    {
+      (*itr_x)= x;
+      (*itr_y)= y;
+    }
+  depth_img.convertTo(z_img,CV_32FC1);
+  z_img*= 0.001f;
+  x_img= (x_img-Cx).mul(z_img/Fx);
+  y_img= (y_img-Cy).mul(z_img/Fy);
+  cv::Mat clout_img_decom[3]= {x_img,y_img,z_img};
+  cv::merge(clout_img_decom,3,cloud_img);
+}
+//-------------------------------------------------------------------------------------------
+
 enum TCD2NType {cd2ntSimple=0, cd2ntRobust};
 
 /* Estimate normal and store it as an image.
@@ -83,7 +108,10 @@ void DepthImgToNormalImg(
     cv::Mat &normal_img, int wsize, TCD2NType type=cd2ntSimple)
 {
   #define DEPTH(x,y)  depth_img.at<unsigned short>(y,x)
-  #define Pt3D(x,y)  ImgPointTo3D(x,y,DEPTH(x,y),proj_mat)
+  // #define Pt3D(x,y)  ImgPointTo3D(x,y,DEPTH(x,y),proj_mat)
+  #define Pt3D(x,y)  cloud_img.at<cv::Vec3f>(y,x)
+  cv::Mat cloud_img;
+  DepthImgToPointCloud(depth_img, proj_mat, cloud_img);
   int wsizeh((wsize-1)/2);
   normal_img.create(depth_img.size(), CV_32FC3);
   for(int y(0); y<depth_img.rows; ++y)
@@ -151,6 +179,7 @@ void DepthImgToNormalImg(
 }
 //-------------------------------------------------------------------------------------------
 
+
 // Convert a normal image (each element is a normal vector) to an image
 // whose element consists of alpha and beta, where:
 // alpha: Angle of the normal projected on xy plane from x axis.
@@ -210,6 +239,43 @@ void ColorizeNormalImg(const cv::Mat &normal_img, cv::Mat &cnormal_img)
       ColorizeNormal(normal[0],normal[1],normal[2], col(0),col(1),col(2));
       cnormal_img.at<cv::Vec3f>(y,x)= col;
     }
+  }
+}
+//-------------------------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------------------------
+#ifndef LIBRARY
+//-------------------------------------------------------------------------------------------
+#define LIBRARY
+#include "ros_proj_mat.cpp"
+#include "ros_capture.cpp"
+#include "float_trackbar.cpp"
+#include "cv2-print_elem.cpp"
+//-------------------------------------------------------------------------------------------
+
+bool mouse_event_detected(false);
+int x_mouse(0), y_mouse(0);
+std::string win_mouse("");
+void setMouseCallback(const std::string &winname, cv::MouseCallback onMouse, const char *userdata)
+{
+  cv::setMouseCallback(winname, onMouse, const_cast<char*>(userdata));
+}
+static void onMouse(int event, int x, int y, int /*flags*/, void* param)
+{
+  if(event == CV_EVENT_LBUTTONDOWN)
+  {
+    mouse_event_detected= true;
+    x_mouse= x; y_mouse= y;
+    win_mouse= std::string(reinterpret_cast<const char*>(param));
+  }
+}
+void ProcMouseEvent(const std::string &win, const cv::Mat &m)
+{
+  if(mouse_event_detected && win_mouse==win)
+  {
+    std::cout<<win<<": clicked: ("<<x_mouse<<","<<y_mouse<<"): value= "<<GetPixelVal(m,x_mouse,y_mouse)<<std::endl;
+    mouse_event_detected= false;
   }
 }
 //-------------------------------------------------------------------------------------------
@@ -330,3 +396,4 @@ int main(int argc, char**argv)
   return 0;
 }
 //-------------------------------------------------------------------------------------------
+#endif//LIBRARY
