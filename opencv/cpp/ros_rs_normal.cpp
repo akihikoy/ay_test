@@ -96,6 +96,10 @@ void DepthImgToPointCloud(const cv::Mat &depth_img, const cv::Mat &proj_mat, cv:
   y_img= (y_img-Cy).mul(z_img/Fy);
   cv::Mat clout_img_decom[3]= {x_img,y_img,z_img};
   cv::merge(clout_img_decom,3,cloud_img);
+// for(int y(0); y<depth_img.rows; ++y)for(int x(0); x<depth_img.cols; ++x)
+// if(depth_img.at<unsigned short>(y,x)>0&&depth_img.at<unsigned short>(y,x)<250)std::cerr<<"depth_img("<<x<<","<<y<<")="<<depth_img.at<unsigned short>(y,x)<<std::endl;
+// for(int y(0); y<depth_img.rows; ++y)for(int x(0); x<depth_img.cols; ++x)
+// if(cloud_img.at<cv::Vec3f>(y,x)(2)>0&&cloud_img.at<cv::Vec3f>(y,x)(2)<0.25)std::cerr<<"cloud_img("<<x<<","<<y<<")="<<cloud_img.at<cv::Vec3f>(y,x)<<std::endl;
 }
 //-------------------------------------------------------------------------------------------
 
@@ -113,7 +117,7 @@ void DepthImgToNormalImg(
   // #define Pt3D(x,y)  ImgPointTo3D(x,y,DEPTH(x,y),proj_mat)
   #define Pt3D(x,y)  cloud_img.at<cv::Vec3f>(y,x)
   // cv::Mat cloud_img;
-  DepthImgToPointCloud(depth_img, proj_mat, cloud_img);
+  if(cloud_img.empty())  DepthImgToPointCloud(depth_img, proj_mat, cloud_img);
   // if(pcloud_img!=NULL)  *pcloud_img= cloud_img.clone();
   int wsizeh((wsize-1)/2);
   normal_img.create(depth_img.size(), CV_32FC3);
@@ -190,7 +194,8 @@ void GetProjMatForResizedImg(const cv::Mat &proj_mat, const double &resize_ratio
     wsize: Window size for computing normal (should be odd).  */
 void DepthImgToNormalImg(
     const cv::Mat &depth_img, const cv::Mat &proj_mat,
-    cv::Mat &normal_img, cv::Mat &cloud_img, int wsize, const float &resize_ratio=1.0f, TCD2NType type=cd2ntSimple)
+    cv::Mat &normal_img, cv::Mat &cloud_img, int wsize, const float &resize_ratio=1.0f, TCD2NType type=cd2ntSimple,
+    bool fullsize_cloud_img=true)
 {
   if(resize_ratio==1.0f)
   {
@@ -198,12 +203,19 @@ void DepthImgToNormalImg(
     return;
   }
   cv::Mat img_depth_s, proj_mat_s;
-  cv::resize(depth_img, img_depth_s, cv::Size(), resize_ratio, resize_ratio, cv::INTER_LINEAR);
+  cv::resize(depth_img, img_depth_s, cv::Size(), resize_ratio, resize_ratio, cv::INTER_NEAREST);
   GetProjMatForResizedImg(proj_mat, resize_ratio, proj_mat_s);
-  cv::Mat normal_img_s, cloud_img_s;
+  cv::Mat cloud_img_s;
+  if(fullsize_cloud_img)
+  {
+    DepthImgToPointCloud(depth_img, proj_mat, cloud_img);
+    cv::resize(cloud_img, cloud_img_s, img_depth_s.size(), 0, 0, cv::INTER_NEAREST);
+  }
+  cv::Mat normal_img_s;
   DepthImgToNormalImg(img_depth_s, proj_mat_s, normal_img_s, cloud_img_s, wsize, type);
-  cv::resize(normal_img_s, normal_img, depth_img.size(), 0, 0, cv::INTER_LINEAR);
-  cv::resize(cloud_img_s, cloud_img, depth_img.size(), 0, 0, cv::INTER_LINEAR);
+  cv::resize(normal_img_s, normal_img, depth_img.size(), 0, 0, cv::INTER_NEAREST);
+  if(!fullsize_cloud_img)
+    cv::resize(cloud_img_s, cloud_img, depth_img.size(), 0, 0, cv::INTER_NEAREST);
 }
 //-------------------------------------------------------------------------------------------
 
