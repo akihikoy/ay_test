@@ -47,7 +47,7 @@ int main(int argc, char**argv)
   cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
   cap.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
 
-  cv::RNG rng;
+  cv::RNG rng(cv::getTickCount());
   cv::Mat points(6,2,CV_32S), hull;
   cv::namedWindow("camera",1);
   cv::namedWindow("mask",1);
