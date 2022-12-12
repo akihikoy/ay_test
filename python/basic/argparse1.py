@@ -13,9 +13,12 @@ addarg('-o', '--op', dest='op', default='plus_one',
        help='action')
 addarg('-c', default='c_arg',
        help='c_arg')
+addarg('-f', action='store_true',
+       help='flag')
 
 args= parser.parse_args()
 print('a1=',args.a1)
 print('op=',args.op)
 print('c=',args.c)
+print('f=',args.f)
 
