@@ -77,6 +77,13 @@ int main(int argc, char**argv)
   std::set_difference(set2.begin(),set2.end(), set1.begin(),set1.end(), std::inserter(set_out,set_out.begin()));
   printv(set_out);
 
+  print("set1.erase(5)");
+  set1.erase(5);
+  printv(set1);
+  print("set1.erase(5)");
+  set1.erase(5);
+  printv(set1);
+
   return 0;
 }
 //-------------------------------------------------------------------------------------------
