@@ -24,40 +24,7 @@ namespace trick
 
 // Copied from ay_cpp.geom_util.h
 
-// Convert geometry_msgs/Point to p; usually, t_point==geometry_msgs::Point
-template <typename t_point, typename t_value>
-inline void GPointToP(const t_point &point, t_value p[3])
-{
-  p[0]= point.x;
-  p[1]= point.y;
-  p[2]= point.z;
-}
-//-------------------------------------------------------------------------------------------
-
-// Convert x to geometry_msgs/Pose; usually, t_pose==geometry_msgs::Pose
-template <typename t_value, typename t_pose>
-inline void XToGPose(const t_value x[7], t_pose &pose)
-{
-  pose.position.x= x[0];
-  pose.position.y= x[1];
-  pose.position.z= x[2];
-  pose.orientation.x= x[3];
-  pose.orientation.y= x[4];
-  pose.orientation.z= x[5];
-  pose.orientation.w= x[6];
-}
-// Convert x to geometry_msgs/Pose; usually, t_pose==geometry_msgs::Pose
-template <typename t_pose, typename t_value>
-inline t_pose XToGPose(const t_value x[7])
-{
-  t_pose pose;
-  XToGPose<t_value,t_pose>(x, pose);
-  return pose;
-}
-//-------------------------------------------------------------------------------------------
-
-// Ported from ay_py.core.geom.
-
+// (Ported from ay_py.core.geom)
 // Orthogonalize a vector vec w.r.t. base; i.e. vec is modified so that dot(vec,base)==0.
 // original_norm: keep original vec's norm, otherwise the norm is 1.
 // Using The Gram-Schmidt process: http://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
@@ -73,6 +40,7 @@ inline void Orthogonalize(const t_value vec[3], const t_value base[3], t_value o
 }
 //-------------------------------------------------------------------------------------------
 
+// (Ported from ay_py.core.geom)
 // Get an orthogonal axis of a given axis
 // preferable: preferable axis (orthogonal axis is close to this)
 // fault: return this axis when dot(axis,preferable)==1
@@ -96,6 +64,7 @@ inline void GetOrthogonalAxisOf(const t_value axis[3], t_value out[3], const t_v
 }
 //-------------------------------------------------------------------------------------------
 
+// (Ported from ay_py.core.geom)
 // For visualizing cylinder, arrow, etc., get a pose x from two points p1-->p2.
 // Axis ax decides which axis corresponds to p1-->p2.
 // Ratio r decides: r=0: x is on p1, r=1: x is on p2, r=0.5: x is on the middle of p1 and p2.
@@ -139,14 +108,41 @@ inline void XFromP1P2(const t_value p1[3], const t_value p2[3], t_value x_out[7]
 //-------------------------------------------------------------------------------------------
 
 
+// Convert geometry_msgs/Point to p; usually, t_point==geometry_msgs::Point
+template <typename t_point, typename t_value>
+inline void GPointToP(const t_point &point, t_value p[3])
+{
+  p[0]= point.x;
+  p[1]= point.y;
+  p[2]= point.z;
+}
+//-------------------------------------------------------------------------------------------
 
-
-// Something new.
-
+// Convert x to geometry_msgs/Pose; usually, t_pose==geometry_msgs::Pose
+template <typename t_value, typename t_pose>
+inline void XToGPose(const t_value x[7], t_pose &pose)
+{
+  pose.position.x= x[0];
+  pose.position.y= x[1];
+  pose.position.z= x[2];
+  pose.orientation.x= x[3];
+  pose.orientation.y= x[4];
+  pose.orientation.z= x[5];
+  pose.orientation.w= x[6];
+}
+// Convert x to geometry_msgs/Pose; usually, t_pose==geometry_msgs::Pose
+template <typename t_pose, typename t_value>
+inline t_pose XToGPose(const t_value x[7])
+{
+  t_pose pose;
+  XToGPose<t_value,t_pose>(x, pose);
+  return pose;
+}
+//-------------------------------------------------------------------------------------------
 
 // t_point: e.g. geometry_msgs::Point, Vector3
 template<typename t_point, typename t_value=double>
-inline t_point GenPoint(const t_value &x=0.0, const t_value &y=0.0, const t_value &z=0.0)
+inline t_point GenGPoint(const t_value &x=0.0, const t_value &y=0.0, const t_value &z=0.0)
 {
   t_point p;
   p.x= x;
@@ -154,9 +150,10 @@ inline t_point GenPoint(const t_value &x=0.0, const t_value &y=0.0, const t_valu
   p.z= z;
   return p;
 }
+//-------------------------------------------------------------------------------------------
 // t_quaternion: e.g. geometry_msgs::Quaternion
 template<typename t_quaternion, typename t_value=double>
-inline t_quaternion GenQuaternion(const t_value &x=0.0, const t_value &y=0.0, const t_value &z=0.0, const t_value &w=0.0)
+inline t_quaternion GenGQuaternion(const t_value &x=0.0, const t_value &y=0.0, const t_value &z=0.0, const t_value &w=0.0)
 {
   t_quaternion p;
   p.x= x;
@@ -165,9 +162,10 @@ inline t_quaternion GenQuaternion(const t_value &x=0.0, const t_value &y=0.0, co
   p.w= w;
   return p;
 }
+//-------------------------------------------------------------------------------------------
 // t_rgba: e.g. geometry_msgs::ColorRGBA
 template<typename t_rgba, typename t_value_r=double, typename t_value_g=double, typename t_value_b=double, typename t_value_a=double>
-inline t_rgba GenRBGA(const t_value_r &r=1.0, const t_value_g &g=1.0, const t_value_b &b=1.0, const t_value_a &a=1.0)
+inline t_rgba GenGRBGA(const t_value_r &r=1.0, const t_value_g &g=1.0, const t_value_b &b=1.0, const t_value_a &a=1.0)
 {
   t_rgba c;
   c.r= r;
@@ -180,13 +178,15 @@ inline t_rgba GenRBGA(const t_value_r &r=1.0, const t_value_g &g=1.0, const t_va
 
 
 
+
+
+
+
+
 }
 //-------------------------------------------------------------------------------------------
 
 using namespace trick;
-using namespace std_msgs;  // std_msgs::ColorRGBA
-using namespace geometry_msgs;  // geometry_msgs::Vector3, Pose, Point, Quaternion
-using namespace visualization_msgs;  // visualization_msgs::Marker, visualization_msgs::MarkerArray
 
 
 // Utility for RViz.
@@ -200,12 +200,20 @@ protected:
   std::string viz_ns_;
   ros::Duration viz_dt_;
 
-  virtual void marker_operation(const Marker &marker)
+  virtual void marker_operation(const visualization_msgs::Marker &marker)
     {
       viz_pub_.publish(marker);
     }
 
 public:
+  typedef std_msgs::ColorRGBA ColorRGBA;
+  typedef geometry_msgs::Vector3 Vector3;
+  typedef geometry_msgs::Pose Pose;
+  typedef geometry_msgs::Point Point;
+  typedef geometry_msgs::Quaternion Quaternion;
+  typedef visualization_msgs::Marker Marker;
+  typedef visualization_msgs::MarkerArray MarkerArray;
+
   TSimpleVisualizer(const ros::Duration &viz_dt=ros::Duration(), const std::string &name_space="visualizer",
                const std::string &frame="", int queue_size=1, const std::string &topic="visualization_marker")
     {
@@ -258,15 +266,15 @@ public:
       i= i%7;
       switch(i)
       {
-        case 0:  return GenRBGA<ColorRGBA>(1,0,0, 1);
-        case 1:  return GenRBGA<ColorRGBA>(0,1,0, 1);
-        case 2:  return GenRBGA<ColorRGBA>(0,0,1, 1);
-        case 3:  return GenRBGA<ColorRGBA>(1,1,0, 1);
-        case 4:  return GenRBGA<ColorRGBA>(1,0,1, 1);
-        case 5:  return GenRBGA<ColorRGBA>(0,1,1, 1);
-        case 6:  return GenRBGA<ColorRGBA>(1,1,1, 1);
+        case 0:  return GenGRBGA<ColorRGBA>(1,0,0, 1);
+        case 1:  return GenGRBGA<ColorRGBA>(0,1,0, 1);
+        case 2:  return GenGRBGA<ColorRGBA>(0,0,1, 1);
+        case 3:  return GenGRBGA<ColorRGBA>(1,1,0, 1);
+        case 4:  return GenGRBGA<ColorRGBA>(1,0,1, 1);
+        case 5:  return GenGRBGA<ColorRGBA>(0,1,1, 1);
+        case 6:  return GenGRBGA<ColorRGBA>(1,1,1, 1);
       }
-      return GenRBGA<ColorRGBA>();
+      return GenGRBGA<ColorRGBA>();
     }
 
   Marker GenMarker(const Pose &x, const Vector3 &scale, const ColorRGBA &rgb, const float &alpha) const
@@ -278,7 +286,7 @@ public:
       marker.action= Marker::ADD;
       marker.lifetime= viz_dt_;
       marker.scale= scale;
-      marker.color= GenRBGA<ColorRGBA>(rgb.r,rgb.g,rgb.b,alpha);
+      marker.color= GenGRBGA<ColorRGBA>(rgb.r,rgb.g,rgb.b,alpha);
       marker.pose= x;
       return marker;
     }
@@ -309,7 +317,7 @@ public:
 //     return mid2
 
   // Visualize an arrow at x.  If mid is None, the id is automatically assigned
-  int AddArrow(const Pose &x, const Vector3 &scale=GenPoint<Vector3>(0.05,0.002,0.002), const ColorRGBA &rgb=GenRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
+  int AddArrow(const Pose &x, const Vector3 &scale=GenGPoint<Vector3>(0.05,0.002,0.002), const ColorRGBA &rgb=GenGRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
     {
       Marker marker= GenMarker(x, scale, rgb, alpha);
       int mid2= SetID(marker,mid);
@@ -347,7 +355,7 @@ public:
 //     return mid2
 
   // Visualize a cube at x.  If mid is None, the id is automatically assigned
-  int AddCube(const Pose &x, const Vector3 &scale=GenPoint<Vector3>(0.05,0.03,0.03), const ColorRGBA &rgb=GenRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
+  int AddCube(const Pose &x, const Vector3 &scale=GenGPoint<Vector3>(0.05,0.03,0.03), const ColorRGBA &rgb=GenGRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
     {
       Marker marker= GenMarker(x, scale, rgb, alpha);
       int mid2= SetID(marker,mid);
@@ -367,7 +375,7 @@ public:
 //     return mid2
 
   // Visualize a sphere at x.  If mid is None, the id is automatically assigned
-  int AddSphere(const Pose &x, const Vector3 &scale=GenPoint<Vector3>(0.05,0.05,0.05), const ColorRGBA &rgb=GenRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
+  int AddSphere(const Pose &x, const Vector3 &scale=GenGPoint<Vector3>(0.05,0.05,0.05), const ColorRGBA &rgb=GenGRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
     {
       Marker marker= GenMarker(x, scale, rgb, alpha);
       int mid2= SetID(marker,mid);
@@ -376,11 +384,11 @@ public:
       return mid2;
     }
   // Visualize a sphere at p=[x,y,z].  If mid is None, the id is automatically assigned
-  int AddSphere(const Point &p, const Vector3 &scale=GenPoint<Vector3>(0.05,0.05,0.05), const ColorRGBA &rgb=GenRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
+  int AddSphere(const Point &p, const Vector3 &scale=GenGPoint<Vector3>(0.05,0.05,0.05), const ColorRGBA &rgb=GenGRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
     {
       Pose x;
       x.position= p;
-      x.orientation= GenQuaternion<Quaternion>(0.,0.,0.,1.);
+      x.orientation= GenGQuaternion<Quaternion>(0.,0.,0.,1.);
       return AddSphere(x, scale, rgb, alpha, mid);
     }
 
@@ -395,7 +403,7 @@ public:
 //     return mid2
 
   // Visualize a cylinder whose end points are p1 and p2.  If mid is None, the id is automatically assigned
-  int AddCylinder(const Point &p1, const Point &p2, const float &diameter, const ColorRGBA &rgb=GenRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
+  int AddCylinder(const Point &p1, const Point &p2, const float &diameter, const ColorRGBA &rgb=GenGRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
     {
       typedef Eigen::Matrix<float,3,1> EVec3;
       float ap1[3], ap2[3], pose[7];
@@ -406,7 +414,7 @@ public:
       XToGPose(pose, x);
       float length= (EVec3(ap2)-EVec3(ap1)).norm();
 
-      Vector3 scale= GenPoint<Vector3>(diameter,diameter,length);
+      Vector3 scale= GenGPoint<Vector3>(diameter,diameter,length);
       Marker marker= GenMarker(x, scale, rgb, alpha);
       int mid2= SetID(marker,mid);
       marker.type= Marker::CYLINDER;
@@ -422,11 +430,11 @@ public:
 //     return self.AddCylinder(p1,p2, diameter, rgb=rgb, alpha=alpha, mid=mid)
 
   // Visualize a points [[x,y,z]*N].  If mid is None, the id is automatically assigned
-  int AddPoints(const std::vector<Point> &points, const Vector3 &scale=GenPoint<Vector3>(0.03,0.03), const ColorRGBA &rgb=GenRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
+  int AddPoints(const std::vector<Point> &points, const Vector3 &scale=GenGPoint<Vector3>(0.03,0.03), const ColorRGBA &rgb=GenGRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
     {
       Pose x;
-      x.position= GenPoint<Point>(0.,0.,0.);
-      x.orientation= GenQuaternion<Quaternion>(0.,0.,0.,1.);
+      x.position= GenGPoint<Point>(0.,0.,0.);
+      x.orientation= GenGQuaternion<Quaternion>(0.,0.,0.,1.);
       Marker marker= GenMarker(x, scale, rgb, alpha);
       int mid2= SetID(marker,mid);
       marker.type= Marker::POINTS;
@@ -458,11 +466,11 @@ public:
 //     return mid
 
   // Visualize a polygon [[x,y,z]*N].  If mid is None, the id is automatically assigned
-  int AddPolygon(const std::vector<Point> &points, const Vector3 &scale=GenPoint<Vector3>(0.02), const ColorRGBA &rgb=GenRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
+  int AddPolygon(const std::vector<Point> &points, const Vector3 &scale=GenGPoint<Vector3>(0.02), const ColorRGBA &rgb=GenGRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
     {
       Pose x;
-      x.position= GenPoint<Point>(0.,0.,0.);
-      x.orientation= GenQuaternion<Quaternion>(0.,0.,0.,1.);
+      x.position= GenGPoint<Point>(0.,0.,0.);
+      x.orientation= GenGQuaternion<Quaternion>(0.,0.,0.,1.);
       Marker marker= GenMarker(x, scale, rgb, alpha);
       int mid2= SetID(marker,mid);
       marker.type= Marker::LINE_STRIP;
@@ -560,15 +568,21 @@ public:
 //-------------------------------------------------------------------------------------------
 
 
+
+
+using namespace std_msgs;  // std_msgs::ColorRGBA
+using namespace geometry_msgs;  // geometry_msgs::Vector3, Pose, Point, Quaternion
+using namespace visualization_msgs;  // visualization_msgs::Marker, visualization_msgs::MarkerArray
+
 Point TestPointAt(const float &t, const float &z, const float &dt=0.0f, const float &x=1.0)
 {
-  return GenPoint<Point,float>(x,0.5*std::sin(t+dt),z);
+  return GenGPoint<Point,float>(x,0.5*std::sin(t+dt),z);
 }
 Pose TestPoseAt(const float &t, const float &z, const float &dt=0.0f, const float &x=1.0)
 {
   Pose pose;
   pose.position= TestPointAt(t,z,dt,x);
-  pose.orientation= GenQuaternion<Quaternion>(0.,0.,0.,1.);
+  pose.orientation= GenGQuaternion<Quaternion>(0.,0.,0.,1.);
   return pose;
 }
 std::vector<Point> TestPointsAt(const float &t, const float &z, const float &dt=0.0f, const float &x=1.0)
@@ -588,19 +602,19 @@ int main(int argc, char**argv)
   for(float t(0.0);ros::ok();t+=1./hz)
   {
     int mid(0);
-    mid= viz.AddArrow(TestPoseAt(t,dz*0), /*scale=*/GenPoint<Vector3>(0.05,0.01,0.01), viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddCube(TestPoseAt(t,dz*1), /*scale=*/GenPoint<Vector3>(0.05,0.03,0.03), viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddSphere(TestPoseAt(t,dz*2), /*scale=*/GenPoint<Vector3>(0.05,0.05,0.05), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddArrow(TestPoseAt(t,dz*0), /*scale=*/GenGPoint<Vector3>(0.05,0.01,0.01), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddCube(TestPoseAt(t,dz*1), /*scale=*/GenGPoint<Vector3>(0.05,0.03,0.03), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddSphere(TestPoseAt(t,dz*2), /*scale=*/GenGPoint<Vector3>(0.05,0.05,0.05), viz.ICol(1), /*alpha=*/1.0, mid);
     mid= viz.AddCylinder(TestPointAt(t,dz*3), TestPointAt(t,dz*3+0.05), /*diameter=*/0.1, viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddPoints(TestPointsAt(t,dz*4), /*scale=*/GenPoint<Vector3>(0.03,0.03), viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddPolygon(TestPointsAt(t,dz*5), /*scale=*/GenPoint<Vector3>(0.02), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddPoints(TestPointsAt(t,dz*4), /*scale=*/GenGPoint<Vector3>(0.03,0.03), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddPolygon(TestPointsAt(t,dz*5), /*scale=*/GenGPoint<Vector3>(0.02), viz.ICol(1), /*alpha=*/1.0, mid);
     int mid2(0);
-    mid2= viz_array.AddArrow(TestPoseAt(t,dz*6), /*scale=*/GenPoint<Vector3>(0.05,0.01,0.01), viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddCube(TestPoseAt(t,dz*7), /*scale=*/GenPoint<Vector3>(0.05,0.03,0.03), viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddSphere(TestPoseAt(t,dz*8), /*scale=*/GenPoint<Vector3>(0.05,0.05,0.05), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddArrow(TestPoseAt(t,dz*6), /*scale=*/GenGPoint<Vector3>(0.05,0.01,0.01), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddCube(TestPoseAt(t,dz*7), /*scale=*/GenGPoint<Vector3>(0.05,0.03,0.03), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddSphere(TestPoseAt(t,dz*8), /*scale=*/GenGPoint<Vector3>(0.05,0.05,0.05), viz.ICol(2), /*alpha=*/1.0, mid2);
     mid2= viz_array.AddCylinder(TestPointAt(t,dz*9), TestPointAt(t,dz*9,0.1), /*diameter=*/0.1, viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddPoints(TestPointsAt(t,dz*10), /*scale=*/GenPoint<Vector3>(0.03,0.03), viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddPolygon(TestPointsAt(t,dz*11), /*scale=*/GenPoint<Vector3>(0.02), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddPoints(TestPointsAt(t,dz*10), /*scale=*/GenGPoint<Vector3>(0.03,0.03), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddPolygon(TestPointsAt(t,dz*11), /*scale=*/GenGPoint<Vector3>(0.02), viz.ICol(2), /*alpha=*/1.0, mid2);
     viz_array.Publish();
     rate_adjuster.sleep();
   }
