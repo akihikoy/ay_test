@@ -108,9 +108,27 @@ inline void XFromP1P2(const t_value p1[3], const t_value p2[3], t_value x_out[7]
 //-------------------------------------------------------------------------------------------
 
 
+// Convert p to geometry_msgs/Point; usually, t_point==geometry_msgs::Point
+template <typename t_array, typename t_point>
+inline void PToGPoint(const t_array p, t_point &point)
+{
+  point.x= p[0];
+  point.y= p[1];
+  point.z= p[2];
+}
+// Convert p to geometry_msgs/Point; usually, t_point==geometry_msgs::Point
+template <typename t_point, typename t_array>
+inline t_point PToGPoint(const t_array p)
+{
+  t_point point;
+  PToGPoint<t_array,t_point>(p, point);
+  return point;
+}
+//-------------------------------------------------------------------------------------------
+
 // Convert geometry_msgs/Point to p; usually, t_point==geometry_msgs::Point
-template <typename t_point, typename t_value>
-inline void GPointToP(const t_point &point, t_value p[3])
+template <typename t_point, typename t_array>
+inline void GPointToP(const t_point &point, t_array p)
 {
   p[0]= point.x;
   p[1]= point.y;
@@ -119,8 +137,8 @@ inline void GPointToP(const t_point &point, t_value p[3])
 //-------------------------------------------------------------------------------------------
 
 // Convert x to geometry_msgs/Pose; usually, t_pose==geometry_msgs::Pose
-template <typename t_value, typename t_pose>
-inline void XToGPose(const t_value x[7], t_pose &pose)
+template <typename t_array, typename t_pose>
+inline void XToGPose(const t_array x, t_pose &pose)
 {
   pose.position.x= x[0];
   pose.position.y= x[1];
@@ -131,12 +149,26 @@ inline void XToGPose(const t_value x[7], t_pose &pose)
   pose.orientation.w= x[6];
 }
 // Convert x to geometry_msgs/Pose; usually, t_pose==geometry_msgs::Pose
-template <typename t_pose, typename t_value>
-inline t_pose XToGPose(const t_value x[7])
+template <typename t_pose, typename t_array>
+inline t_pose XToGPose(const t_array x)
 {
   t_pose pose;
-  XToGPose<t_value,t_pose>(x, pose);
+  XToGPose<t_array,t_pose>(x, pose);
   return pose;
+}
+//-------------------------------------------------------------------------------------------
+
+// Convert geometry_msgs/Pose to x; usually, t_pose==geometry_msgs::Pose
+template <typename t_pose, typename t_array>
+inline void GPoseToX(const t_pose &pose, t_array x)
+{
+  x[0]= pose.position.x;
+  x[1]= pose.position.y;
+  x[2]= pose.position.z;
+  x[3]= pose.orientation.x;
+  x[4]= pose.orientation.y;
+  x[5]= pose.orientation.z;
+  x[6]= pose.orientation.w;
 }
 //-------------------------------------------------------------------------------------------
 
@@ -479,15 +511,19 @@ public:
       return mid2;
     }
 
-//   #Visualize a list of lines [[x,y,z]*N] (2i-th and (2i+1)-th points are pair).  If mid is None, the id is automatically assigned
-//   def AddLineList(self, points, scale=[0.02], rgb=[1,1,1], alpha=1.0, mid=None):
-//     x= [0,0,0, 0,0,0,1]
-//     marker= self.GenMarker(x, list(scale)+[0.0,0.0], rgb, alpha)
-//     mid2= self.SetID(marker,mid)
-//     marker.type= visualization_msgs.msg.Marker.LINE_LIST
-//     marker.points= [geometry_msgs.msg.Point(*p[:3]) for p in points]
-//     marker_operation(marker)
-//     return mid2
+  // Visualize a list of lines [[x,y,z]*N] (2i-th and (2i+1)-th points are pair).  If mid is None, the id is automatically assigned
+  int AddLineList(const std::vector<Point> &points, const Vector3 &scale=GenGPoint<Vector3>(0.02), const ColorRGBA &rgb=GenGRBGA<ColorRGBA>(), const float &alpha=1.0, int mid=-1)
+    {
+      Pose x;
+      x.position= GenGPoint<Point>(0.,0.,0.);
+      x.orientation= GenGQuaternion<Quaternion>(0.,0.,0.,1.);
+      Marker marker= GenMarker(x, scale, rgb, alpha);
+      int mid2= SetID(marker,mid);
+      marker.type= Marker::LINE_LIST;
+      marker.points= points;
+      marker_operation(marker);
+      return mid2;
+    }
 
 //   #Visualize a text.  If mid is None, the id is automatically assigned
 //   def AddText(self, p, text, scale=[0.02], rgb=[1,1,1], alpha=1.0, mid=None):
@@ -601,20 +637,25 @@ int main(int argc, char**argv)
   ros::Rate rate_adjuster(hz);
   for(float t(0.0);ros::ok();t+=1./hz)
   {
+    int c(0);
     int mid(0);
-    mid= viz.AddArrow(TestPoseAt(t,dz*0), /*scale=*/GenGPoint<Vector3>(0.05,0.01,0.01), viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddCube(TestPoseAt(t,dz*1), /*scale=*/GenGPoint<Vector3>(0.05,0.03,0.03), viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddSphere(TestPoseAt(t,dz*2), /*scale=*/GenGPoint<Vector3>(0.05,0.05,0.05), viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddCylinder(TestPointAt(t,dz*3), TestPointAt(t,dz*3+0.05), /*diameter=*/0.1, viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddPoints(TestPointsAt(t,dz*4), /*scale=*/GenGPoint<Vector3>(0.03,0.03), viz.ICol(1), /*alpha=*/1.0, mid);
-    mid= viz.AddPolygon(TestPointsAt(t,dz*5), /*scale=*/GenGPoint<Vector3>(0.02), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddArrow(TestPoseAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.05,0.01,0.01), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddCube(TestPoseAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.05,0.03,0.03), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddSphere(TestPoseAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.05,0.05,0.05), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddCylinder(TestPointAt(t,dz*c), TestPointAt(t,dz*c+0.05), /*diameter=*/0.1, viz.ICol(1), /*alpha=*/1.0, mid);
+    ++c;
+    mid= viz.AddPoints(TestPointsAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.03,0.03), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddPolygon(TestPointsAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.02), viz.ICol(1), /*alpha=*/1.0, mid);
+    mid= viz.AddLineList(TestPointsAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.04), viz.ICol(1), /*alpha=*/1.0, mid);
     int mid2(0);
-    mid2= viz_array.AddArrow(TestPoseAt(t,dz*6), /*scale=*/GenGPoint<Vector3>(0.05,0.01,0.01), viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddCube(TestPoseAt(t,dz*7), /*scale=*/GenGPoint<Vector3>(0.05,0.03,0.03), viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddSphere(TestPoseAt(t,dz*8), /*scale=*/GenGPoint<Vector3>(0.05,0.05,0.05), viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddCylinder(TestPointAt(t,dz*9), TestPointAt(t,dz*9,0.1), /*diameter=*/0.1, viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddPoints(TestPointsAt(t,dz*10), /*scale=*/GenGPoint<Vector3>(0.03,0.03), viz.ICol(2), /*alpha=*/1.0, mid2);
-    mid2= viz_array.AddPolygon(TestPointsAt(t,dz*11), /*scale=*/GenGPoint<Vector3>(0.02), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddArrow(TestPoseAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.05,0.01,0.01), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddCube(TestPoseAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.05,0.03,0.03), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddSphere(TestPoseAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.05,0.05,0.05), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddCylinder(TestPointAt(t,dz*c), TestPointAt(t,dz*c,0.1), /*diameter=*/0.1, viz.ICol(2), /*alpha=*/1.0, mid2);
+    ++c;
+    mid2= viz_array.AddPoints(TestPointsAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.03,0.03), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddPolygon(TestPointsAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.02), viz.ICol(2), /*alpha=*/1.0, mid2);
+    mid2= viz_array.AddLineList(TestPointsAt(t,dz*(++c)), /*scale=*/GenGPoint<Vector3>(0.04), viz.ICol(2), /*alpha=*/1.0, mid2);
     viz_array.Publish();
     rate_adjuster.sleep();
   }
