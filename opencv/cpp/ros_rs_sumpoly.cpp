@@ -14,12 +14,6 @@ $ g++ -O2 -g -W -Wall -o ros_rs_sumpoly.out ros_rs_sumpoly.cpp -I/opt/ros/$ROS_D
 #include <iostream>
 #include <unistd.h>
 #include "cap_open.h"
-#define LIBRARY
-#include "ros_proj_mat.cpp"
-#include "ros_rs_normal.cpp"
-#include "ros_capture2.cpp"
-#include "float_trackbar.cpp"
-#include "cv2-print_elem.cpp"
 //-------------------------------------------------------------------------------------------
 
 // Compute a sum of depth inside a polygon if depth is in depth_range.
@@ -143,7 +137,7 @@ void AverageNormalWithinPolygon(
     void operator()(int/*x*/, int/*y*/, const cv::Vec3f& v_in, cv::Vec3f &sum_out, int &count_out) const
       {
         float norm= cv::norm(v_in);
-        if(norm==1.0f)
+        if(std::fabs(norm-1.0f)<0.1)
         {
           ++count_out;
           sum_out+= v_in;
@@ -162,6 +156,16 @@ void AverageNormalWithinPolygon(
 
 
 
+//-------------------------------------------------------------------------------------------
+#ifndef LIBRARY
+//-------------------------------------------------------------------------------------------
+#define LIBRARY
+#include "ros_proj_mat.cpp"
+#include "ros_rs_normal.cpp"
+#include "ros_capture2.cpp"
+#include "float_trackbar.cpp"
+#include "cv2-print_elem.cpp"
+//-------------------------------------------------------------------------------------------
 
 
 std::vector<std::vector<cv::Point> >  polygon(1);
@@ -280,7 +284,7 @@ int main(int argc, char**argv)
   std::string img2_topic("/camera/color/image_raw");
   if(argc>1)  img1_topic= argv[1];
   if(argc>2)  img2_topic= argv[2];
-  ros::init(argc, argv, "ros_rs_edge_cmp");
+  ros::init(argc, argv, "ros_rs_sumpoly");
   ros::NodeHandle node("~");
   std::string encoding1= GetImageEncoding(img1_topic, node, /*convert_cv=*/true);
   std::string encoding2= GetImageEncoding(img2_topic, node, /*convert_cv=*/true);
@@ -310,3 +314,4 @@ int main(int argc, char**argv)
   return 0;
 }
 //-------------------------------------------------------------------------------------------
+#endif//LIBRARY
