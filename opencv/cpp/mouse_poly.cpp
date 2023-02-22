@@ -1,11 +1,11 @@
 //-------------------------------------------------------------------------------------------
-/*! \file    mouse_poyly.cpp
+/*! \file    mouse_poly.cpp
     \brief   Draw polygon by clicking.
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
     \date    Feb.21, 2018
 
-g++ -g -Wall -O2 -o mouse_poyly.out mouse_poyly.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
+g++ -g -Wall -O2 -o mouse_poly.out mouse_poly.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
