@@ -27,7 +27,7 @@ void RefineContour(const std::vector<cv::Point> &contour_in, std::vector<cv::Poi
   contour_out.push_back(contour_in[0]);
   for(int ip(1),ip_end(contour_in.size()); ip<=ip_end; ++ip)
   {
-    bool is_last= (ip==ip_end);  // For closing the contour.
+    bool is_last= (ip==ip_end);  // For considering the last-first segment.
     cv::Point dir= !is_last ? (contour_in[ip]-contour_in[ip-1]) : (contour_in[0]-contour_in[ip-1]);
     float d= cv::norm(dir);
     for(int iadd(0),iadd_num(d/min_dist); iadd<iadd_num; ++iadd)
