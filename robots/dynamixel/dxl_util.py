@@ -746,6 +746,18 @@ class TDynamixel1(object):
       self.dxl_result,self.dxl_err= self.packet_handler.reboot(port_handler, self.Id)
     self.CheckTxRxResult()
 
+  #Factory-reset Dynamixel
+  #mode: 0xFF : reset all values (ID to 1, baudrate to 57600).
+  #      0x01 : reset all values except ID (baudrate to 57600).
+  #      0x02 : reset all values except ID and baudrate.
+  def FactoryReset(self, mode=0x02):
+    port_handler,port_locker= self.port_handler()
+    if port_handler is None:
+      print 'TDynamixel1.FactoryReset: Port {dev} is closed.'.format(dev=self.DevName)
+    with port_locker:
+      self.dxl_result,self.dxl_err= self.packet_handler.factoryReset(port_handler, self.Id, mode)
+    self.CheckTxRxResult()
+
   #Move the position to a given value.
   #  target: Target position, should be in [self.MIN_POSITION, self.MAX_POSITION]
   #  blocking: True: this function waits the target position is reached.  False: this function returns immediately.
