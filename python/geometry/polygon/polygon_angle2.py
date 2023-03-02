@@ -67,7 +67,7 @@ def PolygonCentroid(points, pca_default=None, only_centroid=True):
   if len(points)==0:  return None
   if len(points)==1:  return points[0]
   assert(len(points[0])==3)
-  if pca_default==None:
+  if pca_default is None:
     pca= TPCA(points)
   else:
     pca= pca_default
@@ -217,8 +217,8 @@ if __name__=='__main__':
   fp.close()
 
 
-  #ppolygon= TParameterizedPolygon(points)
-  ppolygon= TParameterizedPolygon(points, center_modifier=lambda c:[0.0,0.0,c[2]])
+  ppolygon= TParameterizedPolygon(points)
+  #ppolygon= TParameterizedPolygon(points, center_modifier=lambda c:[0.0,0.0,c[2]])
   #print '\n'.join(map(str,ppolygon.Angles))
   print 'ppolygon.Center=',ppolygon.Center
   print 'ppolygon.IdxAngleMin=',ppolygon.IdxAngleMin
