@@ -38,6 +38,7 @@ int main(int argc, char**argv)
 //   std::cout<<std::endl;
 
   cv::Vec3f ax1(1.0, 0.0, 0.0), ax2;
+  ax1= ax1-ax1.dot(normal)*normal;
   ax2= normal.cross(ax1);
 
   std::vector<cv::Vec2f> poly2d(poly.size());
