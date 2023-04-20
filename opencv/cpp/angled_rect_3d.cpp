@@ -26,9 +26,11 @@ int main(int argc, char**argv)
   for(int ip(0),ip_end(poly.size()); ip<ip_end; ++ip)
     poly[ip]= cv::Vec3f(points[ip][0],points[ip][1],points[ip][2]);
 
+  // Compute the center of polygon in 3D as the mean of vertices.
   cv::Scalar center_0= cv::mean(poly);
   cv::Vec3f center(center_0[0],center_0[1],center_0[2]);
 
+  // Shift the polygon center to the origin.
   for(int ip(0),ip_end(poly.size()); ip<ip_end; ++ip)
     poly[ip]-= center;
 
@@ -37,15 +39,32 @@ int main(int argc, char**argv)
 //     std::cout<<poly[ip];
 //   std::cout<<std::endl;
 
+  // Make axes of a plane perpendicular to normal.
   cv::Vec3f ax1(1.0, 0.0, 0.0), ax2;
   ax1= ax1-ax1.dot(normal)*normal;
   ax2= normal.cross(ax1);
 
+  // Project polygon points onto the plane.
   std::vector<cv::Vec2f> poly2d(poly.size());
   for(int ip(0),ip_end(poly.size()); ip<ip_end; ++ip)
     poly2d[ip]= cv::Vec2f(ax1.dot(poly[ip]),ax2.dot(poly[ip]));
 
+  // Get angled rectangle of poly2d.
   cv::RotatedRect rect= cv::minAreaRect(poly2d);
+
+  // Get 3D rectangle features.
+  float width(rect.size.width), length(rect.size.height);  // note: width>=length.
+  cv::Vec3f rect_ax_w, rect_ax_l;  // axes aligned to width, length.
+  {
+    float c(std::cos(rect.angle/180.*M_PI)), s(std::sin(rect.angle/180.*M_PI));
+    rect_ax_w= (c)*ax1 + (-s)*ax2;
+    rect_ax_l= (s)*ax1 + (c)*ax2;
+    if(width<length)
+    {
+      std::swap(width, length);
+      std::swap(rect_ax_w, rect_ax_l);
+    }
+  }
 
   print(normal);
   print(center);
@@ -55,6 +74,10 @@ int main(int argc, char**argv)
   print(rect.center);
   print(rect.size);
   print(rect.angle);
+  print(width);
+  print(length);
+  print(rect_ax_w);
+  print(rect_ax_l);
 
   std::vector<cv::Vec2f> rect2d(4);
   {
@@ -73,34 +96,50 @@ int main(int argc, char**argv)
   for(int ip(0),ip_end(rect2d.size()); ip<ip_end; ++ip)
     rect2d_3d[ip]= rect2d[ip][0]*ax1+rect2d[ip][1]*ax2;
 
+  std::vector<cv::Vec3f> pts_rect_ax_w(2), pts_rect_ax_l(2);
+  pts_rect_ax_w[0]= cv::Vec3f(0,0,0);
+  pts_rect_ax_w[1]= 0.5*width*rect_ax_w;
+  pts_rect_ax_l[0]= cv::Vec3f(0,0,0);
+  pts_rect_ax_l[1]= 0.5*length*rect_ax_l;
+
+  #define PRINT_POLY(x_poly, x_dim) \
+    for(int ip(0),ip_size(x_poly.size()); ip<ip_size+1; ++ip) \
+    { \
+      for(int d(0); d<x_dim; ++d) \
+        ofs<<(d==0?"":" ")<<x_poly[ip%ip_size][d]; \
+      ofs<<std::endl; \
+    }
   {
     std::ofstream ofs("/tmp/poly3d.dat");
-    for(int ip(0),ip_end(poly.size()); ip<ip_end; ++ip)
-      ofs<<poly[ip][0]<<" "<<poly[ip][1]<<" "<<poly[ip][2]<<std::endl;
+    PRINT_POLY(poly, 3)
   }
   {
     std::ofstream ofs("/tmp/poly2d.dat");
-    for(int ip(0),ip_end(poly2d.size()); ip<ip_end; ++ip)
-      ofs<<poly2d[ip][0]<<" "<<poly2d[ip][1]<<std::endl;
+    PRINT_POLY(poly2d, 2)
   }
   {
     std::ofstream ofs("/tmp/rect2d.dat");
-    for(int ip(0),ip_end(rect2d.size()); ip<ip_end; ++ip)
-      ofs<<rect2d[ip][0]<<" "<<rect2d[ip][1]<<std::endl;
+    PRINT_POLY(rect2d, 2)
   }
   {
     std::ofstream ofs("/tmp/poly2d_3d.dat");
-    for(int ip(0),ip_end(poly2d_3d.size()); ip<ip_end; ++ip)
-      ofs<<poly2d_3d[ip][0]<<" "<<poly2d_3d[ip][1]<<" "<<poly2d_3d[ip][2]<<std::endl;
+    PRINT_POLY(poly2d_3d, 3)
   }
   {
     std::ofstream ofs("/tmp/rect2d_3d.dat");
-    for(int ip(0),ip_end(rect2d_3d.size()); ip<ip_end; ++ip)
-      ofs<<rect2d_3d[ip][0]<<" "<<rect2d_3d[ip][1]<<" "<<rect2d_3d[ip][2]<<std::endl;
+    PRINT_POLY(rect2d_3d, 3)
+  }
+  {
+    std::ofstream ofs("/tmp/rect_ax_w.dat");
+    PRINT_POLY(pts_rect_ax_w, 3)
+  }
+  {
+    std::ofstream ofs("/tmp/rect_ax_l.dat");
+    PRINT_POLY(pts_rect_ax_l, 3)
   }
 
   std::cerr<<"Plot by:"<<std::endl;
-  std::cerr<<"qplot -x -3d /tmp/poly3d.dat w lp /tmp/poly2d.dat u 1:2:'(0)' w lp /tmp/rect2d.dat u 1:2:'(0)' w lp /tmp/poly2d_3d.dat w lp /tmp/rect2d_3d.dat w lp"<<std::endl;
+  std::cerr<<"qplot -x -3d /tmp/poly3d.dat w lp /tmp/poly2d.dat u 1:2:'(0)' w lp /tmp/rect2d.dat u 1:2:'(0)' w lp /tmp/poly2d_3d.dat w lp /tmp/rect2d_3d.dat w lp /tmp/rect_ax_w.dat w lp /tmp/rect_ax_l.dat w lp"<<std::endl;
 
   return 0;
 }
