@@ -20,6 +20,9 @@ class TRenderPrimitive(QtGui.QWidget):
     self.shape= shape
     self.margin= margin  #(horizontal_margin(ratio),vertical_margin(ratio))
     self.color= color
+    self.min_size= 100
+    self.max_size= 400
+    self.draw_bevel= True
     self.setBackgroundRole(QtGui.QPalette.Base)
     #self.setAutoFillBackground(True)
 
@@ -34,13 +37,13 @@ class TRenderPrimitive(QtGui.QWidget):
     self.shape= shape
 
   def setMargin(self, margin):
-    self.shape= margin
+    self.margin= margin
 
   def minimumSizeHint(self):
-    return QtCore.QSize(100, self.heightForWidth(100))
+    return QtCore.QSize(self.min_size, self.heightForWidth(self.min_size))
 
   def sizeHint(self):
-    return QtCore.QSize(400, self.heightForWidth(400))
+    return QtCore.QSize(self.max_size, self.heightForWidth(self.max_size))
 
   def heightForWidth(self, width):
     return width*1.2
@@ -75,9 +78,10 @@ class TRenderPrimitive(QtGui.QWidget):
 
     painter.restore()
 
-    painter.setPen(self.palette().dark().color())
-    painter.setBrush(QtCore.Qt.NoBrush)
-    painter.drawRect(QtCore.QRect(0, 0, self.width() - 1, self.height() - 1))
+    if self.draw_bevel:
+      painter.setPen(self.palette().dark().color())
+      painter.setBrush(QtCore.Qt.NoBrush)
+      painter.drawRect(QtCore.QRect(0, 0, self.width() - 1, self.height() - 1))
 
 
 class TDrawPrimitive(QtGui.QWidget):
@@ -126,11 +130,11 @@ class TDrawPrimitive(QtGui.QWidget):
     self.show()
 
 
+if __name__=='__main__':
+  # Create an PyQT4 application object.
+  a = QtGui.QApplication(sys.argv)
 
-# Create an PyQT4 application object.
-a = QtGui.QApplication(sys.argv)
+  # The QWidget widget is the base class of all user interface objects in PyQt4.
+  w = TDrawPrimitive()
 
-# The QWidget widget is the base class of all user interface objects in PyQt4.
-w = TDrawPrimitive()
-
-sys.exit(a.exec_())
+  sys.exit(a.exec_())
