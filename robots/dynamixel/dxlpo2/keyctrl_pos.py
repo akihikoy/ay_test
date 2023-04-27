@@ -49,7 +49,7 @@ while True:
   with key_locker:
     c= key_cmd[0]; key_cmd[0]= None
   mov= 0.0
-  d= [200, 500]
+  d= [400, 1200]
   if c is not None:
     if c=='q':  break
     elif c in ('z','x','c','v'):  mov= {'z':-d[1],'x':-d[0],'c':d[0],'v':d[1]}[c]
