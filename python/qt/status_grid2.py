@@ -21,9 +21,10 @@ class TStatusGrid(QtGui.QWidget):
   '''Construct the status grid widget.
     list_status: List of status items (dictionaries) (this class also modified the content).
     direction: Direction to list in the grid ('vertical' or 'horizontal').
+    shape: Shape of 'color' item ('circle', 'square').
     rows,columns: Number of rows and columns. At least one of it should be specified.
   '''
-  def Construct(self, list_status, direction='vertical', rows=None, columns=3):
+  def Construct(self, list_status, direction='vertical', shape='circle', rows=None, columns=3):
     # Grid layout
     self.grid= QtGui.QGridLayout()
 
@@ -38,6 +39,7 @@ class TStatusGrid(QtGui.QWidget):
     self.rows,self.columns= rows,columns
 
     self.direction= direction
+    self.shape= shape
 
     #self.default_font_size= 10
     if self.direction=='vertical':
@@ -59,7 +61,7 @@ class TStatusGrid(QtGui.QWidget):
 
   def AddWidgetsForItem(self, item, r, c):
     if item['type']=='color':
-      color1= TRenderPrimitive('circle', (0.05,0.05), self.StateColor(item), self)
+      color1= TRenderPrimitive(self.shape, (0.05,0.05), self.StateColor(item), self)
       color1.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Expanding)
       color1.min_size= 20
       color1.draw_bevel= False
@@ -152,7 +154,7 @@ class TStatusGridTest(QtGui.QWidget):
     statusgrid1= TStatusGrid(self)
     #statusgrid1.move(10, 10)
     #statusgrid1.resize(240, 240)
-    statusgrid1.Construct(list_status, columns=3, direction='horizontal')
+    statusgrid1.Construct(list_status, columns=3, direction='vertical', shape='square')
     statusgrid1.font_size_range= (8,28)
     self.statusgrid1= statusgrid1
     mainlayout.addWidget(statusgrid1)
