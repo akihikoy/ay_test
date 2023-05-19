@@ -19,3 +19,5 @@ if __name__=='__main__':
   s= s-{4,20,30}
   print 's=',s
   print 'list(s)=',list(s)
+  print '5 in s=',5 in s
+  print '21 in s=',21 in s
