@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+#Copied from: https://github.com/pymodbus-dev/pymodbus/blob/v2.5.2/examples/common/synchronous_server.py
+
 """
 Pymodbus Synchronous Server Example
 --------------------------------------------------------------------------

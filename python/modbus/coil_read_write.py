@@ -4,6 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jun.14, 2023
+#Use the server: $ python synchronous_server.py
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
 if __name__=='__main__':
