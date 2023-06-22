@@ -6,6 +6,7 @@
 #\date    Jun.14, 2023
 #Use the server: $ python synchronous_server.py
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+from pymodbus.pdu import ExceptionResponse
 
 if __name__=='__main__':
   from _config import *
@@ -14,43 +15,65 @@ if __name__=='__main__':
   client= ModbusClient(SERVER_URI, port=PORT)
   client.connect()
 
-  print 'Read holding registers address 1, length 1'
-  res_r= client.read_holding_registers(1, 1)
-  print 'holding_registers[1][1]: {}'.format(res_r.registers)
+  '''
+  address can be [0,99-count] (otherwise the response is exception/IllegalAddress).
+  This may be due to the server configuration (the block size is 100 (0-99)-->99-count).
+  value can be [0, 65535], integer (floating number is casted to int)
+  '''
+  address= 1
+  count= 1
+  print 'Read holding registers address {}, count {}'.format(address, count)
+  res_r= client.read_holding_registers(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'holding_registers[{}][:{}]: {}'.format(address, count, res_r.registers)
   print '  response object:', res_r
 
-  print 'Write register address 1, value 10'
-  res_w= client.write_register(1, 10)
+  value= 10
+  print 'Write register address {}, value {}'.format(address, value)
+  res_w= client.write_register(address, value)
   print '  response object:', res_w
 
-  print 'Read holding registers address 1, length 1'
-  res_r= client.read_holding_registers(1, 1)
-  print 'holding_registers[1][1]: {}'.format(res_r.registers)
+  print 'Read holding registers address {}, count {}'.format(address, count)
+  res_r= client.read_holding_registers(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'holding_registers[{}][:{}]: {}'.format(address, count, res_r.registers)
   print '  response object:', res_r
 
-  print 'Write register address 1, value 1024'
-  res_w= client.write_register(1, 1024)
+  value= 1024
+  print 'Write register address {}, value {}'.format(address, value)
+  res_w= client.write_register(address, value)
   print '  response object:', res_w
 
-  print 'Read holding registers address 1, length 1'
-  res_r= client.read_holding_registers(1, 1)
-  print 'holding_registers[1][1]: {}'.format(res_r.registers)
+  print 'Read holding registers address {}, count {}'.format(address, count)
+  res_r= client.read_holding_registers(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'holding_registers[{}][:{}]: {}'.format(address, count, res_r.registers)
   print '  response object:', res_r
 
   print '-------------------'
 
-  print 'Read holding registers address 2, length 10'
-  res_r= client.read_holding_registers(2, 10)
-  print 'holding_registers[2][:10]: {}'.format(res_r.registers)
+  '''
+  address can be [0,99-count] (otherwise the response is exception/IllegalAddress).
+  This may be due to the server configuration (the block size is 100 (0-99)-->99-count).
+  value can be [0, 65535], integer
+  '''
+  address= 2
+  count= 10
+  print 'Read holding registers address {}, count {}'.format(address, count)
+  res_r= client.read_holding_registers(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'holding_registers[{}][:{}]: {}'.format(address, count, res_r.registers)
   print '  response object:', res_r
 
-  print 'Write registers address 2, value {}'.format([i**2 for i in range(10)])
-  res_w= client.write_registers(2, [i**2 for i in range(10)])
+  value= [i**5.047 for i in range(10)]
+  print 'Write registers address {}, value {}'.format(address, value)
+  res_w= client.write_registers(address, value)
   print '  response object:', res_w
 
-  print 'Read holding registers address 2, length 10'
-  res_r= client.read_holding_registers(2, 10)
-  print 'holding_registers[2][:10]: {}'.format(res_r.registers)
+  print 'Read holding registers address {}, count {}'.format(address, count)
+  res_r= client.read_holding_registers(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'holding_registers[{}][:{}]: {}'.format(address, count, res_r.registers)
   print '  response object:', res_r
 
   #Disconnect from the server.

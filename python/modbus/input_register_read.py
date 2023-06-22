@@ -6,6 +6,7 @@
 #\date    Jun.14, 2023
 #Use the server: $ python synchronous_server.py
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+from pymodbus.pdu import ExceptionResponse
 
 if __name__=='__main__':
   from _config import *
@@ -14,9 +15,16 @@ if __name__=='__main__':
   client= ModbusClient(SERVER_URI, port=PORT)
   client.connect()
 
-  print 'Read input registers address 2, length 10'
-  res_r= client.read_input_registers(2, 10)
-  print 'input_registers[2][:10]: {}'.format(res_r.registers)
+  '''
+  address can be [0,89] (otherwise the response is exception/IllegalAddress).
+  This may be due to the server configuration (the block size is 100 (0-99)-->99-count=89).
+  '''
+  address= 2
+  count= 10
+  print 'Read input registers address {}, count {}'.format(address, count)
+  res_r= client.read_input_registers(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'input_registers[{}][:{}]: {}'.format(address, count, res_r.registers)
   print '  response object:', res_r
 
   #Disconnect from the server.

@@ -6,6 +6,7 @@
 #\date    Jun.14, 2023
 #Use the server: $ python synchronous_server.py
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+from pymodbus.pdu import ExceptionResponse
 
 if __name__=='__main__':
   from _config import *
@@ -14,14 +15,24 @@ if __name__=='__main__':
   client= ModbusClient(SERVER_URI, port=PORT)
   client.connect()
 
-  print 'Read discrete input address 0, length 3'
-  res_r= client.read_discrete_inputs(3, 3)
-  print 'disc_in[0][:3]: {} (whole bits: {})'.format(res_r.bits[:3], res_r.bits)
+  '''
+  address can be [0,99-count] (otherwise the response is exception/IllegalAddress).
+  This may be due to the server configuration (the block size is 100 (0-99)-->99-count).
+  '''
+  address= 0
+  count= 3
+  print 'Read discrete input address {}, count {}'.format(address, count)
+  res_r= client.read_discrete_inputs(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'disc_in[{}][:{}]: {} (whole bits: {})'.format(address, count, res_r.bits[:count], res_r.bits)
   print '  response object:', res_r
 
-  print 'Read discrete input address 3, length 9'
-  res_r= client.read_discrete_inputs(3, 9)
-  print 'disc_in[3][:9]: {} (whole bits: {})'.format(res_r.bits[:9], res_r.bits)
+  address= 3
+  count= 9
+  print 'Read discrete input address {}, count {}'.format(address, count)
+  res_r= client.read_discrete_inputs(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'disc_in[{}][:{}]: {} (whole bits: {})'.format(address, count, res_r.bits[:count], res_r.bits)
   print '  response object:', res_r
 
   #Disconnect from the server.

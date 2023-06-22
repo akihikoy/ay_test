@@ -6,6 +6,7 @@
 #\date    Jun.14, 2023
 #Use the server: $ python synchronous_server.py
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+from pymodbus.pdu import ExceptionResponse
 
 if __name__=='__main__':
   from _config import *
@@ -13,53 +14,76 @@ if __name__=='__main__':
   #Connection to the server:
   client= ModbusClient(SERVER_URI, port=PORT)
   client.connect()
+  print 'Connected to a Modbus server: {}, client: {}'.format(SERVER_URI, client)
 
-  print 'Read coil address 1, length 1'
-  res_r= client.read_coils(1, 1)
-  print 'coil[1][1]: {} (whole bits: {})'.format(res_r.bits[0], res_r.bits)
+  '''
+  address can be [0,98] (otherwise the response is exception/IllegalAddress).
+  This may be due to the server configuration (the block size is 100 (0-99)-->99-count=98).
+  '''
+  address= 1
+  count= 1
+  print 'Read coil address {}, count {}'.format(address, count)
+  res_r= client.read_coils(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'coil[{}][:{}]: {} (whole bits: {})'.format(address, count, res_r.bits[:count], res_r.bits)
   print '  response object:', res_r
 
-  print 'Write coil address 1, value True'
-  res_w= client.write_coil(1, True)
+  value= True
+  print 'Write coil address {}, value {}'.format(address, value)
+  res_w= client.write_coil(address, value)
   print '  response object:', res_w
 
-  print 'Read coil address 1, length 1'
-  res_r= client.read_coils(1, 1)
-  print 'coil[1][1]: {} (whole bits: {})'.format(res_r.bits[0], res_r.bits)
+  print 'Read coil address {}, count {}'.format(address, count)
+  res_r= client.read_coils(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'coil[{}][:{}]: {} (whole bits: {})'.format(address, count, res_r.bits[:count], res_r.bits)
   print '  response object:', res_r
 
-  print 'Write coil address 1, value False'
-  res_w= client.write_coil(1, False)
+  value= False
+  print 'Write coil address {}, value {}'.format(address, value)
+  res_w= client.write_coil(address, value)
   print '  response object:', res_w
 
-  print 'Read coil address 1, length 1'
-  res_r= client.read_coils(1, 1)
-  print 'coil[1][1]: {} (whole bits: {})'.format(res_r.bits[0], res_r.bits)
+  print 'Read coil address {}, count {}'.format(address, count)
+  res_r= client.read_coils(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'coil[{}][:{}]: {} (whole bits: {})'.format(address, count, res_r.bits[:count], res_r.bits)
   print '  response object:', res_r
 
   print '-------------------'
 
-  print 'Read coil address 3, length 9'
-  res_r= client.read_coils(3, 9)
-  print 'coil[3][:9]: {} (whole bits: {})'.format(res_r.bits[:9], res_r.bits)
+  '''
+  address can be [0,90] (otherwise the response is exception/IllegalAddress).
+  This may be due to the server configuration (the block size is 100 (0-99)-->99-count=90).
+  '''
+  address= 3
+  count= 9
+  print 'Read coil address {}, count {}'.format(address, count)
+  res_r= client.read_coils(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'coil[{}][:{}]: {} (whole bits: {})'.format(address, count, res_r.bits[:count], res_r.bits)
   print '  response object:', res_r
 
-  print 'Write coil address 3, value [True]*9'
-  res_w= client.write_coils(3, [True]*9)
+  value= [True]*9
+  print 'Write coil address {}, value {}'.format(address, value)
+  res_w= client.write_coils(address, value)
   print '  response object:', res_w
 
-  print 'Read coil address 3, length 9'
-  res_r= client.read_coils(3, 9)
-  print 'coil[3][:9]: {} (whole bits: {})'.format(res_r.bits[:9], res_r.bits)
+  print 'Read coil address {}, count {}'.format(address, count)
+  res_r= client.read_coils(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'coil[{}][:{}]: {} (whole bits: {})'.format(address, count, res_r.bits[:count], res_r.bits)
   print '  response object:', res_r
 
-  print 'Write coil address 3, value [True,False]*4+[True]'
-  res_w= client.write_coils(3, [True,False]*4+[True])
+  value= [True,False]*4+[True]
+  print 'Write coil address {}, value {}'.format(address, value)
+  res_w= client.write_coils(address, value)
   print '  response object:', res_w
 
-  print 'Read coil address 3, length 9'
-  res_r= client.read_coils(3, 9)
-  print 'coil[3][:9]: {} (whole bits: {})'.format(res_r.bits[:9], res_r.bits)
+  print 'Read coil address {}, count {}'.format(address, count)
+  res_r= client.read_coils(address, count)
+  if not isinstance(res_r, ExceptionResponse):
+    print 'coil[{}][:{}]: {} (whole bits: {})'.format(address, count, res_r.bits[:count], res_r.bits)
   print '  response object:', res_r
 
   #Disconnect from the server.
