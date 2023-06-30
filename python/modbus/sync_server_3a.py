@@ -1,15 +1,15 @@
 #!/usr/bin/python
-#\file    sync_server_3.py
-#\brief   Synchronous Modbus TCP server test 3.
+#\file    sync_server_3a.py
+#\brief   Synchronous Modbus TCP server test 3(thread ver).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Jun.24, 2023
+#\date    Jul.01, 2023
 import threading
 import copy
 import sys
 from kbhit2 import TKBHit
 from rate_adjust import TRate
-from pymodbus.server.sync import StartTcpServer
+from pymodbus.server.sync import ModbusTcpServer, ModbusSocketFramer
 from pymodbus.device import ModbusDeviceIdentification
 from pymodbus.datastore import ModbusSequentialDataBlock, ModbusSparseDataBlock
 from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
@@ -88,7 +88,7 @@ class TDevice(object):
         else:  break
         if key=='q':
           print 'Exiting the server...'
-          sys.exit(0)
+          break
         elif key=='p':
           print 'In reg: {}, Hold reg: {}'.format(self.input_reg.getValues(1,10), self.hold_reg.getValues(0,3))
 
@@ -128,25 +128,38 @@ class TDevice(object):
 
         rate_adjuster.sleep()
 
-def StartModbusServer(device, port):
-  store= ModbusSlaveContext(**device.Storage())
+class TModbusServer(object):
+  def __init__(self, device, port):
+    self.store= ModbusSlaveContext(**device.Storage())
 
-  context= ModbusServerContext(slaves=store, single=True)
+    self.context= ModbusServerContext(slaves=self.store, single=True)
 
-  identity= ModbusDeviceIdentification()
-  identity.VendorName= 'AY'
-  identity.ProductCode= 'AY'
-  identity.VendorUrl= 'http://github.com/akihikoy/'
-  identity.ProductName= 'Modbus Server'
-  identity.ModelName= 'Test 3'
-  identity.MajorMinorRevision= '0.1.0'
+    self.identity= ModbusDeviceIdentification()
+    self.identity.VendorName= 'AY'
+    self.identity.ProductCode= 'AY'
+    self.identity.VendorUrl= 'http://github.com/akihikoy/'
+    self.identity.ProductName= 'Modbus Server'
+    self.identity.ModelName= 'Test 3a'
+    self.identity.MajorMinorRevision= '0.1.0'
 
-  StartTcpServer(context, identity=identity, address=('', port))
+    self.framer= ModbusSocketFramer
+    self.port= port
+    self.server= ModbusTcpServer(context=self.context, framer=self.framer, identity=self.identity, address=('', self.port))
+
+  def StartLoop(self):
+    self.th= threading.Thread(name='server', target=self.server.serve_forever)
+    self.th.start()
+
+  def StopLoop(self):
+    self.server.shutdown()
+    self.th.join()
 
 
 if __name__=='__main__':
   port= int(sys.argv[1]) if len(sys.argv)>1 else 5020
   device= TDevice()
-  device.StartLoop()
-  StartModbusServer(device, port)
+  server= TModbusServer(device, port)
+  server.StartLoop()
+  device.Loop()
+  server.StopLoop()
 
