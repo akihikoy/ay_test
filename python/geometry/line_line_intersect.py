@@ -76,3 +76,6 @@ if __name__=='__main__':
     PlotGraphs()
     sys.exit(0)
   Main()
+
+  PlotGraphs()
+  sys.exit(0)

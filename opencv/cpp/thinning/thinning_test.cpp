@@ -1,6 +1,6 @@
 /*
 
-g++ -g -Wall -O2 -o thinning_test.out thinning_test.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o thinning_test.out thinning_test.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
 
 ./thinning_test.out ../sample/binary1.png
 ./thinning_test.out ../sample/opencv-logo.png
