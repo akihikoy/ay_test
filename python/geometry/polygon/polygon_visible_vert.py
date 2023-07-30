@@ -42,6 +42,18 @@ def GetVisibleVertices(points, point):
   for s in stack:  visibility[s]= True
   return visibility
 
+#Return a point on a polygon points[i_point] with a tiny offset
+# so that the point is inside (if inside==True or outside (if inside==False) of the polygon.
+def GetVertexPointWithTinyOffset(points, i_point, inside=True, r_offset=1.0e-5):
+  point= np.array(points[i_point])
+  p1= points[i_point-1 if i_point-1>=0 else len(points)-1]
+  p2= points[i_point+1 if i_point+1<len(points) else 0]
+  dp= r_offset*((p1-point)+(p2-point))
+  if inside:
+    point= point+dp if PointInPolygon2D(points, point+dp) else point-dp
+  else:
+    point= point+dp if not PointInPolygon2D(points, point+dp) else point-dp
+  return point
 
 def Main():
   polygons=[
@@ -57,12 +69,7 @@ def Main():
   i_poly= np.random.choice(list(range(len(polygons))))
   if np.random.uniform(0,1)<0.5:
     i_point= np.random.choice(list(range(len(polygons[i_poly]))))
-    point= polygons[i_poly][i_point]
-    p1= polygons[i_poly][i_point-1 if i_point-1>=0 else len(polygons[i_poly])-1]
-    p2= polygons[i_poly][i_point+1 if i_point+1<len(polygons[i_poly]) else 0]
-    dp= 1.0e-5*((np.array(p1)-point)+(np.array(p2)-point))
-    if PointInPolygon2D(polygons[i_poly], point+dp):  point= point+dp
-    else:  point= point-dp
+    point= GetVertexPointWithTinyOffset(polygons[i_poly], i_point)
     print('Vertex point {} is selected: {}'.format(i_point,point))
   else:
     bb_min,bb_max= np.min(polygons[i_poly],axis=0),np.max(polygons[i_poly],axis=0)
@@ -92,7 +99,7 @@ def PlotGraphs():
   import os
   commands=[
     '''qplot -x2 aaa
-        /tmp/polygons.dat u 1:2:'(column(-1)+1)' lc var w l
+        /tmp/polygons.dat u 1:2 w l lw 3
         /tmp/visibility.dat u 1:2 w l
         &''',
         #/tmp/polygons.dat u 1:2:-1 lc var w l
