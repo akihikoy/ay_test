@@ -7,7 +7,7 @@
 from __future__ import print_function
 import numpy as np
 from polygon_is_clockwise2 import PolygonIsClockwise
-from polygon_visible_vert import GetVisibleVertices, GetVertexPointWithTinyOffset
+from polygon_visible_vert import GetVisibleVerticesFromVertex
 from geometry import GetAngle2
 
 #Check if a vertex i_point (index) is reflex vertex (angle>180).
@@ -42,8 +42,8 @@ def Main():
   for i_point in range(len(polygons[i_poly])):
     if PolygonIsReflexVertex(polygons[i_poly], i_point):
       print('i_point={}: IsReflexVertex={}'.format(i_point,True))
-      point= GetVertexPointWithTinyOffset(polygons[i_poly], i_point)
-      visibility= GetVisibleVertices(polygons[i_poly], point)
+      point= polygons[i_poly][i_point]
+      visibility= GetVisibleVerticesFromVertex(polygons[i_poly], i_point)
       print('--visible vertices=',np.array(range(len(polygons[i_poly])))[visibility])
       reflex_vertices.append((i_point,point,visibility))
   print('reflex_vertices=',[i_point for i_point,point,visibility in reflex_vertices])

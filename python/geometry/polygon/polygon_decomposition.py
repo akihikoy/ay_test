@@ -6,7 +6,7 @@
 #\date    Jul.30, 2023
 from __future__ import print_function
 from polygon_is_clockwise2 import PolygonIsClockwise
-from polygon_visible_vert import GetVisibleVertices, GetVertexPointWithTinyOffset
+from polygon_visible_vert import GetVisibleVerticesFromVertex
 from polygon_is_reflex_vertex import PolygonIsReflexVertex
 import numpy as np
 
@@ -18,7 +18,7 @@ def DecomposePolygon(polygon):
   if not PolygonIsClockwise(polygon):
     is_reversed= True
     polygon.reverse()
-  visibilities= [GetVisibleVertices(polygon, GetVertexPointWithTinyOffset(polygon, i_point)) for i_point in range(len(polygon))]
+  visibilities= [GetVisibleVerticesFromVertex(polygon, i_point) for i_point in range(len(polygon))]
 
   def decom(idxes_poly, depth=0):
     ndiags= None

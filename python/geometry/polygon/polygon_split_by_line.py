@@ -22,12 +22,12 @@ def SplitPolygonByInfLine(p1, dp1, points):
   if num_intersect<2:  return [points]
   r_list= np.array(r_list)
   r_list[r_list==None]= np.nan
-  print('r_list=',r_list)
+  #print('r_list=',r_list)
   ipA,ipB= np.nanargmin(r_list),np.nanargmax(r_list)  #Points to split the polygon.
-  print('ipA,ipB=',ipA,ipB)
+  #print('ipA,ipB=',ipA,ipB)
   if ipA>ipB:  ipA,ipB= ipB,ipA
-  print('ipA,ipB=',ipA,ipB)
-  print('p1,dp1=',p1,dp1)
+  #print('ipA,ipB=',ipA,ipB)
+  #print('p1,dp1=',p1,dp1)
   pA= (p1+r_list[ipA]*np.array(dp1)).tolist()
   pB= (p1+r_list[ipB]*np.array(dp1)).tolist()
   return [[pA]+points[ipA+1:ipB+1]+[pB], [pB]+points[ipB+1:]+points[:ipA+1]+[pA]]

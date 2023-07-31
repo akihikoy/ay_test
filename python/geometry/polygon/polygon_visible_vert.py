@@ -49,6 +49,13 @@ def GetVisibleVertices(points, point):
   for s in stack:  visibility[s]= True
   return visibility
 
+#Get visible vertices from a vertex. Neighbor vertices are excluded.
+def GetVisibleVerticesFromVertex(points, i_point):
+  visibility= GetVisibleVertices(points, GetVertexPointWithTinyOffset(points, i_point))
+  visibility= [visible and abs(i_point-j_point)>1 and abs(i_point-j_point)!=len(points)-1
+                  for j_point,visible in enumerate(visibility)]
+  return visibility
+
 #Return a point on a polygon points[i_point] with a tiny offset
 # so that the point is inside (if inside==True or outside (if inside==False) of the polygon.
 def GetVertexPointWithTinyOffset(points, i_point, inside=True, r_offset=1.0e-5):
