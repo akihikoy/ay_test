@@ -1,77 +1,37 @@
 #!/usr/bin/python
-#\file    polygon_divide_by_area.py
-#\brief   Divide a (convex) polygon so that each sub-polygon has the same area.
+#\file    polygon_decomposition2.py
+#\brief   Polygon decomposition algorithm using SplitPolygonAtReflexVertex and DivideConvexByArea.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Aug.01, 2023
 from __future__ import print_function
-from polygon_min_area_rect import MinAreaRect
-from polygon_split_by_line import SplitPolygonByInfLine
-from polygon_point_in_out import PointInPolygon2D
+from polygon_divide_by_area import DivideConvexByArea
+from polygon_split_at_reflex import SplitPolygonAtReflexVertex
 from polygon_area import PolygonArea
+from polygon_convex_ratio import ConvexRatio
 import numpy as np
 
-#Divide a polygon so that each sub-polygon has the same area.
-def DivideConvexByArea(points, target_area, scale_width=1.5):
-  target_w= np.sqrt(target_area)*scale_width
-  center,size,angle= MinAreaRect(points)
-  dp_long= np.array([np.cos(angle), np.sin(angle)])  #Vector along the longer edge.
-  dp_short= np.array([-np.sin(angle), np.cos(angle)])  #Vector along the longer edge.
 
-  #1. divide polygon along the shorter edge into floor(h/sqrt(target_area)) blocks.
-  poly= points
-  polygons_h= []
-  center_bottom= np.array(center)-0.5*size[1]*dp_short
-  num_h= int(np.floor(size[1]/target_w))
-  if num_h>1:
-    dh= size[1]/num_h
-    print('Divide along the short edge: h={}, dh={}, num_h={}'.format(size[1],dh,num_h))
-    for i_h in range(1,num_h):
-      ph= center_bottom+i_h*dh*dp_short
-      sub_polys= SplitPolygonByInfLine(ph, dp_long, poly)
-      print('--i_h={}, poly size={}, # of sub_polys={}'.format(i_h,len(poly),len(sub_polys)))
-      #print('--ph is in poly={}'.format(PointInPolygon2D(poly,ph)))
-      if len(sub_polys)==1:
-        poly= sub_polys[0]
-      elif len(sub_polys)==2:
-        sub_poly1,sub_poly2= sub_polys
-        #if PointInPolygon2D(sub_poly1, ph+1.0*dh*dp_short):
-        if np.dot(np.mean(sub_poly1,axis=0)-ph,dp_short)>0.0:
-          poly= sub_poly1
-          polygons_h.append(sub_poly2)
-        else:
-          poly= sub_poly2
-          polygons_h.append(sub_poly1)
-  polygons_h.append(poly)
+def DecomposePolygon(points, target_area, th_convex_ratio=0.8):
+  polygons= [points]
+  decomposed= []
+  while len(polygons)>0:
+    polygon= polygons.pop(0)
+    if PolygonArea(polygon)<2.0*target_area:
+      decomposed.append(polygon)
+      continue
+    convex_ratio= ConvexRatio(polygon)
+    print('# polygons={}, # decomposed={}, polygon size={}, convex_ratio={}'.format(len(polygons),len(decomposed),len(polygon),convex_ratio))
+    if convex_ratio<th_convex_ratio:
+      sub_polys= SplitPolygonAtReflexVertex(polygon)
+      print('--SPARV # of sub_polys={}'.format(len(sub_polys)))
+      polygons+= sub_polys
+    else:
+      sub_polys= DivideConvexByArea(polygon, target_area)
+      print('--DCBA # of sub_polys={}'.format(len(sub_polys)))
+      decomposed+= sub_polys
+  return decomposed
 
-  #2. divide each sub_poly along the longer edge so that each area(sub_sub_poly) is larger than target_area.
-  polygons= []
-  middle_left= np.array(center)-0.5*size[0]*dp_long
-  num_w= int(np.floor(size[0]/target_w))
-  if num_w<2:  return polygons_h
-  for poly in polygons_h:
-    dw= size[0]/num_w
-    print('Divide along the long edge: w={}, dw={}, num_w={}'.format(size[0],dw,num_w))
-    for i_w in range(1,num_w):
-      pw= middle_left+i_w*dw*dp_long
-      sub_polys= SplitPolygonByInfLine(pw, dp_short, poly)
-      print('--i_w={}, poly size={}, # of sub_polys={}'.format(i_w,len(poly),len(sub_polys)))
-      if len(sub_polys)==1:
-        poly= sub_polys[0]
-      elif len(sub_polys)==2:
-        sub_poly1,sub_poly2= sub_polys
-        if np.dot(np.mean(sub_poly1,axis=0)-pw,dp_long)>0.0:
-          poly= sub_poly1
-          #if PolygonArea(sub_poly2)>target_area:
-          polygons.append(sub_poly2)
-        else:
-          poly= sub_poly2
-          #if PolygonArea(sub_poly1)>target_area:
-          polygons.append(sub_poly1)
-    #if PolygonArea(poly)>target_area:
-    polygons.append(poly)
-
-  return polygons
 
 
 def Main():
@@ -102,8 +62,8 @@ def Main():
   bb_min,bb_max= np.min(polygon,axis=0),np.max(polygon,axis=0)
 
   target_w= np.max(bb_max-bb_min)*np.random.uniform(0.0,0.5)
-  #target_w= np.max(bb_max-bb_min)*0.3
-  sub_polys= DivideConvexByArea(polygon, target_w**2)
+  #target_w= np.max(bb_max-bb_min)*0.2
+  sub_polys= DecomposePolygon(polygon, target_w**2)
   print('target_w={} (bb_max-bb_min={})'.format(target_w,np.max(bb_max-bb_min)))
   print('# of sub polygons:',len(sub_polys))
 
