@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #\file    polygon_convex_ratio.py
-#\brief   Calculate the convex ratio.
+#\brief   Calculate the convex ratio: index to evaluate how a given polygon is close to convex.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jul.31, 2023
@@ -8,6 +8,7 @@ from polygon_convexhull import ConvexHull
 from polygon_area import PolygonArea
 import numpy as np
 
+#Calculate the convex ratio: index to evaluate how a given polygon is close to convex.
 def ConvexRatio(points):
   return PolygonArea(points)/PolygonArea(ConvexHull(points))
 

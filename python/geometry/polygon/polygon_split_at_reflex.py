@@ -11,6 +11,9 @@ from polygon_is_reflex_vertex import PolygonIsReflexVertex
 from polygon_visible_vert import GetVisibleVerticesFromVertex
 import numpy as np
 
+#Split a polygon into two at a reflex vertex so that the convex-ratio is maximized.
+#  Return: [poly1,poly2].
+#  If there is no reflex vertex, or the number of vertices after split is less than 3, return [points].
 def SplitPolygonAtReflexVertex(points):
   def split(poly,i,j):
     if i>j:  i,j= j,i

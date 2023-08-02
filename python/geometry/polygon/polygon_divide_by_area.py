@@ -11,7 +11,7 @@ from polygon_point_in_out import PointInPolygon2D
 from polygon_area import PolygonArea
 import numpy as np
 
-#Divide a polygon so that each sub-polygon has the same area.
+#Divide a polygon so that each sub-polygon has almost the same area close to target_area.
 def DivideConvexByArea(points, target_area, scale_width=1.5):
   target_w= np.sqrt(target_area)*scale_width
   center,size,angle= MinAreaRect(points)
@@ -25,11 +25,11 @@ def DivideConvexByArea(points, target_area, scale_width=1.5):
   num_h= int(np.floor(size[1]/target_w))
   if num_h>1:
     dh= size[1]/num_h
-    print('Divide along the short edge: h={}, dh={}, num_h={}'.format(size[1],dh,num_h))
+    #print('Divide along the short edge: h={}, dh={}, num_h={}'.format(size[1],dh,num_h))
     for i_h in range(1,num_h):
       ph= center_bottom+i_h*dh*dp_short
       sub_polys= SplitPolygonByInfLine(ph, dp_long, poly)
-      print('--i_h={}, poly size={}, # of sub_polys={}'.format(i_h,len(poly),len(sub_polys)))
+      #print('--i_h={}, poly size={}, # of sub_polys={}'.format(i_h,len(poly),len(sub_polys)))
       #print('--ph is in poly={}'.format(PointInPolygon2D(poly,ph)))
       if len(sub_polys)==1:
         poly= sub_polys[0]
@@ -51,11 +51,11 @@ def DivideConvexByArea(points, target_area, scale_width=1.5):
   if num_w<2:  return polygons_h
   for poly in polygons_h:
     dw= size[0]/num_w
-    print('Divide along the long edge: w={}, dw={}, num_w={}'.format(size[0],dw,num_w))
+    #print('Divide along the long edge: w={}, dw={}, num_w={}'.format(size[0],dw,num_w))
     for i_w in range(1,num_w):
       pw= middle_left+i_w*dw*dp_long
       sub_polys= SplitPolygonByInfLine(pw, dp_short, poly)
-      print('--i_w={}, poly size={}, # of sub_polys={}'.format(i_w,len(poly),len(sub_polys)))
+      #print('--i_w={}, poly size={}, # of sub_polys={}'.format(i_w,len(poly),len(sub_polys)))
       if len(sub_polys)==1:
         poly= sub_polys[0]
       elif len(sub_polys)==2:

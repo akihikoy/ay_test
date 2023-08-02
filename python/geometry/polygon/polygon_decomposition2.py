@@ -11,7 +11,7 @@ from polygon_area import PolygonArea
 from polygon_convex_ratio import ConvexRatio
 import numpy as np
 
-
+#Polygon decomposition algorithm using SplitPolygonAtReflexVertex and DivideConvexByArea.
 def DecomposePolygon(points, target_area, th_convex_ratio=0.8):
   polygons= [points]
   decomposed= []
@@ -21,14 +21,14 @@ def DecomposePolygon(points, target_area, th_convex_ratio=0.8):
       decomposed.append(polygon)
       continue
     convex_ratio= ConvexRatio(polygon)
-    print('# polygons={}, # decomposed={}, polygon size={}, convex_ratio={}'.format(len(polygons),len(decomposed),len(polygon),convex_ratio))
+    #print('# polygons={}, # decomposed={}, polygon size={}, convex_ratio={}'.format(len(polygons),len(decomposed),len(polygon),convex_ratio))
     if convex_ratio<th_convex_ratio:
       sub_polys= SplitPolygonAtReflexVertex(polygon)
-      print('--SPARV # of sub_polys={}'.format(len(sub_polys)))
+      #print('--SPARV # of sub_polys={}'.format(len(sub_polys)))
       polygons+= sub_polys
     else:
       sub_polys= DivideConvexByArea(polygon, target_area)
-      print('--DCBA # of sub_polys={}'.format(len(sub_polys)))
+      #print('--DCBA # of sub_polys={}'.format(len(sub_polys)))
       decomposed+= sub_polys
   return decomposed
 

@@ -10,7 +10,8 @@ import numpy as np
 
 #Get a rectangle of minimum area.
 #Return: center,size,angle.
-#  angle is in radian. size[0] is always greater than size[1].
+#  angle is in radian.
+#  size[0] is always greater than size[1].
 #ref. https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points
 def MinAreaRect(points):
   center,size,angle= cv2_minAreaRect(np.array(points,np.float32))
