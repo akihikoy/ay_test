@@ -61,6 +61,8 @@ def Main():
 
   polygon= polygons[np.random.choice(list(range(len(polygons))))]
   bb_min,bb_max= np.min(polygon,axis=0),np.max(polygon,axis=0)
+  ##TEST: Convert polygon to a 3d points:
+  #polygon= [[x,y,np.max(bb_max-bb_min)*np.random.uniform(0.0,0.2)] for x,y in polygon]
 
   target_w= np.max(bb_max-bb_min)*np.random.uniform(0.0,0.5)
   #target_w= np.max(bb_max-bb_min)*0.2

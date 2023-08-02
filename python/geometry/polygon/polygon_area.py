@@ -10,8 +10,8 @@
 # http://stackoverflow.com/questions/451426/how-do-i-calculate-the-area-of-a-2d-polygon
 def PolygonArea(points):
   if len(points)<3:  return 0.0
-  return 0.5*abs(sum(x0*y1-x1*y0
-                     for ((x0,y0), (x1,y1)) in zip(points, points[1:]+[points[0]])))
+  return 0.5*abs(sum(p0[0]*p1[1]-p1[0]*p0[1]
+                     for p0,p1 in zip(points, points[1:]+[points[0]])))
 
 def Main():
   polygon1= [[0.729,0.049],[0.723,0.082],[0.702,0.125],[0.682,0.124],[0.654,0.106],[0.656,0.101],[0.647,0.081],[0.652,0.078],[0.651,0.071],[0.655,0.071],[0.673,0.031]]
