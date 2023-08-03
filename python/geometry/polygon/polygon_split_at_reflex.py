@@ -32,7 +32,7 @@ def SplitPolygonAtReflexVertex(points):
   polygons_split= [split(points,i_reflex,i_shortest)
                    for i_reflex,i_shortest in zip(idxs_reflex,idxs_shortest)]
   convex_ratio= [(ConvexRatio(poly1),ConvexRatio(poly2))
-                 if len(poly1)>=3 and len(poly2)>=3 else 0.0
+                 if len(poly1)>=3 and len(poly2)>=3 else (0.0,0.0)
                  for poly1,poly2 in polygons_split]
   #print('convex_ratio=',convex_ratio)
   i_best= np.argmax([min(cr1,cr2) for cr1,cr2 in convex_ratio])
