@@ -9,8 +9,12 @@ from polygon_area import PolygonArea
 import numpy as np
 
 #Calculate the convex ratio: index to evaluate how a given polygon is close to convex.
-def ConvexRatio(points):
-  return PolygonArea(points)/PolygonArea(ConvexHull(points))
+def ConvexRatio(points, tol=1.0e-8):
+  if len(points)<3:  return 0.0
+  area= PolygonArea(points)
+  if area<tol:  return 0.0  #NOTE: This guarantees hull_area>=tol
+  hull_area= PolygonArea(ConvexHull(points))
+  return area/hull_area
 
 def Main():
   polygons=[
