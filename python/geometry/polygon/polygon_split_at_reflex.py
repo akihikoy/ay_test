@@ -15,19 +15,20 @@ import time
 #Split a polygon into two at a reflex vertex so that the convex-ratio is maximized.
 #  Return: [poly1,poly2].
 #  If there is no reflex vertex, or the number of vertices after split is less than 3, return [points].
+#  num_approx: If not None, the size of input polygon is reduced to this number for faster computation.
 def SplitPolygonAtReflexVertex(points, num_approx=None):
   def split(poly,i,j):
     if i>j:  i,j= j,i
     return [poly[i:j+1], poly[j:]+poly[:i+1]]
   #t0= time.time()
   #print('# points={}'.format(len(points)))
+  if not PolygonIsClockwise(points):  points.reverse()
   if num_approx is not None and len(points)>num_approx:
     idxs_map= np.round(np.linspace(0,len(points)-1,num_approx)).astype(int)
     points_orig= points
     points= [points[idx] for idx in idxs_map]
   else:
     idxs_map= None
-  if not PolygonIsClockwise(points):  points.reverse()
   #print('  t1= {:6.2f}ms'.format((time.time()-t0)*1.e3)); t0=time.time()
   visibilities= [GetVisibleVerticesFromVertex(points, i_point) for i_point in range(len(points))]
   #print('  t2= {:6.2f}ms'.format((time.time()-t0)*1.e3)); t0=time.time()
@@ -51,7 +52,6 @@ def SplitPolygonAtReflexVertex(points, num_approx=None):
   #print('  t6= {:6.2f}ms'.format((time.time()-t0)*1.e3)); t0=time.time()
   #print('convex_ratio=',convex_ratio)
   i_best= np.argmax([min(cr1,cr2) for cr1,cr2 in convex_ratio])
-  #poly1,poly2= polygons_split[i_best]
   if idxs_map is None:
     poly1,poly2= split(points,idxs_reflex[i_best],idxs_shortest[i_best])
   else:
