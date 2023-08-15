@@ -76,6 +76,7 @@ def DivideConvexByArea(points, target_area, scale_width=1.5):
 
 def Main():
   from polygon_shrink import ShrinkPolygon
+  import time
 
   def write_polygon(fp,polygon):
     if len(polygon)>0:
@@ -103,9 +104,12 @@ def Main():
 
   target_w= np.max(bb_max-bb_min)*np.random.uniform(0.0,0.5)
   #target_w= np.max(bb_max-bb_min)*0.3
+  t_start= time.time()
   sub_polys= DivideConvexByArea(polygon, target_w**2)
+  t_end= time.time()
   print('target_w={} (bb_max-bb_min={})'.format(target_w,np.max(bb_max-bb_min)))
   print('# of sub polygons:',len(sub_polys))
+  print('compt. time={}s for # of vertex={}'.format(t_end-t_start,len(polygon)))
 
   with open('/tmp/polygons.dat','w') as fp:
     write_polygon(fp,polygon)
