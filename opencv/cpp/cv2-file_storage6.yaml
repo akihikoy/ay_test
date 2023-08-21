@@ -1,0 +1,9 @@
+%YAML:1.0
+Config:
+  pkg_dir: "/tmp"
+  cam_config: "hoge/aaa.yaml"
+  target_fps: 60
+  camera_auto_reopen: true
+
+  blobtrack_config:   "hoge/aaa.yaml"
+  objdettrack_config:  "hoge/aaa.yaml"

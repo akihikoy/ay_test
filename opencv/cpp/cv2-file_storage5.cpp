@@ -56,6 +56,7 @@ void ReadFromYAML(TConfig &config, const std::string &file_name)
 }
 //-------------------------------------------------------------------------------------------
 
+#ifndef LIBRARY
 int main(int argc, char**argv)
 {
   TConfig config;
@@ -93,4 +94,5 @@ int main(int argc, char**argv)
 
   return 0;
 }
+#endif//LIBRARY
 //-------------------------------------------------------------------------------------------
