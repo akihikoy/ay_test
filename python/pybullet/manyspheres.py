@@ -9,7 +9,8 @@ import time
 import pybullet_data
 
 if __name__=='__main__':
-  p.connect(p.GUI, options="--opengl2")
+  #p.connect(p.GUI, options="--opengl2")
+  p.connect(p.GUI)
   #p.connect(p.DIRECT)
 
   p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -25,11 +26,11 @@ if __name__=='__main__':
 
   p.configureDebugVisualizer(p.COV_ENABLE_WIREFRAME             ,1)
   p.configureDebugVisualizer(p.COV_ENABLE_SHADOWS               ,0)
-  p.configureDebugVisualizer(p.COV_ENABLE_GUI                   ,1)
-  p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER         ,0)
-  p.configureDebugVisualizer(p.COV_ENABLE_RGB_BUFFER_PREVIEW    ,0)
-  p.configureDebugVisualizer(p.COV_ENABLE_DEPTH_BUFFER_PREVIEW  ,0)
-  p.configureDebugVisualizer(p.COV_ENABLE_SEGMENTATION_MARK_PREVIEW,0)
+  #p.configureDebugVisualizer(p.COV_ENABLE_GUI                   ,1)
+  #p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER         ,0)
+  #p.configureDebugVisualizer(p.COV_ENABLE_RGB_BUFFER_PREVIEW    ,0)
+  #p.configureDebugVisualizer(p.COV_ENABLE_DEPTH_BUFFER_PREVIEW  ,0)
+  #p.configureDebugVisualizer(p.COV_ENABLE_SEGMENTATION_MARK_PREVIEW,0)
 
   p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 
