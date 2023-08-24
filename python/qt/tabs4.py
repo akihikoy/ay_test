@@ -5,7 +5,7 @@
 #\version 0.1
 #\date    Aug.19, 2023
 
-#import sys
+import sys
 from PyQt4 import QtCore,QtGui
 #from PyQt5 import QtCore,QtWidgets
 #import PyQt5.QtGui as PyQt5QtGui
@@ -43,6 +43,7 @@ class TTab(QtGui.QWidget):
 
     # This rotates the tabs 90 degrees so they run vertically on the side.
     tabs_side.setTabPosition(QtGui.QTabWidget.West)
+    #tabs_side.setTabShape(QtGui.QTabWidget.Rounded)
 
     # This sets the tab bar's style to resemble a list rather than tabs,
     # which allows multiple rows of tabs when the tabs are rotated.
