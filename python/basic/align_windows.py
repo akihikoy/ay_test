@@ -32,6 +32,7 @@ for title, pos in positions.items():
   window_id= get_window_id_by_title(window_list, title)
   if window_id:
     subprocess.call(['wmctrl', '-i', '-r', window_id, '-e', '0,{}'.format(pos)])
+    subprocess.call(['wmctrl', '-i', '-a', window_id])
   else:
     print('No window with title containing "{}" found.'.format(title))
 
