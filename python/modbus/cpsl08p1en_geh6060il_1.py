@@ -10,6 +10,7 @@ from pymodbus.pdu import ExceptionResponse
 from kbhit2 import KBHAskGen, KBHAskYesNo
 import copy
 import time
+import numpy as np
 
 SERVER_URI= '10.10.6.207'
 PORT= 502
@@ -44,6 +45,33 @@ def DataToRegisterValues(data):
     data['Work_Position'],
     ]
 
+def BitsToBoolList(value, n_bits):
+  return [bool(value&(1<<i)) for i in range(n_bits)]
+
+STATUS_BIT_MEANINGS=[
+    'Encoder:OK',
+    'Motor:ON',
+    'Gripper:Moving',
+    'Gripper:Stop',
+    'Jogging To Base Position',
+    'Jogging To Work Position',
+    'IO-Link:OK',
+    'Controller:Trouble',
+    'Position:Base Position',
+    'Position:Teach Position',
+    'Position:Work Position',
+    'Position:Others',
+    'Data transmitting',
+    'Position Request:Base',
+    'Position Request:Work',
+    'Error',
+  ]
+
+def StatusWordToStr(status_word):
+  bits= BitsToBoolList(status_word, n_bits=16)
+  on_bits= np.where(bits)[0]
+  return [STATUS_BIT_MEANINGS[idx] for idx in on_bits]
+
 if __name__=='__main__':
   #Connection to the server:
   client= ModbusClient(SERVER_URI, port=PORT)
@@ -59,18 +87,47 @@ if __name__=='__main__':
     #Read registers:
     #res_r= client.read_input_registers(in_data_address, in_data_count)
     res_r= client.read_holding_registers(in_data_address, in_data_count)
-    print('Read: {}'.format(res_r))
     if isinstance(res_r, ExceptionResponse):
+      print('Read: {}'.format(res_r))
       print('--Server trouble.')
+      return None
     else:
-      print('--Values: {}'.format(res_r.registers))
+      #print('--Values: {}'.format(res_r.registers))
+      #registers: [Status Word(16bits), Diagnosis (2byte), Actual Position(2byte, unit=0.01mm).
+      status_word, diagnosis, pos_curr= res_r.registers
+      #Verbose print:
+      #print('Read: {}'.format(res_r))
+      #print('--Status: {}'.format(StatusWordToStr(res_r.registers[0])))
+      #print('--Diagnosis: {}'.format(hex(res_r.registers[1])))
+      #print('--Position: {} mm ({})'.format(0.01*res_r.registers[2], res_r.registers[2]))
+      #Short print:
+      print('  Read: Diag:{} Pos:{}mm ({}) St: {}'.format(hex(res_r.registers[1]), 0.01*res_r.registers[2], res_r.registers[2], StatusWordToStr(res_r.registers[0]) ))
+      return status_word, diagnosis, pos_curr
 
   def write(data):
     values= DataToRegisterValues(data)
-    print('values: {}'.format(values))
     #KBHAskGen(' ')
     res_w= client.write_registers(out_data_address, values)
-    print('Write: {}'.format(res_w))
+    #Verbose print:
+    #print('Write: {}'.format([data[key] for key,size in OUT_DATA_FORMAT]))
+    #print('--Packets: {}'.format(values))
+    #print('--Write: {}'.format(res_w))
+    #Short print:
+    print('Write: {}'.format([data[key] for key,size in OUT_DATA_FORMAT]))
+
+  #Read IO-Link master status.
+  def read_master_st():
+    #Read registers:
+    res_r= client.read_holding_registers(3000, 1)
+    print('  Read: {}'.format(res_r))
+    if isinstance(res_r, ExceptionResponse):
+      print('  --Server trouble.')
+      return None
+    else:
+      master_st_bits= BitsToBoolList(res_r.registers[0], n_bits=16)
+      com_st, pd_valid_st= master_st_bits[0], master_st_bits[8]  #COM status (True=OK), PD (process data) valid status (True=OK).
+      print('  --IO-Link Master Status: COM:{}, PD:{}'.format(com_st, pd_valid_st))
+      return com_st, pd_valid_st
 
   try:
 
@@ -189,6 +246,7 @@ if __name__=='__main__':
     data_t1= dict(
         Control_Word  =0,
         Device_Mode   =50,
+        #Device_Mode   =51,
         Workpiece_No  =0,
         Reserve       =0,
         Position_Tolerance=50,
@@ -202,7 +260,7 @@ if __name__=='__main__':
     data_t2['Control_Word']= 1
     #data_t3= data_t1
     data_traj= []
-    for pos in [300,3000,2500,4000,2500,2600,2500,2600]:
+    for pos in [300,3000,2500,4000,2510,2600,2520,2610]:
       d1= copy.deepcopy(data_traj[-1] if len(data_traj)>0 else data_t1)
       d1['Control_Word']= 0
       d2= copy.deepcopy(d1)
@@ -219,8 +277,97 @@ if __name__=='__main__':
       data_traj.append(d3)
       data_traj.append(d4)
       data_traj.append(d5)
-    data_tx= copy.deepcopy(data_t1)
+    data_tx= copy.deepcopy(data_traj[-1])
     data_tx['Control_Word']= 256
+
+    data_t10= dict(
+        Control_Word  =0,
+        #Device_Mode   =50,
+        Device_Mode   =51,  #Fast positioning mode.
+        Workpiece_No  =0,
+        Reserve       =0,
+        Position_Tolerance=50,
+        Grip_Force    =20,
+        Drive_Velocity=100,
+        Base_Position =75,
+        Shift_Position=76,
+        Teach_Position=0,
+        Work_Position =300)
+    def follow_traj1():
+      dt_sleep= None
+      #dt_sleep= 0.001
+      #dt_sleep= 0.005
+      def sleep():
+        if dt_sleep is not None: time.sleep(dt_sleep)
+      write(data_t10)
+      sleep()
+      d= copy.deepcopy(data_t10)
+      for pos in [350,3000,2500,4000,2510,2600,2520,2610,2700,2800,2900,350]:
+        d['Control_Word']= 1  #Data transfer
+        write(d)
+        sleep()
+        while True:  #Wait until status_bits[12]=='Data transmitting':On
+          status_word,diagnosis,pos_curr= read()
+          status_bits= BitsToBoolList(status_word, n_bits=16)
+          if status_bits[12]:  break
+          if status_bits[-1]:
+            print('''###Error during waiting for 'Data transmitting':On###''')
+            read()
+            return
+          sleep()
+        d['Work_Position']= pos
+        write(d)
+        #sleep()
+        print('  >>>>><<<<Waiting for transmission complete>>>>><<<<')
+        for i in range(5):  #5 is a magic number, but works.
+          #com_st,pd_valid_st= read_master_st()  #IO-Link master state does not matter.
+          read()
+          sleep()
+        #while True:  #Wait until status_bits[12]=='Data transmitting':Off
+          #status_word,diagnosis,pos_curr= read()
+          #status_bits= BitsToBoolList(status_word, n_bits=16)
+          #if not status_bits[12]:  break
+          #if status_bits[-1]:
+            #print('''###Error during waiting for 'Data transmitting':Off###''')
+            #read()
+            #return
+          #sleep()
+        d['Control_Word']= 0  #Complete
+        write(d)
+        sleep()
+        while True:  #Wait until status_bits[12]=='Data transmitting':Off
+          status_word,diagnosis,pos_curr= read()
+          status_bits= BitsToBoolList(status_word, n_bits=16)
+          if not status_bits[12]:  break
+          if status_bits[-1]:
+            print('''###Error during waiting for 'Data transmitting':Off###''')
+            read()
+            return
+          sleep()
+        d['Control_Word']= 512  #MoveToWork
+        write(d)
+        sleep()
+        while True:  #Wait until status_bits[10]=='Position:Work Position':On
+          status_word,diagnosis,pos_curr= read()
+          status_bits= BitsToBoolList(status_word, n_bits=16)
+          if status_bits[10]:  break
+          if status_bits[-1]:
+            print('''###Error during waiting for 'Position:Work Position':On###''')
+            read()
+            return
+          sleep()
+        d['Control_Word']= 4  #ResetDirectionFlag
+        write(d)
+        sleep()
+        while True:  #Wait until status_bits[14]=='Position Request:Work':Off
+          status_word,diagnosis,pos_curr= read()
+          status_bits= BitsToBoolList(status_word, n_bits=16)
+          if not status_bits[14]:  break
+          if status_bits[-1]:
+            print('''###Error during waiting for 'Position Request:Work':Off###''')
+            read()
+            return
+          sleep()
 
     while True:
       read()
@@ -235,19 +382,21 @@ if __name__=='__main__':
         'f': ('gripper control [force profile]',  [data_f1, data_f2, data_f3, data_f4, data_f5]),
         'g': ('gripper control [pre-pos force]',  [data_pf1, data_pf2, data_pf3, data_pf4, data_pf5]),
         'j': ('gripper control [jog]', [data_j1, data_j2, data_j3, data_j4, data_j5, data_j6]),
-        't': ('gripper control [trajectory]', [data_t1, data_t2]+data_traj+[data_tx]),
+        't': ('gripper control [trajectory/step by step]', [data_t1, data_t2]+data_traj+[data_tx]),
+        'y': ('gripper control [trajectory/auto]', None),
         }
       print('Type command:')
       for key,(help_str, data_seq) in command_list.items():
         print('  {}: {}'.format(key,help_str))
       key= KBHAskGen(*command_list.keys())
+      t_start= time.time()
+      help_str, data_seq= command_list[key]
+      print('#{}#'.format(help_str))
       if key=='q':
         break
       elif key=='r':
         read()
-
-      else:
-        help_str, data_seq= command_list[key]
+      elif data_seq is not None:
         print('')
         print('###Executing the {} sequence.###'.format(help_str))
         print('Hit space to continue at each step.')
@@ -256,6 +405,9 @@ if __name__=='__main__':
           read()
           KBHAskGen(' ')
           read()
+      elif key=='y':
+        follow_traj1()
+      print('Task {}[{}] completed. Duration: {}s'.format(key, help_str, time.time()-t_start))
 
   finally:
     #Disconnect from the server.*
