@@ -53,19 +53,20 @@ STATUS_BIT_MEANINGS=[
     'Motor:ON',
     'Gripper:Moving',
     'Gripper:Stop',
-    'Jogging To Base Position',
-    'Jogging To Work Position',
+    'JogTo:Base',
+    'JogTo:Work',
     'IO-Link:OK',
     'Controller:Trouble',
-    'Position:Base Position',
-    'Position:Teach Position',
-    'Position:Work Position',
+    'Position:Base',
+    'Position:Teach',
+    'Position:Work',
     'Position:Others',
-    'Data transmitting',
-    'Position Request:Base',
-    'Position Request:Work',
+    'DataTransfer:OK',
+    'PositionReq:Base',
+    'PositionReq:Work',
     'Error',
   ]
+STATUS_STR_TO_BIT= {s:i for i,s in enumerate(STATUS_BIT_MEANINGS)}
 
 def StatusWordToStr(status_word):
   bits= BitsToBoolList(status_word, n_bits=16)
@@ -128,6 +129,20 @@ if __name__=='__main__':
       com_st, pd_valid_st= master_st_bits[0], master_st_bits[8]  #COM status (True=OK), PD (process data) valid status (True=OK).
       print('  --IO-Link Master Status: COM:{}, PD:{}'.format(com_st, pd_valid_st))
       return com_st, pd_valid_st
+
+  #Wait for status[bit_name]==state.
+  def wait_for_status(bit_name, state, dt_sleep):
+    i_bit= STATUS_STR_TO_BIT[bit_name]
+    while True:
+      status_word,diagnosis,pos_curr= read()
+      status_bits= BitsToBoolList(status_word, n_bits=16)
+      if status_bits[i_bit]==state:  break
+      if status_bits[-1]:
+        print('''###Error during waiting for '{}':{}###'''.format(bit_name,state))
+        read()
+        return False
+      if dt_sleep is not None: time.sleep(dt_sleep)
+    return True
 
   #Motor on:
   data_1= dict(
@@ -324,15 +339,7 @@ if __name__=='__main__':
       d['Control_Word']= 1  #Data transfer
       write(d)
       sleep()
-      while True:  #Wait until status_bits[12]=='Data transmitting':On
-        status_word,diagnosis,pos_curr= read()
-        status_bits= BitsToBoolList(status_word, n_bits=16)
-        if status_bits[12]:  break
-        if status_bits[-1]:
-          print('''###Error during waiting for 'Data transmitting':On###''')
-          read()
-          return
-        sleep()
+      if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
       d['Work_Position']= pos
       write(d)
       #sleep()
@@ -341,51 +348,19 @@ if __name__=='__main__':
         #com_st,pd_valid_st= read_master_st()  #IO-Link master state does not matter.
         read()
         sleep()
-      #while True:  #Wait until status_bits[12]=='Data transmitting':Off
-        #status_word,diagnosis,pos_curr= read()
-        #status_bits= BitsToBoolList(status_word, n_bits=16)
-        #if not status_bits[12]:  break
-        #if status_bits[-1]:
-          #print('''###Error during waiting for 'Data transmitting':Off###''')
-          #read()
-          #return
-        #sleep()
+      #if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
       d['Control_Word']= 0  #Complete
       write(d)
       sleep()
-      while True:  #Wait until status_bits[12]=='Data transmitting':Off
-        status_word,diagnosis,pos_curr= read()
-        status_bits= BitsToBoolList(status_word, n_bits=16)
-        if not status_bits[12]:  break
-        if status_bits[-1]:
-          print('''###Error during waiting for 'Data transmitting':Off###''')
-          read()
-          return
-        sleep()
+      if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
       d['Control_Word']= 512  #MoveToWork
       write(d)
       sleep()
-      while True:  #Wait until status_bits[10]=='Position:Work Position':On
-        status_word,diagnosis,pos_curr= read()
-        status_bits= BitsToBoolList(status_word, n_bits=16)
-        if status_bits[10]:  break
-        if status_bits[-1]:
-          print('''###Error during waiting for 'Position:Work Position':On###''')
-          read()
-          return
-        sleep()
+      if not wait_for_status(bit_name='Position:Work', state=True, dt_sleep=dt_sleep):  return
       d['Control_Word']= 4  #ResetDirectionFlag
       write(d)
       sleep()
-      while True:  #Wait until status_bits[14]=='Position Request:Work':Off
-        status_word,diagnosis,pos_curr= read()
-        status_bits= BitsToBoolList(status_word, n_bits=16)
-        if not status_bits[14]:  break
-        if status_bits[-1]:
-          print('''###Error during waiting for 'Position Request:Work':Off###''')
-          read()
-          return
-        sleep()
+      if not wait_for_status(bit_name='PositionReq:Work', state=False, dt_sleep=dt_sleep):  return
 
   try:
     while True:
