@@ -129,157 +129,176 @@ if __name__=='__main__':
       print('  --IO-Link Master Status: COM:{}, PD:{}'.format(com_st, pd_valid_st))
       return com_st, pd_valid_st
 
-  try:
+  #Motor on:
+  data_1= dict(
+      Control_Word  =0,
+      Device_Mode   =3,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=0,
+      Grip_Force    =10,
+      Drive_Velocity=10,
+      Base_Position =100,
+      Shift_Position=500,
+      Teach_Position=0,
+      Work_Position =1000)
+  data_2= copy.deepcopy(data_1)
+  data_2['Control_Word']= 1
+  data_3= data_1
+  data_seq_e= [data_1, data_2, data_3]
 
-    #Motor on:
-    data_1= dict(
-        Control_Word  =0,
-        Device_Mode   =3,
-        Workpiece_No  =0,
-        Reserve       =0,
-        Position_Tolerance=0,
-        Grip_Force    =10,
-        Drive_Velocity=10,
-        Base_Position =100,
-        Shift_Position=500,
-        Teach_Position=0,
-        Work_Position =1000)
-    data_2= copy.deepcopy(data_1)
-    data_2['Control_Word']= 1
-    data_3= data_1
+  #Motor off:
+  data_11= copy.deepcopy(data_1)
+  data_11['Device_Mode']= 5
+  data_12= copy.deepcopy(data_11)
+  data_12['Control_Word']= 1
+  data_13= data_11
+  data_seq_d= [data_11, data_12, data_13]
 
-    #Motor off:
-    data_11= copy.deepcopy(data_1)
-    data_11['Device_Mode']= 5
-    data_12= copy.deepcopy(data_11)
-    data_12['Control_Word']= 1
-    data_13= data_11
+  #For gripper open close (position profile):
+  data_p1= dict(
+      Control_Word  =0,
+      Device_Mode   =50,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=50,
+      Grip_Force    =20,
+      Drive_Velocity=100,
+      Base_Position =100,
+      Shift_Position=100,
+      Teach_Position=2500,
+      Work_Position =6000)
+  data_p2= copy.deepcopy(data_p1)
+  data_p2['Control_Word']= 1
+  data_p3= data_p1
+  data_p4= copy.deepcopy(data_p1)
+  data_p4['Control_Word']= 512
+  data_p5= copy.deepcopy(data_p1)
+  data_p5['Control_Word']= 256
+  data_seq_p1= [data_p1, data_p2, data_p3, data_p4, data_p5]
 
-    #For gripper open close (position profile):
-    data_p1= dict(
-        Control_Word  =0,
-        Device_Mode   =50,
-        Workpiece_No  =0,
-        Reserve       =0,
-        Position_Tolerance=50,
-        Grip_Force    =20,
-        Drive_Velocity=100,
-        Base_Position =100,
-        Shift_Position=100,
-        Teach_Position=2500,
-        Work_Position =6000)
-    data_p2= copy.deepcopy(data_p1)
-    data_p2['Control_Word']= 1
-    data_p3= data_p1
-    data_p4= copy.deepcopy(data_p1)
-    data_p4['Control_Word']= 512
-    data_p5= copy.deepcopy(data_p1)
-    data_p5['Control_Word']= 256
+  #For gripper open close (position profile) with ResetDirectionFlag:
+  data_p11= copy.deepcopy(data_p1)
+  data_p12= copy.deepcopy(data_p11)
+  data_p12['Control_Word']= 1
+  data_p13= data_p11
+  data_p14= copy.deepcopy(data_p11)
+  data_p14['Control_Word']= 512
+  data_p15= copy.deepcopy(data_p11)
+  data_p15['Control_Word']= 4
+  data_p16= copy.deepcopy(data_p11)
+  data_p16['Control_Word']= 256
+  data_seq_p2= [data_p11, data_p12, data_p13, data_p14, data_p15, data_p16]
 
-    #For gripper open close (force profile):
-    data_f1= dict(
-        Control_Word  =0,
-        Device_Mode   =60,
-        Workpiece_No  =0,
-        Reserve       =0,
-        Position_Tolerance=50,
-        Grip_Force    =20,
-        Drive_Velocity=100,
-        Base_Position =100,
-        Shift_Position=2000,
-        Teach_Position=2500,
-        Work_Position =3000)
-    data_f2= copy.deepcopy(data_f1)
-    data_f2['Control_Word']= 1
-    data_f3= data_f1
-    data_f4= copy.deepcopy(data_f1)
-    data_f4['Control_Word']= 512
-    data_f5= copy.deepcopy(data_f1)
-    data_f5['Control_Word']= 256
+  #For gripper open close (force profile):
+  data_f1= dict(
+      Control_Word  =0,
+      Device_Mode   =60,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=50,
+      Grip_Force    =20,
+      Drive_Velocity=100,
+      Base_Position =100,
+      Shift_Position=2000,
+      Teach_Position=2500,
+      Work_Position =3000)
+  data_f2= copy.deepcopy(data_f1)
+  data_f2['Control_Word']= 1
+  data_f3= data_f1
+  data_f4= copy.deepcopy(data_f1)
+  data_f4['Control_Word']= 512
+  data_f5= copy.deepcopy(data_f1)
+  data_f5['Control_Word']= 256
+  data_seq_f1= [data_f1, data_f2, data_f3, data_f4, data_f5]
 
-    #For gripper open close (pre-pos force):
-    data_pf1= dict(
-        Control_Word  =0,
-        Device_Mode   =80,
-        Workpiece_No  =0,
-        Reserve       =0,
-        Position_Tolerance=50,
-        Grip_Force    =20,
-        Drive_Velocity=100,
-        Base_Position =100,
-        Shift_Position=2000,
-        Teach_Position=2500,
-        Work_Position =3000)
-    data_pf2= copy.deepcopy(data_pf1)
-    data_pf2['Control_Word']= 1
-    data_pf3= data_pf1
-    data_pf4= copy.deepcopy(data_pf1)
-    data_pf4['Control_Word']= 512
-    data_pf5= copy.deepcopy(data_pf1)
-    data_pf5['Control_Word']= 256
+  #For gripper open close (pre-pos force):
+  data_pf1= dict(
+      Control_Word  =0,
+      Device_Mode   =80,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=50,
+      Grip_Force    =20,
+      Drive_Velocity=100,
+      Base_Position =100,
+      Shift_Position=2000,
+      Teach_Position=2500,
+      Work_Position =3000)
+  data_pf2= copy.deepcopy(data_pf1)
+  data_pf2['Control_Word']= 1
+  data_pf3= data_pf1
+  data_pf4= copy.deepcopy(data_pf1)
+  data_pf4['Control_Word']= 512
+  data_pf5= copy.deepcopy(data_pf1)
+  data_pf5['Control_Word']= 256
+  data_seq_pf1= [data_pf1, data_pf2, data_pf3, data_pf4, data_pf5]
 
-    #For gripper open close with jog mode
-    data_j1= dict(
-        Control_Word  =0,
-        Device_Mode   =11,
-        Workpiece_No  =0,
-        Reserve       =0,
-        Position_Tolerance=10,
-        Grip_Force    =20,
-        Drive_Velocity=100,
-        Base_Position =100,
-        Shift_Position=2000,
-        Teach_Position=2500,
-        Work_Position =3000)
-    data_j2= copy.deepcopy(data_j1)
-    data_j2['Control_Word']= 1
-    data_j3= data_j1
-    data_j4= copy.deepcopy(data_j1)
-    data_j4['Control_Word']= 1024
-    data_j5= copy.deepcopy(data_j1)
-    data_j5['Control_Word']= 2048
-    data_j6= copy.deepcopy(data_j1)
-    data_j6['Device_Mode']= 50
-    data_j6['Control_Word']= 1
+  #For gripper open close with jog mode
+  data_j1= dict(
+      Control_Word  =0,
+      Device_Mode   =11,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=10,
+      Grip_Force    =20,
+      Drive_Velocity=100,
+      Base_Position =100,
+      Shift_Position=2000,
+      Teach_Position=2500,
+      Work_Position =3000)
+  data_j2= copy.deepcopy(data_j1)
+  data_j2['Control_Word']= 1
+  data_j3= data_j1
+  data_j4= copy.deepcopy(data_j1)
+  data_j4['Control_Word']= 1024
+  data_j5= copy.deepcopy(data_j1)
+  data_j5['Control_Word']= 2048
+  data_j6= copy.deepcopy(data_j1)
+  data_j6['Device_Mode']= 50
+  data_j6['Control_Word']= 1
+  data_seq_j1= [data_j1, data_j2, data_j3, data_j4, data_j5, data_j6]
 
-    #For gripper trajectory control (position profile):
-    data_t1= dict(
-        Control_Word  =0,
-        Device_Mode   =50,
-        #Device_Mode   =51,
-        Workpiece_No  =0,
-        Reserve       =0,
-        Position_Tolerance=50,
-        Grip_Force    =20,
-        Drive_Velocity=100,
-        Base_Position =100,
-        Shift_Position=200,
-        Teach_Position=300,
-        Work_Position =300)
-    data_t2= copy.deepcopy(data_t1)
-    data_t2['Control_Word']= 1
-    #data_t3= data_t1
-    data_traj= []
-    for pos in [300,3000,2500,4000,2510,2600,2520,2610]:
-      d1= copy.deepcopy(data_traj[-1] if len(data_traj)>0 else data_t1)
-      d1['Control_Word']= 0
-      d2= copy.deepcopy(d1)
-      d2['Work_Position']= pos
-      d2['Control_Word']= 1
-      d3= copy.deepcopy(d2)
-      d3['Control_Word']= 0
-      d4= copy.deepcopy(d3)
-      d4['Control_Word']= 512
-      d5= copy.deepcopy(d4)
-      d5['Control_Word']= 4
-      data_traj.append(d1)
-      data_traj.append(d2)
-      data_traj.append(d3)
-      data_traj.append(d4)
-      data_traj.append(d5)
-    data_tx= copy.deepcopy(data_traj[-1])
-    data_tx['Control_Word']= 256
+  #For gripper trajectory control (position profile):
+  data_t1= dict(
+      Control_Word  =0,
+      Device_Mode   =50,
+      #Device_Mode   =51,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=50,
+      Grip_Force    =20,
+      Drive_Velocity=100,
+      Base_Position =100,
+      Shift_Position=200,
+      Teach_Position=300,
+      Work_Position =300)
+  data_t2= copy.deepcopy(data_t1)
+  data_t2['Control_Word']= 1
+  #data_t3= data_t1
+  data_traj= []
+  for pos in [300,3000,2500,4000,2510,2600,2520,2610]:
+    d1= copy.deepcopy(data_traj[-1] if len(data_traj)>0 else data_t1)
+    d1['Control_Word']= 0
+    d2= copy.deepcopy(d1)
+    d2['Work_Position']= pos
+    d2['Control_Word']= 1
+    d3= copy.deepcopy(d2)
+    d3['Control_Word']= 0
+    d4= copy.deepcopy(d3)
+    d4['Control_Word']= 512
+    d5= copy.deepcopy(d4)
+    d5['Control_Word']= 4
+    data_traj.append(d1)
+    data_traj.append(d2)
+    data_traj.append(d3)
+    data_traj.append(d4)
+    data_traj.append(d5)
+  data_tx= copy.deepcopy(data_traj[-1])
+  data_tx['Control_Word']= 256
+  data_seq_t1= [data_t1, data_t2]+data_traj+[data_tx]
 
+  def follow_traj1():
     data_t10= dict(
         Control_Word  =0,
         #Device_Mode   =50,
@@ -293,82 +312,82 @@ if __name__=='__main__':
         Shift_Position=76,
         Teach_Position=0,
         Work_Position =300)
-    def follow_traj1():
-      dt_sleep= None
-      #dt_sleep= 0.001
-      #dt_sleep= 0.005
-      def sleep():
-        if dt_sleep is not None: time.sleep(dt_sleep)
-      write(data_t10)
+    dt_sleep= None
+    #dt_sleep= 0.001
+    #dt_sleep= 0.005
+    def sleep():
+      if dt_sleep is not None: time.sleep(dt_sleep)
+    write(data_t10)
+    sleep()
+    d= copy.deepcopy(data_t10)
+    for pos in [350,3000,2500,4000,2510,2600,2520,2610,2700,2800,2900,350]:
+      d['Control_Word']= 1  #Data transfer
+      write(d)
       sleep()
-      d= copy.deepcopy(data_t10)
-      for pos in [350,3000,2500,4000,2510,2600,2520,2610,2700,2800,2900,350]:
-        d['Control_Word']= 1  #Data transfer
-        write(d)
-        sleep()
-        while True:  #Wait until status_bits[12]=='Data transmitting':On
-          status_word,diagnosis,pos_curr= read()
-          status_bits= BitsToBoolList(status_word, n_bits=16)
-          if status_bits[12]:  break
-          if status_bits[-1]:
-            print('''###Error during waiting for 'Data transmitting':On###''')
-            read()
-            return
-          sleep()
-        d['Work_Position']= pos
-        write(d)
-        #sleep()
-        print('  >>>>><<<<Waiting for transmission complete>>>>><<<<')
-        for i in range(5):  #5 is a magic number, but works.
-          #com_st,pd_valid_st= read_master_st()  #IO-Link master state does not matter.
+      while True:  #Wait until status_bits[12]=='Data transmitting':On
+        status_word,diagnosis,pos_curr= read()
+        status_bits= BitsToBoolList(status_word, n_bits=16)
+        if status_bits[12]:  break
+        if status_bits[-1]:
+          print('''###Error during waiting for 'Data transmitting':On###''')
           read()
-          sleep()
-        #while True:  #Wait until status_bits[12]=='Data transmitting':Off
-          #status_word,diagnosis,pos_curr= read()
-          #status_bits= BitsToBoolList(status_word, n_bits=16)
-          #if not status_bits[12]:  break
-          #if status_bits[-1]:
-            #print('''###Error during waiting for 'Data transmitting':Off###''')
-            #read()
-            #return
-          #sleep()
-        d['Control_Word']= 0  #Complete
-        write(d)
+          return
         sleep()
-        while True:  #Wait until status_bits[12]=='Data transmitting':Off
-          status_word,diagnosis,pos_curr= read()
-          status_bits= BitsToBoolList(status_word, n_bits=16)
-          if not status_bits[12]:  break
-          if status_bits[-1]:
-            print('''###Error during waiting for 'Data transmitting':Off###''')
-            read()
-            return
-          sleep()
-        d['Control_Word']= 512  #MoveToWork
-        write(d)
+      d['Work_Position']= pos
+      write(d)
+      #sleep()
+      print('  >>>>><<<<Waiting for transmission complete>>>>><<<<')
+      for i in range(5):  #5 is a magic number, but works.
+        #com_st,pd_valid_st= read_master_st()  #IO-Link master state does not matter.
+        read()
         sleep()
-        while True:  #Wait until status_bits[10]=='Position:Work Position':On
-          status_word,diagnosis,pos_curr= read()
-          status_bits= BitsToBoolList(status_word, n_bits=16)
-          if status_bits[10]:  break
-          if status_bits[-1]:
-            print('''###Error during waiting for 'Position:Work Position':On###''')
-            read()
-            return
-          sleep()
-        d['Control_Word']= 4  #ResetDirectionFlag
-        write(d)
+      #while True:  #Wait until status_bits[12]=='Data transmitting':Off
+        #status_word,diagnosis,pos_curr= read()
+        #status_bits= BitsToBoolList(status_word, n_bits=16)
+        #if not status_bits[12]:  break
+        #if status_bits[-1]:
+          #print('''###Error during waiting for 'Data transmitting':Off###''')
+          #read()
+          #return
+        #sleep()
+      d['Control_Word']= 0  #Complete
+      write(d)
+      sleep()
+      while True:  #Wait until status_bits[12]=='Data transmitting':Off
+        status_word,diagnosis,pos_curr= read()
+        status_bits= BitsToBoolList(status_word, n_bits=16)
+        if not status_bits[12]:  break
+        if status_bits[-1]:
+          print('''###Error during waiting for 'Data transmitting':Off###''')
+          read()
+          return
         sleep()
-        while True:  #Wait until status_bits[14]=='Position Request:Work':Off
-          status_word,diagnosis,pos_curr= read()
-          status_bits= BitsToBoolList(status_word, n_bits=16)
-          if not status_bits[14]:  break
-          if status_bits[-1]:
-            print('''###Error during waiting for 'Position Request:Work':Off###''')
-            read()
-            return
-          sleep()
+      d['Control_Word']= 512  #MoveToWork
+      write(d)
+      sleep()
+      while True:  #Wait until status_bits[10]=='Position:Work Position':On
+        status_word,diagnosis,pos_curr= read()
+        status_bits= BitsToBoolList(status_word, n_bits=16)
+        if status_bits[10]:  break
+        if status_bits[-1]:
+          print('''###Error during waiting for 'Position:Work Position':On###''')
+          read()
+          return
+        sleep()
+      d['Control_Word']= 4  #ResetDirectionFlag
+      write(d)
+      sleep()
+      while True:  #Wait until status_bits[14]=='Position Request:Work':Off
+        status_word,diagnosis,pos_curr= read()
+        status_bits= BitsToBoolList(status_word, n_bits=16)
+        if not status_bits[14]:  break
+        if status_bits[-1]:
+          print('''###Error during waiting for 'Position Request:Work':Off###''')
+          read()
+          return
+        sleep()
 
+  try:
     while True:
       read()
 
@@ -376,13 +395,14 @@ if __name__=='__main__':
       command_list={
         'q': ('quit', None),
         'r': ('read', None),
-        'e': ('enable motor',  [data_1, data_2, data_3]),
-        'd': ('disable motor', [data_11, data_12, data_13]),
-        'p': ('gripper control [position profile]',  [data_p1, data_p2, data_p3, data_p4, data_p5]),
-        'f': ('gripper control [force profile]',  [data_f1, data_f2, data_f3, data_f4, data_f5]),
-        'g': ('gripper control [pre-pos force]',  [data_pf1, data_pf2, data_pf3, data_pf4, data_pf5]),
-        'j': ('gripper control [jog]', [data_j1, data_j2, data_j3, data_j4, data_j5, data_j6]),
-        't': ('gripper control [trajectory/step by step]', [data_t1, data_t2]+data_traj+[data_tx]),
+        'e': ('enable motor',  data_seq_e),
+        'd': ('disable motor', data_seq_d),
+        'p': ('gripper control [position profile]',  data_seq_p1),
+        '[': ('gripper control [position profile/with reset]',  data_seq_p2),
+        'f': ('gripper control [force profile]',  data_seq_f1),
+        'g': ('gripper control [pre-pos force]',  data_seq_pf1),
+        'j': ('gripper control [jog]', data_seq_j1),
+        't': ('gripper control [trajectory/step by step]', data_seq_t1),
         'y': ('gripper control [trajectory/auto]', None),
         }
       print('Type command:')
