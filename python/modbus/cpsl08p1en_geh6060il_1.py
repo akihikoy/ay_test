@@ -467,32 +467,135 @@ if __name__=='__main__':
       if not wait_for_status(bit_name='PositionReq:Work', state=False, dt_sleep=dt_sleep):  return
       #time.sleep(0.05)
 
+  #Jog motion with position profile.
+  #  step: Step to move (plus or mirnus).  If zero, 4(ResetDirectionFlag) is sent.
+  def jog_with_posp(step):
+    pos_curr= read()[2]
+    pos_trg= min(6000,max(100,pos_curr+step))
+    data_t10= dict(
+        Control_Word  =0,
+        #Device_Mode   =50,
+        Device_Mode   =51,  #Fast positioning mode.
+        Workpiece_No  =0,
+        Reserve       =0,
+        Position_Tolerance=1,
+        Grip_Force    =20,
+        Drive_Velocity=100,
+        Base_Position =75,
+        Shift_Position=76,
+        Teach_Position=0,
+        Work_Position =pos_curr)
+    dt_sleep= None
+    def sleep():
+      if dt_sleep is not None: time.sleep(dt_sleep)
+    if step==0:
+      data_t10['Control_Word']= 4  #ResetDirectionFlag
+      write(data_t10)
+      sleep()
+      return
+    write(data_t10)
+    sleep()
+    d= copy.deepcopy(data_t10)
+    d['Control_Word']= 1  #Data transfer
+    d['Work_Position']= pos_trg
+    write(d)
+    #sleep()
+    if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
+    d['Control_Word']= 0  #Complete
+    write(d)
+    sleep()
+    if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
+    d['Control_Word']= 512  #MoveToWork
+    write(d)
+    sleep()
+    time.sleep(0.05)
+    d['Control_Word']= 4  #ResetDirectionFlag
+    write(d)
+    sleep()
+
+  #Jog motion with jog mode.
+  #  step: +: close, -: open, 0: stop/start-jog.
+  def jog_with_jog(step):
+    data_j11= dict(
+        Control_Word  =0,
+        Device_Mode   =11,
+        Workpiece_No  =0,
+        Reserve       =0,
+        Position_Tolerance=10,
+        Grip_Force    =20,
+        Drive_Velocity=100,
+        Base_Position =75,
+        Shift_Position=76,
+        Teach_Position=100,
+        Work_Position =6000)
+    data_j12= copy.deepcopy(data_j11)
+    data_j12['Control_Word']= 1
+    data_j13= data_j11
+    data_j14= copy.deepcopy(data_j11)
+    data_j14['Control_Word']= 1024
+    data_j15= copy.deepcopy(data_j11)
+    data_j15['Control_Word']= 2048
+    data_j16= copy.deepcopy(data_j11)
+    data_j16['Device_Mode']= 50
+    data_j16['Control_Word']= 1
+    #data_seq_j1= [data_j1, data_j2, data_j3, data_j4, data_j5, data_j6]
+    dt_sleep= None
+    def sleep():
+      if dt_sleep is not None: time.sleep(dt_sleep)
+    if step==0:
+      write(data_j11)
+      sleep()
+      write(data_j12)
+      sleep()
+      if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
+      write(data_j13)
+      sleep()
+      if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
+      return
+    elif step>0:
+      write(data_j14)
+      time.sleep(abs(step))
+      write(data_j12)
+      return
+    elif step<0:
+      write(data_j15)
+      time.sleep(abs(step))
+      write(data_j12)
+      return
+
   try:
     while True:
       read()
 
       #Write registers:
-      command_list={
-        'q': ('quit', None),
-        'r': ('read', None),
-        'e': ('enable motor',  data_seq_e),
-        'd': ('disable motor', data_seq_d),
-        'p': ('gripper control [position profile]',  data_seq_p1),
-        '[': ('gripper control [position profile/with reset]',  data_seq_p2),
-        ']': ('gripper control [position profile/with stop]',  close_stop_open1),
-        'f': ('gripper control [force profile]',  data_seq_f1),
-        'g': ('gripper control [pre-pos force]',  data_seq_pf1),
-        'j': ('gripper control [jog]', data_seq_j1),
-        't': ('gripper control [trajectory/step by step]', data_seq_t1),
-        'y': ('gripper control [trajectory/auto]', follow_traj1),
-        'u': ('gripper control [trajectory/auto2]', follow_traj2),
-        }
+      command_list=[
+        ['q', ('quit', None)],
+        ['r', ('read', None)],
+        ['E', ('enable motor',  data_seq_e)],
+        ['D', ('disable motor', data_seq_d)],
+        ['p', ('gripper control [position profile]',  data_seq_p1)],
+        ['[', ('gripper control [position profile/with reset]',  data_seq_p2)],
+        [']', ('gripper control [position profile/with stop]',  close_stop_open1)],
+        ['f', ('gripper control [force profile]',  data_seq_f1)],
+        ['g', ('gripper control [pre-pos force]',  data_seq_pf1)],
+        ['j', ('gripper control [jog]', data_seq_j1)],
+        ['t', ('gripper control [trajectory/step by step]', data_seq_t1)],
+        ['y', ('gripper control [trajectory/auto]', follow_traj1)],
+        ['u', ('gripper control [trajectory/auto2]', follow_traj2)],
+        ['z', ('jog with position profile [+/close]', lambda: jog_with_posp(50))],
+        ['x', ('jog with position profile [reset_dir]', lambda: jog_with_posp(0))],
+        ['c', ('jog with position profile [-/open]', lambda: jog_with_posp(-50))],
+        ['a', ('jog with jog mode [+/close]', lambda: jog_with_jog(0.1))],
+        ['s', ('jog with jog mode [reset_dir]', lambda: jog_with_jog(0))],
+        ['d', ('jog with jog mode [-/open]', lambda: jog_with_jog(-0.1))],
+        ]
+      command_dict= {key:(help_str, data_seq) for key,(help_str, data_seq) in command_list}
       print('Type command:')
-      for key,(help_str, data_seq) in command_list.items():
+      for key,(help_str, data_seq) in command_list:
         print('  {}: {}'.format(key,help_str))
-      key= KBHAskGen(*command_list.keys())
+      key= KBHAskGen(*command_dict.keys())
       t_start= time.time()
-      help_str, data_seq= command_list[key]
+      help_str, data_seq= command_dict[key]
       print('#{}#'.format(help_str))
       if key=='q':
         break
