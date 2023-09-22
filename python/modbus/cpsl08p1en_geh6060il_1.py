@@ -193,6 +193,7 @@ if __name__=='__main__':
   data_seq_p1= [data_p1, data_p2, data_p3, data_p4, data_p5]
 
   #For gripper open close (position profile) with ResetDirectionFlag:
+  #NOTE: After the experiments, it turned out that the reset does not affect.
   data_p11= copy.deepcopy(data_p1)
   data_p12= copy.deepcopy(data_p11)
   data_p12['Control_Word']= 1
@@ -204,6 +205,45 @@ if __name__=='__main__':
   data_p16= copy.deepcopy(data_p11)
   data_p16['Control_Word']= 256
   data_seq_p2= [data_p11, data_p12, data_p13, data_p14, data_p15, data_p16]
+
+  #Gripper close -> stop -> open (position profile).
+  def close_stop_open1():
+    data_p21= copy.deepcopy(data_p1)
+    data_p21['Drive_Velocity']= 20
+    data_p22= copy.deepcopy(data_p21)
+    data_p22['Control_Word']= 1
+    data_p23= data_p21
+    data_p24= copy.deepcopy(data_p21)
+    data_p24['Control_Word']= 512
+
+    for data in [data_p21, data_p22, data_p23, data_p24]:
+      write(data)
+      read()
+      KBHAskGen(' ')
+      read()
+
+    d= copy.deepcopy(data_p21)
+    d['Control_Word']= 1  #Data transfer; NOTE: At this point, the gripper stops.
+    write(d)
+    read()
+    KBHAskGen(' ')
+
+    status_word,diagnosis,pos_curr= read()
+    #d['Work_Position']= pos_curr  #Consider to change the work position to the current to stop, but it is not needed.
+    #write(d)
+    #read()
+    #KBHAskGen(' ')
+    #read()
+    d['Control_Word']= 0  #Complete
+    write(d)
+    read()
+    KBHAskGen(' ')
+    read()
+
+    data_p25= copy.deepcopy(d)
+    data_p25['Control_Word']= 256
+    write(data_p25)
+    KBHAskGen(' ')
 
   #For gripper open close (force profile):
   data_f1= dict(
@@ -274,6 +314,8 @@ if __name__=='__main__':
   data_j6['Control_Word']= 1
   data_seq_j1= [data_j1, data_j2, data_j3, data_j4, data_j5, data_j6]
 
+  traj_1= [350,3000,2500,4000,2510,2600,2520,2610,2700,2800,2900,350]
+
   #For gripper trajectory control (position profile):
   data_t1= dict(
       Control_Word  =0,
@@ -292,7 +334,7 @@ if __name__=='__main__':
   data_t2['Control_Word']= 1
   #data_t3= data_t1
   data_traj= []
-  for pos in [300,3000,2500,4000,2510,2600,2520,2610]:
+  for pos in traj_1:
     d1= copy.deepcopy(data_traj[-1] if len(data_traj)>0 else data_t1)
     d1['Control_Word']= 0
     d2= copy.deepcopy(d1)
@@ -313,6 +355,7 @@ if __name__=='__main__':
   data_tx['Control_Word']= 256
   data_seq_t1= [data_t1, data_t2]+data_traj+[data_tx]
 
+  #Following a trajectory
   def follow_traj1():
     data_t10= dict(
         Control_Word  =0,
@@ -335,7 +378,7 @@ if __name__=='__main__':
     write(data_t10)
     sleep()
     d= copy.deepcopy(data_t10)
-    for pos in [350,3000,2500,4000,2510,2600,2520,2610,2700,2800,2900,350]:
+    for pos in traj_1:
       d['Control_Word']= 1  #Data transfer
       write(d)
       sleep()
@@ -362,6 +405,68 @@ if __name__=='__main__':
       sleep()
       if not wait_for_status(bit_name='PositionReq:Work', state=False, dt_sleep=dt_sleep):  return
 
+  #Following a trajectory ver.2
+  def follow_traj2():
+    data_t10= dict(
+        Control_Word  =0,
+        #Device_Mode   =50,
+        Device_Mode   =51,  #Fast positioning mode.
+        Workpiece_No  =0,
+        Reserve       =0,
+        Position_Tolerance=50,
+        Grip_Force    =20,
+        Drive_Velocity=100,
+        Base_Position =75,
+        Shift_Position=76,
+        Teach_Position=0,
+        Work_Position =300)
+    dt_sleep= None
+    #dt_sleep= 0.001
+    #dt_sleep= 0.005
+    def sleep():
+      if dt_sleep is not None: time.sleep(dt_sleep)
+    write(data_t10)
+    sleep()
+    d= copy.deepcopy(data_t10)
+    pos_prev= read()[2]
+    for pos in traj_1:
+      d['Control_Word']= 1  #Data transfer
+      write(d)
+      sleep()
+      if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
+      d['Work_Position']= pos
+      write(d)
+      #sleep()
+      print('  >>>>><<<<Waiting for transmission complete>>>>><<<<')
+      for i in range(5):  #5 is a magic number, but works.
+        #com_st,pd_valid_st= read_master_st()  #IO-Link master state does not matter.
+        read()
+        sleep()
+      #if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
+      d['Control_Word']= 0  #Complete
+      write(d)
+      sleep()
+      if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
+      d['Control_Word']= 512  #MoveToWork
+      write(d)
+      #sleep()
+      gripper_speed= 80.0  #Data sheet gripper speed: 60.0 mm/s
+      dt_sleep2= abs(pos-pos_prev)*0.01/gripper_speed
+      print('dt_sleep2: {}'.format(dt_sleep2))
+      time.sleep(dt_sleep2)
+      pos_prev= pos
+      #if not wait_for_status(bit_name='Position:Work', state=True, dt_sleep=dt_sleep):  return
+      d['Control_Word']= 1  #Data transfer (to stop)
+      write(d)
+      #sleep()
+      if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
+      #time.sleep(0.15)
+      d['Control_Word']= 4  #ResetDirectionFlag
+      write(d)
+      sleep()
+      if not wait_for_status(bit_name='PositionReq:Work', state=False, dt_sleep=dt_sleep):  return
+      #time.sleep(0.05)
+
   try:
     while True:
       read()
@@ -374,11 +479,13 @@ if __name__=='__main__':
         'd': ('disable motor', data_seq_d),
         'p': ('gripper control [position profile]',  data_seq_p1),
         '[': ('gripper control [position profile/with reset]',  data_seq_p2),
+        ']': ('gripper control [position profile/with stop]',  close_stop_open1),
         'f': ('gripper control [force profile]',  data_seq_f1),
         'g': ('gripper control [pre-pos force]',  data_seq_pf1),
         'j': ('gripper control [jog]', data_seq_j1),
         't': ('gripper control [trajectory/step by step]', data_seq_t1),
-        'y': ('gripper control [trajectory/auto]', None),
+        'y': ('gripper control [trajectory/auto]', follow_traj1),
+        'u': ('gripper control [trajectory/auto2]', follow_traj2),
         }
       print('Type command:')
       for key,(help_str, data_seq) in command_list.items():
@@ -391,7 +498,7 @@ if __name__=='__main__':
         break
       elif key=='r':
         read()
-      elif data_seq is not None:
+      elif isinstance(data_seq, list):
         print('')
         print('###Executing the {} sequence.###'.format(help_str))
         print('Hit space to continue at each step.')
@@ -400,8 +507,8 @@ if __name__=='__main__':
           read()
           KBHAskGen(' ')
           read()
-      elif key=='y':
-        follow_traj1()
+      elif callable(data_seq):
+        data_seq()
       print('Task {}[{}] completed. Duration: {}s'.format(key, help_str, time.time()-t_start))
 
   finally:
