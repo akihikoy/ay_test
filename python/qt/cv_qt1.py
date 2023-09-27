@@ -16,7 +16,7 @@ class TImgDialog(QtGui.QDialog):
     self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
     print('Camera opened')
-    self.resize(321, 241)
+    #self.resize(321, 241)
     self.show()
 
   def captureImage(self):
@@ -29,6 +29,7 @@ class TImgDialog(QtGui.QDialog):
 
   def paintEvent(self, event):
     self.captureImage()
+    self.resize(self.cv_img.shape[1], self.cv_img.shape[0])
     painter= QtGui.QPainter()
     painter.begin(self)
     painter.drawImage(0, 0, self.q_img)
