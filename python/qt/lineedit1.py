@@ -35,6 +35,8 @@ class TLineEdit(QtGui.QWidget):
 
     edit1= QtGui.QLineEdit(self)
     edit1.setValidator(QtGui.QIntValidator())
+    #edit1.textChanged.connect(lambda:Print('Input value is {}'.format(self.edit1.text())))
+    edit1.textChanged.connect(lambda txt:Print('Input value is {}'.format(txt)))
     edit1.move(10, 60)
     self.edit1= edit1
 
