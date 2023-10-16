@@ -12,6 +12,7 @@ import copy
 import time
 import numpy as np
 
+#IO-Link master CPSL08P1EN (Modbus) server info:
 SERVER_URI= '10.10.6.207'
 PORT= 502
 
@@ -73,6 +74,36 @@ def StatusWordToStr(status_word):
   on_bits= np.where(bits)[0]
   return [STATUS_BIT_MEANINGS[idx] for idx in on_bits]
 
+DIAGNOSIS_MEANINGS={
+  0x0000: 'Device is ready for operation.',
+  0x0001: 'Motor controller is switched off.',
+  0x0100: 'Actuator power supply is not present or is too low.',
+  0x0101: 'Temperature above maximum permitted temperature.',
+  0x0102: 'Max. permitted temperature undershot.',
+  0x0206: 'Motion task cannot be executed (CRC error).',
+  0x0300: 'ControlWord is not plausible. Initial state after gripper restart',
+  0x0301: 'Positions are not plausible.',
+  0x0302: 'GripForce is not plausible.',
+  0x0303: 'DriveVelocity is not plausible.',
+  0x0304: 'PositionTolerance is not plausible.',
+  0x0305: 'Position measuring system not referenced.',
+  0x0306: 'DeviceMode is not plausible.',
+  0x0307: 'Motion task cannot be executed.',
+  0x0308: 'WorkpieceNo cannot be selected.',
+  0x0313: 'Calculated ShiftPosition exceeded.',
+  0x0402: 'Jam',
+  0x0404: 'Position sensor error',
+  0x0406: 'Internal error',
+  0x040B: 'Internal error',
+  0x040C: 'Internal error',
+  0x040D: 'Internal error',
+  0x040E: 'Internal error',
+  0x040F: 'Internal error',
+  }
+
+def DiagnosisWordToStr(diagnosis_word):
+  return DIAGNOSIS_MEANINGS[diagnosis_word] if diagnosis_word in DIAGNOSIS_MEANINGS else 'UNKNOWN'
+
 if __name__=='__main__':
   #Connection to the server:
   client= ModbusClient(SERVER_URI, port=PORT)
@@ -80,9 +111,21 @@ if __name__=='__main__':
 
   print('Connection established: {}'.format(client))
 
+  #IO-Link master CPSL08P1EN (Modbus) configuration:
   in_data_address= 3002
   in_data_count= 3  #= 6 byte
   out_data_address= 4002
+
+  #Gripper configuration:
+  #GRIPPER_TYPE= 'GEH6060IL-03-B'
+  GRIPPER_TYPE= 'GEH6040IL-31-B'
+
+  if GRIPPER_TYPE=='GEH6060IL-03-B':
+    MAX_POSITION= 6000
+    SELF_LOCK= True
+  elif GRIPPER_TYPE=='GEH6040IL-31-B':
+    MAX_POSITION= 4000
+    SELF_LOCK= False
 
   def read():
     #Read registers:
@@ -103,6 +146,8 @@ if __name__=='__main__':
       #print('--Position: {} mm ({})'.format(0.01*res_r.registers[2], res_r.registers[2]))
       #Short print:
       print('  Read: Diag:{} Pos:{}mm ({}) St: {}'.format(hex(res_r.registers[1]), 0.01*res_r.registers[2], res_r.registers[2], StatusWordToStr(res_r.registers[0]) ))
+      if res_r.registers[1]>0:
+        print('    Diag: {}: {}'.format(hex(res_r.registers[1]), DiagnosisWordToStr(res_r.registers[1]) ))
       return status_word, diagnosis, pos_curr
 
   def write(data):
@@ -170,10 +215,29 @@ if __name__=='__main__':
   data_13= data_11
   data_seq_d= [data_11, data_12, data_13]
 
+  #Outside homing:
+  data_h1= dict(
+      Control_Word  =0,
+      Device_Mode   =10,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=50,
+      Grip_Force    =20,
+      Drive_Velocity=10,
+      Base_Position =100,
+      Shift_Position=100,
+      Teach_Position=0,
+      Work_Position =MAX_POSITION)
+  data_h2= copy.deepcopy(data_h1)
+  data_h2['Control_Word']= 1
+  data_h3= data_h1
+  data_seq_h1= [data_h1, data_h2, data_h3]
+
   #For gripper open close (position profile):
   data_p1= dict(
       Control_Word  =0,
       Device_Mode   =50,
+      #Device_Mode   =51,
       Workpiece_No  =0,
       Reserve       =0,
       Position_Tolerance=50,
@@ -182,7 +246,7 @@ if __name__=='__main__':
       Base_Position =100,
       Shift_Position=100,
       Teach_Position=2500,
-      Work_Position =6000)
+      Work_Position =MAX_POSITION)
   data_p2= copy.deepcopy(data_p1)
   data_p2['Control_Word']= 1
   data_p3= data_p1
@@ -248,7 +312,7 @@ if __name__=='__main__':
   #For gripper open close (force profile):
   data_f1= dict(
       Control_Word  =0,
-      Device_Mode   =60,
+      Device_Mode   =60 if SELF_LOCK else 62,
       Workpiece_No  =0,
       Reserve       =0,
       Position_Tolerance=50,
@@ -270,7 +334,7 @@ if __name__=='__main__':
   #For gripper open close (pre-pos force):
   data_pf1= dict(
       Control_Word  =0,
-      Device_Mode   =80,
+      Device_Mode   =80 if SELF_LOCK else 82,
       Workpiece_No  =0,
       Reserve       =0,
       Position_Tolerance=50,
@@ -315,6 +379,7 @@ if __name__=='__main__':
   data_seq_j1= [data_j1, data_j2, data_j3, data_j4, data_j5, data_j6]
 
   traj_1= [350,3000,2500,4000,2510,2600,2520,2610,2700,2800,2900,350]
+  traj_1= [int(p*MAX_POSITION/6000) for p in traj_1]
 
   #For gripper trajectory control (position profile):
   data_t1= dict(
@@ -364,7 +429,7 @@ if __name__=='__main__':
         Workpiece_No  =0,
         Reserve       =0,
         Position_Tolerance=50,
-        Grip_Force    =20,
+        Grip_Force    =30,
         Drive_Velocity=100,
         Base_Position =75,
         Shift_Position=76,
@@ -400,6 +465,9 @@ if __name__=='__main__':
       write(d)
       sleep()
       if not wait_for_status(bit_name='Position:Work', state=True, dt_sleep=dt_sleep):  return
+      #if not wait_for_status(bit_name='Gripper:Stop', state=True, dt_sleep=dt_sleep):  return
+      #if not wait_for_status(bit_name='Gripper:Moving', state=True, dt_sleep=dt_sleep):  return
+      #if not wait_for_status(bit_name='Gripper:Moving', state=False, dt_sleep=dt_sleep):  return
       d['Control_Word']= 4  #ResetDirectionFlag
       write(d)
       sleep()
@@ -413,8 +481,8 @@ if __name__=='__main__':
         Device_Mode   =51,  #Fast positioning mode.
         Workpiece_No  =0,
         Reserve       =0,
-        Position_Tolerance=50,
-        Grip_Force    =20,
+        Position_Tolerance=20,
+        Grip_Force    =30,
         Drive_Velocity=100,
         Base_Position =75,
         Shift_Position=76,
@@ -451,6 +519,8 @@ if __name__=='__main__':
       write(d)
       #sleep()
       gripper_speed= 80.0  #Data sheet gripper speed: 60.0 mm/s
+      if GRIPPER_TYPE=='GEH6040IL-31-B':
+        gripper_speed= 120.0  #Data sheet gripper speed: 120.0 mm/s
       dt_sleep2= abs(pos-pos_prev)*0.01/gripper_speed
       print('dt_sleep2: {}'.format(dt_sleep2))
       time.sleep(dt_sleep2)
@@ -459,27 +529,29 @@ if __name__=='__main__':
       d['Control_Word']= 1  #Data transfer (to stop)
       write(d)
       #sleep()
-      if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
+      if not GRIPPER_TYPE=='GEH6040IL-31-B':
+        if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
       #time.sleep(0.15)
       d['Control_Word']= 4  #ResetDirectionFlag
       write(d)
       sleep()
-      if not wait_for_status(bit_name='PositionReq:Work', state=False, dt_sleep=dt_sleep):  return
+      if not GRIPPER_TYPE=='GEH6040IL-31-B':
+        if not wait_for_status(bit_name='PositionReq:Work', state=False, dt_sleep=dt_sleep):  return
       #time.sleep(0.05)
 
   #Jog motion with position profile.
-  #  step: Step to move (plus or mirnus).  If zero, 4(ResetDirectionFlag) is sent.
+  #  step: Step to move (plus or minus).  If zero, 4(ResetDirectionFlag) is sent.
   def jog_with_posp(step):
     pos_curr= read()[2]
-    pos_trg= min(6000,max(100,pos_curr+step))
+    pos_trg= min(MAX_POSITION,max(100,pos_curr+step))
     data_t10= dict(
         Control_Word  =0,
-        #Device_Mode   =50,
-        Device_Mode   =51,  #Fast positioning mode.
+        Device_Mode   =50,
+        #Device_Mode   =51,  #Fast positioning mode.
         Workpiece_No  =0,
         Reserve       =0,
-        Position_Tolerance=1,
-        Grip_Force    =20,
+        Position_Tolerance=50,
+        Grip_Force    =100,
         Drive_Velocity=100,
         Base_Position =75,
         Shift_Position=76,
@@ -527,7 +599,7 @@ if __name__=='__main__':
         Base_Position =75,
         Shift_Position=76,
         Teach_Position=100,
-        Work_Position =6000)
+        Work_Position =MAX_POSITION)
     data_j12= copy.deepcopy(data_j11)
     data_j12['Control_Word']= 1
     data_j13= data_j11
@@ -573,6 +645,7 @@ if __name__=='__main__':
         ['r', ('read', None)],
         ['E', ('enable motor',  data_seq_e)],
         ['D', ('disable motor', data_seq_d)],
+        ['H', ('outside homing', data_seq_h1)],
         ['p', ('gripper control [position profile]',  data_seq_p1)],
         ['[', ('gripper control [position profile/with reset]',  data_seq_p2)],
         [']', ('gripper control [position profile/with stop]',  close_stop_open1)],
@@ -582,9 +655,9 @@ if __name__=='__main__':
         ['t', ('gripper control [trajectory/step by step]', data_seq_t1)],
         ['y', ('gripper control [trajectory/auto]', follow_traj1)],
         ['u', ('gripper control [trajectory/auto2]', follow_traj2)],
-        ['z', ('jog with position profile [+/close]', lambda: jog_with_posp(50))],
+        ['z', ('jog with position profile [+/close]', lambda: jog_with_posp(100))],
         ['x', ('jog with position profile [reset_dir]', lambda: jog_with_posp(0))],
-        ['c', ('jog with position profile [-/open]', lambda: jog_with_posp(-50))],
+        ['c', ('jog with position profile [-/open]', lambda: jog_with_posp(-100))],
         ['a', ('jog with jog mode [+/close]', lambda: jog_with_jog(0.1))],
         ['s', ('jog with jog mode [reset_dir]', lambda: jog_with_jog(0))],
         ['d', ('jog with jog mode [-/open]', lambda: jog_with_jog(-0.1))],
