@@ -16,6 +16,22 @@ import numpy as np
 SERVER_URI= '10.10.6.207'
 PORT= 502
 
+#IO-Link master CPSL08P1EN (Modbus) configuration:
+IN_DATA_ADDRESS= 3002
+IN_DATA_COUNT= 3  #= 6 byte
+OUT_DATA_ADDRESS= 4002
+
+#Gripper configuration:
+#GRIPPER_TYPE= 'GEH6060IL-03-B'
+GRIPPER_TYPE= 'GEH6040IL-31-B'
+
+if GRIPPER_TYPE=='GEH6060IL-03-B':
+  MAX_POSITION= 6000
+  SELF_LOCK= True
+elif GRIPPER_TYPE=='GEH6040IL-31-B':
+  MAX_POSITION= 4000
+  SELF_LOCK= False
+
 #Output process data format of GEH6060IL.
 OUT_DATA_FORMAT= [
     ('Control_Word', 2),
@@ -104,91 +120,74 @@ DIAGNOSIS_MEANINGS={
 def DiagnosisWordToStr(diagnosis_word):
   return DIAGNOSIS_MEANINGS[diagnosis_word] if diagnosis_word in DIAGNOSIS_MEANINGS else 'UNKNOWN'
 
-if __name__=='__main__':
-  #Connection to the server:
-  client= ModbusClient(SERVER_URI, port=PORT)
-  client.connect()
 
-  print('Connection established: {}'.format(client))
 
-  #IO-Link master CPSL08P1EN (Modbus) configuration:
-  in_data_address= 3002
-  in_data_count= 3  #= 6 byte
-  out_data_address= 4002
+MODBUS_CLIENT= None
 
-  #Gripper configuration:
-  #GRIPPER_TYPE= 'GEH6060IL-03-B'
-  GRIPPER_TYPE= 'GEH6040IL-31-B'
-
-  if GRIPPER_TYPE=='GEH6060IL-03-B':
-    MAX_POSITION= 6000
-    SELF_LOCK= True
-  elif GRIPPER_TYPE=='GEH6040IL-31-B':
-    MAX_POSITION= 4000
-    SELF_LOCK= False
-
-  def read():
-    #Read registers:
-    #res_r= client.read_input_registers(in_data_address, in_data_count)
-    res_r= client.read_holding_registers(in_data_address, in_data_count)
-    if isinstance(res_r, ExceptionResponse):
-      print('Read: {}'.format(res_r))
-      print('--Server trouble.')
-      return None
-    else:
-      #print('--Values: {}'.format(res_r.registers))
-      #registers: [Status Word(16bits), Diagnosis (2byte), Actual Position(2byte, unit=0.01mm).
-      status_word, diagnosis, pos_curr= res_r.registers
-      #Verbose print:
-      #print('Read: {}'.format(res_r))
-      #print('--Status: {}'.format(StatusWordToStr(res_r.registers[0])))
-      #print('--Diagnosis: {}'.format(hex(res_r.registers[1])))
-      #print('--Position: {} mm ({})'.format(0.01*res_r.registers[2], res_r.registers[2]))
-      #Short print:
-      print('  Read: Diag:{} Pos:{}mm ({}) St: {}'.format(hex(res_r.registers[1]), 0.01*res_r.registers[2], res_r.registers[2], StatusWordToStr(res_r.registers[0]) ))
-      if res_r.registers[1]>0:
-        print('    Diag: {}: {}'.format(hex(res_r.registers[1]), DiagnosisWordToStr(res_r.registers[1]) ))
-      return status_word, diagnosis, pos_curr
-
-  def write(data):
-    values= DataToRegisterValues(data)
-    #KBHAskGen(' ')
-    res_w= client.write_registers(out_data_address, values)
+def read():
+  #Read registers:
+  #res_r= MODBUS_CLIENT.read_input_registers(IN_DATA_ADDRESS, IN_DATA_COUNT)
+  res_r= MODBUS_CLIENT.read_holding_registers(IN_DATA_ADDRESS, IN_DATA_COUNT)
+  if isinstance(res_r, ExceptionResponse):
+    print('Read: {}'.format(res_r))
+    print('--Server trouble.')
+    return None
+  else:
+    #print('--Values: {}'.format(res_r.registers))
+    #registers: [Status Word(16bits), Diagnosis (2byte), Actual Position(2byte, unit=0.01mm).
+    status_word, diagnosis, pos_curr= res_r.registers
     #Verbose print:
-    #print('Write: {}'.format([data[key] for key,size in OUT_DATA_FORMAT]))
-    #print('--Packets: {}'.format(values))
-    #print('--Write: {}'.format(res_w))
+    #print('Read: {}'.format(res_r))
+    #print('--Status: {}'.format(StatusWordToStr(res_r.registers[0])))
+    #print('--Diagnosis: {}'.format(hex(res_r.registers[1])))
+    #print('--Position: {} mm ({})'.format(0.01*res_r.registers[2], res_r.registers[2]))
     #Short print:
-    print('Write: {}'.format([data[key] for key,size in OUT_DATA_FORMAT]))
+    print('  Read: Diag:{} Pos:{}mm ({}) St: {}'.format(hex(res_r.registers[1]), 0.01*res_r.registers[2], res_r.registers[2], StatusWordToStr(res_r.registers[0]) ))
+    if res_r.registers[1]>0:
+      print('    Diag: {}: {}'.format(hex(res_r.registers[1]), DiagnosisWordToStr(res_r.registers[1]) ))
+    return status_word, diagnosis, pos_curr
 
-  #Read IO-Link master status.
-  def read_master_st():
-    #Read registers:
-    res_r= client.read_holding_registers(3000, 1)
-    print('  Read: {}'.format(res_r))
-    if isinstance(res_r, ExceptionResponse):
-      print('  --Server trouble.')
-      return None
-    else:
-      master_st_bits= BitsToBoolList(res_r.registers[0], n_bits=16)
-      com_st, pd_valid_st= master_st_bits[0], master_st_bits[8]  #COM status (True=OK), PD (process data) valid status (True=OK).
-      print('  --IO-Link Master Status: COM:{}, PD:{}'.format(com_st, pd_valid_st))
-      return com_st, pd_valid_st
+def write(data):
+  values= DataToRegisterValues(data)
+  #KBHAskGen(' ')
+  res_w= MODBUS_CLIENT.write_registers(OUT_DATA_ADDRESS, values)
+  #Verbose print:
+  #print('Write: {}'.format([data[key] for key,size in OUT_DATA_FORMAT]))
+  #print('--Packets: {}'.format(values))
+  #print('--Write: {}'.format(res_w))
+  #Short print:
+  print('Write: {}'.format([data[key] for key,size in OUT_DATA_FORMAT]))
 
-  #Wait for status[bit_name]==state.
-  def wait_for_status(bit_name, state, dt_sleep):
-    i_bit= STATUS_STR_TO_BIT[bit_name]
-    while True:
-      status_word,diagnosis,pos_curr= read()
-      status_bits= BitsToBoolList(status_word, n_bits=16)
-      if status_bits[i_bit]==state:  break
-      if status_bits[-1]:
-        print('''###Error during waiting for '{}':{}###'''.format(bit_name,state))
-        read()
-        return False
-      if dt_sleep is not None: time.sleep(dt_sleep)
-    return True
+#Read IO-Link master status.
+def read_master_st():
+  #Read registers:
+  res_r= MODBUS_CLIENT.read_holding_registers(3000, 1)
+  print('  Read: {}'.format(res_r))
+  if isinstance(res_r, ExceptionResponse):
+    print('  --Server trouble.')
+    return None
+  else:
+    master_st_bits= BitsToBoolList(res_r.registers[0], n_bits=16)
+    com_st, pd_valid_st= master_st_bits[0], master_st_bits[8]  #COM status (True=OK), PD (process data) valid status (True=OK).
+    print('  --IO-Link Master Status: COM:{}, PD:{}'.format(com_st, pd_valid_st))
+    return com_st, pd_valid_st
 
+#Wait for status[bit_name]==state.
+def wait_for_status(bit_name, state, dt_sleep, quit_at_error=True):
+  i_bit= STATUS_STR_TO_BIT[bit_name]
+  while True:
+    status_word,diagnosis,pos_curr= read()
+    status_bits= BitsToBoolList(status_word, n_bits=16)
+    if status_bits[i_bit]==state:  break
+    if quit_at_error and status_bits[-1]:
+      print('''###Error during waiting for '{}':{}###'''.format(bit_name,state))
+      read()
+      return False
+    if dt_sleep is not None: time.sleep(dt_sleep)
+  return True
+
+
+def motor_on():
   #Motor on:
   data_1= dict(
       Control_Word  =0,
@@ -205,17 +204,68 @@ if __name__=='__main__':
   data_2= copy.deepcopy(data_1)
   data_2['Control_Word']= 1
   data_3= data_1
-  data_seq_e= [data_1, data_2, data_3]
+  write(data_1)
+  write(data_2)
+  if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=None, quit_at_error=False):  return
+  write(data_3)
+  #if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=None):  return
+  if not wait_for_status(bit_name='Motor:ON', state=True, dt_sleep=None, quit_at_error=False):  return
 
+def motor_off():
   #Motor off:
+  data_1= dict(
+      Control_Word  =0,
+      Device_Mode   =3,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=0,
+      Grip_Force    =10,
+      Drive_Velocity=10,
+      Base_Position =100,
+      Shift_Position=500,
+      Teach_Position=0,
+      Work_Position =1000)
   data_11= copy.deepcopy(data_1)
   data_11['Device_Mode']= 5
   data_12= copy.deepcopy(data_11)
   data_12['Control_Word']= 1
   data_13= data_11
-  data_seq_d= [data_11, data_12, data_13]
+  write(data_11)
+  write(data_12)
+  write(data_13)
+  if not wait_for_status(bit_name='Motor:ON', state=False, dt_sleep=None):  return
 
-  #Outside homing:
+def move_to(pos, speed=100, effort=20):
+  data_p1= dict(
+      Control_Word  =0,
+      Device_Mode   =50,
+      #Device_Mode   =51,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=50,
+      Grip_Force    =effort,
+      Drive_Velocity=speed,
+      Base_Position =75,
+      Shift_Position=76,
+      Teach_Position=0,
+      Work_Position =pos)
+  data_p2= copy.deepcopy(data_p1)
+  data_p2['Control_Word']= 1
+  data_p3= data_p1
+  data_p4= copy.deepcopy(data_p1)
+  data_p4['Control_Word']= 512  #MoveToWork
+  write(data_p1)
+  if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=None, quit_at_error=False):  return
+  write(data_p2)
+  if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=None, quit_at_error=False):  return
+  write(data_p3)
+  if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=None, quit_at_error=False):  return
+  write(data_p4)
+  if not wait_for_status(bit_name='Position:Work', state=True, dt_sleep=None, quit_at_error=False):  return
+  #if not wait_for_status(bit_name='PositionReq:Work', state=False, dt_sleep=None, quit_at_error=False):  return
+
+#Outside homing:
+def homing():
   data_h1= dict(
       Control_Word  =0,
       Device_Mode   =10,
@@ -231,7 +281,155 @@ if __name__=='__main__':
   data_h2= copy.deepcopy(data_h1)
   data_h2['Control_Word']= 1
   data_h3= data_h1
-  data_seq_h1= [data_h1, data_h2, data_h3]
+  #data_seq_h1= [data_h1, data_h2, data_h3]
+  write(data_h1)
+  if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=None):  return
+  write(data_h2)
+  if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=None):  return
+  write(data_h3)
+
+#Jog motion with jog mode.
+#  dt: +: close, -: open, 0: stop/start-jog.
+#    The absolute value of dt denotes the sleep time.
+def jog_with_jog(dt):
+  data_j11= dict(
+      Control_Word  =0,
+      Device_Mode   =11,
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=10,
+      Grip_Force    =20,
+      Drive_Velocity=100,
+      Base_Position =75,
+      Shift_Position=76,
+      Teach_Position=0,
+      Work_Position =MAX_POSITION)
+  data_j12= copy.deepcopy(data_j11)
+  data_j12['Control_Word']= 1
+  data_j13= data_j11
+  data_j14= copy.deepcopy(data_j11)
+  data_j14['Control_Word']= 1024
+  data_j15= copy.deepcopy(data_j11)
+  data_j15['Control_Word']= 2048
+  data_j16= copy.deepcopy(data_j11)
+  data_j16['Device_Mode']= 50
+  data_j16['Control_Word']= 1
+  if dt==0:
+    write(data_j11)
+    if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=None):  return
+    write(data_j12)
+    if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=None):  return
+    write(data_j13)
+    if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=None):  return
+    return
+  elif dt>0:
+    write(data_j14)
+    time.sleep(abs(dt))
+    write(data_j12)
+    return
+  elif dt<0:
+    write(data_j15)
+    time.sleep(abs(dt))
+    write(data_j12)
+    return
+
+#Jog motion with position profile.
+#  step: Step to move (plus or minus).  If zero, 4(ResetDirectionFlag) is sent.
+def jog_with_posp(step, reset_dir=False):
+  pos_curr= read()[2]
+  pos_trg= min(MAX_POSITION,max(100,pos_curr+step))
+  data_t10= dict(
+      Control_Word  =0,
+      #Device_Mode   =50,
+      Device_Mode   =51,  #Fast positioning mode.
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=50,
+      Grip_Force    =100,
+      Drive_Velocity=100,
+      Base_Position =75,
+      Shift_Position=76,
+      Teach_Position=0,
+      Work_Position =pos_curr)
+  if step==0:
+    data_t10['Control_Word']= 4  #ResetDirectionFlag
+    write(data_t10)
+    return
+  write(data_t10)
+  d= copy.deepcopy(data_t10)
+  d['Control_Word']= 1  #Data transfer
+  d['Work_Position']= pos_trg
+  write(d)
+  if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=None):  return
+  d['Control_Word']= 0  #Complete
+  write(d)
+  if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=None):  return
+  d['Control_Word']= 512  #MoveToWork
+  write(d)
+  if reset_dir:
+    time.sleep(0.05)
+    d['Control_Word']= 4  #ResetDirectionFlag
+    write(d)
+
+
+#Jog motion with position profile with a target duration.
+#  dt: +: close, -: open, 0: send ResetDirectionFlag, None: reset the control.
+#    The absolute value of dt denotes the sleep time.
+def jog_with_posp2(dt, vel=20, reset_dir=False):
+  data_t10= dict(
+      Control_Word  =0,
+      #Device_Mode   =50,  #Position profile
+      Device_Mode   =51,  #Fast positioning mode.
+      #Device_Mode   =60 if SELF_LOCK else 62,  #Force profile.
+      Workpiece_No  =0,
+      Reserve       =0,
+      Position_Tolerance=10,
+      Grip_Force    =100,
+      Drive_Velocity=vel,
+      Base_Position =75,
+      Shift_Position=76,
+      Teach_Position=0,
+      Work_Position =MAX_POSITION)
+  if dt is None:
+    write(data_t10)
+    d= copy.deepcopy(data_t10)
+    d['Control_Word']= 1  #Data transfer
+    write(d)
+    if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=None):  return
+    d['Control_Word']= 0  #Complete
+    write(d)
+    return
+  if dt==0:
+    data_t10['Control_Word']= 4  #ResetDirectionFlag
+    write(data_t10)
+    return
+  elif dt>0:
+    d= copy.deepcopy(data_t10)
+    d['Control_Word']= 512  #MoveToWork
+    write(d)
+    time.sleep(abs(dt))
+    d['Control_Word']= 1  #Data transfer; NOTE: At this point, the gripper stops.
+    write(d)
+    return
+  elif dt<0:
+    d= copy.deepcopy(data_t10)
+    d['Control_Word']= 256  #MoveToBase
+    write(d)
+    time.sleep(abs(dt))
+    d['Control_Word']= 1  #Data transfer; NOTE: At this point, the gripper stops.
+    write(d)
+    return
+
+
+
+if __name__=='__main__':
+  #Connection to the server:
+  client= ModbusClient(SERVER_URI, port=PORT)
+  client.connect()
+  MODBUS_CLIENT= client
+
+  print('Connection established: {}'.format(client))
+
 
   #For gripper open close (position profile):
   data_p1= dict(
@@ -539,101 +737,101 @@ if __name__=='__main__':
         if not wait_for_status(bit_name='PositionReq:Work', state=False, dt_sleep=dt_sleep):  return
       #time.sleep(0.05)
 
-  #Jog motion with position profile.
-  #  step: Step to move (plus or minus).  If zero, 4(ResetDirectionFlag) is sent.
-  def jog_with_posp(step):
-    pos_curr= read()[2]
-    pos_trg= min(MAX_POSITION,max(100,pos_curr+step))
-    data_t10= dict(
-        Control_Word  =0,
-        Device_Mode   =50,
-        #Device_Mode   =51,  #Fast positioning mode.
-        Workpiece_No  =0,
-        Reserve       =0,
-        Position_Tolerance=50,
-        Grip_Force    =100,
-        Drive_Velocity=100,
-        Base_Position =75,
-        Shift_Position=76,
-        Teach_Position=0,
-        Work_Position =pos_curr)
-    dt_sleep= None
-    def sleep():
-      if dt_sleep is not None: time.sleep(dt_sleep)
-    if step==0:
-      data_t10['Control_Word']= 4  #ResetDirectionFlag
-      write(data_t10)
-      sleep()
-      return
-    write(data_t10)
-    sleep()
-    d= copy.deepcopy(data_t10)
-    d['Control_Word']= 1  #Data transfer
-    d['Work_Position']= pos_trg
-    write(d)
+  ##Jog motion with position profile.
+  ##  step: Step to move (plus or minus).  If zero, 4(ResetDirectionFlag) is sent.
+  #def jog_with_posp(step):
+    #pos_curr= read()[2]
+    #pos_trg= min(MAX_POSITION,max(100,pos_curr+step))
+    #data_t10= dict(
+        #Control_Word  =0,
+        #Device_Mode   =50,
+        ##Device_Mode   =51,  #Fast positioning mode.
+        #Workpiece_No  =0,
+        #Reserve       =0,
+        #Position_Tolerance=50,
+        #Grip_Force    =100,
+        #Drive_Velocity=100,
+        #Base_Position =75,
+        #Shift_Position=76,
+        #Teach_Position=0,
+        #Work_Position =pos_curr)
+    #dt_sleep= None
+    #def sleep():
+      #if dt_sleep is not None: time.sleep(dt_sleep)
+    #if step==0:
+      #data_t10['Control_Word']= 4  #ResetDirectionFlag
+      #write(data_t10)
+      #sleep()
+      #return
+    #write(data_t10)
     #sleep()
-    if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
-    d['Control_Word']= 0  #Complete
-    write(d)
-    sleep()
-    if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
-    d['Control_Word']= 512  #MoveToWork
-    write(d)
-    sleep()
-    time.sleep(0.05)
-    d['Control_Word']= 4  #ResetDirectionFlag
-    write(d)
-    sleep()
+    #d= copy.deepcopy(data_t10)
+    #d['Control_Word']= 1  #Data transfer
+    #d['Work_Position']= pos_trg
+    #write(d)
+    ##sleep()
+    #if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
+    #d['Control_Word']= 0  #Complete
+    #write(d)
+    #sleep()
+    #if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
+    #d['Control_Word']= 512  #MoveToWork
+    #write(d)
+    #sleep()
+    #time.sleep(0.05)
+    #d['Control_Word']= 4  #ResetDirectionFlag
+    #write(d)
+    #sleep()
 
-  #Jog motion with jog mode.
-  #  step: +: close, -: open, 0: stop/start-jog.
-  def jog_with_jog(step):
-    data_j11= dict(
-        Control_Word  =0,
-        Device_Mode   =11,
-        Workpiece_No  =0,
-        Reserve       =0,
-        Position_Tolerance=10,
-        Grip_Force    =20,
-        Drive_Velocity=100,
-        Base_Position =75,
-        Shift_Position=76,
-        Teach_Position=100,
-        Work_Position =MAX_POSITION)
-    data_j12= copy.deepcopy(data_j11)
-    data_j12['Control_Word']= 1
-    data_j13= data_j11
-    data_j14= copy.deepcopy(data_j11)
-    data_j14['Control_Word']= 1024
-    data_j15= copy.deepcopy(data_j11)
-    data_j15['Control_Word']= 2048
-    data_j16= copy.deepcopy(data_j11)
-    data_j16['Device_Mode']= 50
-    data_j16['Control_Word']= 1
-    #data_seq_j1= [data_j1, data_j2, data_j3, data_j4, data_j5, data_j6]
-    dt_sleep= None
-    def sleep():
-      if dt_sleep is not None: time.sleep(dt_sleep)
-    if step==0:
-      write(data_j11)
-      sleep()
-      write(data_j12)
-      sleep()
-      if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
-      write(data_j13)
-      sleep()
-      if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
-      return
-    elif step>0:
-      write(data_j14)
-      time.sleep(abs(step))
-      write(data_j12)
-      return
-    elif step<0:
-      write(data_j15)
-      time.sleep(abs(step))
-      write(data_j12)
-      return
+  ##Jog motion with jog mode.
+  ##  step: +: close, -: open, 0: stop/start-jog.
+  #def jog_with_jog(step):
+    #data_j11= dict(
+        #Control_Word  =0,
+        #Device_Mode   =11,
+        #Workpiece_No  =0,
+        #Reserve       =0,
+        #Position_Tolerance=10,
+        #Grip_Force    =20,
+        #Drive_Velocity=100,
+        #Base_Position =75,
+        #Shift_Position=76,
+        #Teach_Position=100,
+        #Work_Position =MAX_POSITION)
+    #data_j12= copy.deepcopy(data_j11)
+    #data_j12['Control_Word']= 1
+    #data_j13= data_j11
+    #data_j14= copy.deepcopy(data_j11)
+    #data_j14['Control_Word']= 1024
+    #data_j15= copy.deepcopy(data_j11)
+    #data_j15['Control_Word']= 2048
+    #data_j16= copy.deepcopy(data_j11)
+    #data_j16['Device_Mode']= 50
+    #data_j16['Control_Word']= 1
+    ##data_seq_j1= [data_j1, data_j2, data_j3, data_j4, data_j5, data_j6]
+    #dt_sleep= None
+    #def sleep():
+      #if dt_sleep is not None: time.sleep(dt_sleep)
+    #if step==0:
+      #write(data_j11)
+      #sleep()
+      #write(data_j12)
+      #sleep()
+      #if not wait_for_status(bit_name='DataTransfer:OK', state=True, dt_sleep=dt_sleep):  return
+      #write(data_j13)
+      #sleep()
+      #if not wait_for_status(bit_name='DataTransfer:OK', state=False, dt_sleep=dt_sleep):  return
+      #return
+    #elif step>0:
+      #write(data_j14)
+      #time.sleep(abs(step))
+      #write(data_j12)
+      #return
+    #elif step<0:
+      #write(data_j15)
+      #time.sleep(abs(step))
+      #write(data_j12)
+      #return
 
   try:
     while True:
@@ -643,9 +841,9 @@ if __name__=='__main__':
       command_list=[
         ['q', ('quit', None)],
         ['r', ('read', None)],
-        ['E', ('enable motor',  data_seq_e)],
-        ['D', ('disable motor', data_seq_d)],
-        ['H', ('outside homing', data_seq_h1)],
+        ['E', ('enable motor',  motor_on)],
+        ['D', ('disable motor', motor_off)],
+        ['H', ('outside homing', homing)],
         ['p', ('gripper control [position profile]',  data_seq_p1)],
         ['[', ('gripper control [position profile/with reset]',  data_seq_p2)],
         [']', ('gripper control [position profile/with stop]',  close_stop_open1)],
@@ -661,6 +859,9 @@ if __name__=='__main__':
         ['a', ('jog with jog mode [+/close]', lambda: jog_with_jog(0.1))],
         ['s', ('jog with jog mode [reset_dir]', lambda: jog_with_jog(0))],
         ['d', ('jog with jog mode [-/open]', lambda: jog_with_jog(-0.1))],
+        ['v', ('jog with position mode (2) [+/close]', lambda: jog_with_posp2(0.1))],
+        ['b', ('jog with position mode (2) [reset]', lambda: jog_with_posp2(None))],
+        ['n', ('jog with position mode (2) [-/open]', lambda: jog_with_posp2(-0.1))],
         ]
       command_dict= {key:(help_str, data_seq) for key,(help_str, data_seq) in command_list}
       print('Type command:')
@@ -690,3 +891,5 @@ if __name__=='__main__':
   finally:
     #Disconnect from the server.*
     client.close()
+    MODBUS_CLIENT= None
+
