@@ -10,7 +10,8 @@ from pymodbus.pdu import ExceptionResponse
 from kbhit2 import KBHAskGen
 
 #SERVER_URI= '192.168.250.81'
-SERVER_URI= '10.10.6.204'
+#SERVER_URI= '10.10.6.204'
+SERVER_URI= '192.168.1.100'  #CRX
 PORT= 502
 
 if __name__=='__main__':
@@ -21,7 +22,7 @@ if __name__=='__main__':
   print('Connection established: {}'.format(client))
 
   try:
-    address= 0  #Should be within the M-Register Address setting of Motoman.
+    address= 4  #Should be within the M-Register Address setting of Motoman.
     count= 10  #Should be the same or smaller than the M-Register Size (word) setting of Motoman.
 
     while True:
