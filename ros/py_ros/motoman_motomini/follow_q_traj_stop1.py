@@ -1,18 +1,21 @@
 #!/usr/bin/python
-#\file    follow_q_traj1.py
-#\brief   Follow a joint angle trajectory.
+#\file    follow_q_traj_stop1.py
+#\brief   Follow a trajectory and stop when indicated by the operator.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Oct.2, 2022
-#Based on: ../baxter/follow_q_traj1.py
-
+#\date    Oct.26, 2023
 import roslib; roslib.load_manifest('motoman_driver')
 import rospy
 import actionlib
 import control_msgs.msg
 import trajectory_msgs.msg
+import actionlib_msgs.msg
 import time, math, sys, copy
 from get_q1 import GetState
+from kbhit2 import TKBHit
+
+StateToStr= {getattr(actionlib_msgs.msg.GoalStatus,key):key for key in ('PENDING', 'ACTIVE', 'RECALLED', 'REJECTED', 'PREEMPTED', 'ABORTED', 'SUCCEEDED', 'LOST')}
+print 'StateToStr=',StateToStr
 
 if __name__=='__main__':
   rospy.init_node('moto_test')
@@ -28,15 +31,9 @@ if __name__=='__main__':
     sys.exit(1)
 
   client.cancel_goal()
-  #client.wait_for_result(timeout=rospy.Duration(20.0))
-  #rospy.sleep(2.0)
 
   goal= control_msgs.msg.FollowJointTrajectoryGoal()
-  #goal.goal_time_tolerance= rospy.Time(0.1)
   goal.trajectory.joint_names= joint_names
-  #NOTE: We need to specify velocities. Otherwise:
-  #error_code: -1
-  #error_string: "Received a goal without velocities"
   def add_point(goal, time, positions, velocities):
     point= trajectory_msgs.msg.JointTrajectoryPoint()
     point.positions= copy.deepcopy(positions)
@@ -52,12 +49,22 @@ if __name__=='__main__':
   add_point(goal, dt*3.0, [q-0.2 for q in angles], [0.0]*6)
   add_point(goal, dt*4.0, angles, [0.0]*6)
 
-  goal.trajectory.header.stamp= rospy.Time.now()
-  client.send_goal(goal)
-  #rospy.sleep(1.0)
-  #client.cancel_goal()
-  #client.wait_for_result(timeout=rospy.Duration(20.0))
-
+  with TKBHit() as kbhit:
+    rate_adjustor= rospy.Rate(50)
+    goal.trajectory.header.stamp= rospy.Time.now()
+    client.send_goal(goal)
+    print 'trajectory started. hit space to stop.'
+    while not rospy.is_shutdown():
+      c= kbhit.KBHit()
+      if c==' ':
+        print 'stopping the trajectory...'
+        client.cancel_goal()
+        break
+      if client.get_state() != actionlib_msgs.msg.GoalStatus.ACTIVE:
+        print 'state: {} ({})'.format(StateToStr[client.get_state()], client.get_state())
+      if client.get_state() not in (actionlib_msgs.msg.GoalStatus.PENDING, actionlib_msgs.msg.GoalStatus.ACTIVE):
+        break
+      rate_adjustor.sleep()
   print client.get_result()
 
   rospy.signal_shutdown('Done.')

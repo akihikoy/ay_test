@@ -1,11 +1,9 @@
 #!/usr/bin/python
-#\file    follow_q_traj1.py
-#\brief   Follow a joint angle trajectory.
+#\file    move_to_zero.py
+#\brief   Move to zero pose.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Oct.2, 2022
-#Based on: ../baxter/follow_q_traj1.py
-
+#\date    Oct.26, 2023
 import roslib; roslib.load_manifest('motoman_driver')
 import rospy
 import actionlib
@@ -28,15 +26,9 @@ if __name__=='__main__':
     sys.exit(1)
 
   client.cancel_goal()
-  #client.wait_for_result(timeout=rospy.Duration(20.0))
-  #rospy.sleep(2.0)
 
   goal= control_msgs.msg.FollowJointTrajectoryGoal()
-  #goal.goal_time_tolerance= rospy.Time(0.1)
   goal.trajectory.joint_names= joint_names
-  #NOTE: We need to specify velocities. Otherwise:
-  #error_code: -1
-  #error_string: "Received a goal without velocities"
   def add_point(goal, time, positions, velocities):
     point= trajectory_msgs.msg.JointTrajectoryPoint()
     point.positions= copy.deepcopy(positions)
@@ -46,11 +38,8 @@ if __name__=='__main__':
 
   angles= GetState().position
   print 'current angles:',angles
-  dt= 1.0
   add_point(goal, 0.0, angles, [0.0]*6)
-  add_point(goal, dt*1.0, [q+0.2 for q in angles], [0.0]*6)
-  add_point(goal, dt*3.0, [q-0.2 for q in angles], [0.0]*6)
-  add_point(goal, dt*4.0, angles, [0.0]*6)
+  add_point(goal, 3.0, [0.0]*6, [0.0]*6)
 
   goal.trajectory.header.stamp= rospy.Time.now()
   client.send_goal(goal)
