@@ -1,9 +1,12 @@
 #!/usr/bin/python
-#\file    kdl_kin.py
+#\file    kdl_kin2.py
 #\brief   Robot kinematics solver using KDL.
+#         IK is updated to use weighted pseudo inverse of Jacobian.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Oct.23, 2017
+#\date    Feb.5, 2018
+#\date    Jun.12, 2018
 import roslib; roslib.load_manifest('urdfdom_py')
 import rospy
 import kdl_parser_py.urdf
@@ -25,16 +28,16 @@ class TKinematics(object):
     base_link Base link of kinematic chain to be considered.
       Can be None; in this case, a root link obtained from URDF is used.
     end_link End link of kinematic chain to be considered. '''
-  def __init__(self, base_link=None, end_link=None):
-    self._robot = kdl_parser_py.urdf.urdf.URDF.from_parameter_server('robot_description')
+  def __init__(self, base_link=None, end_link=None, description='robot_description'):
+    self._robot = kdl_parser_py.urdf.urdf.URDF.from_parameter_server(description)
     (ok, self._kdl_tree)= kdl_parser_py.urdf.treeFromUrdfModel(self._robot)
-    self._base_link = self._robot.get_root()
+    self._base_link = self._robot.get_root() if base_link is None else base_link
     self._tip_link = end_link
     self._tip_frame = PyKDL.Frame()
     self._arm_chain = self._kdl_tree.getChain(self._base_link, self._tip_link)
 
     #self.joint_names = [joint.name for joint in self._robot.joints if joint.type!='fixed']
-    self.joint_names = [self._arm_chain.getSegment(i).getJoint().getName() for i in range(self._arm_chain.getNrOfSegments())]
+    self.joint_names = [self._arm_chain.getSegment(i).getJoint().getName() for i in range(self._arm_chain.getNrOfSegments()) if self._arm_chain.getSegment(i).getJoint().getType()!=PyKDL.Joint.None]
     self._num_jnts = len(self.joint_names)
 
     # Store joint information for future use
@@ -43,8 +46,8 @@ class TKinematics(object):
     # KDL Solvers
     self._fk_p_kdl = PyKDL.ChainFkSolverPos_recursive(self._arm_chain)
     self._fk_v_kdl = PyKDL.ChainFkSolverVel_recursive(self._arm_chain)
-    self._ik_v_kdl = PyKDL.ChainIkSolverVel_pinv(self._arm_chain)
-    self._ik_p_kdl = PyKDL.ChainIkSolverPos_NR(self._arm_chain, self._fk_p_kdl, self._ik_v_kdl)
+    #self._ik_v_kdl = PyKDL.ChainIkSolverVel_pinv(self._arm_chain)
+    #self._ik_p_kdl = PyKDL.ChainIkSolverPos_NR(self._arm_chain, self._fk_p_kdl, self._ik_v_kdl)
     self._jac_kdl = PyKDL.ChainJntToJacSolver(self._arm_chain)
     self._dyn_kdl = PyKDL.ChainDynParam(self._arm_chain, PyKDL.Vector.Zero())
 
@@ -63,13 +66,16 @@ class TKinematics(object):
     print "KDL-chain joints: %d" % self._arm_chain.getNrOfJoints()
     print "KDL-chain segment names: %s" % [self._arm_chain.getSegment(i).getName() for i in range(self._arm_chain.getNrOfSegments())]
     print "KDL-chain joint names: %s" % [self._arm_chain.getSegment(i).getJoint().getName() for i in range(self._arm_chain.getNrOfSegments())]
+    print "KDL-chain joint types: %s" % [self._arm_chain.getSegment(i).getJoint().getType() for i in range(self._arm_chain.getNrOfSegments())]
     #print [self._arm_chain.getSegment(i) for i in range(self._arm_chain.getNrOfSegments())]
+
+    print "Effective joint names: %s" % self.joint_names
 
   def get_joint_information(self):
     self._urdf_joints = {joint.name:joint for joint in self._robot.joints if joint.type!='fixed'}
     limits= [self._urdf_joints[jnt_name].limit for jnt_name in self.joint_names]
-    self.joint_limits_lower = [-np.inf if limit is None else limit.lower for limit in limits]
-    self.joint_limits_upper = [+np.inf if limit is None else limit.upper for limit in limits]
+    self.joint_limits_lower = [-np.inf if (limit is None or limit.lower is None) else limit.lower for limit in limits]
+    self.joint_limits_upper = [+np.inf if (limit is None or limit.lower is None) else limit.upper for limit in limits]
     self.joint_types = [self._urdf_joints[jnt_name].type for jnt_name in self.joint_names]
 
   def joints_to_kdl(self, type, values=None):
@@ -112,8 +118,31 @@ class TKinematics(object):
     self._fk_v_kdl.JntToCart(self.joints_to_kdl('velocities',joint_velocities), end_frame)
     return end_frame.GetTwist()
 
-  def inverse_kinematics(self, position, orientation=None, seed=None, min_joints=None, max_joints=None, maxiter=500, eps=1.0e-6):
-    #ik = PyKDL.ChainIkSolverVel_pinv(self._arm_chain)
+  '''
+  IK interface.
+    position, orientation: Target pose.
+    seed: Initial joint positions.
+    min_joints,max_joints: Joint limits.  If None, existing values are used.
+    w_x, w_q: ChainIkSolverVel_wdls (weighted pinv) is used if one of them is not None.
+      cf. https://github.com/orocos/orocos_kinematics_dynamics/blob/master/orocos_kdl/src/chainiksolvervel_wdls.hpp
+      w_x: Weights on task space (position and orientation).
+      w_q: Weights on joint space (joint positions).
+      w_x and w_q should be a list of matrix, e.g. np.diag([1.0,1.0,1.0, 0.1,0.1,0.1]).tolist()
+    maxiter: Number of max iterations.
+    eps: Tolerance.
+    with_st: Return with state (state = If-solved, last-result).
+      If False, this returns: last-result (solved), or, None (not solved).
+  TODO:
+    We want to use ChainIkSolverPos_LMA (IK with Levenberg-Marquardt) which is more robust.
+    However the current implementation does not take into account the joint limits.
+  '''
+  def inverse_kinematics(self, position, orientation=None, seed=None, min_joints=None, max_joints=None, w_x=None, w_q=None, maxiter=500, eps=1.0e-6, with_st=False):
+    if w_x is None and w_q is None:
+      ik_v_kdl = PyKDL.ChainIkSolverVel_pinv(self._arm_chain)
+    else:
+      ik_v_kdl = PyKDL.ChainIkSolverVel_wdls(self._arm_chain)
+      if w_x is not None:  ik_v_kdl.setWeightTS(w_x)  #TS = Task Space
+      if w_q is not None:  ik_v_kdl.setWeightJS(w_q)  #JS = Joint Space
     pos = PyKDL.Vector(position[0], position[1], position[2])
     if orientation is not None:
         rot = PyKDL.Rotation()
@@ -142,13 +171,17 @@ class TKinematics(object):
     maxs_kdl = PyKDL.JntArray(len(max_joints))
     for idx,jnt in enumerate(max_joints):  maxs_kdl[idx] = jnt
     ik_p_kdl = PyKDL.ChainIkSolverPos_NR_JL(self._arm_chain, mins_kdl, maxs_kdl,
-                                            self._fk_p_kdl, self._ik_v_kdl, maxiter, eps)
+                                            self._fk_p_kdl, ik_v_kdl, maxiter, eps)
 
     if ik_p_kdl.CartToJnt(seed_array, goal_pose, result_angles) >= 0:
         result = np.array(list(result_angles))
-        return result
+        if with_st: return True,result
+        else:  return result
     else:
-        return None
+        if with_st:
+          result = np.array(list(result_angles))
+          return False,result
+        else:  return None
 
   def jacobian(self,joint_values=None):
     jacobian = PyKDL.Jacobian(self._num_jnts)

@@ -10,10 +10,11 @@ from kdl_kin2 import TKinematics
 if __name__=='__main__':
   np.set_printoptions(precision=3)
 
-  print 'Testing TKinematics (robot_description == Yaskawa Motoman is assumed).'
-  print 'Before executing this script, run:'
-  print '  rosparam load `rospack find motoman_sia10f_support`/urdf/sia10f.urdf robot_description'
-  kin= TKinematics(end_link='link_t')
+  print 'Testing TKinematics.'
+  print 'Before executing this script, a robot model should be uploaded to robot_description:'
+  print '  rosparam load xxxx.urdf robot_description'
+  #kin= TKinematics(end_link='link_t')
+  kin= TKinematics(end_link='tool0')
   kin.print_robot_description()
 
   DoF= len(kin.joint_names)
