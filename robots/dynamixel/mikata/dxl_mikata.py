@@ -71,6 +71,8 @@ class TMikata(object):
     return True
 
   def Quit(self):
+    self.StopTrajectory()
+    self.StopStateObs()
     for dxl in self.dxl.values():
       dxl.Quit()
 
@@ -152,7 +154,7 @@ class TMikata(object):
   #Move the position to a given value(rad).
   #  target: Target positions {joint_name:position(rad)}
   #  blocking: True: this function waits the target position is reached.  False: this function returns immediately.
-  def MoveTo(self, target, blocking=True, threshold=0.03):
+  def MoveTo(self, target, blocking=True, threshold=0.05):
     with self.port_locker:
       for jname,pos in target.iteritems():
         self.dxl[jname].MoveTo(self.invconv_pos[jname](pos),blocking=False)
@@ -166,7 +168,7 @@ class TMikata(object):
   #Move the position to a given value(rad) with given current(mA).
   #  target: Target positions and currents {joint_name:(position(rad),current(mA))}
   #  blocking: True: this function waits the target position is reached.  False: this function returns immediately.
-  def MoveToC(self, target, blocking=True, threshold=0.03):
+  def MoveToC(self, target, blocking=True, threshold=0.05):
     with self.port_locker:
       for jname,(pos,curr) in target.iteritems():
         self.dxl[jname].MoveToC(self.invconv_pos[jname](pos),self.invconv_curr[jname](curr),blocking=False)

@@ -54,13 +54,16 @@ try:
     with key_locker:
       c= key_cmd[0]; key_cmd[0]= None
     mov= None
-    d= 0.01
+    #d= 0.01
+    d= 0.05
     if c is not None:
       if c=='q':  break
       elif c in ('z','x'):  mov= {'z':[-d,-d,0,0],'x':[d,d,0,0]}[c]
       elif c in ('c','v'):  mov= {'c':[0,0,-d,-d],'v':[0,0,d,d]}[c]
       elif c in ('a','s','d'):
         trg= np.array([0.28, 0.28, 0.72, 0.72]) + {'a':[0,0,0,0],'s':[0,0,-0.6,-0.6],'d':[-0.25,-0.25,0,0]}[c]
+        #NOTE:MODEL2023
+        #trg= np.array([-0.5, -0.5, 1.0, 1.0]) + {'a':[0,0,0,0],'s':[0,0,-0.6,-0.6],'d':[-0.2,-0.2,0,0]}[c]
         gripper.MoveTo({jname:p for jname,p in zip(gripper.JointNames(),trg)})
       elif c=='r':
         gripper.Reboot()
@@ -90,6 +93,7 @@ try:
       #[dxl[i].PWM() for i,_ in enumerate(DXL_ID)])
     print 'Position=','[',', '.join(['{:.4f}'.format(p) for p in gripper.Position()]),']'
 finally:
+  print 'Finishing...'
   is_running[0]= False
   t1.join()
 
