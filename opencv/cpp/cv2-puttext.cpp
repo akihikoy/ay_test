@@ -37,7 +37,9 @@ int main(int argc, char**argv)
     std::stringstream ss;
     ss<<std::setprecision(14)<<time;
     frame.setTo(0);
-    cv::putText(frame, ss.str(), cv::Point(10,35), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0,255,0), 1, CV_AA);
+    double font_scale(1.0);
+    int thickness(1);
+    cv::putText(frame, ss.str(), cv::Point(10,35), cv::FONT_HERSHEY_SIMPLEX, font_scale, cv::Scalar(0,255,0), thickness, CV_AA);
     cv::imshow("time", frame);
     char c(cv::waitKey(100));
     if(c=='\x1b'||c=='q') break;
