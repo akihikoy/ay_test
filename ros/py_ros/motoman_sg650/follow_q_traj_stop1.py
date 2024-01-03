@@ -10,8 +10,10 @@ import actionlib
 import control_msgs.msg
 import trajectory_msgs.msg
 import actionlib_msgs.msg
+import sensor_msgs.msg
 import time, math, sys, copy
-from get_q1 import GetState
+#from get_q1 import GetState
+import get_q2
 from kbhit2 import TKBHit
 
 StateToStr= {getattr(actionlib_msgs.msg.GoalStatus,key):key for key in ('PENDING', 'ACTIVE', 'RECALLED', 'REJECTED', 'PREEMPTED', 'ABORTED', 'SUCCEEDED', 'LOST')}
@@ -22,6 +24,8 @@ if __name__=='__main__':
 
   joint_names= rospy.get_param('controller_joint_names')
   dof= len(joint_names)
+
+  sub_js= rospy.Subscriber('/joint_states', sensor_msgs.msg.JointState, get_q2.JointStatesCallback)
 
   client= actionlib.SimpleActionClient('/joint_trajectory_action', control_msgs.msg.FollowJointTrajectoryAction)
 
@@ -42,7 +46,12 @@ if __name__=='__main__':
     point.time_from_start= rospy.Duration(time)
     goal.trajectory.points.append(point)
 
-  angles= GetState().position
+  for i in range(100):
+    if get_q2.q_curr is not None:  break
+    print get_q2.q_curr
+    rospy.sleep(0.1)
+  #angles= GetState().position
+  angles= get_q2.q_curr
   print 'current angles:',angles
   dt= 1.0
   add_point(goal, 0.0, angles, [0.0]*dof)
@@ -59,7 +68,22 @@ if __name__=='__main__':
       c= kbhit.KBHit()
       if c==' ':
         print 'stopping the trajectory...'
+        #Method-1: Basically stops, but sometimes (especially in the last period) does not stop.
+        #  No message from MotoROS.
         client.cancel_goal()
+        #Method-2: Failed with: Joint trajectory action failed on empty trajectory.
+        #goal_empty= control_msgs.msg.FollowJointTrajectoryGoal()
+        #goal_empty.trajectory.joint_names= joint_names
+        #goal_empty.trajectory.header.stamp= rospy.Time(0,0)
+        #client.send_goal(goal_empty)
+        #Method-3: Basically stops, but sometimes (especially in the last period) does not stop.
+        #  Received new goal, canceling current goal
+        #  Validation failed: Trajectory doesn't start at current position.
+        #goal_stop= control_msgs.msg.FollowJointTrajectoryGoal()
+        #goal_stop.trajectory.joint_names= joint_names
+        #add_point(goal_stop, 0.0, get_q2.q_curr, [0.0]*dof)
+        #goal_stop.trajectory.header.stamp= rospy.Time.now()
+        #client.send_goal(goal_stop)
         break
       if client.get_state() != actionlib_msgs.msg.GoalStatus.ACTIVE:
         print 'state: {} ({})'.format(StateToStr[client.get_state()], client.get_state())
