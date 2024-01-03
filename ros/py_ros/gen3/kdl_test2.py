@@ -12,7 +12,7 @@ if __name__=='__main__':
   np.set_printoptions(precision=3)
 
   print 'Testing TKinematics (robot_description == Gen3 is assumed).'
-  #kin= TKinematics(base_link='base_link',end_link='wrist_3_link')
+  #kin= TKinematics(base_link='base_link',end_link='spherical_wrist_1_link',description='/gen3a/robot_description')
   kin= TKinematics(base_link='base_link',end_link='end_effector_link',description='/gen3a/robot_description')
   kin.print_robot_description()
 
@@ -42,3 +42,6 @@ if __name__=='__main__':
     print '|x2-x1|=',np.linalg.norm(x2-x1)
   else:
     print 'Failed to solve IK.'
+
+  angles= {joint:q1[j] for j,joint in enumerate(kin.joint_names)}  #Deserialize
+  print 'jacobian(q1):',kin.jacobian(angles)

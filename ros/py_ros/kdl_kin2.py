@@ -7,6 +7,7 @@
 #\date    Oct.23, 2017
 #\date    Feb.5, 2018
 #\date    Jun.12, 2018
+#\date    Jan.3, 2024
 import roslib; roslib.load_manifest('urdfdom_py')
 import rospy
 import kdl_parser_py.urdf
@@ -25,15 +26,19 @@ PyKDL:
 '''
 class TKinematics(object):
   '''Create the class.
-    base_link Base link of kinematic chain to be considered.
+    base_link: Base link of kinematic chain to be considered.
       Can be None; in this case, a root link obtained from URDF is used.
-    end_link End link of kinematic chain to be considered. '''
-  def __init__(self, base_link=None, end_link=None, description='robot_description'):
+    end_link: End link of kinematic chain to be considered.
+    lo_limit_default: Lower limit of joint angle used when it is not provided by URDF.
+    hi_limit_default: Upper limit of joint angle used when it is not provided by URDF.'''
+  def __init__(self, base_link=None, end_link=None, description='robot_description', lo_limit_default=-np.pi*2.0, hi_limit_default=np.pi*2.0):
     self._robot = kdl_parser_py.urdf.urdf.URDF.from_parameter_server(description)
     (ok, self._kdl_tree)= kdl_parser_py.urdf.treeFromUrdfModel(self._robot)
     self._base_link = self._robot.get_root() if base_link is None else base_link
     self._tip_link = end_link
     self._tip_frame = PyKDL.Frame()
+    self._lo_limit_default = lo_limit_default
+    self._hi_limit_default = hi_limit_default
     self._arm_chain = self._kdl_tree.getChain(self._base_link, self._tip_link)
 
     #self.joint_names = [joint.name for joint in self._robot.joints if joint.type!='fixed']
@@ -57,6 +62,8 @@ class TKinematics(object):
     print "URDF links: %d" % len(self._robot.links)
     print "URDF link names: %s" % [link.name for link in self._robot.links]
     print "URDF joint names: %s" % [joint.name for joint in self._robot.joints]
+    print "URDF joint lower limits: %s" % [self._urdf_joints[jnt_name].limit.lower if self._urdf_joints[jnt_name].limit is not None else None for jnt_name in self.joint_names]
+    print "URDF joint upper limits: %s" % [self._urdf_joints[jnt_name].limit.upper if self._urdf_joints[jnt_name].limit is not None else None for jnt_name in self.joint_names]
     print "URDF Root: %s" % self._robot.get_root()
 
     print "KDL segments: %d" % self._kdl_tree.getNrOfSegments()
@@ -67,6 +74,8 @@ class TKinematics(object):
     print "KDL-chain segment names: %s" % [self._arm_chain.getSegment(i).getName() for i in range(self._arm_chain.getNrOfSegments())]
     print "KDL-chain joint names: %s" % [self._arm_chain.getSegment(i).getJoint().getName() for i in range(self._arm_chain.getNrOfSegments())]
     print "KDL-chain joint types: %s" % [self._arm_chain.getSegment(i).getJoint().getType() for i in range(self._arm_chain.getNrOfSegments())]
+    print "KDL-chain joint lower limits: %s" % self.joint_limits_lower
+    print "KDL-chain joint upper limits: %s" % self.joint_limits_upper
     #print [self._arm_chain.getSegment(i) for i in range(self._arm_chain.getNrOfSegments())]
 
     print "Effective joint names: %s" % self.joint_names
@@ -74,8 +83,8 @@ class TKinematics(object):
   def get_joint_information(self):
     self._urdf_joints = {joint.name:joint for joint in self._robot.joints if joint.type!='fixed'}
     limits= [self._urdf_joints[jnt_name].limit for jnt_name in self.joint_names]
-    self.joint_limits_lower = [-np.inf if (limit is None or limit.lower is None) else limit.lower for limit in limits]
-    self.joint_limits_upper = [+np.inf if (limit is None or limit.lower is None) else limit.upper for limit in limits]
+    self.joint_limits_lower = [self._lo_limit_default if (limit is None or limit.lower is None or limit.lower==limit.upper==0) else limit.lower for limit in limits]
+    self.joint_limits_upper = [self._hi_limit_default if (limit is None or limit.upper is None or limit.lower==limit.upper==0) else limit.upper for limit in limits]
     self.joint_types = [self._urdf_joints[jnt_name].type for jnt_name in self.joint_names]
 
   def joints_to_kdl(self, type, values=None):
