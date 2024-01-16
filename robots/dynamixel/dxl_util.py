@@ -442,7 +442,11 @@ class TDynamixel1(object):
     elif type=='RH-P12-RN(A)':  self.MAX_PWM = 2009
     elif type=='PH54-200-S500':  self.MAX_PWM = 2009
     elif type=='PM54-060-S250':  self.MAX_PWM = 2009
-
+    self.MAX_VELOCITY = 1023
+    if type=='RH-P12-RN':   self.MAX_VELOCITY = 2147483647
+    elif type=='RH-P12-RN(A)':   self.MAX_VELOCITY = 2970
+    elif type=='PH54-200-S500':   self.MAX_VELOCITY = 2900
+    elif type=='PM54-060-S250':   self.MAX_VELOCITY = 2830
     self.POSITION_UNIT= math.pi/2048.0
     self.POSITION_OFFSET= 2048.0
     if type=='PH54-200-S500':
@@ -833,6 +837,15 @@ class TDynamixel1(object):
     elif pwm > self.MAX_PWM:  pwm = self.MAX_PWM
 
     self.Write('GOAL_PWM', pwm)
+    #if not self.CheckTxRxResult():  return
+    self.CheckTxRxResult()
+
+  #Set velocity
+  def SetVelocity(self, velocity):
+    if velocity < -self.MAX_VELOCITY:  velocity = -self.MAX_VELOCITY
+    elif velocity > self.MAX_VELOCITY:  velocity = self.MAX_VELOCITY
+
+    self.Write('GOAL_VELOCITY', velocity)
     #if not self.CheckTxRxResult():  return
     self.CheckTxRxResult()
 
