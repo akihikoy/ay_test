@@ -29,6 +29,9 @@
 #\version 0.9
 #\date    Sep.19, 2022
 #         Added RH-P12-RN(A).
+#\version 0.10
+#\date    Jan.17, 2024
+#         Added MX-12W.
 
 #cf. DynamixelSDK/python/tests/protocol2_0/read_write.py
 #DynamixelSDK: https://github.com/ROBOTIS-GIT/DynamixelSDK
@@ -275,6 +278,52 @@ class TDynamixel1(object):
         self.ADDR['ACC_LIMIT']= (None,None)
       self.PROTOCOL_VERSION = 2  # Protocol version of Dynamixel
 
+    elif type in ('MX-12W',):
+      #ADDR[NAME]=(ADDRESS,SIZE)
+      self.ADDR={
+        'MODEL_NUMBER'        : (0, 2),
+        'FIRMWARE_VERSION'    : (2, 1),
+        'ID'                  : (3, 1),
+        'BAUD_RATE'           : (4, 1),
+        'RETURN_DELAY_TIME'   : (5, 1),
+        'CW_ANGLE_LIMIT'      : (6, 2),
+        'CCW_ANGLE_LIMIT'     : (8, 2),
+        'TEMP_LIMIT'          : (11,1),
+        'MIN_VOLT_LIMIT'      : (12,1),
+        'MAX_VOLT_LIMIT'      : (13,1),
+        #Max Torque            : (14,2),
+        #Status Return Level   : (16,1),
+        #Alarm LED             : (17,1),
+        'SHUTDOWN'            : (18,1),
+        #Multi Turn Offset     : (20,2),
+        #Resolution Divider    : (22,1),
+        'TORQUE_ENABLE'       : (24,1),
+        #LED                   : (25,1),
+        'POS_D_GAIN'          : (26,1),
+        'POS_I_GAIN'          : (27,1),
+        'POS_P_GAIN'          : (28,1),
+        'GOAL_POSITION'       : (30,2),
+        'GOAL_VELOCITY'       : (32,2),
+        #Torque Limit          : (34,2),
+        'PRESENT_POSITION'    : (36,2),
+        'PRESENT_VELOCITY'    : (38,2),
+        #Present Load          : (40,2),
+        'PRESENT_IN_VOLT'     : (42,1),
+        'PRESENT_TEMP'        : (43,1),
+        #Registered            : (44,1),
+        #Moving                : (46,1),
+        #Lock                  : (47,1),
+        #Punch                 : (48,2),
+        #Realtime Tick         : (50,2),
+        #Goal Acceleration     : (73,1),
+        }
+      self.ADDR['ACC_LIMIT']= (None,None)
+      self.ADDR['OPERATING_MODE']= (None,None)
+      self.ADDR['CURRENT_LIMIT']= (None,None)
+      self.ADDR['PWM_LIMIT']= (None,None)
+      self.ADDR['HARDWARE_ERR_ST']= (None,None)
+      self.PROTOCOL_VERSION = 1  # Protocol version of Dynamixel
+
     # For Dynamixel PH54-200-S500-R, PM54-060-S250-R
     elif type in ('PH54-200-S500','PM54-060-S250'):
       #ADDR[NAME]=(ADDRESS,SIZE)
@@ -409,6 +458,13 @@ class TDynamixel1(object):
       }
     #NOTE: 'RH-P12-RN','RH-P12-RN(A)': CURRENT and CURRPOS are available.
     #NOTE: 'PH54-200-S500','PM54-060-S250': CURRENT, VELOCITY, POSITION(default), EXTPOS, PWM are available.
+    #NOTE: 'MX-12W' has completely different operating mode. The way to set op mode is also different.
+    if type=='MX-12W':
+      self.OP_MODE={
+        'WHEEL'      : 'WHEEL'     ,   # Condition that both CW and CCW are 0
+        'JOINT'      : 'JOINT'     ,   # Neither CW or CCW are 0 (Conditions excluding Wheel Mode and Multi-turn Mode)
+        'MULTI_TURN' : 'MULTI_TURN',   # Condition that Both CW and CCW are 4095
+        }
 
     # Baud rates                                  0     1      2   3   4   5   6     7      8      9
     self.BAUD_RATE=                           [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6]
@@ -416,6 +472,7 @@ class TDynamixel1(object):
     if type=='RH-P12-RN(A)':  self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
     if type=='PH54-200-S500': self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
     if type=='PM54-060-S250': self.BAUD_RATE= [9600,57600,115200,1e6,2e6,3e6,4e6,4.5e6,   6e6,10.5e6]
+    if type=='MX-12W':        self.BAUD_RATE= {0:2e6,1:1e6,3:500000,4:400000, 7:250000,9:200000, 16:115200,34:57600, 103:19200,207:9600}
 
     self.TORQUE_ENABLE  = 1  # Value for enabling the torque
     self.TORQUE_DISABLE = 0  # Value for disabling the torque
@@ -433,17 +490,20 @@ class TDynamixel1(object):
     elif type=='XH430-V350':  self.MAX_CURRENT = 689   # == Current Limit(38)
     elif type in ('XH540-W270','XD540-T270'):  self.MAX_CURRENT = 2047   # == Current Limit(38)
     elif type=='MX-64AR':     self.MAX_CURRENT = 1941   # == Current Limit(38)
+    elif type=='MX-12W':      self.MAX_CURRENT = None
     elif type=='RH-P12-RN':   self.MAX_CURRENT = 820
     elif type=='RH-P12-RN(A)':   self.MAX_CURRENT = 1984
     elif type=='PH54-200-S500':   self.MAX_CURRENT = 22740
     elif type=='PM54-060-S250':   self.MAX_CURRENT = 7980
     self.MAX_PWM = 885
-    if type=='RH-P12-RN':  self.MAX_PWM = None
+    if type=='MX-12W':      self.MAX_PWM = None
+    elif type=='RH-P12-RN':  self.MAX_PWM = None
     elif type=='RH-P12-RN(A)':  self.MAX_PWM = 2009
     elif type=='PH54-200-S500':  self.MAX_PWM = 2009
     elif type=='PM54-060-S250':  self.MAX_PWM = 2009
     self.MAX_VELOCITY = 1023
-    if type=='RH-P12-RN':   self.MAX_VELOCITY = 2147483647
+    if type=='MX-12W':      self.MAX_VELOCITY = 1023
+    elif type=='RH-P12-RN':   self.MAX_VELOCITY = 2147483647
     elif type=='RH-P12-RN(A)':   self.MAX_VELOCITY = 2970
     elif type=='PH54-200-S500':   self.MAX_VELOCITY = 2900
     elif type=='PM54-060-S250':   self.MAX_VELOCITY = 2830
@@ -467,6 +527,9 @@ class TDynamixel1(object):
     elif type=='MX-64AR':
       self.CURRENT_UNIT= 3.36
       self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
+    elif type=='MX-12W':
+      self.CURRENT_UNIT= None
+      self.VELOCITY_UNIT= 0.916*(2.0*math.pi)/60.0
     elif type=='RH-P12-RN':
       self.CURRENT_UNIT= 4.02
       self.VELOCITY_UNIT= 0.114*(2.0*math.pi)/60.0
@@ -479,6 +542,8 @@ class TDynamixel1(object):
     elif type=='PM54-060-S250':
       self.CURRENT_UNIT= 1.0
       self.VELOCITY_UNIT= 0.01*(2.0*math.pi)/60.0
+
+    self.type= type  #NOTE: Do not modify type.
 
     # Configurable variables
     self.Id= 1  # Dynamixel ID
@@ -518,30 +583,38 @@ class TDynamixel1(object):
 
   #Conversion from Dynamixel PWM value to PWM(percentage).
   def ConvPWM(self,value):
+    if self.MAX_PWM is None:  return None
     return value*100.0/self.MAX_PWM
   #Conversion from PWM(percentage) to Dynamixel PWM value.
   def InvConvPWM(self,value):
+    if self.MAX_PWM is None:  return None
     return int(value*self.MAX_PWM/100.0)
 
   #Conversion from Dynamixel current value to current(mA).
   def ConvCurr(self,value):
+    if self.CURRENT_UNIT is None:  return None
     return value*self.CURRENT_UNIT
   #Conversion from current(mA) to Dynamixel current value.
   def InvConvCurr(self,value):
+    if self.CURRENT_UNIT is None:  return None
     return int(value/self.CURRENT_UNIT)
 
   #Conversion from Dynamixel velocity value to velocity(rad/s).
   def ConvVel(self,value):
+    if self.VELOCITY_UNIT is None:  return None
     return value*self.VELOCITY_UNIT
   #Conversion from velocity(rad/s) to Dynamixel velocity value.
   def InvConvVel(self,value):
+    if self.VELOCITY_UNIT is None:  return None
     return int(value/self.VELOCITY_UNIT)
 
   #Conversion from Dynamixel position value to position(rad).
   def ConvPos(self,value):
+    if self.POSITION_UNIT is None or self.POSITION_OFFSET is None:  return None
     return (value-self.POSITION_OFFSET)*self.POSITION_UNIT
   #Conversion from position(rad) to Dynamixel position value.
   def InvConvPos(self,value):
+    if self.POSITION_UNIT is None or self.POSITION_OFFSET is None:  return None
     return int(value/self.POSITION_UNIT+self.POSITION_OFFSET)
 
   #Conversion from Dynamixel temperature value to temperature(deg of Celsius).
@@ -651,21 +724,32 @@ class TDynamixel1(object):
   #Changing operating mode
   def SetOpMode(self, mode):
     self.DisableTorque()  #NOTE: We need to disable before changing the operating mode
-    self.Write('OPERATING_MODE', mode)
-    self.CheckTxRxResult()
-    self.Write('CURRENT_LIMIT', self.CurrentLimit)
-    self.Write('PWM_LIMIT', self.MAX_PWM)
-    #self.Write('POS_I_GAIN', 16383)
-    #self.Write('VEL_I_GAIN', 500)
-    #self.Write('VEL_P_GAIN', 50)
-    #self.Write('POS_D_GAIN', 2000)
+    if self.type not in ('MX-12W',):
+      self.Write('OPERATING_MODE', mode)
+      self.CheckTxRxResult()
+      self.Write('CURRENT_LIMIT', self.CurrentLimit)
+      self.Write('PWM_LIMIT', self.MAX_PWM)
+      #self.Write('POS_I_GAIN', 16383)
+      #self.Write('VEL_I_GAIN', 500)
+      #self.Write('VEL_P_GAIN', 50)
+      #self.Write('POS_D_GAIN', 2000)
+    elif self.type=='MX-12W':
+      if mode=='WHEEL':
+        self.Write('CW_ANGLE_LIMIT', 0)
+        self.Write('CCW_ANGLE_LIMIT', 0)
+      elif mode=='JOINT':
+        self.Write('CW_ANGLE_LIMIT', 0)
+        self.Write('CCW_ANGLE_LIMIT', 4095)
+      elif mode=='MULTI_TURN':
+        self.Write('CW_ANGLE_LIMIT', 4095)
+        self.Write('CCW_ANGLE_LIMIT', 4095)
     self.Write('SHUTDOWN', self.Shutdown)
     self.CheckTxRxResult()
 
     #self.Write('POS_D_GAIN', 2600)
     #self.Write('POS_I_GAIN', 1000)
     #self.Write('POS_P_GAIN', 800)
-    self.CheckTxRxResult()
+    #self.CheckTxRxResult()
     #self.PrintStatus()
 
   #Enable Dynamixel Torque
@@ -844,6 +928,9 @@ class TDynamixel1(object):
   def SetVelocity(self, velocity):
     if velocity < -self.MAX_VELOCITY:  velocity = -self.MAX_VELOCITY
     elif velocity > self.MAX_VELOCITY:  velocity = self.MAX_VELOCITY
+
+    if self.type=='MX-12W' and velocity<0:
+      velocity= 1024-velocity
 
     self.Write('GOAL_VELOCITY', velocity)
     #if not self.CheckTxRxResult():  return
