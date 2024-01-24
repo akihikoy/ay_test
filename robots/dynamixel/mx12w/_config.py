@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-DXL_DEV= '/dev/ttyUSB1'
+DXL_DEV= '/dev/ttyUSB2'
 DXL_ID= [2]
 #BAUDRATE= 57600
 #BAUDRATE= 115200
