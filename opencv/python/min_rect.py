@@ -6,20 +6,34 @@
 #\date    Feb.16, 2024
 import numpy as np
 import cv2
+from cv2 import minAreaRect as cv2_minAreaRect
 
-#Return an angled bounding box parameters for given points.
-#  return: (aabb_center_x,aabb_center_y),(aabb_w,aabb_h),aabb_angle
-#  NOTE: aabb_w >= aabb_h, aabb_angle in [-pi/2,pi/2].
-def GetAngledBoundingBox(points):
-  min_rect= cv2.minAreaRect(np.array(points))
-  (aabb_center_x,aabb_center_y),(aabb_w,aabb_h),aabb_angle= min_rect
-  aabb_angle= aabb_angle/180.0*np.pi
-  if aabb_w<aabb_h:
-    aabb_w,aabb_h= aabb_h,aabb_w
-    aabb_angle= aabb_angle+0.5*np.pi
-  if aabb_angle>np.pi:  aabb_angle-= np.pi
-  if aabb_angle<-np.pi:  aabb_angle+= np.pi
-  return (aabb_center_x,aabb_center_y),(aabb_w,aabb_h),aabb_angle
+##Return an angled bounding box parameters for given points.
+##  return: (aabb_center_x,aabb_center_y),(aabb_w,aabb_h),aabb_angle
+##  NOTE: aabb_w >= aabb_h, aabb_angle in [-pi/2,pi/2].
+#def GetAngledBoundingBox(points):
+  #min_rect= cv2.minAreaRect(np.array(points))
+  #(aabb_center_x,aabb_center_y),(aabb_w,aabb_h),aabb_angle= min_rect
+  #aabb_angle= aabb_angle/180.0*np.pi
+  #if aabb_w<aabb_h:
+    #aabb_w,aabb_h= aabb_h,aabb_w
+    #aabb_angle= aabb_angle+0.5*np.pi
+  #if aabb_angle>np.pi:  aabb_angle-= np.pi
+  #if aabb_angle<-np.pi:  aabb_angle+= np.pi
+  #return (aabb_center_x,aabb_center_y),(aabb_w,aabb_h),aabb_angle
+
+#Get a rectangle of minimum area.
+#Return: center,size,angle.
+#  angle is in radian.
+#  size[0] is always greater than size[1].
+#ref. https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points
+def MinAreaRect(points):
+  center,size,angle= cv2_minAreaRect(np.array(points,np.float32))
+  angle*= np.pi/180.0
+  if size[0]<size[1]:
+    size= (size[1],size[0])
+    angle= angle+np.pi*0.5 if angle<0 else angle-np.pi*0.5
+  return center,size,angle
 
 if __name__=='__main__':
   w,h= np.random.randint(400), np.random.randint(300)
@@ -27,7 +41,8 @@ if __name__=='__main__':
   points= [[left+np.random.randint(w),top+np.random.randint(h)] for _ in range(30)]
   #points= [(lambda th:[int(300+150*np.cos(th)),int(200+150*np.sin(th))])(np.random.randint(360)) for _ in range(30)]
 
-  aabb_center,(aabb_w,aabb_h),aabb_angle= GetAngledBoundingBox(points)
+  #aabb_center,(aabb_w,aabb_h),aabb_angle= GetAngledBoundingBox(points)
+  aabb_center,(aabb_w,aabb_h),aabb_angle= MinAreaRect(points)
 
   #print min_rect, type(min_rect)
   print aabb_center,aabb_w,aabb_h,aabb_angle
