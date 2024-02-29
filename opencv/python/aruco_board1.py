@@ -60,6 +60,7 @@ if __name__=='__main__':
           -7.4899999999988864e-03 ])
   size_in,size_out=  (640,480),(640,480)
   P,_= cv2.getOptimalNewCameraMatrix(K, D, size_in, Alpha, size_out)
+  print P, P.shape, P.dtype
 
   while(True):
     ret,frame= cap.read()
