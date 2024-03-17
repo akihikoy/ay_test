@@ -1,5 +1,5 @@
 /* Compile:
-x++ color_detector.cpp -- -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o color_detector4.out color_detector4.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
 
 NOTE: the difference from version 1:
 - Added Gaussian blur and dilate/erode to remove the noise.
@@ -221,6 +221,13 @@ int main(int argc, char **argv)
     cv::imshow("detected", detected);
     int c(cv::waitKey(10));
     if(c=='\x1b'||c=='q') break;
+    if(c=='p')
+    {
+      for(std::vector<cv::Vec3b>::const_iterator itr(detect_colors.begin()),itr_end(detect_colors.end());
+          itr!=itr_end; ++itr)
+        std::cout<<" "<<*itr;
+      std::cout<<std::endl;
+    }
     // usleep(10000);
   }
   // the camera will be deinitialized automatically in VideoCapture destructor
