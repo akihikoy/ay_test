@@ -30,7 +30,7 @@ if __name__=='__main__':
       if cmd is not None:
         if cmd=='q':  break
         else:
-          i_port= int(cmd)
+          i_port= {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'a':10,'b':11,'c':12,'d':13,'e':14,'f':15,}[cmd]
           if i_port<8:  out_port_data[0][i_port]= not out_port_data[0][i_port]
           else:         out_port_data[1][i_port-8]= not out_port_data[1][i_port-8]
         print(cmd)
