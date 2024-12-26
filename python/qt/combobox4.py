@@ -39,9 +39,22 @@ class TComboBox(QtGui.QWidget):
     cmbbx1.addItem("Option-3")
     cmbbx1.setCurrentIndex(1)
     cmbbx1.setEditable(True)
-    cmbbx1.move(100, 60)
-    cmbbx1.activated[str].connect(lambda: Print('Selected',self.cmbbx1.currentText()))
+    cmbbx1.move(50, 60)
+    cmbbx1.activated[str].connect(lambda: Print('1/Selected',self.cmbbx1.currentText()))
+    cmbbx1.editTextChanged.connect(lambda: Print('1/TextChanged',self.cmbbx1.currentText()))
+    #Print(dir(cmbbx1))
     self.cmbbx1= cmbbx1
+
+    cmbbx2= QtGui.QComboBox(self)
+    cmbbx2.addItem("Item-1")
+    cmbbx2.addItem("Item-2")
+    cmbbx2.addItem("Item-3")
+    cmbbx2.setCurrentIndex(1)
+    cmbbx2.setEditable(False)
+    cmbbx2.move(180, 60)
+    cmbbx2.activated[str].connect(lambda: Print('2/Selected',self.cmbbx2.currentText()))
+    cmbbx2.editTextChanged.connect(lambda: Print('2/TextChanged',self.cmbbx2.currentText()))
+    self.cmbbx2= cmbbx2
 
     # Show window
     self.show()
