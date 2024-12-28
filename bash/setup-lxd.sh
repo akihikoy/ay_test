@@ -14,11 +14,7 @@ for i in $(seq 1 100); do
   fi
 done
 
-echo lxc launch ubuntu:18.04 $cnt_name
-
-cnt_name="fvinstalltest3"
-
-# $ lxc exec fvinstalltest1 -- bash
+lxc launch ubuntu:18.04 $cnt_name
 
 lxc exec $cnt_name -- sudo adduser fv
 lxc exec $cnt_name -- sudo usermod -g fv -G fv,adm,cdrom,sudo,dip,video,plugdev,users fv
