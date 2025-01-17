@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    graph_search1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,8 +23,8 @@ class TGraph(object):
     self.Graph= None       #{key:node,...}, key is a str, node is a TGNode
 
   def PrintStructure(self):
-    for key,node in self.Graph.iteritems():
-      print key,'-->',node.Next
+    for key,node in self.Graph.items():
+      print(key,'-->',node.Next)
 
 class TTree(object):
   def __init__(self):
@@ -35,11 +35,11 @@ class TTree(object):
     self.BwdOrder= []     #Order of backward computation (a list of keys of self.Tree)
 
   def PrintStructure(self):
-    for key,node in self.Tree.iteritems():
-      print node.Parent,'-->',key,'-->',node.Next
-    print 'Start:',self.Start
-    print 'Terminal:',self.Terminal
-    print 'BwdOrder:',self.BwdOrder
+    for key,node in self.Tree.items():
+      print(node.Parent,'-->',key,'-->',node.Next)
+    print('Start:',self.Start)
+    print('Terminal:',self.Terminal)
+    print('BwdOrder:',self.BwdOrder)
 
 '''Obtain a TTree from graph with a specific start.
   Loops are unrolled.
@@ -50,7 +50,7 @@ def GraphToTree(graph, start, max_visits=2):
   ng_start= start
   tree= TTree()
   tree.Start= TStrInt(ng_start,0)
-  num_visits= {key:0 for key in graph.Graph.iterkeys()}
+  num_visits= {key:0 for key in graph.Graph.keys()}
   queue= [(None,ng_start)]  #Stack of (nt_parent,ng_curr)
   while len(queue)>0:
     nt_parent,ng_curr= queue.pop(0)
@@ -68,7 +68,7 @@ def GraphToTree(graph, start, max_visits=2):
         #Add to the Next list; if num_visits exceeds the threshold, None is added to keep the size of Next.
         t_node.Next.append(TStrInt(ng_next,num_visits[ng_next]) if num_visits[ng_next]<max_visits else None)
   #Get terminal nodes:
-  for key,t_node in tree.Tree.iteritems():
+  for key,t_node in tree.Tree.items():
     if len(t_node.Next)==0:
       tree.Terminal.append(key)
   #Get order of backward computation:
@@ -91,12 +91,12 @@ def ForwardTree(tree, start):
   while len(queue)>0:
     n_curr= queue.pop(0)
     #Doing something with current node:
-    print 'Processing:',n_curr,n_curr.S,'that contains:',tree[n_curr].__dict__
+    print('Processing:',n_curr,n_curr.S,'that contains:',tree[n_curr].__dict__)
     #Done.  Prepare for the next:
     for n_next in tree[n_curr].Next:
       if n_next is not None:  queue.append(n_next)
       #Doing something with current to next edge:
-      print 'Processing:',n_curr,'-->',n_next
+      print('Processing:',n_curr,'-->',n_next)
       #Done.
 
 if __name__=='__main__':
@@ -107,15 +107,15 @@ if __name__=='__main__':
     'n3': TGNode('n1', ()),
     'n4': TGNode('n2', ()),
     }
-  print 'Graph:'
+  print('Graph:')
   graph.PrintStructure()
-  print 'Tree:'
+  print('Tree:')
   tree= GraphToTree(graph,'n1',2)
   tree.PrintStructure()
-  print 'ForwardTree:'
+  print('ForwardTree:')
   ForwardTree(tree.Tree, tree.Start)
 
-  print '\n====================\n'
+  print('\n====================\n')
 
   graph= TGraph()
   graph.Graph= {
@@ -124,10 +124,10 @@ if __name__=='__main__':
     'n2': TGNode('n1', ['n3']),
     'n3': TGNode('n2', []),
     }
-  print 'Graph:'
+  print('Graph:')
   graph.PrintStructure()
-  print 'Tree:'
+  print('Tree:')
   tree= GraphToTree(graph,'n0',2)
   tree.PrintStructure()
-  print 'ForwardTree:'
+  print('ForwardTree:')
   ForwardTree(tree.Tree, tree.Start)

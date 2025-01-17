@@ -3,7 +3,10 @@ import math
 import numpy as np
 import numpy.linalg as la
 
-from discretization import TDiscretizer
+if __package__ in (None,''):
+  from discretization import TDiscretizer
+else:
+  from .discretization import TDiscretizer
 
 def Sq(x):
   return x*x

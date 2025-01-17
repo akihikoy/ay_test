@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 '''
 For a function f(x) and a brief state x~N(m,var_x),
 we think a function e(m) = E[f(x)].
@@ -26,7 +26,7 @@ if __name__=='__main__':
   #func= lambda x: math.cos(x[0,0])
   func= lambda x: 1.0 if abs(x[0,0])<0.5 else 0.0
 
-  fp= file('/tmp/true.dat','w')
+  fp= open('/tmp/true.dat','w')
   for xx in FRange1(-3.0,3.0,50):
     y= func(np.mat([xx]))
     fp.write('%f %f\n' % (xx,y))
@@ -34,12 +34,12 @@ if __name__=='__main__':
 
   var_x= np.mat([[1.0**2]])
 
-  fp= file('/tmp/expec.dat','w')
+  fp= open('/tmp/expec.dat','w')
   for xx in FRange1(-3.0,3.0,2000):
     x= np.mat([xx]).T
     y= Expec(func, x, var_x)
     fp.write('%f %f\n' % (xx,y))
   fp.close()
 
-  print 'Plot with'
-  print '''qplot -x /tmp/true.dat w l /tmp/expec.dat w l'''
+  print('Plot with')
+  print('''qplot -x /tmp/true.dat w l /tmp/expec.dat w l''')

@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
 import numpy.linalg as la
 
 if __name__=='__main__':
-  def PrintEq(_s):  print '%s= %r' % (_s, eval(_s))
+  def PrintEq(_s):  print('%s= %r' % (_s, eval(_s)))
 
   m= [
     [0.00539826,    0.0215796,     -0.23378,      0.02345,   0.00609628,    0.0120854, -5.52023e-05,   -0.0223218,   -0.0076796,            0,            0,            0,            0,            0,            0,            0],

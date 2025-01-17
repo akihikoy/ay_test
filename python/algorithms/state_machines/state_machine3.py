@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    state_machine3.py
 #\brief   State machine ver.3
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -6,7 +6,7 @@
 #\date    Mar.01, 2021
 
 def Print(*args):
-  print ' '.join(map(str,args))
+  print(' '.join(map(str,args)))
 CPrint= Print
 
 
@@ -58,10 +58,10 @@ class TStateMachine(object):
       for a_id,(condition,next_st,action) in enumerate(actions.Actions):
         if condition():
           if a_id_satisfied>=0:
-            print 'Warning: multiple conditions are satisfied in ',self.curr_state
-            print '  First satisfied condition index, next state:',a_id_satisfied, next_state
-            print '  Additionally satisfied condition index, next state:',a_id, next_st
-            print '  First conditioned action is used'
+            print('Warning: multiple conditions are satisfied in ',self.curr_state)
+            print('  First satisfied condition index, next state:',a_id_satisfied, next_state)
+            print('  Additionally satisfied condition index, next state:',a_id, next_st)
+            print('  First conditioned action is used')
           else:
             a_id_satisfied= a_id
             next_state= next_st

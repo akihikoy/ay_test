@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    loop_combination2.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -12,6 +12,6 @@ def AllCombinations(d):
   return itertools.product(*d)
 
 if __name__=='__main__':
-  print list(AllCombinations([['v1','v2'],['v3','v4']]))
-  print list(AllCombinations([['v1','v2'],['v5'],['v3','v4']]))
-  print list(AllCombinations([['v1','v2'],['v3','v4'],['v5','v6','v7']]))
+  print(list(AllCombinations([['v1','v2'],['v3','v4']])))
+  print(list(AllCombinations([['v1','v2'],['v5'],['v3','v4']])))
+  print(list(AllCombinations([['v1','v2'],['v3','v4'],['v5','v6','v7']])))

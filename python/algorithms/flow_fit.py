@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
 import numpy.linalg as la
 from ml.least_sq import Vec,GetWeightByLeastSq
@@ -9,11 +9,11 @@ if __name__=='__main__':
   #poss= []
   #vels= []
   flowpts= []
-  fp= file('data/flowstat.dat')
+  fp= open('data/flowstat.dat')
   while True:
     line= fp.readline()
     if not line: break
-    values= map(float,line.split())
+    values= list(map(float,line.split()))
     #poss.append(values[:3])
     #vels.append(values[3:])
     speed= la.norm(values[3:])
@@ -26,14 +26,14 @@ if __name__=='__main__':
   data_x= [[pt[2]] for pt in flowpts]
   data_f= [[pt[0], pt[1]] for pt in flowpts]
   W= GetWeightByLeastSq(data_x, data_f, quad_feat, f_reg=0.1)
-  print W
+  print(W)
 
-  fp= file('/tmp/flowpts.dat','w')
+  fp= open('/tmp/flowpts.dat','w')
   for pt in flowpts:
     fp.write('%s\n' % ' '.join(map(str,pt)))
   fp.close()
 
-  fp= file('/tmp/flowfit.dat','w')
+  fp= open('/tmp/flowfit.dat','w')
   zmin= min([pt[2] for pt in flowpts])
   zmax= max([pt[2] for pt in flowpts])
   for z in np.arange(zmin,zmax,(zmax-zmin)/50.0):
@@ -41,6 +41,6 @@ if __name__=='__main__':
     fp.write('%f %f %f\n' % (xy[0],xy[1],z))
   fp.close()
 
-  print 'Plot by'
-  print '''qplot -x -3d -s 'set ticslevel 0;set view equal xyz' /tmp/flowpts.dat pt 6 /tmp/flowpts.dat w vector /tmp/flowfit.dat w l'''
+  print('Plot by')
+  print('''qplot -x -3d -s 'set ticslevel 0;set view equal xyz' /tmp/flowpts.dat pt 6 /tmp/flowpts.dat w vector /tmp/flowfit.dat w l''')
 

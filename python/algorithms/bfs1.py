@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    bfs1.py
 #\brief   Breadth-first search
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -13,7 +13,7 @@ def BFS1(state, selectable, transition, goal):
   goals= []
   queue= [state]
   while len(queue)>0:
-    print queue
+    print(queue)
     current= queue.pop(0)
     #if goal(current):
       #if current not in goals:  goals.append(current)
@@ -33,13 +33,13 @@ def BFS1(state, selectable, transition, goal):
   return goals,tracker
 
 def BackTrack(start,goals,tracker):
-  print tracker
+  print(tracker)
   paths= []
   for g in goals:
     queue= [[g]]
     visited= [g]
     while len(queue)>0:
-      print queue
+      print(queue)
       path= queue.pop(0)
       for prev in tracker[path[0]]:
         if prev not in visited:
@@ -54,7 +54,7 @@ def BFS2(state, selectable, transition, goal):
   visited= [state]
   queue= [([state],state)]  #path, current
   while len(queue)>0:
-    print queue
+    print(queue)
     path,current= queue.pop(0)
     #if goal(current):
       #return path
@@ -92,7 +92,7 @@ def BFS4(state, selectable, transition, goal):
   goals= []
   queue= [([state],state)]  #path, current
   while len(queue)>0:
-    print queue
+    print(queue)
     path,current= queue.pop(0)
     if goal(current):
       if current not in goals:  goals.append(current)
@@ -111,7 +111,7 @@ def BFS5(state, selectable, transition, goal):
   goals= []
   queue= [([state],state)]  #path, current
   while len(queue)>0:
-    print queue
+    print(queue)
     path,current= queue.pop(0)
     if goal(current):
       if current not in goals:  goals.append(current)
@@ -127,13 +127,13 @@ def BFS5(state, selectable, transition, goal):
 
 def Example1():
   system= {'a':['b','c','d'],'b':['a','c','b'],'c':['d'],'d':['a','e'],'e':[]}
-  selectable= lambda s: {state: range(len(nexts)) for state,nexts in system.iteritems()}[s]
+  selectable= lambda s: {state: list(range(len(nexts))) for state,nexts in system.items()}[s]
   transition= lambda s,a: system[s][a]
   goal= lambda s: s=='e'
   #print BackTrack('a',*BFS1('a', selectable, transition, goal))
   #print BFS2('a', selectable, transition, goal)
   #print BFS4('a', selectable, transition, goal)
-  print BFS5('a', selectable, transition, goal)
+  print(BFS5('a', selectable, transition, goal))
 
 if __name__=='__main__':
   Example1()

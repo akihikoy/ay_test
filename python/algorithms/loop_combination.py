@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #Apply operation for every combination in collection.
 def ForEachCombination(collection, operation, pre_seq=[]):
@@ -12,9 +12,9 @@ def ForEachCombination(collection, operation, pre_seq=[]):
 
 if __name__=='__main__':
   def Operation(x):
-    print x
+    print(x)
   ForEachCombination([1,2,3], Operation)
 
   cmb= []
   ForEachCombination([1,2,3,4], lambda x:cmb.append(x) if 2*x[1]+x[2]==7 else None)
-  print cmb
+  print(cmb)

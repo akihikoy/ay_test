@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import math
 
 # Matlab-like mod function that returns always positive
@@ -10,6 +10,6 @@ def Mod(x, y):
 x= -10
 while x<10:
   y= Mod(x,math.pi)
-  print x,y
+  print(x,y)
   x+=0.01
 

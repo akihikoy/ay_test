@@ -29,4 +29,4 @@ if __name__=='__main__':
   x_f_seq2= LoadXFSeq('../../data/time_f_z002.dat')
 
   distance, path = fastdtw(x_f_seq1, x_f_seq2, dist=euclidean)
-  print(distance, path)
+  print((distance, path))

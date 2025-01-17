@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    icp1.py
 #\brief   Iterative Closest Point
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -58,6 +58,6 @@ if __name__=='__main__':
   tol= 1.0e-4
   res= scipy.optimize.differential_evolution(lambda x:Dist(seq1,seq2,x[0],x[1],x[2]), np.array([xmin,xmax]).T, strategy='best1bin', maxiter=300, popsize=10, tol=tol, mutation=(0.5, 1), recombination=0.7)
   print(res)
-  print('Result=',res.x,Dist(seq1,seq2,res.x[0],res.x[1],res.x[2]))
+  print(('Result=',res.x,Dist(seq1,seq2,res.x[0],res.x[1],res.x[2])))
   Plot(seq1,seq2,res.x[0],res.x[1],res.x[2])
 

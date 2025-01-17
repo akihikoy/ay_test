@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    numpy.interp.py
 #\brief   Test of numpy.interp;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -41,7 +41,7 @@ def Main():
 
   t_start= time.time()
   Y_test= np.interp(X_test, X, Y)
-  print 'Done linear interpolation/test in {t} sec'.format(t=time.time()-t_start)
+  print('Done linear interpolation/test in {t} sec'.format(t=time.time()-t_start))
 
 
   def save(XX, YY, file_name):
@@ -53,7 +53,7 @@ def Main():
   save(X_test,Y_test,'/tmp/npinterp.dat')
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -66,13 +66,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

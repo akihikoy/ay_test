@@ -4,8 +4,12 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Feb.26, 2020
-from gaussian_rbf import Sq
-from least_sq import Rand, GenerateSample
+if __package__ in (None,''):
+  from gaussian_rbf import Sq
+  from least_sq import Rand, GenerateSample
+else:
+  from .gaussian_rbf import Sq
+  from .least_sq import Rand, GenerateSample
 import numpy as np
 import numpy.linalg as la
 import math

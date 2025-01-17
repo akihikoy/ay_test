@@ -4,7 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jul.30, 2023
-from __future__ import print_function
+
 import bisect
 import numpy as np
 

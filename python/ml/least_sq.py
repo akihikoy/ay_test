@@ -1,5 +1,8 @@
 #!/usr/bin/python3
-from gaussian_rbf import Sq, Vec, FeaturesG, FeaturesNG, ConstructRBF
+if __package__ in (None,''):
+  from gaussian_rbf import Sq, Vec, FeaturesG, FeaturesNG, ConstructRBF
+else:
+  from .gaussian_rbf import Sq, Vec, FeaturesG, FeaturesNG, ConstructRBF
 import numpy as np
 import numpy.linalg as la
 import math

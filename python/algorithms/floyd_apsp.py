@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    floyd_apsp.py
 #\brief   Floyd's all-pairs-shortest-path (APSP) algorithm.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -50,7 +50,7 @@ def ShortestPath(n1, n2, P):
 #From the output path matrix P of FloydAPSP, find isolated sub graphs.
 def IsolatedGraphs(P):
   iso_graphs= []
-  remains= range(P.shape[0])
+  remains= list(range(P.shape[0]))
   while len(remains)>0:
     n1= remains[0]
     sub_graph= [n2 for n2 in remains if P[n1,n2]!=-2]
@@ -82,16 +82,16 @@ if __name__=='__main__':
     ]
 
   D,P= FloydAPSP(N, edges)
-  print 'Lowest cost matrix:'
-  print D
-  print 'Via points on the shortest path matrix:'
-  print P
-  print 'Isolated graphs:',IsolatedGraphs(P)
+  print('Lowest cost matrix:')
+  print(D)
+  print('Via points on the shortest path matrix:')
+  print(P)
+  print('Isolated graphs:',IsolatedGraphs(P))
 
   while True:
-    print 'Type two node indexes (starting from 1) separating with space (0 0 to quit):'
-    n1,n2= map(lambda s:int(s)-1,raw_input(' > ').split(' '))
+    print('Type two node indexes (starting from 1) separating with space (0 0 to quit):')
+    n1,n2= [int(s)-1 for s in input(' > ').split(' ')]
     if n1<0 or n2<0 or n1>=N or n2>=N:  break
     path= ShortestPath(n1,n2,P)
-    print '  Shortest path:', map(lambda n:n+1,path) if path is not None else None, 'Cost:', D[n1,n2]
+    print('  Shortest path:', [n+1 for n in path] if path is not None else None, 'Cost:', D[n1,n2])
 

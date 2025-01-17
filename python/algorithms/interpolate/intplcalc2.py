@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    intplcalc1.py
 #\brief   Test of intplcalc.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,7 +25,7 @@ def Main():
   os.system('''intplcalc -f a /tmp/test1.dat 1,2 -f b /tmp/test2.dat 1,2,3 'a[1]+b[1]' 'a[1]*b[1]*0.4' 'a[1]+b[2]' 'a[1]*b[2]' > /tmp/ic2.dat ''')
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -43,13 +43,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

@@ -28,7 +28,7 @@ def dist(dx):
   #d2= sum((abs(x_f_seq1[i1][0]-seq_mod[i2][0]) for i1,i2 in path))
   #d2= sum(((x_f_seq1[i1][0]-seq_mod[i2][0])**2+(x_f_seq1[i1][1]-seq_mod[i2][1])**2 for i1,i2 in path))
   #d2= max(((x_f_seq1[i1][0]-seq_mod[i2][0])**2+(x_f_seq1[i1][1]-seq_mod[i2][1])**2 for i1,i2 in path))
-  print(dx,d2)
+  print((dx,d2))
   return d2
 
 def plot(dx):
@@ -50,6 +50,6 @@ xmax= [0.1]
 tol= 1.0e-4
 res= scipy.optimize.differential_evolution(dist, np.array([xmin,xmax]).T, strategy='best1bin', maxiter=30, popsize=3, tol=tol, mutation=(0.5, 1), recombination=0.7)
 print(res)
-print('Result=',res.x,dist(res.x))
+print(('Result=',res.x,dist(res.x)))
 plot(res.x)
 

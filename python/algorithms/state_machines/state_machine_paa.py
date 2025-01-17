@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #State machine with a parameter adjustment architecture
 import math,random
 #CMA-ES (Covariance Matrix Adaptation Evolution Strategy)
@@ -10,8 +10,8 @@ ORIGIN_STATE= '__origin__'
 #Another simple print function to be used as an action
 def Print(*s):
   for ss in s:
-    print ss,
-  print ''
+    print(ss, end=' ')
+  print('')
 
 class TAsciiColors:
   Header  = '\033[95m'
@@ -25,10 +25,10 @@ def DPrint(*s):
   first=True
   for ss in s:
     if not first:
-      print ss,
+      print(ss, end=' ')
     else:
-      print TAsciiColors.OKGreen+str(ss),
-  print TAsciiColors.EndC+''
+      print(TAsciiColors.OKGreen+str(ss), end=' ')
+  print(TAsciiColors.EndC+'')
 
 #Return a Boltzmann policy (probabilities of selecting each action)
 def BoltzmannPolicy(tau, values):
@@ -87,14 +87,14 @@ class TDiscParam:
       ucb= self.UCB()
       probs= BoltzmannPolicy(self.BoltzmannTau,ucb)
       self.index= SelectFromPolicy(probs)
-      print 'TDiscParam:DEBUG: Param:%r Index:%i UCB:%f' % (self.Candidates[self.index],self.index,ucb[self.index])
+      print('TDiscParam:DEBUG: Param:%r Index:%i UCB:%f' % (self.Candidates[self.index],self.index,ucb[self.index]))
     else:
       self.index= -1
   def Update(self,score):
     if self.index>=0:
       self.Means[self.index]= self.Alpha*score + (1.0-self.Alpha)*self.Means[self.index]
       self.SqMeans[self.index]= self.Alpha*(score**2) + (1.0-self.Alpha)*self.SqMeans[self.index]
-      print 'TDiscParam:DEBUG: Index:%i Score:%f New-Mean:%f' % (self.index,score,self.Means[self.index])
+      print('TDiscParam:DEBUG: Index:%i Score:%f New-Mean:%f' % (self.index,score,self.Means[self.index]))
 
 #Learning to a continuous value vector whose gradient is known
 class TContParamGrad:
@@ -111,10 +111,10 @@ class TContParamGrad:
   def Param(self):
     return self.Mean
   def Select(self):
-    print 'TContParamGrad:DEBUG: Param:%r' % (self.Mean)
+    print('TContParamGrad:DEBUG: Param:%r' % (self.Mean))
   def Update(self,argv):
     if not self.Gradient:
-      print 'TContParamGrad:Error: No gradient function'
+      print('TContParamGrad:Error: No gradient function')
       return
     gradient= self.Gradient(argv)
     assert len(gradient)==len(self.Mean)
@@ -123,7 +123,7 @@ class TContParamGrad:
       self.Mean= [max(self.Mean[d],self.Min[d]) for d in range(len(gradient))]
     if len(self.Max)>0:
       self.Mean= [min(self.Mean[d],self.Max[d]) for d in range(len(gradient))]
-    print 'TContParamGrad:DEBUG: Grad:%r New-Mean:%r' % (gradient,self.Mean)
+    print('TContParamGrad:DEBUG: Grad:%r New-Mean:%r' % (gradient,self.Mean))
 
 #Learning to a continuous value vector whose gradient is unknown
 class TContParamNoGrad:
@@ -149,7 +149,7 @@ class TContParamNoGrad:
     while len(self.scores)<len(self.solutions):
       self.solutions.pop()
     self.solutions.append(self.es.ask(1)[0])
-    print 'TContParamNoGrad:DEBUG: Param:%r' % (self.solutions[-1])
+    print('TContParamNoGrad:DEBUG: Param:%r' % (self.solutions[-1]))
   def Update(self,score):
     if len(self.scores)==len(self.solutions)-1:
       self.scores.append(-score)
@@ -158,7 +158,7 @@ class TContParamNoGrad:
       self.solutions= []
       self.scores= []
       self.es.disp()
-    print 'TContParamNoGrad:DEBUG: Score:%f' % (score,)
+    print('TContParamNoGrad:DEBUG: Score:%f' % (score,))
 
 class TFSMConditionedAction:
   def __init__(self):
@@ -206,19 +206,19 @@ class TStateMachine:
     self.States[key]= value
 
   def Show(self):
-    for id,st in self.States.items():
-      print '[%s].EntryAction= %r' % (id,st.EntryAction)
-      print '[%s].ExitAction= %r' % (id,st.ExitAction)
-      print '[%s].ElseAction= %r' % (id,st.ElseAction)
+    for id,st in list(self.States.items()):
+      print('[%s].EntryAction= %r' % (id,st.EntryAction))
+      print('[%s].ExitAction= %r' % (id,st.ExitAction))
+      print('[%s].ElseAction= %r' % (id,st.ElseAction))
       a_id= 0
       for a in st.Actions:
-        print '[%s].Actions[%i].Condition= %r' % (id,a_id,a.Condition)
-        print '[%s].Actions[%i].Action= %r' % (id,a_id,a.Action)
-        print '[%s].Actions[%i].NextState= %r' % (id,a_id,a.NextState)
+        print('[%s].Actions[%i].Condition= %r' % (id,a_id,a.Condition))
+        print('[%s].Actions[%i].Action= %r' % (id,a_id,a.Action))
+        print('[%s].Actions[%i].NextState= %r' % (id,a_id,a.NextState))
         a_id+=1
-      print ''
-    print 'StartState=',self.StartState
-    print 'Debug=',self.Debug
+      print('')
+    print('StartState=',self.StartState)
+    print('Debug=',self.Debug)
 
   def SetStartState(self,start_state=''):
     self.StartState= start_state
@@ -241,10 +241,10 @@ class TStateMachine:
       for ca in st.Actions:
         if ca.Condition():
           if a_id_satisfied>=0:
-            print 'Warning: multiple conditions are satisfied in ',self.curr_state
-            print '  First satisfied condition index & next state:',a_id_satisfied, next_state
-            print '  Additionally satisfied condition index & next state:',a_id, ca.NextState
-            print '  First conditioned action is activated'
+            print('Warning: multiple conditions are satisfied in ',self.curr_state)
+            print('  First satisfied condition index & next state:',a_id_satisfied, next_state)
+            print('  Additionally satisfied condition index & next state:',a_id, ca.NextState)
+            print('  First conditioned action is activated')
           else:
             a_id_satisfied= a_id
             next_state= ca.NextState
@@ -273,7 +273,7 @@ class TStateMachine:
           if self.Debug: DPrint('@',count,self.curr_state,'ExitAction')
           st.ExitAction()
         if next_state=='':
-          print 'Next state is not defined at %s. Hint: use ElseAction to specify the case where no conditions are satisfied.' % (self.curr_state)
+          print('Next state is not defined at %s. Hint: use ElseAction to specify the case where no conditions are satisfied.' % (self.curr_state))
         self.prev_state= self.curr_state
         if next_state==EXIT_STATE:
           self.curr_state= ''
@@ -357,7 +357,7 @@ if __name__=='__main__':
     #sm.Reset()
     sm.Run()
     if isinstance(wait_time,TDiscParam):
-      print wait_time.Means
-      print wait_time.UCB()
+      print(wait_time.Means)
+      print(wait_time.UCB())
     elif isinstance(wait_time,TContParamGrad):
-      print wait_time.Mean
+      print(wait_time.Mean)

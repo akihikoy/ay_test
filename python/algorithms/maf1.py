@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    maf1.py
 #\brief   Moving average filter.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

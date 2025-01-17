@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from state_machine import *
 from flow.flow_dyn import *
 
@@ -36,7 +36,7 @@ def IsTimeout():
 
 def IsPoured():
   if fdyn.a_cup > l.amount_trg:
-    print 'Poured (%f: %f / %f)' % (fdyn.time, fdyn.a_cup, l.amount_trg)
+    print('Poured (%f: %f / %f)' % (fdyn.time, fdyn.a_cup, l.amount_trg))
     return True
   return False
 
@@ -100,6 +100,6 @@ sm.Run()
 
 fdyn.Stop()
 
-print 'Plot by:'
-print "cat data/flow.dat | qplot -x -s 'set y2tics' - u 1:3 - u 1:4 - u 1:5 - u 1:6 ax x1y2"
+print('Plot by:')
+print("cat data/flow.dat | qplot -x -s 'set y2tics' - u 1:3 - u 1:4 - u 1:5 - u 1:6 ax x1y2")
 

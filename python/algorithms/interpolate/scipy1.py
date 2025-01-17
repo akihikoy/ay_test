@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    scipy1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -45,11 +45,11 @@ def Main():
 
   t_start= time.time()
   f1= interp1d(X, Y)
-  print 'Done linear interpolation in {t} sec'.format(t=time.time()-t_start)
+  print('Done linear interpolation in {t} sec'.format(t=time.time()-t_start))
 
   t_start= time.time()
   f2= interp1d(X, Y, kind='cubic')
-  print 'Done cubic interpolation in {t} sec'.format(t=time.time()-t_start)
+  print('Done cubic interpolation in {t} sec'.format(t=time.time()-t_start))
 
   def test(f,file_name):
     fp= open(file_name,'w')
@@ -60,14 +60,14 @@ def Main():
 
   t_start= time.time()
   test(f1,'/tmp/spintpl1.dat')
-  print 'Done linear test in {t} sec'.format(t=time.time()-t_start)
+  print('Done linear test in {t} sec'.format(t=time.time()-t_start))
 
   t_start= time.time()
   test(f2,'/tmp/spintpl2.dat')
-  print 'Done cubic test in {t} sec'.format(t=time.time()-t_start)
+  print('Done cubic test in {t} sec'.format(t=time.time()-t_start))
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -81,13 +81,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

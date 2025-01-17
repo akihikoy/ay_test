@@ -77,7 +77,7 @@ if __name__=='__main__':
   func= lambda x: math.cos(x[0,0])
   #func= lambda x: 1.0 if abs(x[0,0])<0.5 else 0.0
 
-  fp= file('/tmp/true.dat','w')
+  fp= open('/tmp/true.dat','w')
   for xx in FRange1(-3.0,3.0,50):
     y= func(np.mat([xx]))
     fp.write('%f %f\n' % (xx,y))
@@ -85,9 +85,9 @@ if __name__=='__main__':
 
   x0= np.mat([0.5])
   a,b,c= TaylorExp2(func, x0)
-  print('a,b,c=',a,b,c)
+  print(('a,b,c=',a,b,c))
 
-  fp= file('/tmp/approx.dat','w')
+  fp= open('/tmp/approx.dat','w')
   for xx in FRange1(-3.0,3.0,50):
     x= np.mat([xx]).T
     y= ( a + b.T*(x-x0) + 0.5*(x-x0).T*c*(x-x0) )[0,0]

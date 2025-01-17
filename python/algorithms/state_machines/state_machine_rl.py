@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #State machine with reinforcement learning
 import time,math,random
 
@@ -8,8 +8,8 @@ ORIGIN_STATE= '__origin__'
 #Another simple print function to be used as an action
 def Print(*s):
   for ss in s:
-    print ss,
-  print ''
+    print(ss, end=' ')
+  print('')
 
 class TAsciiColors:
   Header  = '\033[95m'
@@ -23,10 +23,10 @@ def DPrint(*s):
   first=True
   for ss in s:
     if not first:
-      print ss,
+      print(ss, end=' ')
     else:
-      print TAsciiColors.OKGreen+str(ss),
-  print TAsciiColors.EndC+''
+      print(TAsciiColors.OKGreen+str(ss), end=' ')
+  print(TAsciiColors.EndC+'')
 
 #Return a Boltzmann policy (probabilities of selecting each action)
 def BoltzmannPolicy(tau, values):
@@ -111,7 +111,7 @@ class TDiscLearner:
     if len(self.Candidates)>0:
       if len(self.Candidates)!=len(self.ParamValues):
         self.ParamValues= [0.0]*len(self.Candidates)
-        print 'Warning: ParamValues is not initialized.  Using %r.' % (self.ParamValues)
+        print('Warning: ParamValues is not initialized.  Using %r.' % (self.ParamValues))
       probs= BoltzmannPolicy(self.BoltzmannTau,self.ParamValues)
       self.Index= SelectFromPolicy(probs)
     else:
@@ -121,7 +121,7 @@ class TDiscLearner:
       #FIXME: REPLACE THE MAGIC NUMBERS!!
       alpha= 0.4
       self.ParamValues[self.Index]+= alpha*discounted_td_err
-      print 'DEBUG: %i, %f' % (self.Index,discounted_td_err)
+      print('DEBUG: %i, %f' % (self.Index,discounted_td_err))
 
 #Learning a 1-dim parameter using quadratic function
 class TQuadLearner:
@@ -154,7 +154,7 @@ class TQuadLearner:
     if self.C[1]<self.Min:  self.C[1]= self.Min
     elif self.C[1]>self.Max:  self.C[1]= self.Max
     if self.C[0]<=1.0e-2: self.C[0]= 1.0e-2
-    print 'DEBUG: %f, %f, %f' % ( discounted_td_err, (-(self.LastParam-self.C[1])**2), (2.0*self.C[0]*(self.LastParam-self.C[1])) )
+    print('DEBUG: %f, %f, %f' % ( discounted_td_err, (-(self.LastParam-self.C[1])**2), (2.0*self.C[0]*(self.LastParam-self.C[1])) ))
 
 #[NEW]Store a log of executed parameter
 class TFSMParameterLog:
@@ -227,19 +227,19 @@ class TStateMachine:
     self.States[key]= value
 
   def Show(self):
-    for id,st in self.States.items():
-      print '[%s].EntryAction= %r' % (id,st.EntryAction)
-      print '[%s].ExitAction= %r' % (id,st.ExitAction)
-      print '[%s].ElseAction= %r' % (id,st.ElseAction)
+    for id,st in list(self.States.items()):
+      print('[%s].EntryAction= %r' % (id,st.EntryAction))
+      print('[%s].ExitAction= %r' % (id,st.ExitAction))
+      print('[%s].ElseAction= %r' % (id,st.ElseAction))
       a_id= 0
       for a in st.Actions:
-        print '[%s].Actions[%i].Condition= %r' % (id,a_id,a.Condition)
-        print '[%s].Actions[%i].Action= %r' % (id,a_id,a.Action)
-        print '[%s].Actions[%i].NextState= %r' % (id,a_id,a.NextState)
+        print('[%s].Actions[%i].Condition= %r' % (id,a_id,a.Condition))
+        print('[%s].Actions[%i].Action= %r' % (id,a_id,a.Action))
+        print('[%s].Actions[%i].NextState= %r' % (id,a_id,a.NextState))
         a_id+=1
-      print ''
-    print 'StartState=',self.StartState
-    print 'Debug=',self.Debug
+      print('')
+    print('StartState=',self.StartState)
+    print('Debug=',self.Debug)
 
   def SetStartState(self,start_state=''):
     self.StartState= start_state
@@ -248,14 +248,14 @@ class TStateMachine:
     if self.start_time>=0.0:
       return self.GetTime()-self.start_time
     else:
-      print 'Warning: not started'
+      print('Warning: not started')
       return -1.0
 
   def Reset(self):
     self.start_time= -1.0
     self.prev_state= ''
     self.curr_state= ''
-    for id,st in self.States.items():
+    for id,st in list(self.States.items()):
       st.Reset()
 
   def Run(self):
@@ -300,7 +300,7 @@ class TStateMachine:
           #FIXME: REPLACE THE MAGIC NUMBER!!
           gamma= math.exp(-0.01*(st.ParamLog.Time-pst.ParamLog.Time))
           td_err= evaluation + gamma*curr_value - prev_value
-          print 'DEBUG: %s %f, %s %f, %f, %f' % (self.prev_state,prev_value,self.curr_state,curr_value,evaluation,td_err)
+          print('DEBUG: %s %f, %s %f, %f, %f' % (self.prev_state,prev_value,self.curr_state,curr_value,evaluation,td_err))
           self.UpdateStates(td_err)
 
         if st.EntryAction:
@@ -313,10 +313,10 @@ class TStateMachine:
       for ca in st.Actions:
         if ca.Condition(st):
           if a_id_satisfied>=0:
-            print 'Warning: multiple conditions are satisfied in ',self.curr_state
-            print '  First satisfied condition index & next state:',a_id_satisfied, next_state
-            print '  Additionally satisfied condition index & next state:',a_id, ca.NextState
-            print '  First conditioned action is activated'
+            print('Warning: multiple conditions are satisfied in ',self.curr_state)
+            print('  First satisfied condition index & next state:',a_id_satisfied, next_state)
+            print('  Additionally satisfied condition index & next state:',a_id, ca.NextState)
+            print('  First conditioned action is activated')
           else:
             a_id_satisfied= a_id
             next_state= ca.NextState
@@ -350,9 +350,9 @@ class TStateMachine:
           evaluation= st.Evaluator(st)
           if self.Debug: DPrint('@',count,self.curr_state,'Evaluation:',evaluation)
           if self.prev_state!='':
-            print 'DEBUG: Evaluation:',evaluation,' / prev.value:',self.States[self.prev_state].ParamLearner.Value()
+            print('DEBUG: Evaluation:',evaluation,' / prev.value:',self.States[self.prev_state].ParamLearner.Value())
         if next_state=='':
-          print 'Next state is not defined at %s. Hint: use ElseAction to specify the case where no conditions are satisfied.' % (self.curr_state)
+          print('Next state is not defined at %s. Hint: use ElseAction to specify the case where no conditions are satisfied.' % (self.curr_state))
         self.prev_state= self.curr_state
         if next_state==EXIT_STATE:
           self.curr_state= ''
@@ -363,7 +363,7 @@ class TStateMachine:
 
   def UpdateStates(self,td_err):
     time= self.States[self.prev_state].ParamLog.Time
-    for id,st in self.States.items():
+    for id,st in list(self.States.items()):
       if id==self.curr_state:
         continue
       if st.ParamLog.Time>=0.0:
@@ -426,5 +426,5 @@ if __name__=='__main__':
     sm.Reset()
     sm.Run()
     #print sm['count'].ParamLearner.ParamValues
-    print sm['count'].ParamLearner.C
+    print(sm['count'].ParamLearner.C)
 

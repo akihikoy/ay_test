@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from __future__ import print_function
+
 import numpy as np
 
 class TDiscretizer:
@@ -73,9 +73,9 @@ if __name__=='__main__':
     disc= TDiscretizer(vmin,vmax,ndiv)
     print('disc.Size()=',disc.Size())
     print('disc.VecSet()=',disc.VecSet())
-    print('Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size()))
+    print('Verified: ',list(map(disc.VecToIndex, disc.VecSet()))==list(range(disc.Size())))
 
-    for x in map(lambda i:2.0*(i/100.0-1.0),range(201)):
+    for x in [2.0*(i/100.0-1.0) for i in range(201)]:
       vec= [x]
       idx= disc.VecToIndex(vec)
       vec2= disc.IndexToVec(idx)
@@ -100,10 +100,10 @@ if __name__=='__main__':
     disc= TDiscretizer(vmin,vmax,ndiv)
     print('disc.Size()=',disc.Size())
     print('disc.VecSet()=',disc.VecSet())
-    print('Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size()))
+    print('Verified: ',list(map(disc.VecToIndex, disc.VecSet()))==list(range(disc.Size())))
 
-    for x in map(lambda i:2.0*(i/100.0-1.0),range(201)):
-      for y in map(lambda i:2.0*(i/100.0-1.0),range(201)):
+    for x in [2.0*(i/100.0-1.0) for i in range(201)]:
+      for y in [2.0*(i/100.0-1.0) for i in range(201)]:
         vec= [x,y]
         idx= disc.VecToIndex(vec)
         vec2= disc.IndexToVec(idx)
@@ -128,11 +128,11 @@ if __name__=='__main__':
     disc= TDiscretizer(vmin,vmax,ndiv)
     print('disc.Size()=',disc.Size())
     print('disc.VecSet()=',disc.VecSet())
-    print('Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size()))
+    print('Verified: ',list(map(disc.VecToIndex, disc.VecSet()))==list(range(disc.Size())))
 
-    for x in map(lambda i:2.0*(i/15.0-1.0),range(31)):
-      for y in map(lambda i:2.0*(i/15.0-1.0),range(31)):
-        for z in map(lambda i:2.0*(i/15.0-1.0),range(31)):
+    for x in [2.0*(i/15.0-1.0) for i in range(31)]:
+      for y in [2.0*(i/15.0-1.0) for i in range(31)]:
+        for z in [2.0*(i/15.0-1.0) for i in range(31)]:
           vec= [x,y,z]
           idx= disc.VecToIndex(vec)
           vec2= disc.IndexToVec(idx)

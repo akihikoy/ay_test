@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Numerical second order Taylor series expansion.
 
 from taylor_exp_num import *
@@ -16,7 +16,7 @@ if __name__=='__main__':
   #func= lambda x: 1.0 if abs(x[0,0])<1.0 else 0.0
   #func= lambda x: 1.0 if abs(x[0,0]**2+x[1,0]**2)<2.0 else 0.0
 
-  fp= file('/tmp/true.dat','w')
+  fp= open('/tmp/true.dat','w')
   for x1 in FRange1(-3.0,3.0,50):
     for x2 in FRange1(-3.0,3.0,50):
       y= func(np.mat([x1,x2]).T)
@@ -26,9 +26,9 @@ if __name__=='__main__':
 
   x0= np.mat([1.0,1.0]).T
   a,b,c= TaylorExp2(func, x0)
-  print 'a,b,c=',a,b,c
+  print('a,b,c=',a,b,c)
 
-  fp= file('/tmp/approx.dat','w')
+  fp= open('/tmp/approx.dat','w')
   for x1 in FRange1(-3.0,3.0,50):
     for x2 in FRange1(-3.0,3.0,50):
       x= np.mat([x1,x2]).T
@@ -37,5 +37,5 @@ if __name__=='__main__':
     fp.write('\n')
   fp.close()
 
-  print 'Plot with'
-  print '''qplot -x -3d /tmp/true.dat w l /tmp/approx.dat w l'''
+  print('Plot with')
+  print('''qplot -x -3d /tmp/true.dat w l /tmp/approx.dat w l''')

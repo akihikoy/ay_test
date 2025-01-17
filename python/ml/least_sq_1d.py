@@ -1,6 +1,10 @@
 #!/usr/bin/python3
-from gaussian_rbf import Sq, Vec, FeaturesG, FeaturesNG, ConstructRBF
-from least_sq import Rand, GetWeightByLeastSq
+if __package__ in (None,''):
+  from gaussian_rbf import Sq, Vec, FeaturesG, FeaturesNG, ConstructRBF
+  from least_sq import Rand, GetWeightByLeastSq
+else:
+  from .gaussian_rbf import Sq, Vec, FeaturesG, FeaturesNG, ConstructRBF
+  from .least_sq import Rand, GetWeightByLeastSq
 import numpy as np
 import numpy.linalg as la
 import math

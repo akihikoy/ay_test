@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from state_machine_rl import *
 from flow.flow_dyn import *
 
@@ -37,7 +37,7 @@ def IsTimeout(st):
 
 def IsPoured(st):
   if fdyn.a_cup > l.amount_trg:
-    print 'Poured (%f: %f / %f)' % (fdyn.time, fdyn.a_cup, l.amount_trg)
+    print('Poured (%f: %f / %f)' % (fdyn.time, fdyn.a_cup, l.amount_trg))
     return True
   return False
 
@@ -108,15 +108,15 @@ for i in range(50):
   fdyn= TFlowDyn(a_bottle=0.5,show_state=False)
   fdyn.Start()
   sm.Run()
-  print sm['pour'].ParamLearner.ParamValues
+  print(sm['pour'].ParamLearner.ParamValues)
   #print sm['pour'].ParamLearner.C
   fdyn.Stop()
-  print 'Continue?'
+  print('Continue?')
   #if AskYesNo():
     #continue
   #else:
     #break
 
-print 'Plot by:'
-print "cat data/flow.dat | qplot -x -s 'set y2tics' - u 1:3 - u 1:4 - u 1:5 - u 1:6 ax x1y2"
+print('Plot by:')
+print("cat data/flow.dat | qplot -x -s 'set y2tics' - u 1:3 - u 1:4 - u 1:5 - u 1:6 ax x1y2")
 

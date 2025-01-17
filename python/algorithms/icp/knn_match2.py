@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    knn_match2.py
 #\brief   Nearest neighbor test (with scaling).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -18,7 +18,7 @@ def KNNMatch1(seq1,seq2,k=1,filename=None):
   #nbrs= sklearn.neighbors.NearestNeighbors(n_neighbors=k, algorithm='auto', metric=d).fit(seq2)
   nbrs= sklearn.neighbors.NearestNeighbors(n_neighbors=k, algorithm='auto', metric='wminkowski', metric_params={'w':s}).fit(seq2)
   distances,indices= nbrs.kneighbors(seq1)
-  print indices
+  print(indices)
   if filename is not None:
     with open(filename,'w') as fp:
       for i1,i2s in enumerate(indices):
@@ -38,15 +38,15 @@ if __name__=='__main__':
   with open('/tmp/seq2.dat','w') as fp:
     for x,y in seq2:
       fp.write('{0} {1}\n'.format(x,y))
-  print 'Plot by:'
-  print '$ qplot -x /tmp/seq1.dat w lp /tmp/seq2.dat w p'
+  print('Plot by:')
+  print('$ qplot -x /tmp/seq1.dat w lp /tmp/seq2.dat w p')
 
-  print 'KNNMatch1(seq1,seq2,k=1)'
+  print('KNNMatch1(seq1,seq2,k=1)')
   KNNMatch1(seq1,seq2,k=1,filename='/tmp/knn1.dat')
-  print 'Plot by:'
-  print '$ qplot -x -s \'set size square\' /tmp/seq1.dat w l /tmp/knn1.dat w lp /tmp/seq2.dat w p'
+  print('Plot by:')
+  print('$ qplot -x -s \'set size square\' /tmp/seq1.dat w l /tmp/knn1.dat w lp /tmp/seq2.dat w p')
 
-  print 'KNNMatch1(seq2,seq1,k=1)'
+  print('KNNMatch1(seq2,seq1,k=1)')
   KNNMatch1(seq2,seq1,k=1,filename='/tmp/knn2.dat')
-  print 'Plot by:'
-  print '$ qplot -x -s \'set size square\' /tmp/seq1.dat w l /tmp/knn2.dat w lp /tmp/seq2.dat w p'
+  print('Plot by:')
+  print('$ qplot -x -s \'set size square\' /tmp/seq1.dat w l /tmp/knn2.dat w lp /tmp/seq2.dat w p')

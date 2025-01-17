@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
 import numpy.linalg as la
 
@@ -35,31 +35,31 @@ base= [2.0*(random.random()-0.5),2.0*(random.random()-0.5),2.0*(random.random()-
 vec2= Orthogonalize(vec,base,original_norm=True)
 vec3= Orthogonalize2(vec,base,original_norm=True)
 
-print '======='
-print 'vec=',vec
-print 'base=',base
-print '-------'
-print 'norm(vec)=',la.norm(vec)
-print 'dot(vec,base)=',np.dot(vec,base)
-print '-------'
-print 'vec2=',vec2
-print 'norm(vec2)=',la.norm(vec2)
-print 'dot(vec2,base)=',np.dot(vec2,base)
-print '-------'
-print 'vec3=',vec3
-print 'norm(vec3)=',la.norm(vec3)
-print 'dot(vec3,base)=',np.dot(vec3,base)
-print '======='
+print('=======')
+print('vec=',vec)
+print('base=',base)
+print('-------')
+print('norm(vec)=',la.norm(vec))
+print('dot(vec,base)=',np.dot(vec,base))
+print('-------')
+print('vec2=',vec2)
+print('norm(vec2)=',la.norm(vec2))
+print('dot(vec2,base)=',np.dot(vec2,base))
+print('-------')
+print('vec3=',vec3)
+print('norm(vec3)=',la.norm(vec3))
+print('dot(vec3,base)=',np.dot(vec3,base))
+print('=======')
 
 ex= [2.0*(random.random()-0.5),2.0*(random.random()-0.5),2.0*(random.random()-0.5)]
 ex= [1,1,1]
 ex= np.array(ex)/la.norm(ex)
 ez= GetOrthogonalAxis(ex)
 ey= np.cross(ez,ex)
-print 'ex=',ex
-print 'ey=',ey
-print 'ez=',ez
-print 'dot(ex,ey)=',np.dot(ex,ey)
-print 'dot(ex,ez)=',np.dot(ex,ez)
-print 'dot(ey,ez)=',np.dot(ey,ez)
-print '======='
+print('ex=',ex)
+print('ey=',ey)
+print('ez=',ez)
+print('dot(ex,ey)=',np.dot(ex,ey))
+print('dot(ex,ez)=',np.dot(ex,ez))
+print('dot(ey,ez)=',np.dot(ey,ez))
+print('=======')

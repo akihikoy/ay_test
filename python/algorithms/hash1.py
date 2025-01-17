@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    hash1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -50,41 +50,41 @@ class TStrInt(object):
 if __name__=='__main__':
   def Print(*ss):
     for s in ss:
-      print s,
-    print ''
+      print(s, end=' ')
+    print('')
   a= TStrInt('a',0)
   test= lambda s: Print(s,'=',eval(s))
   test('''a''')
-  print ''
+  print('')
   test('''a==TStrInt('a',0)''')
   test('''a==TStrInt('a',1)''')
   test('''a!=TStrInt('a',0)''')
   test('''a!=TStrInt('a',1)''')
-  print ''
+  print('')
   test('''a>TStrInt('a',0)''')
   test('''a<TStrInt('a',0)''')
   test('''a>TStrInt('a',1)''')
   test('''a<TStrInt('a',1)''')
-  print ''
+  print('')
   test('''a>=TStrInt('a',0)''')
   test('''a<=TStrInt('a',0)''')
   test('''a>=TStrInt('a',1)''')
   test('''a<=TStrInt('a',1)''')
-  print ''
+  print('')
 
   x= {}
   x[TStrInt('a',1)]= [1,2,3]
   x[TStrInt('a',0)]= [0,0,0]
   x[TStrInt('b',0)]= [4,5,6]
   test('''x''')
-  print ''
+  print('')
 
   test('''a+TStrInt('a',1)''')
   test('''a+1''')
   test('''a-2''')
   test('''a-2==TStrInt('a',-1)''')
   test('''a-2==TStrInt('a',-2)''')
-  print ''
+  print('')
 
   test('''a''')
   test('''a.S''')
@@ -92,4 +92,4 @@ if __name__=='__main__':
   #a.S= 'b'
   #a.I= 10
   test('''a''')
-  print ''
+  print('')

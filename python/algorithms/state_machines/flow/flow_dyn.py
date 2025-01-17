@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Simplified flow dynamics model
 import threading
 import time
@@ -38,7 +38,7 @@ class TFlowDyn:
     self.time= time.time()-self.t_start
 
     if self.show_state:
-      print '%f %f %f %f %f %f %f' % (self.time, self.a_bottle, self.a_cup, self.flow, self.flow_obs, self.theta, self.dtheta)
+      print('%f %f %f %f %f %f %f' % (self.time, self.a_bottle, self.a_cup, self.flow, self.flow_obs, self.theta, self.dtheta))
     self.fp.write('%f %f %f %f %f %f %f\n' % (self.time, self.a_bottle, self.a_cup, self.flow, self.flow_obs, self.theta, self.dtheta))
     time.sleep(self.time_step)
 
@@ -48,7 +48,7 @@ class TFlowDyn:
 
   def Start(self):
     self.running= True
-    self.fp= file('data/flow.dat','w')
+    self.fp= open('data/flow.dat','w')
     self.t_start= time.time()
     self.tl= threading.Thread(name='loop', target=self.Loop)
     self.tl.start()
@@ -71,6 +71,6 @@ if __name__=='__main__':
   fdyn.Control(0.0)
   time.sleep(3.0)
   fdyn.Stop()
-  print 'Plot by:'
-  print "cat data/flow.dat | qplot -x -s 'set y2tics' - u 1:3 - u 1:4 - u 1:5 - u 1:6 ax x1y2"
+  print('Plot by:')
+  print("cat data/flow.dat | qplot -x -s 'set y2tics' - u 1:3 - u 1:4 - u 1:5 - u 1:6 ax x1y2")
 

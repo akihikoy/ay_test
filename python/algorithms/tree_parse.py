@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 def Test1(tree):
   def sub_parse(sub_tree):
@@ -7,7 +7,7 @@ def Test1(tree):
       return [name, sub_parse(sub_tree[2][-1])]
     else:
       return name
-  print 'last names=', sub_parse(tree)
+  print('last names=', sub_parse(tree))
 
 def Parser(tree_struct, op):
   name= tree_struct[0]
@@ -24,7 +24,7 @@ if __name__=='__main__':
   #tree= ['x1','x',[['c1','c'],['c2','c']]]
   tree= ['x1','x',[ ['c1','c'], ['x2','x',[['c2','c'],['c3','c']]] ]]
 
-  print 'tree=',tree
+  print('tree=',tree)
 
   #seeker= tree
   #while seeker<>None:
@@ -33,7 +33,7 @@ if __name__=='__main__':
     #else:               seeker= None
 
   def sub_parse(sub_tree,indent=0):
-    print '  '*indent+'name=',sub_tree[0],'type=',sub_tree[1]
+    print('  '*indent+'name=',sub_tree[0],'type=',sub_tree[1])
     if sub_tree[1]=='x':
       indent+= 1
       for sub2 in sub_tree[2]:
@@ -45,7 +45,7 @@ if __name__=='__main__':
   class TOp1:
     def __init__(self):  self.indent= 0
     def op1(self,name,kind):
-      print '> '*self.indent+'name=',name,'type=',kind
+      print('> '*self.indent+'name=',name,'type=',kind)
       if kind=='x':  self.indent+= 1
   Parser(tree, TOp1().op1)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import random
 
 #Search x such that fobj(x) is not None and x is in bound
@@ -25,4 +25,4 @@ def fobj1(x):
 for i in range(10000):
   x= InitialGuess(bound, fobj1, max_count=1000000)
   f= fobj1(x)
-  print x[0],x[1],f
+  print(x[0],x[1],f)

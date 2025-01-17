@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    maf_std.py
 #\brief   Moving average standard deviation.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

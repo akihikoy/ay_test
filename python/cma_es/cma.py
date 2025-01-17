@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Module cma implements the CMA-ES (Covariance Matrix Adaptation Evolution Strategy).
 
 CMA-ES is a stochastic optimizer for robust non-linear non-convex
