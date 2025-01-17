@@ -13,13 +13,14 @@ def ChangeShebangOfScript(file_path):
       with open(file_path, 'r', encoding='utf-8') as f:
         lines= f.readlines()
       modified= False
-      firstline= lines[0].strip()
-      if lines and firstline.startswith('#!') and 'python2' in firstline:
-        lines[0] = lines[0].replace('python2', 'python3')
-        modified= True
-      elif lines and firstline.startswith('#!') and firstline.endswith('python'):
-        lines[0] = lines[0].replace('python', 'python3')
-        modified= True
+      if len(lines)>0:
+        firstline= lines[0].strip()
+        if lines and firstline.startswith('#!') and 'python2' in firstline:
+          lines[0] = lines[0].replace('python2', 'python3')
+          modified= True
+        elif lines and firstline.startswith('#!') and firstline.endswith('python'):
+          lines[0] = lines[0].replace('python', 'python3')
+          modified= True
       if modified:
         with open(file_path, 'w', encoding='utf-8') as f:
           f.writelines(lines)
