@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    line_fit4.py
 #\brief   polyfit test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -29,8 +29,8 @@ if __name__=='__main__':
 
     w= LineFit(data_x[:n], data_f[:n])
     #print 'Computation time[ms]:',(time.time()-t0)*1000.
-    print 'r={}, w={}'.format(r,w)
-    test_x= np.linspace(xmin,data_x[:n][-1],50.0)
+    print('r={}, w={}'.format(r,w))
+    test_x= np.linspace(xmin,data_x[:n][-1],50)
     test_f= np.dot(np.vstack((test_x,np.ones_like(test_x))).T,w)
     ax.plot(test_x, test_f, linewidth=1, label='fit-{}'.format(r))
   ax.legend()

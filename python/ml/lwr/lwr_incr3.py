@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 '''
 Incremental version of LWR; locally weighted regression.
 We use another version of Gaussian.
@@ -75,7 +75,7 @@ class TLWR:
     for n in range(N):
       W[n,n]= GaussianM(x, self.X[n], self.C[n]*self.C[n]+x_var)
     if self.Importance!=None:
-      for k,v in self.Importance.iteritems():
+      for k,v in self.Importance.items():
         W[k,k]*= v
     return W
 
@@ -213,14 +213,14 @@ class TLWR:
   #Dump data to file for plot.
   def DumpPlot(self,bounds,f_reduce,f_repair,file_prefix='/tmp/f',x_var=0.0):
     if len(self.DataX)==0:
-      print 'No data'
+      print('No data')
       return
     xamin0,xamax0= bounds
     xamin= f_reduce(xamin0)
     xamax= f_reduce(xamax0)
     xmed= [Median([x[d] for x in self.DataX]) for d in range(len(self.DataX[0]))]
     if len(xamin)>=3 or len(xamin)!=len(xamax) or len(xamin)<=0:
-      print 'DumpPlot: Invalid f_reduce function'
+      print('DumpPlot: Invalid f_reduce function')
       return
 
     fp= open('%s_est.dat'%(file_prefix),'w')
@@ -283,7 +283,7 @@ if __name__=='__main__':
     data_x= [[x+1.0*Rand()] for x in FRange1(-3.0,5.0,10)]
     data_y= [[true_func(x[0])+0.3*Rand()] for x in data_x]
 
-    fp1= file('/tmp/smpl.dat','w')
+    fp1= open('/tmp/smpl.dat','w')
     for x,y in zip(data_x,data_y):
       fp1.write('%f %f\n' % (x[0],y[0]))
     fp1.close()
@@ -294,8 +294,8 @@ if __name__=='__main__':
     for x,y in zip(data_x,data_y):
       lwr.Update(x,y)
 
-    fp1= file('/tmp/true.dat','w')
-    fp2= file('/tmp/est.dat','w')
+    fp1= open('/tmp/true.dat','w')
+    fp2= open('/tmp/est.dat','w')
     for x in FRange1(-7.0,10.0,200):
       pred= lwr.Predict([x],with_var=True,with_grad=True)
       #print 'pred.Grad=',pred.Grad
@@ -304,16 +304,16 @@ if __name__=='__main__':
     fp1.close()
     fp2.close()
 
-    print 'Plot by:'
-    print '''qplot -x /tmp/est.dat u 1:2:3 w errorbars /tmp/true.dat w l /tmp/smpl.dat w p'''
-    print '''qplot -x /tmp/est.dat u 1:2:3 w errorbars /tmp/true.dat w l /tmp/smpl.dat w p /tmp/est.dat u 1:2:4:5 ev 2 w vector lt 3'''
+    print('Plot by:')
+    print('''qplot -x /tmp/est.dat u 1:2:3 w errorbars /tmp/true.dat w l /tmp/smpl.dat w p''')
+    print('''qplot -x /tmp/est.dat u 1:2:3 w errorbars /tmp/true.dat w l /tmp/smpl.dat w p /tmp/est.dat u 1:2:4:5 ev 2 w vector lt 3''')
 
   elif example==2:
     true_func= lambda x: 1.2+math.sin(2.0*x[0])*x[1]
     data_x= [[4.0*Rand(),4.0*Rand()] for i in range(20)]
     data_y= [[true_func(x)+0.3*Rand()] for x in data_x]
 
-    fp1= file('/tmp/smpl.dat','w')
+    fp1= open('/tmp/smpl.dat','w')
     for x,y in zip(data_x,data_y):
       fp1.write('%f %f %f\n' % (x[0],x[1],y[0]))
     fp1.close()
@@ -324,8 +324,8 @@ if __name__=='__main__':
     for x,y in zip(data_x,data_y):
       lwr.Update(x,y)
 
-    fp1= file('/tmp/true.dat','w')
-    fp2= file('/tmp/est.dat','w')
+    fp1= open('/tmp/true.dat','w')
+    fp2= open('/tmp/est.dat','w')
     for x1 in FRange1(-4.0,4.0,50):
       for x2 in FRange1(-4.0,4.0,50):
         pred= lwr.Predict([x1,x2],with_grad=True)
@@ -336,6 +336,6 @@ if __name__=='__main__':
     fp1.close()
     fp2.close()
 
-    print 'Plot by:'
-    print '''qplot -x -3d /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p'''
-    print '''qplot -x -3d /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p /tmp/est.dat u 1:2:3:4:5:'(0.0)' w vector'''
+    print('Plot by:')
+    print('''qplot -x -3d /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p''')
+    print('''qplot -x -3d /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p /tmp/est.dat u 1:2:3:4:5:'(0.0)' w vector''')

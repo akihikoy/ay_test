@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Online linear regression using Gaussian RBF.
 
 from gaussian_rbf import Sq, Vec, FeaturesG, FeaturesNG, ConstructRBF
@@ -45,11 +45,11 @@ if __name__=='__main__':
     data_x.append(x)
     data_f.append(f)
 
-  fp= file('res/data.dat','w')
+  fp= open('res/data.dat','w')
   for x,f in zip(data_x, data_f):
     fp.write('%f %f %f\n' % (x[0],x[1], f))
 
-  fp= file('res/approx.dat','w')
+  fp= open('res/approx.dat','w')
   for x0 in np.arange(xmin[0],xmax[0],(xmax[0]-xmin[0])/50.0):
     for x1 in np.arange(xmin[1],xmax[1],(xmax[1]-xmin[1])/50.0):
       x= Vec([x0,x1])
@@ -57,5 +57,5 @@ if __name__=='__main__':
       fp.write('%f %f %f\n' % (x0,x1, f))
     fp.write('\n')
 
-  print 'qplot -x -3d res/approx.dat w l res/data.dat'
+  print('qplot -x -3d res/approx.dat w l res/data.dat')
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    least_sq_lin2.py
 #\brief   Least square for linear features.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -31,18 +31,18 @@ if __name__=='__main__':
   t0= time.time()
   w= GetLinearWeightByLeastSq(data[:,0],data[:,1])
   #w= np.flip(np.polyfit(data[:,0],data[:,1],2))
-  print 'Computation time[ms]:',(time.time()-t0)*1000.
-  print w
+  print('Computation time[ms]:',(time.time()-t0)*1000.)
+  print(w)
 
 
-  fp= file('/tmp/data.dat','w')
+  fp= open('/tmp/data.dat','w')
   for x,f in data:
     fp.write('%f %f\n' % (x, f))
 
-  fp= file('/tmp/approx.dat','w')
-  for x in np.linspace(np.min(data[:,0]),np.max(data[:,0]),200.0):
+  fp= open('/tmp/approx.dat','w')
+  for x in np.linspace(np.min(data[:,0]),np.max(data[:,0]),200):
     f= w.T.dot([1.0,x])
     fp.write('%f %f\n' % (x, f))
 
-  print 'qplot -x /tmp/approx.dat w l /tmp/data.dat'
+  print('qplot -x /tmp/approx.dat w l /tmp/data.dat')
 

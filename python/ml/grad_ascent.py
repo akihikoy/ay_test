@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    grad_ascent.py
 #\brief   Similar to grad_descent2.py but we maximize the objective functions.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -65,7 +65,7 @@ class TAdaDeltaMax(TFirstOrderOptimizer):
 def RunFirstOpt(opt, f_obj, f_grad, x0, f_cnstr=None, n_iter=20, fp=None):
   x= x0
   y= f_obj(x)
-  print x, y
+  print(x, y)
   if fp:  fp.write('%s %s\n' % (' '.join(map(str,x)),str(y)))
   st= opt.Init(x0)
   for i in range(n_iter):
@@ -73,7 +73,7 @@ def RunFirstOpt(opt, f_obj, f_grad, x0, f_cnstr=None, n_iter=20, fp=None):
     x,st= opt.Step(x,g,st)
     if f_cnstr:  x= f_cnstr(x)
     y= f_obj(x)
-    print x, y, g
+    print(x, y, g)
     if fp:  fp.write('%s %s\n' % (' '.join(map(str,x)),str(y)))
   return x
 
@@ -95,14 +95,14 @@ def Main():
   y_true= np.array([[Func(x)] for x in x_true])
   y_grad= np.array([Grad(x) for x in x_true])
 
-  fp1= file('/tmp/true.dat','w')
-  for x,y,i in zip(x_true,y_true,range(len(y_true))):
+  fp1= open('/tmp/true.dat','w')
+  for x,y,i in zip(x_true,y_true,list(range(len(y_true)))):
     if i%(nt+1)==0:  fp1.write('\n')
     fp1.write('%s %s\n' % (' '.join(map(str,x)),' '.join(map(str,y))))
   fp1.close()
 
-  fp1= file('/tmp/grad.dat','w')
-  for x,y,g,i in zip(x_true,y_true,y_grad,range(len(y_grad))):
+  fp1= open('/tmp/grad.dat','w')
+  for x,y,g,i in zip(x_true,y_true,y_grad,list(range(len(y_grad)))):
     if i%(nt+1)==0:  fp1.write('\n')
     fp1.write('%s %s %s\n' % (' '.join(map(str,x)),' '.join(map(str,y)),' '.join(map(str,g)) ))
   fp1.close()
@@ -118,21 +118,21 @@ def Main():
   #x0= [-0.5,0.8082]
   x0= [-1.0,0.8082]
 
-  fp1= file('/tmp/opt_gd.dat','w')
+  fp1= open('/tmp/opt_gd.dat','w')
   opt= TGradientAscent()
   RunFirstOpt(opt, Func,Grad,x0, f_cnstr=Cnstr, fp=fp1)
   fp1.close()
 
-  print ''
+  print('')
 
-  fp1= file('/tmp/opt_adadelta.dat','w')
+  fp1= open('/tmp/opt_adadelta.dat','w')
   opt= TAdaDeltaMax()
   RunFirstOpt(opt, Func,Grad,x0, f_cnstr=Cnstr, fp=fp1)
   fp1.close()
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   qopt= ''
   #qopt= '-o -.svg'
@@ -157,13 +157,13 @@ def PlotGraphs():
       if qopt!='':
         cmd= cmd.replace('qplot -x2 aaa','qplot '+qopt)
         if cmd[-1]=='&':  cmd= cmd[:-1]
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   if qopt=='':  os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

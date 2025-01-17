@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    line_fit5.py
 #\brief   polyfit test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -27,7 +27,7 @@ if __name__=='__main__':
     if not os.path.exists(filename):  break
     with open(filename) as fp:
       d= fp.read()
-      a= np.array([map(float,s.split()) for s in d.split('\n') if s!=''])
+      a= np.array([list(map(float,s.split())) for s in d.split('\n') if s!=''])
       data_x= a[:,0]
       data_f= a[:,1]
     if x_base is None:  x_base= np.min(data_x)
@@ -35,8 +35,8 @@ if __name__=='__main__':
     xmin,xmax= np.min(data_x),np.max(data_x)
     w= LineFit(data_x, data_f)
     #print 'Computation time[ms]:',(time.time()-t0)*1000.
-    print 'idx={}, n={}, x=[{:.2f},{:.2f}], w={}'.format(idx,len(data_x),xmin,xmax,w)
-    test_x= np.linspace(xmin,xmax,50.0)
+    print('idx={}, n={}, x=[{:.2f},{:.2f}], w={}'.format(idx,len(data_x),xmin,xmax,w))
+    test_x= np.linspace(xmin,xmax,50)
     test_f= np.dot(np.vstack((test_x,np.ones_like(test_x))).T,w)
     ax.scatter(data_x, data_f, s=0.5)
     ax.plot(data_x, data_f, linewidth=0.1)

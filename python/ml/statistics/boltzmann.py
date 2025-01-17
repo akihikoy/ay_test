@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Boltzmann action selection
 import math,random
 
@@ -35,4 +35,4 @@ if __name__=='__main__':
     a= SelectFromPolicy(probs)
     hist[a]+=1
   for i in range(len(values)):
-    print i,values[i],probs[i],hist[i]/10000.0
+    print(i,values[i],probs[i],hist[i]/10000.0)

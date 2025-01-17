@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from math import *
 import numpy
 
@@ -19,5 +19,5 @@ def Probability(x):
   return exp(-Square(x-mean)/(2.0*var)) / sqrt(pi*var)
 
 for x in numpy.arange(xmin,xmax,dx):
-  print str(x)+" "+str(Probability(x))
+  print(str(x)+" "+str(Probability(x)))
 

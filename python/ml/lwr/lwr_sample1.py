@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 '''
 ref.
@@ -39,7 +39,7 @@ def get_weights(training_inputs, datapoint, c=1.0):
   n_rows = x.shape[0]
   # Create diagonal weight matrix from identity matrix
   weights = np.mat(np.eye(n_rows))
-  for i in xrange(n_rows):
+  for i in range(n_rows):
     weights[i, i] = gaussian_kernel(datapoint, x[i], c)
 
   return weights
@@ -87,13 +87,13 @@ if __name__=='__main__':
   data_x= [[x+1.0*Rand(),1.0] for x in FRange1(-3.0,5.0,10)]  # ,1.0 is to learn const
   data_y= [[true_func(x[0])+0.3*Rand()] for x in data_x]
 
-  fp1= file('/tmp/smpl.dat','w')
+  fp1= open('/tmp/smpl.dat','w')
   for x,y in zip(data_x,data_y):
     fp1.write('%f %f\n' % (x[0],y[0]))
   fp1.close()
 
-  fp1= file('/tmp/true.dat','w')
-  fp2= file('/tmp/est.dat','w')
+  fp1= open('/tmp/true.dat','w')
+  fp2= open('/tmp/est.dat','w')
   for x in FRange1(-7.0,10.0,200):
     y= lwr_predict(data_x, data_y, np.mat([x,1.0]), c=0.5)  # ,1.0 is to learn const
     fp1.write('%f %f\n' % (x,true_func(x)))
@@ -101,6 +101,6 @@ if __name__=='__main__':
   fp1.close()
   fp2.close()
 
-  print 'Plot by:'
-  print 'qplot -x /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p'
+  print('Plot by:')
+  print('qplot -x /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p')
 

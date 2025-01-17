@@ -1,7 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import math
 import numpy as np
 import numpy.linalg as la
+import random
+
+from discretization import TDiscretizer
 
 def f(x):
   return x[0]*math.sin(3.0*x[1])
@@ -78,6 +81,6 @@ if __name__=='__main__':
     for x1 in np.arange(xmin[1],xmax[1],(xmax[1]-xmin[1])/50.0):
       x= Vec([x0,x1])
       f= w.T.dot(Features(x, mu, invSig))
-      print '%f %f %f' % (x0,x1, f)
-    print ''
+      print('%f %f %f' % (x0,x1, f))
+    print('')
 

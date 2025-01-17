@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    pca2.py
 #\brief   PCA with EIG, SVD
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -24,7 +24,7 @@ class TPCA:
     return np.dot(points-self.Mean, self.EVecs)
 
   def Reconstruct(self,proj,idx=None):
-    if idx==None:  idx= range(len(self.EVecs))
+    if idx==None:  idx= list(range(len(self.EVecs)))
     return np.dot(proj, self.EVecs[:,idx].T) + self.Mean
 
 
@@ -85,7 +85,7 @@ def Main():
   fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -3d -s 'set size square;set size ratio -1'
@@ -99,13 +99,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

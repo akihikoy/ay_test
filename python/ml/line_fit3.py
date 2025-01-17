@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    line_fit3.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -35,8 +35,8 @@ if __name__=='__main__':
   data_x, data_f= GenerateSample(xmin, xmax, N_sample=300)
   t0= time.time()
   w= LineFit(data_x, data_f)
-  print 'Computation time[ms]:',(time.time()-t0)*1000.
-  print 'w=',w
+  print('Computation time[ms]:',(time.time()-t0)*1000.)
+  print('w=',w)
 
   test_x= np.arange(xmin,xmax,(xmax-xmin)/50.0)
   test_f= np.dot(np.vstack((test_x,np.ones_like(test_x))).T,w)

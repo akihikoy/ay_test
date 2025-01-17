@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from lwr_incr2 import *
 #from lwr_incr3 import *
@@ -18,7 +18,7 @@ def ToList(x):
     if len(x.shape)==2:
       if x.shape[0]==1:  return x.tolist()[0]
       if x.shape[1]==1:  return x.T.tolist()[0]
-  print 'ToList: x=',x
+  print('ToList: x=',x)
   raise Exception('ToList: Impossible to serialize:',x)
 
 def Median(array):
@@ -63,20 +63,20 @@ def Main():
   y_test= np.array([[TrueFunc(x)] for x in x_test]).astype(np.float32)
 
   # Dump data for plot:
-  fp1= file('/tmp/smpl_train2.dat','w')
+  fp1= open('/tmp/smpl_train2.dat','w')
   for x,y in zip(data_x,data_y):
     fp1.write('%s #%i# %s\n' % (' '.join(map(str,x)),len(x)+1,' '.join(map(str,y))))
   fp1.close()
   # Dump data for plot:
-  fp1= file('/tmp/smpl_test2.dat','w')
-  for x,y,i in zip(x_test,y_test,range(len(y_test))):
+  fp1= open('/tmp/smpl_test2.dat','w')
+  for x,y,i in zip(x_test,y_test,list(range(len(y_test)))):
     if i%(nt+1)==0:  fp1.write('\n')
     fp1.write('%s #%i# %s\n' % (' '.join(map(str,x)),len(x)+1,' '.join(map(str,y))))
   fp1.close()
 
   pred= [[model.Predict(x).Y[0,0]] for x in x_test]
-  fp1= file('/tmp/lwr_est.dat','w')
-  for x,y,i in zip(x_test,pred,range(len(pred))):
+  fp1= open('/tmp/lwr_est.dat','w')
+  for x,y,i in zip(x_test,pred,list(range(len(pred)))):
     if i%(nt+1)==0:  fp1.write('\n')
     fp1.write('%s #%i# %s\n' % (' '.join(map(str,x)),len(x)+1,' '.join(map(str,y))))
   fp1.close()
@@ -84,7 +84,7 @@ def Main():
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os,sys
   opt= sys.argv[2:]
   commands=[
@@ -98,13 +98,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.format(opt=' '.join(opt)).splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    least_sq_quad.py
 #\brief   Least square for quadratic features.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -44,26 +44,26 @@ if __name__=='__main__':
 
   t0= time.time()
   data_x, data_f= GenerateSample(xmin, xmax, N_sample=300, Func=Func, noise=1.5)
-  print 'GenerateSample/Computation time:',time.time()-t0
+  print('GenerateSample/Computation time:',time.time()-t0)
   t0= time.time()
   w,std= GetWeightByLeastSq(data_x, data_f, with_std=True)
-  print 'GetWeightByLeastSq/Computation time:',time.time()-t0
-  print w,std
+  print('GetWeightByLeastSq/Computation time:',time.time()-t0)
+  print(w,std)
 
 
-  fp= file('/tmp/data.dat','w')
+  fp= open('/tmp/data.dat','w')
   for x,f in zip(data_x, data_f):
     fp.write('%f %f %f\n' % (x[0],x[1], f))
 
   t0= time.time()
-  fp= file('/tmp/approx.dat','w')
+  fp= open('/tmp/approx.dat','w')
   for x0 in np.arange(xmin[0],xmax[0],(xmax[0]-xmin[0])/50.0):
     for x1 in np.arange(xmin[1],xmax[1],(xmax[1]-xmin[1])/50.0):
       x= [x0,x1]
       f= w.T.dot(QuadFeat(x))
       fp.write('%f %f %f %f %f\n' % (x0,x1, f,f-std,f+std))
     fp.write('\n')
-  print 'Plotting data/Computation time:',time.time()-t0
+  print('Plotting data/Computation time:',time.time()-t0)
 
-  print 'qplot -x -3d /tmp/approx.dat w l /tmp/approx.dat u 1:2:4 w l /tmp/approx.dat u 1:2:5 w l /tmp/data.dat'
+  print('qplot -x -3d /tmp/approx.dat w l /tmp/approx.dat u 1:2:4 w l /tmp/approx.dat u 1:2:5 w l /tmp/data.dat')
 

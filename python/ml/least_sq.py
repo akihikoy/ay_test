@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from gaussian_rbf import Sq, Vec, FeaturesG, FeaturesNG, ConstructRBF
 import numpy as np
 import numpy.linalg as la
@@ -50,14 +50,14 @@ if __name__=='__main__':
   n_units= [10,10]
   t0= time.time()
   mu, invSig= ConstructRBF(xmin, xmax, n_units)
-  print 'ConstructRBF/Computation time:',time.time()-t0
+  print('ConstructRBF/Computation time:',time.time()-t0)
 
   t0= time.time()
   data_x, data_f= GenerateSample(xmin, xmax, N_sample=300, Func=Func)
-  print 'GenerateSample/Computation time:',time.time()-t0
+  print('GenerateSample/Computation time:',time.time()-t0)
   t0= time.time()
   w= GetWeightByLeastSq(data_x, data_f, func_feat=lambda x: Features(x,mu,invSig))
-  print 'GetWeightByLeastSq/Computation time:',time.time()-t0
+  print('GetWeightByLeastSq/Computation time:',time.time()-t0)
 
 
   with open('/tmp/data.dat','w') as fp:
@@ -72,7 +72,7 @@ if __name__=='__main__':
         f= w.T.dot(Features(x, mu, invSig))
         fp.write('%f %f %f\n' % (x0,x1, f))
       fp.write('\n')
-  print 'Plotting data/Computation time:',time.time()-t0
+  print('Plotting data/Computation time:',time.time()-t0)
 
-  print 'qplot -x -3d /tmp/approx.dat w l /tmp/data.dat'
+  print('qplot -x -3d /tmp/approx.dat w l /tmp/data.dat')
 

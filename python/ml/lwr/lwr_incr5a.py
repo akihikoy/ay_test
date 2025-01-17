@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    lwr_incr5a.py
 #\brief   LWR test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

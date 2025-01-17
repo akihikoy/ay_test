@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import numpy as np
 import numpy.linalg as la
@@ -64,7 +64,7 @@ if __name__=='__main__':
   data_x= [[x+1.0*Rand(),1.0] for x in FRange1(-3.0,5.0,10)]  # ,1.0 is to learn const
   data_y= [[true_func(x[0])+0.3*Rand()] for x in data_x]
 
-  fp1= file('/tmp/smpl.dat','w')
+  fp1= open('/tmp/smpl.dat','w')
   for x,y in zip(data_x,data_y):
     fp1.write('%f %f\n' % (x[0],y[0]))
   fp1.close()
@@ -72,8 +72,8 @@ if __name__=='__main__':
   lwr= TLWR()
   lwr.Train(data_x, data_y, c_min=0.3)
 
-  fp1= file('/tmp/true.dat','w')
-  fp2= file('/tmp/est.dat','w')
+  fp1= open('/tmp/true.dat','w')
+  fp2= open('/tmp/est.dat','w')
   for x in FRange1(-7.0,10.0,200):
     y= lwr.Predict(np.mat([x,1.0]))  # ,1.0 is to learn const
     fp1.write('%f %f\n' % (x,true_func(x)))
@@ -81,6 +81,6 @@ if __name__=='__main__':
   fp1.close()
   fp2.close()
 
-  print 'Plot by:'
-  print 'qplot -x /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p'
+  print('Plot by:')
+  print('qplot -x /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p')
 

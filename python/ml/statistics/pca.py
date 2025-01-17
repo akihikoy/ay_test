@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
 import numpy.linalg as la
 
@@ -20,18 +20,18 @@ class TPCA:
     #print 'Projected=',self.Projected
 
   def Reconstruct(self,proj,idx=None):
-    if idx==None:  idx= range(len(self.EVecs))
+    if idx==None:  idx= list(range(len(self.EVecs)))
     return np.dot(proj, self.EVecs[:,idx].T) + self.Mean
 
 
 import yaml
-#points= yaml.load(file('data/polygon.yaml').read())['polygon']
-points= yaml.load(file('data/b51.yaml').read())['l_p_pour_e_set']
+#points= yaml.load(open('data/polygon.yaml').read(), Loader=yaml.SafeLoader)['polygon']
+points= yaml.load(open('data/b51.yaml').read(), Loader=yaml.SafeLoader)['l_p_pour_e_set']
 #print points
 
 pca= TPCA(points)
 
-fp= file('/tmp/orig.dat','w')
+fp= open('/tmp/orig.dat','w')
 for p in points:
   fp.write(' '.join(map(str,p))+'\n')
 fp.close()
@@ -43,7 +43,7 @@ fp.close()
 proj= pca.Projected[:,[0,1]]
 rescaled= pca.Reconstruct(proj,[0,1])
 
-fp= file('/tmp/res.dat','w')
+fp= open('/tmp/res.dat','w')
 for p in rescaled:
   fp.write(' '.join(map(str,p))+'\n')
 fp.close()

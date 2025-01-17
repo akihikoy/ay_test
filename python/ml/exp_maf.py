@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    exp_maf.py
 #\brief   Exponential moving average filter.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -45,7 +45,7 @@ def Main():
   fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -58,13 +58,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

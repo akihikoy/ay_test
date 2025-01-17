@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    lwr_incr3a.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -29,13 +29,13 @@ def Main():
   src_file= 'data/ode_f3_smp.dat'; dim= [2,3,2]
   assess= lambda y: 5.0*y[0]+y[1]
 
-  fp= file(src_file)
+  fp= open(src_file)
   while True:
     line= fp.readline()
     if not line: break
     data= line.split()
-    model.Update(map(float,data[sum(dim[0:1]):sum(dim[0:2])]),
-                 map(float,data[sum(dim[0:2]):sum(dim[0:3])]))
+    model.Update(list(map(float,data[sum(dim[0:1]):sum(dim[0:2])])),
+                 list(map(float,data[sum(dim[0:2]):sum(dim[0:3])])))
   #model.C= [0.03]*len(model.C)
   #model.C= [0.01]*len(model.C)
   #model.C= [0.001]*len(model.C)
@@ -68,7 +68,7 @@ def Main():
   #"""
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -3d
@@ -81,13 +81,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

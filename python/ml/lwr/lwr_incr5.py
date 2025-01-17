@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    lwr_incr5.py
 #\brief   Incremental version of locally weighted regression (LWR) copied from ay_py.core.ml_lwr.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -19,7 +19,7 @@ def DistM(p1,p2):
 
 #Insert a new dictionary to the base dictionary
 def InsertDict(d_base, d_new):
-  for k_new,v_new in d_new.iteritems():
+  for k_new,v_new in d_new.items():
     if k_new in d_base and (type(v_new)==dict and type(d_base[k_new])==dict):
       InsertDict(d_base[k_new], v_new)
     else:
@@ -36,15 +36,15 @@ def ToStdType(x, except_cnv=lambda y:y):
   if isinstance(x, Types.npfloat):  return float(x)
   if isinstance(x, Types.stdprim):  return x
   if isinstance(x, np.ndarray):  return x.tolist()
-  if isinstance(x, (list,tuple,set)):  return map(lambda x2:ToStdType(x2,except_cnv), x)
-  if isinstance(x, dict):  return {ToStdType(k,except_cnv):ToStdType(v,except_cnv) for k,v in x.iteritems()}
+  if isinstance(x, (list,tuple,set)):  return [ToStdType(x2,except_cnv) for x2 in x]
+  if isinstance(x, dict):  return {ToStdType(k,except_cnv):ToStdType(v,except_cnv) for k,v in x.items()}
   try:
-    return {ToStdType(k,except_cnv):ToStdType(v,except_cnv) for k,v in x.__dict__.iteritems()}
+    return {ToStdType(k,except_cnv):ToStdType(v,except_cnv) for k,v in x.__dict__.items()}
   except AttributeError:
     return except_cnv(x)
     #pass
-  print 'Failed to convert:',x
-  print 'Type:',type(x)
+  print('Failed to convert:',x)
+  print('Type:',type(x))
   raise
 
 '''Regularize a given covariance matrix (scalar and None are acceptable) to a [D,D] form.
@@ -346,7 +346,7 @@ class TLWR(TFunctionApprox):
     for n in range(N):
       W[n,n]= self.kernel((x-self.X[n])[:,:D], np.array([self.C[n]*self.C[n]]*D)+x_var)
     if self.Importance!=None:
-      for k,v in self.Importance.iteritems():
+      for k,v in self.Importance.items():
         W[k,k]*= v
     return W
 
@@ -473,7 +473,7 @@ if __name__=='__main__':
     data_x= [[x+1.0*np.random.uniform(-0.5,0.5)] for x in np.linspace(-3.,5.,10)]
     data_y= [[true_func(x[0])+0.3*np.random.uniform(-0.5,0.5)] for x in data_x]
 
-    fp1= file('/tmp/smpl.dat','w')
+    fp1= open('/tmp/smpl.dat','w')
     for x,y in zip(data_x,data_y):
       fp1.write('%f %f\n' % (x[0],y[0]))
     fp1.close()
@@ -489,8 +489,8 @@ if __name__=='__main__':
     for x,y in zip(data_x,data_y):
       lwr.Update(x,y)
 
-    fp1= file('/tmp/true.dat','w')
-    fp2= file('/tmp/est.dat','w')
+    fp1= open('/tmp/true.dat','w')
+    fp2= open('/tmp/est.dat','w')
     for x in np.linspace(-7.0,10.0,200):
       pred= lwr.Predict([x],with_var=True,with_grad=True)
       #print 'pred.Y=',pred.Y
@@ -500,16 +500,16 @@ if __name__=='__main__':
     fp1.close()
     fp2.close()
 
-    print 'Plot by:'
-    print '''qplot -x /tmp/est.dat u 1:2:3 w errorbars /tmp/true.dat w l /tmp/smpl.dat w p'''
-    print '''qplot -x /tmp/est.dat u 1:2:3 w errorbars /tmp/true.dat w l /tmp/smpl.dat w p /tmp/est.dat u 1:2:4:5 ev 2 w vector lt 3'''
+    print('Plot by:')
+    print('''qplot -x /tmp/est.dat u 1:2:3 w errorbars /tmp/true.dat w l /tmp/smpl.dat w p''')
+    print('''qplot -x /tmp/est.dat u 1:2:3 w errorbars /tmp/true.dat w l /tmp/smpl.dat w p /tmp/est.dat u 1:2:4:5 ev 2 w vector lt 3''')
 
   elif example==2:
     true_func= lambda x: 1.2+math.sin(2.0*(x[0]+x[1]))
     data_x= [[2.0*np.random.uniform(-0.5,0.5),10.0*np.random.uniform(-0.5,0.5)] for i in range(10)]
     data_y= [[true_func(x)+0.3*np.random.uniform(-0.5,0.5)] for x in data_x]
 
-    fp1= file('/tmp/smpl.dat','w')
+    fp1= open('/tmp/smpl.dat','w')
     for x,y in zip(data_x,data_y):
       fp1.write('%f %f %f\n' % (x[0],x[1],y[0]))
     fp1.close()
@@ -525,8 +525,8 @@ if __name__=='__main__':
     for x,y in zip(data_x,data_y):
       lwr.Update(x,y)
 
-    fp1= file('/tmp/true.dat','w')
-    fp2= file('/tmp/est.dat','w')
+    fp1= open('/tmp/true.dat','w')
+    fp2= open('/tmp/est.dat','w')
     for x1 in np.linspace(-4.0,4.0,50):
       for x2 in np.linspace(-4.0,4.0,50):
         pred= lwr.Predict([x1,x2],with_grad=True)
@@ -537,6 +537,6 @@ if __name__=='__main__':
     fp1.close()
     fp2.close()
 
-    print 'Plot by:'
-    print '''qplot -x -3d /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p'''
-    print '''qplot -x -3d /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p /tmp/est.dat u 1:2:3:4:5:'(0.0)' w vector'''
+    print('Plot by:')
+    print('''qplot -x -3d /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p''')
+    print('''qplot -x -3d /tmp/est.dat w l /tmp/true.dat w l /tmp/smpl.dat w p /tmp/est.dat u 1:2:3:4:5:'(0.0)' w vector''')

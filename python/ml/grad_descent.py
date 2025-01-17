@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    grad_descent.py
 #\brief   Gradient descent algorithms (e.g. Ada-Delta).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -11,14 +11,14 @@ import numpy.linalg as la
 def GradientDescent(f_obj, f_grad, x0, f_cnstr=None, n_iter=20, alpha=0.2, fp=None):
   x= x0
   y= f_obj(x)
-  print x, y
+  print(x, y)
   if fp:  fp.write('%s %s\n' % (' '.join(map(str,x)),str(y)))
   for i in range(n_iter):
     g= f_grad(x)
     x= x - alpha*g
     if f_cnstr:  x= f_cnstr(x)
     y= f_obj(x)
-    print x, y, g
+    print(x, y, g)
     if fp:  fp.write('%s %s\n' % (' '.join(map(str,x)),str(y)))
 
 
@@ -36,7 +36,7 @@ StepAdaDeltaV= np.vectorize(StepAdaDelta)
 def AdaDelta(f_obj, f_grad, x0, f_cnstr=None, n_iter=20, rho=0.95, eps=1.0e-3, fp=None):
   x= x0
   y= f_obj(x)
-  print x, y
+  print(x, y)
   if fp:  fp.write('%s %s\n' % (' '.join(map(str,x)),str(y)))
   r= np.array([0.0]*2)
   s= np.array([0.0]*2)
@@ -45,7 +45,7 @@ def AdaDelta(f_obj, f_grad, x0, f_cnstr=None, n_iter=20, rho=0.95, eps=1.0e-3, f
     x,r,s= StepAdaDeltaV(x,g,r,s, rho,eps)
     if f_cnstr:  x= f_cnstr(x)
     y= f_obj(x)
-    print x, y, g
+    print(x, y, g)
     if fp:  fp.write('%s %s\n' % (' '.join(map(str,x)),str(y)))
 
 
@@ -66,14 +66,14 @@ def Main():
   y_true= np.array([[Func(x)] for x in x_true])
   y_grad= np.array([Grad(x) for x in x_true])
 
-  fp1= file('/tmp/true.dat','w')
-  for x,y,i in zip(x_true,y_true,range(len(y_true))):
+  fp1= open('/tmp/true.dat','w')
+  for x,y,i in zip(x_true,y_true,list(range(len(y_true)))):
     if i%(nt+1)==0:  fp1.write('\n')
     fp1.write('%s %s\n' % (' '.join(map(str,x)),' '.join(map(str,y))))
   fp1.close()
 
-  fp1= file('/tmp/grad.dat','w')
-  for x,y,g,i in zip(x_true,y_true,y_grad,range(len(y_grad))):
+  fp1= open('/tmp/grad.dat','w')
+  for x,y,g,i in zip(x_true,y_true,y_grad,list(range(len(y_grad)))):
     if i%(nt+1)==0:  fp1.write('\n')
     fp1.write('%s %s %s\n' % (' '.join(map(str,x)),' '.join(map(str,y)),' '.join(map(str,g)) ))
   fp1.close()
@@ -89,19 +89,19 @@ def Main():
   #x0= [-0.5,0.8082]
   x0= [-1.0,0.8082]
 
-  fp1= file('/tmp/opt_gd.dat','w')
+  fp1= open('/tmp/opt_gd.dat','w')
   GradientDescent(Func,Grad,x0, f_cnstr=Cnstr, fp=fp1)
   fp1.close()
 
-  print ''
+  print('')
 
-  fp1= file('/tmp/opt_adadelta.dat','w')
+  fp1= open('/tmp/opt_adadelta.dat','w')
   AdaDelta(Func,Grad,x0, f_cnstr=Cnstr, fp=fp1)
   fp1.close()
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -3d -s 'set xlabel "x";set ylabel "y";set zlabel "f";set ticslevel 0;'
@@ -121,13 +121,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

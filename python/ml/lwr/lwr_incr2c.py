@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from lwr_incr2 import *
 #from lwr_incr3 import *
@@ -18,7 +18,7 @@ def ToList(x):
     if len(x.shape)==2:
       if x.shape[0]==1:  return x.tolist()[0]
       if x.shape[1]==1:  return x.T.tolist()[0]
-  print 'ToList: x=',x
+  print('ToList: x=',x)
   raise Exception('ToList: Impossible to serialize:',x)
 
 def Median(array):
@@ -38,13 +38,13 @@ if __name__=='__main__':
   #model.Init(c_min=0.0001, f_reg=0.0000001)
   src_file= 'data/ode_f2_smp.dat'; dim= [2,5,2]
 
-  fp= file(src_file)
+  fp= open(src_file)
   while True:
     line= fp.readline()
     if not line: break
     data= line.split()
-    model.Update(map(float,data[sum(dim[0:1]):sum(dim[0:2])]),
-                 map(float,data[sum(dim[0:2]):sum(dim[0:3])]))
+    model.Update(list(map(float,data[sum(dim[0:1]):sum(dim[0:2])])),
+                 list(map(float,data[sum(dim[0:2]):sum(dim[0:3])])))
   #model.C= [0.01]*len(model.C)
   #model.C= model.AutoWidth(model.CMin)
 
@@ -69,8 +69,8 @@ if __name__=='__main__':
     fp2.write('%s\n' % ToStr(x,ToList(pred.Y),ToList(pred.Y.T+np.sqrt(np.diag(pred.Var)))))
   fp.close()
   fp2.close()
-  print '''qplot -x -3d -s 'set xlabel "flow_x";set ylabel "flow_var"' -cs 'u 3:5:6' /tmp/lwr/f2_est.dat w l /tmp/lwr/f2_smp.dat /tmp/lwr/f2_smpe.dat'''
-  print '''qplot -x -3d -s 'set xlabel "flow_x";set ylabel "flow_var"' -cs 'u 3:5:7' /tmp/lwr/f2_est.dat w l /tmp/lwr/f2_smp.dat /tmp/lwr/f2_smpe.dat'''
+  print('''qplot -x -3d -s 'set xlabel "flow_x";set ylabel "flow_var"' -cs 'u 3:5:6' /tmp/lwr/f2_est.dat w l /tmp/lwr/f2_smp.dat /tmp/lwr/f2_smpe.dat''')
+  print('''qplot -x -3d -s 'set xlabel "flow_x";set ylabel "flow_var"' -cs 'u 3:5:7' /tmp/lwr/f2_est.dat w l /tmp/lwr/f2_smp.dat /tmp/lwr/f2_smpe.dat''')
   #"""
 
   """

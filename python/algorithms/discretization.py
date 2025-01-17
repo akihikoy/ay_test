@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+from __future__ import print_function
 import numpy as np
 
 class TDiscretizer:
@@ -61,18 +62,18 @@ if __name__=='__main__':
   import sys
 
   dim= 3
-  fp= file('data/disc.dat','w')
+  fp= open('data/disc.dat','w')
 
-  print 'dim=',dim
+  print('dim=',dim)
 
   if dim==1:
     vmin=[-1.0]
     vmax=[1.0]
     ndiv=[10]
     disc= TDiscretizer(vmin,vmax,ndiv)
-    print 'disc.Size()=',disc.Size()
-    print 'disc.VecSet()=',disc.VecSet()
-    print 'Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size())
+    print('disc.Size()=',disc.Size())
+    print('disc.VecSet()=',disc.VecSet())
+    print('Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size()))
 
     for x in map(lambda i:2.0*(i/100.0-1.0),range(201)):
       vec= [x]
@@ -83,11 +84,11 @@ if __name__=='__main__':
       #Verification:
       idx2= disc.VecToIndex(vec2)
       if idx!=idx2:
-        print 'ERROR:'
-        print 'vec=',vec
-        print 'idx=',idx
-        print 'vec2=',vec2
-        print 'idx2=',idx2
+        print('ERROR:')
+        print('vec=',vec)
+        print('idx=',idx)
+        print('vec2=',vec2)
+        print('idx2=',idx2)
         sys.exit(1)
 
     #Plot: cat data/disc.dat | qplot -x - - u 3:2
@@ -97,9 +98,9 @@ if __name__=='__main__':
     vmax=[1.5,1.0]
     ndiv=[4,2]
     disc= TDiscretizer(vmin,vmax,ndiv)
-    print 'disc.Size()=',disc.Size()
-    print 'disc.VecSet()=',disc.VecSet()
-    print 'Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size())
+    print('disc.Size()=',disc.Size())
+    print('disc.VecSet()=',disc.VecSet())
+    print('Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size()))
 
     for x in map(lambda i:2.0*(i/100.0-1.0),range(201)):
       for y in map(lambda i:2.0*(i/100.0-1.0),range(201)):
@@ -111,11 +112,11 @@ if __name__=='__main__':
         #Verification:
         idx2= disc.VecToIndex(vec2)
         if idx!=idx2:
-          print 'ERROR:'
-          print 'vec=',vec
-          print 'idx=',idx
-          print 'vec2=',vec2
-          print 'idx2=',idx2
+          print('ERROR:')
+          print('vec=',vec)
+          print('idx=',idx)
+          print('vec2=',vec2)
+          print('idx2=',idx2)
           sys.exit(1)
 
     #Plot: cat data/disc.dat | qplot -x -3d - - u 4:5:3
@@ -125,9 +126,9 @@ if __name__=='__main__':
     vmax=[1.5,1.0,0.5]
     ndiv=[4,2,3]
     disc= TDiscretizer(vmin,vmax,ndiv)
-    print 'disc.Size()=',disc.Size()
-    print 'disc.VecSet()=',disc.VecSet()
-    print 'Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size())
+    print('disc.Size()=',disc.Size())
+    print('disc.VecSet()=',disc.VecSet())
+    print('Verified: ',map(disc.VecToIndex, disc.VecSet())==range(disc.Size()))
 
     for x in map(lambda i:2.0*(i/15.0-1.0),range(31)):
       for y in map(lambda i:2.0*(i/15.0-1.0),range(31)):
@@ -140,11 +141,11 @@ if __name__=='__main__':
           #Verification:
           idx2= disc.VecToIndex(vec2)
           if idx!=idx2:
-            print 'ERROR:'
-            print 'vec=',vec
-            print 'idx=',idx
-            print 'vec2=',vec2
-            print 'idx2=',idx2
+            print('ERROR:')
+            print('vec=',vec)
+            print('idx=',idx)
+            print('vec2=',vec2)
+            print('idx2=',idx2)
             sys.exit(1)
 
     #Plot: cat data/disc.dat | qplot -x -3d - - u 4:5:3

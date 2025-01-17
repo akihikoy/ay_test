@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    grad_ascent2.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -24,7 +24,7 @@ def RandB(bounds):
 
 #Convert a np.ndarray or single row/column np.matrix to a list.
 def ToList(x):
-  if x==None:  return []
+  if x is None:  return []
   elif isinstance(x,list):  return x
   elif isinstance(x,(np.ndarray,np.matrix)):
     if len(x.shape)==1:  return x.tolist()
@@ -72,36 +72,36 @@ def Main():
   y_true= np.array([[Func(x)] for x in x_true])
   y_grad= np.array([Grad(x) for x in x_true])
 
-  fp1= file('/tmp/true.dat','w')
-  for x,y,i in zip(x_true,y_true,range(len(y_true))):
+  fp1= open('/tmp/true.dat','w')
+  for x,y,i in zip(x_true,y_true,list(range(len(y_true)))):
     if i%(nt+1)==0:  fp1.write('\n')
     fp1.write('%s %s\n' % (' '.join(map(str,x)),' '.join(map(str,y))))
   fp1.close()
 
-  fp1= file('/tmp/grad.dat','w')
-  for x,y,g,i in zip(x_true,y_true,y_grad,range(len(y_grad))):
+  fp1= open('/tmp/grad.dat','w')
+  for x,y,g,i in zip(x_true,y_true,y_grad,list(range(len(y_grad)))):
     if i%(nt+1)==0:  fp1.write('\n')
     fp1.write('%s %s %s\n' % (' '.join(map(str,x)),' '.join(map(str,y)),' '.join(map(str,g)) ))
   fp1.close()
 
   x0= RandB(Bounds)
-  print 'x0',x0
+  print('x0',x0)
 
-  fp1= file('/tmp/opt_gd.dat','w')
+  fp1= open('/tmp/opt_gd.dat','w')
   opt= TGradientAscent(alpha=0.005, normalize_grad=True)
   RunFirstOpt(opt, Func,Grad,x0, f_cnstr=Cnstr, fp=fp1, n_iter=200)
   fp1.close()
 
-  print '-----'
+  print('-----')
 
-  fp1= file('/tmp/opt_adadelta.dat','w')
+  fp1= open('/tmp/opt_adadelta.dat','w')
   opt= TAdaDeltaMax(rho=0.98, eps=1.0e-6)
   RunFirstOpt(opt, Func,Grad,x0, f_cnstr=Cnstr, fp=fp1, n_iter=200)
   fp1.close()
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   qopt= ''
   #qopt= '-o -.svg'
@@ -126,13 +126,13 @@ def PlotGraphs():
       if qopt!='':
         cmd= cmd.replace('qplot -x2 aaa','qplot '+qopt)
         if cmd[-1]=='&':  cmd= cmd[:-1]
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   if qopt=='':  os.system('qplot -x2kill aaa')
 
 

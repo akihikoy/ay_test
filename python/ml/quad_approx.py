@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    quad_approx.py
 #\brief   Approximate a quadratic form of a given function at a point (i.e. 2nd order Taylor series expansion) using least squares.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -51,7 +51,7 @@ def Delta2(D,i1,i2,h1,h2):
 #e.g. for x=[x1,x2], return [x1**2, 2x1x2, x2**2,  x1, x2]
 def XToQuadFeat(x):
   Dx= len(x)
-  xf= [0.0]*(Dx*(Dx+1)/2 + Dx)
+  xf= [0.0]*int(Dx*(Dx+1)/2 + Dx)
   i= 0
   for d1 in range(Dx):
     xf[i]= x[d1]*x[d1]
@@ -146,7 +146,7 @@ def QuadForm3(f, x0, h=0.01, f_reg=1.0e-8, nx=4):
   c= f(x0)
   if x0.shape[0]==1:  x0= x0.T
   Dx= x0.shape[0]
-  Df= (Dx*(Dx+1)/2 + Dx)
+  Df= int(Dx*(Dx+1)/2 + Dx)
   N= (2*Dx*Dx) * nx  #Num of samples
   V= np.mat([[0.0]]*N)
   Theta= np.mat([[0.0]*Df]*N)
@@ -166,7 +166,7 @@ def FRange1(x1,x2,num_div):
   return [x1+(x2-x1)*x/float(num_div) for x in range(num_div+1)]
 
 def Main():
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
   import math
 
   func= lambda x: 0.2*x[0,0]**2 + 0.5*x[1,0]**2 - 0.1*x[0,0]*x[1,0]
@@ -182,11 +182,11 @@ def Main():
   w,c= QuadForm3(func, x0)
   A= np.mat([[w[0,0],w[1,0]],[w[1,0],w[2,0]]])
   b= np.mat([[w[3,0]],[w[4,0]]])
-  print 'A=',A
-  print 'b=',b
-  print 'c=',c
+  print('A=',A)
+  print('b=',b)
+  print('c=',c)
 
-  fp= file('/tmp/true.dat','w')
+  fp= open('/tmp/true.dat','w')
   for x1 in FRange1(-3.0,3.0,50):
     for x2 in FRange1(-3.0,3.0,50):
       y= func(np.mat([x1,x2]).T)
@@ -194,7 +194,7 @@ def Main():
     fp.write('\n')
   fp.close()
 
-  fp= file('/tmp/approx.dat','w')
+  fp= open('/tmp/approx.dat','w')
   for x1 in FRange1(-3.0,3.0,50):
     for x2 in FRange1(-3.0,3.0,50):
       x= np.mat([x1,x2]).T
@@ -203,13 +203,13 @@ def Main():
     fp.write('\n')
   fp.close()
 
-  print 'Plot with'
-  print '''qplot -x -3d /tmp/true.dat w l /tmp/approx.dat w l'''
+  print('Plot with')
+  print('''qplot -x -3d /tmp/true.dat w l /tmp/approx.dat w l''')
 
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -3d /tmp/true.dat w l /tmp/approx.dat w l &''',
@@ -219,13 +219,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':
