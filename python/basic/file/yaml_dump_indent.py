@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    yaml_dump_indent.py
 #\brief   Fix the incorrect indentation of lists in YAML.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -27,8 +27,8 @@ if __name__=='__main__':
         ]
       }
     }
-  print 'Dump with Dumper:'
-  print yamldump(data, Dumper=Dumper)
+  print('Dump with Dumper:')
+  print(yamldump(data, Dumper=Dumper))
 
-  print 'Dump with Dumper_IndentPlus:'
-  print yamldump(data, Dumper=Dumper_IndentPlus)
+  print('Dump with Dumper_IndentPlus:')
+  print(yamldump(data, Dumper=Dumper_IndentPlus))

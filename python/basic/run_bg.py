@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    run_bg.py
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\date    Jun.03, 2015
@@ -9,5 +9,5 @@ if __name__=='__main__':
 
   stderr_redirect=subprocess.PIPE
   p= subprocess.Popen('kwrite',shell=True,stdin=subprocess.PIPE,stderr=stderr_redirect)
-  print 'kwrite has been launched'
+  print('kwrite has been launched')
 

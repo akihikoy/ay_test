@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    yaml_simpledict.py
 #\brief   Saving a simple structure of dict in a YAML format; testing default_flow_style parameter of yaml dump.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -63,12 +63,12 @@ if __name__=='__main__':
     )
 
   yaml_str= yamldump(data, default_flow_style=default_flow_style)
-  print 'yaml_str='
-  print yaml_str
+  print('yaml_str=')
+  print(yaml_str)
   SaveYAML(data, '/tmp/test.yaml')
-  print 'yaml_str/1.2='
+  print('yaml_str/1.2=')
   with open('/tmp/test.yaml') as fp:
-    print fp.read()
+    print(fp.read())
 
   #yaml_dat= yamlload(yaml_str)
   #print 'yaml_dat='
@@ -76,8 +76,8 @@ if __name__=='__main__':
 
   data['eee']= dict(xxx=123,yyy='hoge')
   yaml_str= yamldump(data, default_flow_style=default_flow_style)
-  print 'yaml_str/2='
-  print yaml_str
+  print('yaml_str/2=')
+  print(yaml_str)
 
   #yaml_dat= yamlload(yaml_str)
   #print 'yaml_dat/2='

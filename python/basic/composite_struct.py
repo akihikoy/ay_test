@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
 import numpy.linalg as la
 
@@ -21,7 +21,7 @@ def CompHasStruct(cvec, cstruct):
   return subcheck(cvec, cstruct)
 
 if __name__=='__main__':
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
 
   #p1= [0.1, 0.2]
   #p2= (float,float)

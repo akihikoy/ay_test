@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    singleton1.py
 #\brief   Example of a singleton class.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -28,11 +28,11 @@ class SingletonTest(object):
     return cls._instance
 
   def __del__(self):
-    print 'Called: __del__({s})'.format(s=id(self))
+    print('Called: __del__({s})'.format(s=id(self)))
 
   #NOTE: In a singleton, such an initializer is confusing since the execution timing is unclear.
   def __init__(self, x, y=3, z=-3):
-    print 'Called: __init__({s})'.format(s=id(self))
+    print('Called: __init__({s})'.format(s=id(self)))
     self.x= x
     self.y= y
     self.z= z
@@ -47,22 +47,22 @@ if test_type==1:
 
   #test1= SingletonTest(101)  #WARNING: This calls SingletonTest.__new__
   test2= SingletonTest.new(102, z=30)
-  print 'test2=',test2
+  print('test2=',test2)
   #del test2
 
   test3= SingletonTest.new(103)
-  print 'test2=',test2
-  print 'test3=',test3
+  print('test2=',test2)
+  print('test3=',test3)
 
 
 elif test_type==2:
 
   def F1():
     test4= SingletonTest.new(104, z=40)
-    print 'test4=',test4
+    print('test4=',test4)
 
   F1()
 
   test5= SingletonTest.new(105)
-  print 'test5=',test5
+  print('test5=',test5)
 

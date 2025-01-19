@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    run_bg_wait_kill.py
 #\brief   Run an external program as a subprocess in background, wait, and kill.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,12 +14,12 @@ if __name__=='__main__':
 
   #exit_code = p.wait()
 
-  print 'waiting...',
+  print('waiting...', end=' ')
   for i in range(10):
-    print i,
+    print(i, end=' ')
     sys.stdout.flush()
     time.sleep(0.5)
-  print 'done'
+  print('done')
 
   #p.wait()
   p.terminate()
@@ -31,7 +31,7 @@ if __name__=='__main__':
 
   #Another way to wait for the process termination.
   while p.poll() is None:
-    print 'Process still running...'
+    print('Process still running...')
     time.sleep(0.1)
-  print 'Process terminated'
+  print('Process terminated')
 

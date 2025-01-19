@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import time
 import numpy as np
 
@@ -10,7 +10,7 @@ if __name__=='__main__':
   L= []
   for t in np.arange(0.0,t_last,dt):
     L+= [t]
-  print 'arange+for:', (time.time()-t0)*1.0e3
+  print('arange+for:', (time.time()-t0)*1.0e3)
 
   t0= time.time()
   L= []
@@ -18,5 +18,5 @@ if __name__=='__main__':
   while t<t_last:
     L+= [t]
     t+= dt
-  print 'while:', (time.time()-t0)*1.0e3
+  print('while:', (time.time()-t0)*1.0e3)
 

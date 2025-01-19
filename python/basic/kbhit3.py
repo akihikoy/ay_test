@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 from kbhit2 import TKBHit
 
@@ -12,7 +12,7 @@ if __name__=='__main__':
   disp= '.'
   while 1:
     c= KBHit()
-    print c
+    print(c)
     if c is not None:
       sys.stdout.write('> %r\n'%c)
       sys.stdout.flush()
@@ -25,6 +25,6 @@ if __name__=='__main__':
       time.sleep(0.05)
     sys.stdout.write('\n')
 
-  print 'done'
+  print('done')
 
 

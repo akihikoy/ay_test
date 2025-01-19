@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    operators.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -120,8 +120,8 @@ class Position2(Position):
 
 
 if __name__=='__main__':
-  def Print(e,g=globals()):  print e,'=',eval(e,g)
-  def PrintX(e,g=globals()):  print 'exec:',e;exec(e,g)
+  def Print(e,g=globals()):  print(e,'=',eval(e,g))
+  def PrintX(e,g=globals()):  print('exec:',e);exec(e,g)
 
   PrintX('a= Position1()')
   PrintX('b= Position2()')

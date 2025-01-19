@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    mp_with_lock.py
 #\brief   multiprocessing with a locker.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -19,23 +19,23 @@ See the codes with #NOTE.
 
 import multiprocessing as mp
 import threading
-import Queue
+import queue
 import random,sys,time
 
 def SubFunc(pid, queue_cmd, queue_out, print_locker, parameter):
-  print 'Started:',pid,parameter
+  print('Started:',pid,parameter)
   y= 0
-  for x in xrange(int(parameter*1e4)):
+  for x in range(int(parameter*1e4)):
     with print_locker:
       y+= x
       time.sleep(0.001)
       if x%100==0:
-        print pid, y
+        print(pid, y)
         sys.stdout.flush()
     try:
       cmd= queue_cmd.get(block=False)
       if cmd=='stop':  break
-    except Queue.Empty:
+    except queue.Empty:
       pass
   queue_out.put((pid, parameter, x, y))
 
@@ -47,7 +47,7 @@ def MainMP():
   print_locker= mp.RLock()  #NOTE
   pid= 0  #process ID
   processes= {}  #pid:process
-  for _ in xrange(8):
+  for _ in range(8):
     p= random.random()
     new_proc= mp.Process(target=SubFunc, args=(pid,queue_cmd,queue_out,print_locker,p))
     processes[pid]= new_proc
@@ -59,21 +59,21 @@ def MainMP():
   processes[pid_out].join()
   del processes[pid_out]
   results.append((pid_out,parameter,x,y))
-  print 'Finished:',results[-1]
+  print('Finished:',results[-1])
 
   for _ in processes:  queue_cmd.put('stop')
-  for proc in processes.values():  proc.join()
+  for proc in list(processes.values()):  proc.join()
 
-  print 'Results:',results
+  print('Results:',results)
 
 #Thread version.
 def MainTh():
-  queue_cmd= Queue.Queue()
-  queue_out= Queue.Queue()
+  queue_cmd= queue.Queue()
+  queue_out= queue.Queue()
   print_locker= threading.RLock()
   pid= 0  #thread ID
   threads= {}  #pid:thread
-  for _ in xrange(8):
+  for _ in range(8):
     p= random.random()
     new_thread= threading.Thread(target=SubFunc, args=(pid,queue_cmd,queue_out,print_locker,p))
     threads[pid]= new_thread
@@ -85,12 +85,12 @@ def MainTh():
   threads[pid_out].join()
   del threads[pid_out]
   results.append((pid_out,parameter,x,y))
-  print 'Finished:',results[-1]
+  print('Finished:',results[-1])
 
   for _ in threads:  queue_cmd.put('stop')
-  for thread in threads.values():  thread.join()
+  for thread in list(threads.values()):  thread.join()
 
-  print 'Results:',results
+  print('Results:',results)
 
 
 if __name__=='__main__':

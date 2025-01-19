@@ -1,19 +1,19 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 def Test1(key,*args):
-  print '------------'
-  print 'key:',key
-  print 'len(args):',len(args)
-  print 'type(args):',type(args)
-  print 'args:',args
+  print('------------')
+  print('key:',key)
+  print('len(args):',len(args))
+  print('type(args):',type(args))
+  print('args:',args)
 
 def Test2(key,*args):
-  print '------------'
+  print('------------')
   assert(len(args)>=1)
   last= args[-1]
-  print 'len(args):',len(args[0:-1])
-  print 'args[0:-1]:',args[0:-1]
-  print '%r[%r]= %r' % (key, args[0:-1], last)
+  print('len(args):',len(args[0:-1]))
+  print('args[0:-1]:',args[0:-1])
+  print('%r[%r]= %r' % (key, args[0:-1], last))
 
 #def Test3(key,*args,value):  #ERROR:syntax
   #pass

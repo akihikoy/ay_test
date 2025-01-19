@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    global_var_1_1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -11,7 +11,7 @@ class Test(object):
   def __init__(self, var=None):
     global global_var
     if var is None:  var= global_var
-    print 'class Test:', var
+    print('class Test:', var)
 
 if __name__=='__main__':
   t1= Test()

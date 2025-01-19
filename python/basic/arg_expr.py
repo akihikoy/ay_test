@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    arg_expr.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -8,9 +8,9 @@ import sys, random, math
 
 if __name__=='__main__':
   s_expr= sys.argv[1]
-  print 'arg[1]=',s_expr
+  print('arg[1]=',s_expr)
   expr= eval('lambda x:'+s_expr)
-  print 'expr=',expr
+  print('expr=',expr)
   for i in range(10):
     x= random.random()
-    print 'expr({x})= {value}'.format(x=x, value=expr(x))
+    print('expr({x})= {value}'.format(x=x, value=expr(x)))

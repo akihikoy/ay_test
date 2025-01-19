@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import collections
 
 Point= collections.namedtuple('Point', ['X','Y'], verbose=True)
@@ -11,12 +11,12 @@ b= Point(0,0)
 #b.X= 1.1
 #b.Y= 0.0
 
-print 'a=',a
-print 'b=',b
-print 'a.X=',a.X
-print 'a[1]=',a[1]
-print 'list(a)=',list(a)
-print 'a+b=',a+b
+print('a=',a)
+print('b=',b)
+print('a.X=',a.X)
+print('a[1]=',a[1])
+print('list(a)=',list(a))
+print('a+b=',a+b)
 
 
 #NOTE: it's impossible to assign to namedtuple object (it is immutable).

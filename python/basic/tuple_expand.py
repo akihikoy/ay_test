@@ -1,15 +1,15 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 def Test1(a,b,c):
-  print '------------'
-  print 'a:',a
-  print 'b:',b
-  print 'c:',c
+  print('------------')
+  print('a:',a)
+  print('b:',b)
+  print('c:',c)
 
 def Test2(*args):
-  print '------------'
-  print 'len(args):',len(args)
-  print 'args:',args
+  print('------------')
+  print('len(args):',len(args))
+  print('args:',args)
 
 abc=(0.1, 2, 3)
 #Test1(abc)  #ERROR

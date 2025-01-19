@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    yaml_to_csv.py
 #\brief   Convert YAML to a CVS.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -16,10 +16,10 @@ data= yamlload(open(file_name,'r').read(), Loader=Loader)
 key_to_file= lambda key: file_name+'.'+key
 
 def Main():
-  for key, values in data.iteritems():
-    print 'Found:',key
+  for key, values in data.items():
+    print('Found:',key)
     if not isinstance(values,list):
-      print '  non-list value:',values
+      print('  non-list value:',values)
       continue
     fp= open(key_to_file(key),'w')
     for (tm, v) in values:
@@ -28,9 +28,9 @@ def Main():
     fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
-  commands= ['''qplot -x2 aaa {f} w l &'''.format(f=key_to_file(key)) for key in data.keys()]
+  commands= ['''qplot -x2 aaa {f} w l &'''.format(f=key_to_file(key)) for key in list(data.keys())]
   commands=[
     '''qplot -x2 aaa -s 'set yrange [0:*]' {f} w l &'''.format(f=key_to_file('area')),
     '''qplot -x2 aaa -s 'set yrange [0:*]' {f1} w l {f2} w l &'''.format(f1=key_to_file('slip'), f2=key_to_file('slip_nml')),
@@ -44,13 +44,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

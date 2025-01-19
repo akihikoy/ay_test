@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    list_files.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -8,7 +8,7 @@
 import os
 
 basedir= '{HOME}/prg/ay_test/python/basic'.format(HOME=os.environ['HOME'])
-print 'Files in {0}:'.format(basedir), os.listdir(basedir)
+print('Files in {0}:'.format(basedir), os.listdir(basedir))
 
 for f in os.listdir(basedir):
-  print 'File:',f ,'isfile?:', os.path.isfile(os.path.join(basedir, f))
+  print('File:',f ,'isfile?:', os.path.isfile(os.path.join(basedir, f)))

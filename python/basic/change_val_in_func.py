@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 class TWrapper:
   def __init__(self,value):
@@ -38,14 +38,14 @@ b4=TWrapper(2)
 c=[3]
 d=[1,2,3]
 e=[1,2,3]
-print 'a=',a
-print 'b=',b
-print 'b2=',b2
-print 'b3=',b3
-print 'b4=',b4
-print 'c=',c
-print 'd=',d
-print 'e=',e
+print('a=',a)
+print('b=',b)
+print('b2=',b2)
+print('b3=',b3)
+print('b4=',b4)
+print('c=',c)
+print('d=',d)
+print('e=',e)
 
 func1(a)
 func2([b])
@@ -56,11 +56,11 @@ func2(c)
 func3(d)
 func4(e)
 
-print 'a=',a
-print 'b=',b
-print 'b2=',b2
-print 'b3=',b3
-print 'b4=',b4
-print 'c=',c
-print 'd=',d
-print 'e=',e
+print('a=',a)
+print('b=',b)
+print('b2=',b2)
+print('b3=',b3)
+print('b4=',b4)
+print('c=',c)
+print('d=',d)
+print('e=',e)

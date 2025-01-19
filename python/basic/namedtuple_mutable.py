@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #WARNING: It does not work
 #cf. recordclass1.py
 
@@ -77,12 +77,12 @@ import copy
 c= copy.deepcopy(a)
 c.X= 100
 
-print 'a=',a
-print 'b=',b
-print 'c=',c
-print 'a.X=',a.X
-print 'a[1]=',a[1]
-print 'list(a)=',list(a)
-print 'a+b=',a+b
+print('a=',a)
+print('b=',b)
+print('c=',c)
+print('a.X=',a.X)
+print('a[1]=',a[1])
+print('list(a)=',list(a))
+print('a+b=',a+b)
 
 

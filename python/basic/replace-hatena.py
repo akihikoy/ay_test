@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 
 if len(sys.argv)==1:
@@ -11,16 +11,16 @@ while True:
   if not line: break
   if line[:3]=='>||':
     inpre= True
-    print ''
+    print('')
   elif inpre and line[:2]=='}}':
     inpre= False
-    print ''
+    print('')
   elif line[:6]=='<body>':
-    print '%s\n\n\n'%line
+    print('%s\n\n\n'%line)
   elif line[:7]=='</body>':
-    print '\n\n%s\n'%line
+    print('\n\n%s\n'%line)
   else:
     if inpre:
-      print ' %s'%line,
+      print(' %s'%line, end=' ')
     else:
-      print '%s'%line,
+      print('%s'%line, end=' ')

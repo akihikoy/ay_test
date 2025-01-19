@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    kbhit4.py
 #\brief   Testing "with" version of TKBHit.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,5 +25,5 @@ if __name__ == '__main__':
         time.sleep(0.05)
       sys.stdout.write('\n')
 
-  print 'done'
+  print('done')
 

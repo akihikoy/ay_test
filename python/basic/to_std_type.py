@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
 
 def ToStdType(x):
@@ -12,8 +12,8 @@ def ToStdType(x):
   if isinstance(x, npfloat):  return float(x)
   if isinstance(x, (int,float,bool,str)):  return x
   if isinstance(x, np.ndarray):  return x.tolist()
-  if isinstance(x, (list,tuple)):  return map(ToStdType,x)
-  if isinstance(x, dict):  return {ToStdType(k):ToStdType(v) for k,v in x.items()}
+  if isinstance(x, (list,tuple)):  return list(map(ToStdType,x))
+  if isinstance(x, dict):  return {ToStdType(k):ToStdType(v) for k,v in list(x.items())}
   raise
 
 
@@ -27,13 +27,13 @@ D= {'s':R,'d':[np.array([1,2]),np.array([0.2,0.4])],'c':[np.float64(2.)]}
 #print type(ToStdType(D['c'][0]))
 #raise
 
-print 'R',R
-print 'D',D
-print 'ToStdType(R)',ToStdType(R)
-print 'ToStdType(D)',ToStdType(D)
+print('R',R)
+print('D',D)
+print('ToStdType(R)',ToStdType(R))
+print('ToStdType(D)',ToStdType(D))
 
 import yaml
 #print 'yaml.dump(R)',yaml.dump(R)
 #print 'yaml.dump(D)',yaml.dump(D)
-print 'yaml.dump(ToStdType(R))',yaml.dump(ToStdType(R))
-print 'yaml.dump(ToStdType(D))',yaml.dump(ToStdType(D))
+print('yaml.dump(ToStdType(R))',yaml.dump(ToStdType(R)))
+print('yaml.dump(ToStdType(D))',yaml.dump(ToStdType(D)))

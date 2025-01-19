@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import os
 FLAG= True if 'TEST' in os.environ else False
 #if not FLAG:  return  #SyntaxError: 'return' outside function
@@ -8,4 +8,4 @@ FLAG= True if 'TEST' in os.environ else False
 if not FLAG:  raise ImportError('TEST is not defined')
 
 def test():
-  print 'test is defined'
+  print('test is defined')

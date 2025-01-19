@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    kbhit5.py
 #\brief   Testing FlushIn of TKBHit.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,5 +23,5 @@ if __name__ == '__main__':
 
       time.sleep(0.1)
 
-  print 'done'
+  print('done')
 

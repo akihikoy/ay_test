@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import time
 
 class TTest:
@@ -32,5 +32,5 @@ if __name__=='__main__':
     t1= time.time()
     dt['dict']+= t1-t0
 
-  print dt
+  print(dt)
 

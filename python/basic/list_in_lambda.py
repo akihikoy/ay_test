@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import copy
 
 if __name__=='__main__':
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
 
   a= 2
   f1= lambda:a*a
@@ -21,7 +21,7 @@ if __name__=='__main__':
   PrintEq('f1()')
   PrintEq('f2()')
 
-  print '---------------'
+  print('---------------')
 
   a= [1,2,3]
   f1= lambda:[e*e for e in a]
@@ -40,7 +40,7 @@ if __name__=='__main__':
   PrintEq('f1()')
   PrintEq('f2()')
 
-  print '---------------'
+  print('---------------')
 
   def DefF1():
     a= 2
@@ -64,7 +64,7 @@ if __name__=='__main__':
   PrintEq('f1()')
   PrintEq('f2()')
 
-  print '---------------'
+  print('---------------')
 
   a= [1,2,3]
   def DefF1(a):
@@ -88,7 +88,7 @@ if __name__=='__main__':
   PrintEq('f1()')
   PrintEq('f2()')
 
-  print '---------------'
+  print('---------------')
 
   a= 2
   def DefF1(a):
@@ -113,7 +113,7 @@ if __name__=='__main__':
   PrintEq('f1()')
   PrintEq('f2()')
 
-  print '---------------'
+  print('---------------')
 
   a= 2
   f1= lambda:copy.deepcopy(a)**2
@@ -132,4 +132,4 @@ if __name__=='__main__':
   PrintEq('f1()')
   PrintEq('f2()')
 
-  print '---------------'
+  print('---------------')

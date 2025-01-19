@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    downcast.py
 #\brief   Can we do downcast in python?
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,7 +15,7 @@ class TB(TA):
   def __init__(self):
     TA.__init__(self)
   def Do(self):
-    print 'X is', self.X
+    print('X is', self.X)
 
 a= TA()
 a.__class__= TB  #DOWNCAST

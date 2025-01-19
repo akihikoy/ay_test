@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 class ShapeKind:
   SQUARE = 1
@@ -7,7 +7,7 @@ class ShapeKind:
   default = SQUARE
 
 a= ShapeKind.SQUARE
-print a
+print(a)
 
 b= ShapeKind.default
-print b
+print(b)

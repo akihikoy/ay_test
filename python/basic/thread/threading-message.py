@@ -1,12 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #ref: http://stackoverflow.com/questions/14508906/sending-messages-between-class-threads-python
 #http://ja.pymotw.com/2/Queue/
 import threading
-import Queue
+import queue
 import time
 
 Trigger= False  #global variable to communicate btwn the threads
-QTrigger= Queue.Queue()
+QTrigger= queue.Queue()
 IsActive= True
 
 def Func1():
@@ -14,21 +14,21 @@ def Func1():
   while IsActive:
     if Trigger:
       Trigger= False
-      print 'p is pushed!!!'
+      print('p is pushed!!!')
     #time.sleep(0.001)  #Cpu usage is 100% if this is not used
 
 def Func2():
   while IsActive:
     e= QTrigger.get()
     if e=='p':
-      print 'p is pushed!!!'
+      print('p is pushed!!!')
     elif e=='q':
-      print 'bye-bye!!!'
+      print('bye-bye!!!')
 
 def MainThread():
   global IsActive
   while IsActive:
-    line= raw_input('q to quit, p to print > ')
+    line= input('q to quit, p to print > ')
     if line == 'q':
       IsActive= False
       QTrigger.put('q')
@@ -38,7 +38,7 @@ def MainThread():
       Trigger= True
       QTrigger.put('p')
     else:
-      print '  entered: ',line
+      print('  entered: ',line)
 
 #t1= threading.Thread(name='func1', target=Func1)
 t1= threading.Thread(name='func2', target=Func2)
@@ -51,5 +51,5 @@ t2.start()
 
 t1.join()
 t2.join()
-print 'Finished'
+print('Finished')
 

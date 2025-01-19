@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    lambda_local.py
 #\brief   test lambda with local variable.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -11,10 +11,10 @@ locker= threading.RLock()
 def func(i, obj):
   while obj['count']>0:
     with locker:
-      print 'thread',i,obj,id(obj)
+      print('thread',i,obj,id(obj))
     obj['count']-= 1
     time.sleep(0.1)
-  print 'finished',i,obj,id(obj)
+  print('finished',i,obj,id(obj))
 
 def func2(obj):
   func(obj['id'],obj)
@@ -100,7 +100,7 @@ def make_thread2():
     obj['count']= (i+2)*2
     t= threading.Thread(name='func'+str(i), target=lambda: func(i,obj))
     threads.append(t)
-  print threads, obj
+  print(threads, obj)
   for t in threads:
     t.start()
   return threads
@@ -132,7 +132,7 @@ def make_thread4():
     objs[i]['count']= (i+2)*2
     #funcs.append(lambda: func(i,objs[i]))
   funcs= [lambda: func(0,objs[0]), lambda: func(1,objs[1])]
-  print funcs, objs
+  print(funcs, objs)
   for i,f in enumerate(funcs):
     t= threading.Thread(name='func'+str(i), target=f)
     t.start()
@@ -147,11 +147,11 @@ if __name__=='__main__':
   #threads,objs= make_thread12()
   #with locker:  print threads,objs,id(objs[0]),id(objs[1])
   #threads,objs,funcs= make_thread13()
-  #with locker:  print threads,(threads[0]._Thread__target),(threads[1]._Thread__target),objs,funcs,id(objs[0]),id(objs[1])
+  #with locker:  print threads,(threads[0]._target),(threads[1]._target),objs,funcs,id(objs[0]),id(objs[1])
   #threads,objs= make_thread14()
-  #with locker:  print threads,(threads[0]._Thread__target),(threads[1]._Thread__target),objs,id(objs[0]),id(objs[1])
+  #with locker:  print threads,(threads[0]._target),(threads[1]._target),objs,id(objs[0]),id(objs[1])
   threads,classes= make_thread15()
-  with locker:  print threads,(threads[0]._Thread__target),(threads[1]._Thread__target),classes,classes[0].objs,classes[1].objs
+  with locker:  print(threads,(threads[0]._target),(threads[1]._target),classes,classes[0].objs,classes[1].objs)
   #threads,objs= make_thread4()
   #with locker:  print objs
   for t in threads:

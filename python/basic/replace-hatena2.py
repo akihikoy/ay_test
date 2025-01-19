@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys,re
 
 if len(sys.argv)==1:
@@ -23,7 +23,7 @@ while True:
     #print m.group(0)
     #print 'Tags:',m.group(1),'Title:',m.group(3)
     #print m.groups()
-    print """\
+    print("""\
 article/%s
 
 #lang(en)
@@ -33,6 +33,6 @@ article/%s
 #lang()
 #tags(%s)
 RIGHT:%s
-""" % (m.group(3),m.group(3),m.group(3),m.group(1),date)
+""" % (m.group(3),m.group(3),m.group(3),m.group(1),date))
   else:
-    print line,
+    print(line, end=' ')

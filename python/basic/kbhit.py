@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #src: http://code.activestate.com/recipes/572182-how-to-implement-kbhit-on-linux/
 
@@ -23,6 +23,7 @@ def set_curses_term():
 
 def putch(ch):
   sys.stdout.write(ch)
+  sys.stdout.flush()
 
 def getch():
   return sys.stdin.read(1)
@@ -37,7 +38,7 @@ def kbhit():
   #print 'dr:',dr
   #print 'dw:',dw
   #print 'de:',de
-  return dr <> []
+  return dr != []
 
 if __name__ == '__main__':
   atexit.register(set_normal_term)
@@ -70,5 +71,5 @@ if __name__ == '__main__':
       time.sleep(0.05)
     sys.stdout.write('\n')
 
-  print 'done'
+  print('done')
 

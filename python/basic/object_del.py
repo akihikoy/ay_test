@@ -1,14 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import gc
 class TTest:
   def __init__(self):
     self.sub_func= None
-    print 'Created',self
+    print('Created',self)
   def __del__(self):
     self.sub_func= None
-    print 'Deleted',self
+    print('Deleted',self)
   def Print(self):
-    print 'Print',self
+    print('Print',self)
 
 def SubFunc1(t):
   t.Print()
@@ -26,7 +26,7 @@ del t
 #gc.collect()
 #print gc.garbage
 
-print '--------'
+print('--------')
 
 def DefineObj2():
   t= TTest()
@@ -40,7 +40,7 @@ t.sub_func()
 #t.sub_func= None
 del t
 
-print '--------'
+print('--------')
 
 import weakref
 
@@ -56,7 +56,7 @@ t= DefineObj1_2()
 t.sub_func()
 del t
 
-print '--------'
+print('--------')
 
 def DefineObj2_2():
   t= TTest()
@@ -71,7 +71,7 @@ t.sub_func()
 #t.sub_func= None
 del t
 
-print '--------'
+print('--------')
 
 def DefineObj2_3():
   t= TTest()
@@ -86,10 +86,10 @@ t.sub_func()
 #t.sub_func= None
 del t
 
-print '--------'
+print('--------')
 
 def ForceDelete(obj, exclude=[]):
-  for (k,v) in obj.__dict__.iteritems():
+  for (k,v) in obj.__dict__.items():
     if not k in exclude:
       obj.__dict__[k]= None
 
@@ -98,7 +98,7 @@ t.sub_func()
 ForceDelete(t)
 del t
 
-print '--------'
+print('--------')
 
 import types
 

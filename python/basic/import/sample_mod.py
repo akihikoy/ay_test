@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sample_mod.py
 #\brief   Example module to test import, reload, etc.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -8,8 +8,8 @@
 import datetime
 
 TimeImported= datetime.datetime.now()
-print 'Module sample_mod has been imported at', TimeImported
+print('Module sample_mod has been imported at', TimeImported)
 
 def F():
-  print 'F in sample_mod imported at', TimeImported
+  print('F in sample_mod imported at', TimeImported)
 

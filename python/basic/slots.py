@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    slots.py
 #\brief   Test of slots
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -16,19 +16,24 @@ class TTest:
     self.aaa= 1.2
     self.bbb= [1,[2,3]]
     self.ccc= 'hoge hoge'
-    self.ddd= [3,3,3]
+    #self.ddd= [3,3,3]  #allowed with Py2, inhibited with Py3.
+  def vars(self):
+    return {k:getattr(self,k) for k in self.__slots__}
 
 def Main():
   test1= TTest()
   test1.aaa= 3.14
   test1.bbb= [1]
   #test1.ddd= [9,9,9,9]
-  print 'test1=',test1.__dict__
+  #print('test1=',test1.__dict__)  #allowed with Py2, inhibited with Py3.
+  print('test1=',test1.vars())
   test2= test1
   test2.ccc= 'hehehe'
   #test2.ddd[0]= 10
-  print 'test2=',test2.__dict__
-  print 'test1=',test1.__dict__
+  #print('test2=',test2.__dict__)
+  print('test2=',test2.vars())
+  #print('test1=',test1.__dict__)
+  print('test1=',test1.vars())
 
 
 if __name__=='__main__':

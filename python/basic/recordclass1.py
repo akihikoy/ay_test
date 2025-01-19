@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    recordclass1.py
 #\brief   mutable version of namedtuple.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -19,10 +19,10 @@ b= Point(0,0)
 b.X= 1.1
 b.Y= 0.0
 
-print 'a=',a
-print 'b=',b
-print 'a.X=',a.X
-print 'a[1]=',a[1]
-print 'list(a)=',list(a)
+print('a=',a)
+print('b=',b)
+print('a.X=',a.X)
+print('a[1]=',a[1])
+print('list(a)=',list(a))
 #print 'a+b=',a+b
 

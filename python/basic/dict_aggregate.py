@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dict_aggregate.py
 #\brief   We consider aggregating a list of dictionaries that have the same structure.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -10,7 +10,7 @@
 def SubMapDict(dict_data, op):
   empty_dict= {}
   def sub(d,a):
-    for k,v in d.iteritems():
+    for k,v in d.items():
       if isinstance(v,dict):
         a[k]= {}
         sub(v,a[k])
@@ -24,7 +24,7 @@ def SubMapDict(dict_data, op):
 def AggregateListOfDicts(data):
   aggregated= SubMapDict(data[0],lambda v:[])
   def sub(d,a):
-    for k,v in d.iteritems():
+    for k,v in d.items():
       if isinstance(v,dict):
         sub(v,a[k])
       else:
@@ -34,13 +34,13 @@ def AggregateListOfDicts(data):
   return aggregated
 
 if __name__=='__main__':
-  print SubMapDict({'a':{'b':1},'c':2}, lambda v:v+1)
-  print AggregateListOfDicts([{'a':{'b':1},'c':2},{'a':{'b':3},'c':4}])
+  print(SubMapDict({'a':{'b':1},'c':2}, lambda v:v+1))
+  print(AggregateListOfDicts([{'a':{'b':1},'c':2},{'a':{'b':3},'c':4}]))
 
   data= [
     {'a':{'aa':1,'ab':2},'b':{'ba':3,'bb':4},'c':5},
     {'a':{'aa':2,'ab':3},'b':{'ba':5,'bb':8},'c':15},
     {'a':{'aa':3,'ab':4},'b':{'ba':7,'bb':12},'c':25},
     ]
-  print AggregateListOfDicts(data)
-  print SubMapDict(AggregateListOfDicts(data), lambda v:float(sum(v))/len(v))
+  print(AggregateListOfDicts(data))
+  print(SubMapDict(AggregateListOfDicts(data), lambda v:float(sum(v))/len(v)))

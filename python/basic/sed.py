@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sed.py
 #\brief   sed like function.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

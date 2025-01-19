@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    argparse1.py
 #\brief   Test of argparse.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -17,8 +17,8 @@ addarg('-f', action='store_true',
        help='flag')
 
 args= parser.parse_args()
-print('a1=',args.a1)
-print('op=',args.op)
-print('c=',args.c)
-print('f=',args.f)
+print(('a1=',args.a1))
+print(('op=',args.op))
+print(('c=',args.c))
+print(('f=',args.f))
 

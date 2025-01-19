@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #ref: http://ja.pymotw.com/2/threading/
 import threading
 import time
@@ -11,7 +11,7 @@ class Test1:
   def __del__(self):
     self.t1.join()
     self.t2.join()
-    print 'Finished'
+    print('Finished')
 
   def Start(self):
     self.t1= threading.Thread(name='func1', target=self.Func1)
@@ -28,14 +28,14 @@ class Test1:
 
   def Func1(self):
     while self.is_active:
-      line= raw_input('q to quit, p to print > ')
+      line= input('q to quit, p to print > ')
       if line == 'q':
         self.is_active= False
         break
       elif line == 'p':
-        print 'counter=',self.counter
+        print('counter=',self.counter)
       else:
-        print '  entered: ',line
+        print('  entered: ',line)
 
   def Func2(self):
     while self.is_active:

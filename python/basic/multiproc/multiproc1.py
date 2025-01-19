@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    multiproc1.py
 #\brief   multiprocessing test
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import multiprocessing as mp
 def Func1(p):
   assert(p>0)
   s= 0
-  for x in xrange(0,int(1e8),p):
+  for x in range(0,int(1e8),p):
     s+= x
   return p,s
 
@@ -23,6 +23,6 @@ if __name__=='__main__':
 
   #n-PROCESSES
   pool= mp.Pool(n)
-  callback= pool.map(Func1, (pp+1 for pp in xrange(n)))
+  callback= pool.map(Func1, (pp+1 for pp in range(n)))
   for p,s in callback:
-    print '{p}: {s}'.format(p=p,s=s)
+    print('{p}: {s}'.format(p=p,s=s))

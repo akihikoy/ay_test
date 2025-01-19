@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    contour_data.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -208,4 +208,4 @@ if __name__=='__main__':
 '''
   contours= yamlload(datatext, Loader=Loader)
   for contour in contours:
-    print '['+','.join(['['+','.join(map(lambda f:'%0.3f'%f,p))+']' for p in contour])+'],'
+    print('['+','.join(['['+','.join(['%0.3f'%f for f in p])+']' for p in contour])+'],')

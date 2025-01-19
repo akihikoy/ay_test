@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import readline
 
 histfile = ".pyhist"
@@ -9,9 +9,9 @@ except IOError:
 
 readline.parse_and_bind('tab: complete')
 while True:
-  line = raw_input('"stop" to quit > ')
+  line = input('"stop" to quit > ')
   if line == 'stop':
     break
-  print '  entered: ',line
+  print('  entered: ',line)
 
 readline.write_history_file(histfile)

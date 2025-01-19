@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 
 class TKeys(list):
@@ -16,7 +16,7 @@ class TKeys(list):
       list.__init__(self,v)
 
 if __name__=='__main__':
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
   a= TKeys(['a','b','c'])  #Ver1, Ver3
   #a= TKeys('a','b','c')  #Ver2, Ver3
   b= ['c','d','e']

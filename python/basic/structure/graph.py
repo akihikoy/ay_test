@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #class TVertex:
   #def __init__(self,name):
@@ -18,48 +18,48 @@
 
 #Print a dictionary with a nice format
 def PrintDict(d,indent=0):
-  for k,v in d.items():
+  for k,v in list(d.items()):
     if type(v)==dict or isinstance(v,TContainer):
-      print '  '*indent,'[',k,']=...'
+      print('  '*indent,'[',k,']=...')
       PrintDict(v,indent+1)
     else:
-      print '  '*indent,'[',k,']=',v
+      print('  '*indent,'[',k,']=',v)
 
 #Print a graph with a nice format
 def PrintGraph(d,indent=0,displayed=set()):
-  for k,v in d.items():
+  for k,v in list(d.items()):
     if id(v) in displayed:
-      print '  '*indent,'[',k,']=',('<<%i>>' % id(v))
+      print('  '*indent,'[',k,']=',('<<%i>>' % id(v)))
     else:
       displayed= displayed.union({id(v)})
       if type(v)==dict or isinstance(v,TContainer):
-        print '  '*indent,'[',k,']=...'
+        print('  '*indent,'[',k,']=...')
         PrintGraph(v,indent+1,displayed)
       else:
-        print '  '*indent,'[',k,']=',v
+        print('  '*indent,'[',k,']=',v)
 
 #Container class that can hold any variables
 #ref. http://blog.beanz-net.jp/happy_programming/2008/11/python-5.html
 class TContainer:
   def __init__(self,debug=False):
     self.debug= debug
-    if self.debug:  print 'Created TContainer object',hex(id(self))
+    if self.debug:  print('Created TContainer object',hex(id(self)))
   def __del__(self):
-    if self.debug:  print 'Deleting TContainer object',hex(id(self))
+    if self.debug:  print('Deleting TContainer object',hex(id(self)))
   def __str__(self):
     return str(self.__dict__)
   def __repr__(self):
     return str(self.__dict__)
   def __iter__(self):
-    return self.__dict__.itervalues()
+    return iter(self.__dict__.values())
   def items(self):
-    return self.__dict__.items()
+    return list(self.__dict__.items())
   def iteritems(self):
-    return self.__dict__.iteritems()
+    return iter(self.__dict__.items())
   def keys(self):
-    return self.__dict__.keys()
+    return list(self.__dict__.keys())
   def values(self):
-    return self.__dict__.values()
+    return list(self.__dict__.values())
   def __getitem__(self,key):
     return self.__dict__[key]
   def __setitem__(self,key,value):
@@ -92,4 +92,4 @@ if __name__=='__main__':
   #for i in graph:
     #i.Print()
   #del i
-  print '----'
+  print('----')

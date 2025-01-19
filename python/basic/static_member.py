@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 def Init(a):
-  print 'Initializing with',a
+  print('Initializing with',a)
   return a
 
 class TTest:
@@ -9,13 +9,13 @@ class TTest:
 
 
 if __name__=='__main__':
-  print '-------'
+  print('-------')
   test= TTest()
-  print test.A, TTest.A
+  print(test.A, TTest.A)
 
   test.A= 20
-  print test.A, TTest.A
+  print(test.A, TTest.A)
 
   TTest.A= 30
-  print test.A, TTest.A
+  print(test.A, TTest.A)
 

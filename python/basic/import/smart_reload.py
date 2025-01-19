@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    smart_reload.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -13,12 +13,13 @@ import sys
 def AskYesNo():
   while 1:
     sys.stdout.write('  (y|n) > ')
+    sys.stdout.flush()
     ans= sys.stdin.readline().strip()
     if ans=='y' or ans=='Y':  return True
     elif ans=='n' or ans=='N':  return False
 
 def Reload(mod):
-  reload(mod)
+  importlib.reload(mod)
 
 def Import(mod_id):
   #return __import__(mod_id)
@@ -44,7 +45,7 @@ def SmartImportReload(mod_id, __loaded={}):
     file_time= datetime.datetime.fromtimestamp(os.path.getmtime(PycToPy(mod.__file__)))
     #Reload if the file is modified:
     if file_time>loaded_time:
-      reload(mod)
+      importlib.reload(mod)
       __loaded[mod_id]= (datetime.datetime.now(), mod)  #Loaded time, module
     return mod
   else:
@@ -90,26 +91,26 @@ print '======Done: TEST A======'
 
 
 #'''
-print '======Doing: TEST B======'
+print('======Doing: TEST B======')
 
 sample_mod= SmartImportReload('sample_mod')
 from sample_mod import *
 
-print 0,': Done: SmartImportReload'
-print 0,': id(sample_mod.F),id(F)=',id(sample_mod.F),id(F)
+print(0,': Done: SmartImportReload')
+print(0,': id(sample_mod.F),id(F)=',id(sample_mod.F),id(F))
 sample_mod.F()
 F()
 
-for i in xrange(1,1000):
-  print 'Quit?'
+for i in range(1,1000):
+  print('Quit?')
   if AskYesNo():  break
 
   sample_mod= SmartImportReload('sample_mod')
-  print i,': Done: SmartImportReload'
-  print i,': id(sample_mod.F),id(F)=',id(sample_mod.F),id(F)
+  print(i,': Done: SmartImportReload')
+  print(i,': id(sample_mod.F),id(F)=',id(sample_mod.F),id(F))
   sample_mod.F()
   F()
 
-print '======Done: TEST B======'
+print('======Done: TEST B======')
 #'''
 

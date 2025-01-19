@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #see http://stackoverflow.com/questions/27561654/python-queue-get-from-multiple-threads-or-signal
 
 import threading
-import Queue
+import queue
 
 #class TSignal(Queue.Queue):
   #def __init__(self):
@@ -65,16 +65,16 @@ Usage:
   In a wider scope, define this object, like a queue.
     signal= TSignal()
   In receivers, you can write either a with-statement form or a normal form.
-    with signal.NewQueue() as queue:
-      #use queue normally; e.g. data= queue.get()
+    with signal.NewQueue() as queue_:
+      #use queue_ normally; e.g. data= queue_.get()
   Or:
-    queue= signal.NewQueue()
-    #use queue normally; e.g. data= queue.get()
-    #at the end of this scope, queue is automatically released,
+    queue_= signal.NewQueue()
+    #use queue_ normally; e.g. data= queue_.get()
+    #at the end of this scope, queue_ is automatically released,
     #but if you want to do it explicitly, you can use either:
-    del queue
+    del queue_
     #or
-    queue= None
+    queue_= None
   In sender(s), you can write normally:
     signal.put(data)
 '''
@@ -87,23 +87,23 @@ class TSignal:
     idx= self.counter
     self.counter+= 1
     with self.locker:
-      self.queues[idx]= Queue.Queue()
-    queue= self.TQueue(self,idx,self.queues[idx])
-    return queue
+      self.queues[idx]= queue.Queue()
+    queue_= self.TQueue(self,idx,self.queues[idx])
+    return queue_
   def DeleteQueue(self,idx):
     with self.locker:
       if idx in self.queues:
         del self.queues[idx]
   def put(self,item,block=True,timeout=None):
     with self.locker:
-      items= self.queues.items()
-    for idx,queue in items:
-      queue.put(item,block,timeout)
+      items= list(self.queues.items())
+    for idx,queue_ in items:
+      queue_.put(item,block,timeout)
   class TQueue:
-    def __init__(self,parent,idx,queue):
+    def __init__(self,parent,idx,queue_):
       self.parent= parent
       self.idx= idx
-      self.queue= queue
+      self.queue_= queue_
     def __del__(self):
       self.parent.DeleteQueue(self.idx)
     def __enter__(self):
@@ -111,31 +111,31 @@ class TSignal:
     def __exit__(self,e_type,e_value,e_traceback):
       self.parent.DeleteQueue(self.idx)
     def get(self,block=True,timeout=None):
-      return self.queue.get(block,timeout)
+      return self.queue_.get(block,timeout)
 
 signal= TSignal()
 
 #Usage 1: write as a with statement
 def Func1():
-  with signal.NewQueue() as queue:
+  with signal.NewQueue() as queue_:
     while True:
-      data= queue.get()
-      print '\nFunc1:got[%r]\n'%data
+      data= queue_.get()
+      print('\nFunc1:got[%r]\n'%data)
       if data=='q':  break
 
 #Usage 1: define a local variable
 def Func2():
-  queue= signal.NewQueue()
+  queue_= signal.NewQueue()
   while True:
-    data= queue.get()
-    print '\nFunc2:got[%r]\n'%data
+    data= queue_.get()
+    print('\nFunc2:got[%r]\n'%data)
     if data=='q':  break
-  #NOTE: queue is automatically freed after this function, but if want to do it now,
-  #you can use either: [del queue] or [queue= None]
+  #NOTE: queue_ is automatically freed after this function, but if want to do it now,
+  #you can use either: [del queue_] or [queue_= None]
 
 def MainThread():
   while True:
-    data= raw_input('q to quit > ')
+    data= input('q to quit > ')
     signal.put(data)
     if data=='q':  break
 
@@ -146,11 +146,11 @@ t1.start()
 t2.start()
 tm.start()
 
-print 'signal.queues:',signal.queues
+print('signal.queues:',signal.queues)
 
 t1.join()
 t2.join()
 tm.join()
 
-print 'signal.queues:',signal.queues
+print('signal.queues:',signal.queues)
 

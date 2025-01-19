@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    func_in_func2.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -10,9 +10,9 @@ class TTest(object):
     self.x= 101
   def Run(self):
     def RunInRun1():
-      print 'x is',self.x
+      print('x is',self.x)
     def RunInRun2(self):
-      print 'x is',self.x
+      print('x is',self.x)
     RunInRun1()
     RunInRun2(self)
 

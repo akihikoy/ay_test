@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 class TTest:
   def __init__(self):
@@ -14,17 +14,17 @@ class TTest:
 
 
 test= TTest()
-print "test['a']=",test['a']
-print "test['b']=",test['c']
-print "test.dic['c']=",test.dic['c']
-print "test.x=",test.x
+print("test['a']=",test['a'])
+print("test['b']=",test['c'])
+print("test.dic['c']=",test.dic['c'])
+print("test.x=",test.x)
 
 test['a']= 100.0
 test['b']= 100.0
 test.dic['c']= 100.0
 test.x= 100.0
 
-print "test['a']=",test['a']
-print "test['b']=",test['c']
-print "test.dic['c']=",test.dic['c']
-print "test.x=",test.x
+print("test['a']=",test['a'])
+print("test['b']=",test['c'])
+print("test.dic['c']=",test.dic['c'])
+print("test.x=",test.x)

@@ -1,14 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 class TTest:
   class TItem:
     def __init__(self,name):
       self.Running= True
       self.Name= name
-      print 'Init',self.Name,self.Running
+      print('Init',self.Name,self.Running)
     def __del__(self):
       self.Running= False
-      print 'Delete',self.Name,self.Running
+      print('Delete',self.Name,self.Running)
 
   def __init__(self):
     self.item_list= {}
@@ -20,20 +20,20 @@ class TTest:
     del self.item_list[name]
 
   def __del__(self):
-    for k in self.item_list.keys():
-      print 'Deleting %r...' % k
+    for k in list(self.item_list.keys()):
+      print('Deleting %r...' % k)
       del self.item_list[k]
-    print 'self.item_list=',self.item_list
+    print('self.item_list=',self.item_list)
 
 
 test= TTest()
-print '------------'
+print('------------')
 test.Add('a')
 test.Add('b')
 test.Add('c')
-print '------------'
+print('------------')
 test.Del('b')
-print 'test.item_list=',test.item_list
-print '------------'
+print('test.item_list=',test.item_list)
+print('------------')
 del test
-print '============'
+print('============')

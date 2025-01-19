@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys, termios
 import time
@@ -73,6 +73,7 @@ class TKBHit(object):
   #Print a character
   def PutCh(self,ch):
     sys.stdout.write(ch)
+    sys.stdout.flush()
 
   #Get a character
   def GetCh(self):
@@ -200,5 +201,5 @@ if __name__ == '__main__':
         time.sleep(0.05)
       sys.stdout.write('\n')
 
-  print 'done'
+  print('done')
 

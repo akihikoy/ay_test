@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import math
 
 class TTest1:
@@ -10,10 +10,10 @@ class TTest1:
     self.c= [1,2,3,4]
 
   def Members(self):
-    print self.__dict__
+    print(self.__dict__)
 
   def Print(self,a='aaa'):
-    print a,self.c
+    print(a,self.c)
 
 class TTest2:
   X= 10
@@ -25,15 +25,15 @@ class TTest2:
     self.d= 400
 
   def Members(self):
-    print self.__dict__
+    print(self.__dict__)
 
   def Print(self,a='bbb'):
-    print a,self.c,self.d
+    print(a,self.c,self.d)
 
 test1= TTest1()
 test1.x= 9
 
-print 'test1='
+print('test1=')
 test1.Members()
 test1.Print()
 #print locals()
@@ -41,16 +41,16 @@ test1.Print()
 
 test2= TTest2()
 
-print 'test2='
+print('test2=')
 test2.Members()
 test2.Print()
 
 old_dict= test1.__dict__
 #test2.__dict__= old_dict
-for k,v in old_dict.items():
+for k,v in list(old_dict.items()):
   test2.__dict__[k]= v
 
-print 'test2='
+print('test2=')
 test2.Members()
 test2.Print()
 

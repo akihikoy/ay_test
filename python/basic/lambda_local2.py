@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    lambda_local.py
 #\brief   test lambda with local variable.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,10 +15,10 @@ locker= threading.RLock()
 
 def func(obj):
   while obj['count']>0:
-    with locker: print 'thread',obj,id(obj)
+    with locker: print('thread',obj,id(obj))
     obj['count']-= 1
     time.sleep(0.1)
-  with locker: print 'finished',obj,id(obj)
+  with locker: print('finished',obj,id(obj))
 
 #Two patterns
 def make_thread1():

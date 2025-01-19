@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    yaml_save_incr.py
 #\brief   Save a list as YAML incrementally.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

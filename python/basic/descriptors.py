@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    descriptors.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -42,8 +42,8 @@ class Orange(object):
   Pos= Position2()
 
 if __name__=='__main__':
-  def Print(e,g=globals()):  print e,'=',eval(e,g)
-  def PrintX(e,g=globals()):  print 'exec:',e;exec(e,g)
+  def Print(e,g=globals()):  print(e,'=',eval(e,g))
+  def PrintX(e,g=globals()):  print('exec:',e);exec(e,g)
 
   PrintX('a= Position1()')
   PrintX('b= Position2()')

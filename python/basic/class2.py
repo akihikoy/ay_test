@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 class TTest:
   x= 10
@@ -27,6 +27,6 @@ test2= TTestC2()
 test1.x= 209
 test1.y.x= 109
 test1.y.y= 1009
-print 'test1=',test1
-print 'test2=',test2
+print('test1=',test1)
+print('test2=',test2)
 

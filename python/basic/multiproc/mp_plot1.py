@@ -1,14 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    mp_plot1.py
 #\brief   Plot with multiprocessing;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Oct.28, 2021
 import multiprocessing as mp
-import Queue
+import queue
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import time
+matplotlib.use('TkAgg')
 
 def PlotLoop(queue_data):
   plt.rcParams['keymap.quit'].append('q')
@@ -25,7 +27,7 @@ def PlotLoop(queue_data):
         value= queue_data.get(block=False)
         data.append(value)
       #print 'RCV',value
-    except Queue.Empty:
+    except queue.Empty:
       pass
     if len(data)==0:  continue
     d= np.array(data)
@@ -46,7 +48,7 @@ if __name__=='__main__':
   try:
     while True:
       queue_data.put([t, np.sin(t)])
-      print [t, np.sin(t)]
+      print([t, np.sin(t)])
       t+= 0.1
       time.sleep(0.01)
 

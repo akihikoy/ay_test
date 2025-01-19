@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    class_sw.py
 #\brief   Switching two classes.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -24,6 +24,6 @@ def TTest(type):
 
 if __name__=='__main__':
   test1= TTest(1)
-  print 'test1=',test1
+  print('test1=',test1)
   test2= TTest(2)
-  print 'test2=',test2
+  print('test2=',test2)

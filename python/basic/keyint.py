@@ -1,13 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import time
 
 while True:
   try:
-    print "a"
+    print("a")
     time.sleep(0.1)
   except KeyboardInterrupt:
-    print "b"
+    print("b")
     break
 
-print "c"
+print("c")

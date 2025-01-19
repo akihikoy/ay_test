@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    capture_print.py
 #\brief   Capture the print function and redirect.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,7 +14,7 @@ class TStdOutCapturer(object):
     self.str_list= []
   def __exit__(self, *args):
     sys.stdout= self._stdout
-    print self.str_list
+    print(self.str_list)
   def write(self, s):
     if s=='\n':  self.str_list.append('---')
     else:  self.str_list.append(s)
@@ -23,14 +23,14 @@ class TStdOutCapturer(object):
     self._stdout.flush()
 
 def Test1():
-  print 'Test1 is called'
+  print('Test1 is called')
   Test2()
 def Test2():
-  print 'Test2 is called...',
-  print 1.23,
-  print 'done.'
+  print('Test2 is called...', end=' ')
+  print(1.23, end=' ')
+  print('done.')
 
 if __name__=='__main__':
   with TStdOutCapturer():
-    print 'hello'
+    print('hello')
     Test1()

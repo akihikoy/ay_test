@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import math
 
 def EstStrConvert(v_str):
@@ -37,10 +37,10 @@ def EstStrConvert(v_str):
 
 
 while True:
-  s= raw_input('q or any-string > ')
+  s= input('q or any-string > ')
   value= EstStrConvert(s)
-  print '  type: ',type(value)
-  print '  value: ',value
+  print('  type: ',type(value))
+  print('  value: ',value)
   if s=='q':
     break
 

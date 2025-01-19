@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+import importlib
 
 #class TApproachToX:
   #def __init__(self):
@@ -65,11 +66,12 @@
 #import inheritance
 if __name__=='__main__':
   #test= __import__('inheritance',globals(),locals(),'inheritance',-1).TBase()
-  test= __import__('inheritance',globals(),locals(),'inheritance',-1).TTest()
+  #test= __import__('inheritance',globals(),locals(),'inheritance',-1).TTest()
+  test= importlib.import_module('inheritance').TTest()
   test.a= 999
 
-  print '====='
+  print('=====')
   test.Print()
-  print '====='
+  print('=====')
   del test
 

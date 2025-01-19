@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    multiproc2.py
 #\brief   multiprocessing test 2
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,21 +14,21 @@ class TTest:
   def Func1(self,p):
     assert(p>0)
     s= 0
-    for x in xrange(0,self.q,p):
+    for x in range(0,self.q,p):
       s+= x
     return p,s
 
   def Func1S(self):
-    for pp in xrange(self.n):
+    for pp in range(self.n):
       p,s= self.Func1(pp+1)
-      print '{p}: {s}'.format(p=p,s=s)
+      print('{p}: {s}'.format(p=p,s=s))
 
   #ERROR: Doesn't work
   def Func1M(self):
     pool= mp.Pool(self.n)
-    callback= pool.map(self.Func1, (pp+1 for pp in xrange(self.n)))
+    callback= pool.map(self.Func1, (pp+1 for pp in range(self.n)))
     for p,s in callback:
-      print '{p}: {s}'.format(p=p,s=s)
+      print('{p}: {s}'.format(p=p,s=s))
 
   def Func2(self,p):
     p,s= self.Func1(p)
@@ -36,11 +36,11 @@ class TTest:
 
   def Func2M(self):
     self.queue= mp.Queue()
-    ps= [mp.Process(target=self.Func2, args=(pp+1,)) for pp in xrange(self.n)]
+    ps= [mp.Process(target=self.Func2, args=(pp+1,)) for pp in range(self.n)]
     for p in ps:  p.start()
-    for i in xrange(self.n):
+    for i in range(self.n):
       p,s= self.queue.get()
-      print '{p}: {s}'.format(p=p,s=s)
+      print('{p}: {s}'.format(p=p,s=s))
     for p in ps:  p.join()
 
 if __name__=='__main__':

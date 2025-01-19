@@ -1,9 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    inheritance_two2.py
 #\brief   import test of inheritance_two
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Feb.01, 2016
+from importlib import reload
 import inheritance_two
 reload(inheritance_two)
 from inheritance_two import *
@@ -11,7 +12,7 @@ from inheritance_two import *
 SP= TCompSpaceDef
 
 cspdef= SP('state',2,[-1,-2],[1,2])
-print 'cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds
+print('cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds)
 
 import inheritance_two
 reload(inheritance_two)
@@ -31,6 +32,6 @@ This is because SP (defined in line 11 with an old TCompSpaceDef) is different f
 #SP= TCompSpaceDef
 
 cspdef= SP('action',1,[-1.5],[1.5])
-print 'cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds
+print('cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds)
 cspdef= SP('select',num=5)
-print 'cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds
+print('cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds)

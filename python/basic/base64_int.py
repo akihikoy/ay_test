@@ -7,7 +7,7 @@
 import base64
 
 if __name__=='__main__':
-  def PrintEq(x):  print('%s= %r' % (x, eval(x)))
+  def PrintEq(x):  print(('%s= %r' % (x, eval(x))))
   s= '1629876842981456041'
   s_i= int(s)
   s_bytes= s_i.to_bytes((s_i.bit_length()+7)//8, 'big')

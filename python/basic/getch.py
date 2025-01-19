@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # http://code.activestate.com/recipes/134892/
@@ -42,7 +42,7 @@ getch = _Getch()
 
 while True:
   a=getch()
-  print a
-  print ord(a[0])
+  print(a)
+  print(ord(a[0]))
   if a=='q': break
 

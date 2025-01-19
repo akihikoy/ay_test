@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    pyclass2.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -21,14 +21,14 @@ class Class12_1(Class1,Class2):
   object= 'x'
 
 if __name__=='__main__':
-  def Print(e,g=globals()):  print e,'=',eval(e,g)
-  def PrintX(e,g=globals()):  print 'exec:',e;exec(e,g)
+  def Print(e,g=globals()):  print(e,'=',eval(e,g))
+  def PrintX(e,g=globals()):  print('exec:',e);exec(e,g)
   def PrintD(c,k,g=globals()):
     for key in k:
       try:
-        print '%s.%s= %r'%(c,key,getattr(eval(c,g),key))
+        print('%s.%s= %r'%(c,key,getattr(eval(c,g),key)))
       except AttributeError:
-        print '%s.%s= %r'%(c,key,'<Variable not found>')
+        print('%s.%s= %r'%(c,key,'<Variable not found>'))
       #found= False
       #for sp in eval(c,g).mro():
         #if key in sp.__dict__:

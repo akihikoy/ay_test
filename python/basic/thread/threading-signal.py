@@ -1,28 +1,28 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 '''
 This is what I want to do, but it does not work!
 '''
 
 import threading
-import Queue
+import queue
 
-queue= Queue.Queue()
+queue= queue.Queue()
 
 def Func1():
   while True:
     data= queue.get()
-    print 'Func1:got',data
+    print('Func1:got',data)
     if data=='q':  break
 
 def Func2():
   while True:
     data= queue.get()
-    print 'Func2:got',data
+    print('Func2:got',data)
     if data=='q':  break
 
 def MainThread():
   while True:
-    data= raw_input('q to quit > ')
+    data= input('q to quit > ')
     queue.put(data)
     if data=='q':  break
 

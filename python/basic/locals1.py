@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    locals1.py
 #\brief   Check strange behavior of locals.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -12,38 +12,38 @@ NOTE: Local variables aren't actually implemented with a dict, so no.
 '''
 
 def Main1():
-  print id(locals()), locals()
-  def F(l=locals()):  print id(l), l
+  print(id(locals()), locals())
+  def F(l=locals()):  print(id(l), l)
   a= 100
   #locals()['b']= 100
   F()
-  print id(locals()), locals()
+  print(id(locals()), locals())
 
 def Main2():
-  print id(locals()), locals()
-  def F(l=locals()):  print id(l), l
+  print(id(locals()), locals())
+  def F(l=locals()):  print(id(l), l)
   a= 100
   locals()['b']= 100
   F()
-  print id(locals()), locals()
+  print(id(locals()), locals())
 
 def Main3():
-  def F(l=locals()):  print 'F', id(l), l
+  def F(l=locals()):  print('F', id(l), l)
   a= 100
   F()
-  print '1', id(locals()), locals()
+  print('1', id(locals()), locals())
   F()
 
 if __name__=='__main__':
   Main1()
-  print '-----'
+  print('-----')
   Main2()
-  print '-----'
+  print('-----')
   Main3()
-  print '-----'
-  def F(g=globals()):  print 'F', id(g), g
+  print('-----')
+  def F(g=globals()):  print('F', id(g), g)
   a= 100
   F()
-  print '1', id(globals()), globals()
+  print('1', id(globals()), globals())
   F()
 

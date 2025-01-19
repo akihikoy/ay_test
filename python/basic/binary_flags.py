@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    binary_flags.py
 #\brief   Test of binary flags.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Aug.15, 2023
-from __future__ import print_function
+
 
 if __name__=='__main__':
 
@@ -18,7 +18,7 @@ if __name__=='__main__':
 
   def p(flags):
     print('flags= {} ({})'.format(bin(flags),flags))
-    print('  details: {}'.format({key:bool(flags&f) for key,f in FLAG_LIST.iteritems()}))
+    print('  details: {}'.format({key:bool(flags&f) for key,f in FLAG_LIST.items()}))
 
   flags= 0b00
   p(flags)

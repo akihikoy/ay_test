@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    property.py
 #\brief   Test of @property.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -69,33 +69,33 @@ class TTest5(object):
 
 if __name__=='__main__':
   test1= TTest1()
-  print test1.square  #result: 4
+  print(test1.square)  #result: 4
   #test1.square= 10  #ERROR: 'AttributeError: can't set attribute'
   #print test1.square
 
-  print '-------------'
+  print('-------------')
 
   test2= TTest2()
-  print test2.square  #result: 9
+  print(test2.square)  #result: 9
   #test2.square= 10  #ERROR: Exception: not writable
   #print test2.square
 
-  print '-------------'
+  print('-------------')
 
   test3= TTest3()
-  print test3.square  #result: 64
+  print(test3.square)  #result: 64
 
-  print '-------------'
+  print('-------------')
 
   test4= TTest4()
-  print test4.square  #result: 25
+  print(test4.square)  #result: 25
   test4.square= 10
-  print test4.square  #result: 10
+  print(test4.square)  #result: 10
 
-  print '-------------'
+  print('-------------')
 
   test5= TTest5()
-  print test5.x  #result: [1, 2, 3]
+  print(test5.x)  #result: [1, 2, 3]
   test5.x[1]= 10
-  print test5.x  #result: [1, 10, 3]
+  print(test5.x)  #result: [1, 10, 3]
 

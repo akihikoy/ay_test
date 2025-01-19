@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 class TTest:
   x= 10
@@ -15,22 +15,22 @@ test1= TTest()
 test1.x= 20
 test1.y= 200
 test2= TTest()
-print 'test1=',test1
-print 'test2=',test2
+print('test1=',test1)
+print('test2=',test2)
 TTest.x= 30
 TTest.y= 300
 test3= TTest()
-print 'test3=',test3
+print('test3=',test3)
 
-print '-----'
+print('-----')
 
 test1= TTestB()
 test1.x= 20
 test1.y= 200
 test2= TTestB()
-print 'test1=',test1.x,test1.y
-print 'test2=',test2.x,test2.y
+print('test1=',test1.x,test1.y)
+print('test2=',test2.x,test2.y)
 TTestB.x= 30
 TTestB.y= 300
 test3= TTestB()
-print 'test2=',test3.x,test3.y
+print('test2=',test3.x,test3.y)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    singleton2.py
 #\brief   Example of a singleton class
 #         with deleting mechanism and reference counter.
@@ -32,17 +32,17 @@ class SingletonTest(object):
       if cls._ref_counter==0:  raise Exception('SingletonTest.delete is called with zombie.')
       cls._ref_counter-= 1
       if cls._ref_counter==0:
-        print 'Deleting',id(cls._instance)
+        print('Deleting',id(cls._instance))
         instance= cls._instance
         cls._instance= None
         del instance
 
   def __del__(self):
-    print 'Called: __del__({s})'.format(s=id(self))
+    print('Called: __del__({s})'.format(s=id(self)))
 
   #NOTE: In a singleton, such an initializer is confusing since the execution timing is unclear.
   def __init__(self, x, y=3, z=-3):
-    print 'Called: __init__({s})'.format(s=id(self))
+    print('Called: __init__({s})'.format(s=id(self)))
     self.x= x
     self.y= y
     self.z= z
@@ -57,15 +57,15 @@ if test_type==1:
 
   #test1= SingletonTest(101)  #WARNING: This calls SingletonTest.__new__
   test2= SingletonTest.new(102, z=30)
-  print 'test2=',test2
+  print('test2=',test2)
   test2.delete()
   #del test2
 
   test3= SingletonTest.new(103)
   test6= SingletonTest.new(106)
   #print 'test2=',test2
-  print 'test3=',test3
-  print 'test6=',test6
+  print('test3=',test3)
+  print('test6=',test6)
   test3.delete()
   test6.delete()
 
@@ -74,12 +74,12 @@ elif test_type==2:
 
   def F1():
     test4= SingletonTest.new(104, z=40)
-    print 'test4=',test4
+    print('test4=',test4)
     test4.delete()
 
   F1()
 
   test5= SingletonTest.new(105)
-  print 'test5=',test5
+  print('test5=',test5)
   test5.delete()
 

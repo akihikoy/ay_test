@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    inheritance_two.py
 #\brief   inheritance from two classes
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -44,9 +44,9 @@ class TCompSpaceDef(TSpaceDef,TSelectDef):
 
 if __name__=='__main__':
   cspdef= TCompSpaceDef('state',2,[-1,-2],[1,2])
-  print 'cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds
+  print('cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds)
   cspdef= TCompSpaceDef('action',1,[-1.5],[1.5])
-  print 'cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds
+  print('cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds)
   cspdef= TCompSpaceDef('select',num=5)
-  print 'cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds
+  print('cspdef:',cspdef.__dict__,cspdef.D,cspdef.Is('state'),cspdef.Is('action'),cspdef.Is('select'),cspdef.Bounds)
 

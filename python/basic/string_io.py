@@ -1,11 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    string_io.py
 #\brief   Capture stdout.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Apr.18, 2021
 #from io import StringIO
-from io import BytesIO as StringIO
+#from io import BytesIO as StringIO  #For Py2
+from io import StringIO  #For Py3
 import sys
 
 #Capture print (stdout) as a list.
@@ -23,7 +24,7 @@ class Capturing(list):
 if __name__=='__main__':
   #Capture print (stdout) as a list:
   with Capturing() as output:
-    print 'hello world'
-  print 'captured:',output
+    print('hello world')
+  print('captured:',output)
 
 

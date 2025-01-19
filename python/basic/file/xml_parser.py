@@ -1,28 +1,29 @@
 #!/usr/bin/python
+from __future__ import print_function
 import xml.dom.minidom
 
 #Print a dictionary with a nice format
 def PrintDict(d,indent=0):
   if isinstance(d,dict):
-    items= d.items()
+    items= list(d.items())
   elif isinstance(d,(list,tuple)):
-    items= zip(range(len(d)),d)
+    items= list(zip(list(range(len(d))),d))
   for k,v in items:
     if type(v)==dict:
-      print '  '*indent,'[',k,']=<dict>...'
+      print('  '*indent,'[',k,']=<dict>...')
       PrintDict(v,indent+1)
     elif k not in ('parentNode','ownerElement','ownerDocument','previousSibling','nextSibling') and getattr(v,'__dict__',None):
-      print '  '*indent,'[',k,']=<class>.__dict__...'
+      print('  '*indent,'[',k,']=<class>.__dict__...')
       PrintDict(v.__dict__,indent+1)
     elif isinstance(v,(list,tuple)):
-      print '  '*indent,'[',k,']=<list>...'
+      print('  '*indent,'[',k,']=<list>...')
       PrintDict(v,indent+1)
     else:
-      print '  '*indent,'[',k,']=',v
-  if indent==0: print ''
+      print('  '*indent,'[',k,']=',v)
+  if indent==0: print('')
 
 def PrintRecursively(dom):
-  print 'dom.documentElement.tagName:',dom.documentElement.tagName
+  print('dom.documentElement.tagName:',dom.documentElement.tagName)
   #print 'dom.documentElement has __dict__:',getattr(dom.documentElement,'__dict__',None)
   PrintDict(dom.documentElement.__dict__)
   #print dom,':',dom.__dict__
@@ -42,9 +43,9 @@ def FindFirst(dom,cond):
   def sub_proc(d,cond):
     if cond(d):  return d
     if isinstance(d,dict):
-      items= d.items()
+      items= list(d.items())
     elif isinstance(d,(list,tuple)):
-      items= zip(range(len(d)),d)
+      items= list(zip(list(range(len(d))),d))
     for k,v in items:
       if type(v)==dict:
         res= sub_proc(v,cond)
@@ -65,12 +66,12 @@ if __name__=='__main__':
 
   PrintRecursively(dom)
 
-  print "-------------------------------------"
+  print("-------------------------------------")
 
   for url in dom.getElementsByTagName("url"):
-    print url.firstChild.data
+    print(url.firstChild.data)
 
-  print "-------------------------------------"
+  print("-------------------------------------")
 
   #find d['_attrs']['name'].value==l_gripper_sensor_mount_joint
   def search_cond(d):
@@ -83,6 +84,6 @@ if __name__=='__main__':
 
   node= FindFirst(dom,search_cond)
   if node!=None:
-    print 'Found.'
+    print('Found.')
     PrintDict(node)
 

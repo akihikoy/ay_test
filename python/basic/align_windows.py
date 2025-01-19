@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    align_windows.py
 #\brief   Test code of aligning windows using wmctrl.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Aug.14, 2023
-from __future__ import print_function
+
 import subprocess
 
 def get_window_list():
@@ -28,7 +28,7 @@ positions= {
   }
 
 window_list= get_window_list()
-for title, pos in positions.items():
+for title, pos in list(positions.items()):
   window_id= get_window_id_by_title(window_list, title)
   if window_id:
     subprocess.call(['wmctrl', '-i', '-r', window_id, '-e', '0,{}'.format(pos)])

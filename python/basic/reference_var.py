@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 ##x does not change:
 #def Test1(x):
@@ -28,7 +28,7 @@ class TTest:
 
 #class Ref()
 
-def PrintEq(s):  print '%s= %r' % (s, eval(s))
+def PrintEq(s):  print('%s= %r' % (s, eval(s)))
 if __name__=='__main__':
   #x= 1
   x= [1]

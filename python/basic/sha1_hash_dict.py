@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sha1_hash_dict.py
 #\brief   Get SHA1 hash of a dictionary content;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -17,15 +17,15 @@ import hashlib
 def PrintDict(d,indent=0):
   for k,v in d.items():
     if type(v)==dict:
-      print '  '*indent,'[',k,']=...'
+      print('  '*indent,'[',k,']=...')
       PrintDict(v,indent+1)
     else:
-      print '  '*indent,'[',k,']=',v
-  if indent==0: print ''
+      print('  '*indent,'[',k,']=',v)
+  if indent==0: print('')
 
 def GetSHA1HashOfDict(d):
   d_yaml= yamldump(d, Dumper=Dumper)
-  return hashlib.sha1(d_yaml).hexdigest()
+  return hashlib.sha1(d_yaml.encode('utf-8')).hexdigest()
 
 if __name__=='__main__':
   d1= {
@@ -58,8 +58,8 @@ if __name__=='__main__':
       },
     }
   PrintDict(d1)
-  print 'yamldump(d1):'
-  print yamldump(d1, Dumper=Dumper)
+  print('yamldump(d1):')
+  print(yamldump(d1, Dumper=Dumper))
 
-  print 'GetSHA1HashOfDict(d1)',GetSHA1HashOfDict(d1)
+  print('GetSHA1HashOfDict(d1)',GetSHA1HashOfDict(d1))
 
