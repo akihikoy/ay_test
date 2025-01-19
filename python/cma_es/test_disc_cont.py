@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #qplot -x -3d outcmaes_obj.dat w l outcmaes_res.dat w p
 #TEST to optimize discrete+continuous parameters
 
@@ -51,7 +51,7 @@ class TContOpt:
         self.solutions= []
         self.scores= []
 
-        #fp= file('data/res%04i.dat'%(count),'w')
+        #fp= open('data/res%04i.dat'%(count),'w')
         #count+=1
         #for x in solutions:
           #fp.write('%s %f\n' % (' '.join(map(str,x)),fobj(x,-10)))
@@ -138,10 +138,10 @@ if __name__=='__main__':
   #x[1:]: continuous parameters for each function; size depends on x[0]
   def composite_fobj(x,f_none=None):
     if isinstance(x[0], float):
-      print '###x[0] is float:',x[0], int(round(x[0]))
+      print('###x[0] is float:',x[0], int(round(x[0])))
       x[0]= int(round(x[0]))
-    if x[0]==2 and len(x[1:])<>1:
-      print '$$$len(x[1:]) is not 1:',len(x[1:])
+    if x[0]==2 and len(x[1:])!=1:
+      print('$$$len(x[1:]) is not 1:',len(x[1:]))
       x= x[0:2]
     if x[0]==0:  f= fobj1(x[1:])
     elif x[0]==1:  f= fobj2(x[1:])
@@ -190,11 +190,11 @@ if __name__=='__main__':
     f= fobj([x_d]+list(x_c))
     dcopt.Update(f)
     it_count+= 1
-    print it_count, x_d, x_c, f
-  print 'dcopt.Result():',dcopt.Result()
+    print(it_count, x_d, x_c, f)
+  print('dcopt.Result():',dcopt.Result())
 
 
-  fp= file('outcmaes_obj.dat','w')
+  fp= open('outcmaes_obj.dat','w')
   for x1 in frange(-4.0,4.0,100):
     for x2 in frange(-4.0,4.0,100):
       for i in range(3):
@@ -206,11 +206,11 @@ if __name__=='__main__':
     fp.write('\n')
   fp.close()
 
-  fp= file('outcmaes_res.dat','w')
+  fp= open('outcmaes_res.dat','w')
   #x,f= copt.Result()
   x_d,x_c,f= dcopt.Result()
   #fp.write('%f %f %f\n' % (x[1],x[2],f if f is not None else -10.0))
-  if x_d<>2:
+  if x_d!=2:
     fp.write('%f %f %f\n' % (x_c[0],x_c[1],f if f is not None else -10.0))
   else:
     fp.write('%f %f %f\n' % (x_c[0],0.0,f if f is not None else -10.0))

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import cma
 import numpy as np
 import os
@@ -30,7 +30,7 @@ else:
   options= {'CMA_diagonal':1, 'verb_time':0, 'bounds':[[-1.0,-1.0],[0.0,0.0]]}
   es= cma.CMAEvolutionStrategy([-0.1] * 2, 0.5, options)
 
-print 'es.result():',es.result()
+print('es.result():',es.result())
 
 count= 0
 while not es.stop():
@@ -40,7 +40,7 @@ while not es.stop():
   es.disp()
   #print 'es.result():',es.result()
 
-  fp= file('data/res%04i.dat'%(count),'w')
+  fp= open('data/res%04i.dat'%(count),'w')
   count+=1
   for x in solutions:
     fp.write('%f %f %f\n' % (x[0],x[1],fobj(x)))
@@ -60,12 +60,12 @@ res= es.result()
 - ``res[-1]`` (``logger``) -- class `CMADataLogger` instance
 '''
 
-print('best solutions fitness = %f' % (res[1]))
+print(('best solutions fitness = %f' % (res[1])))
 
-print res
+print(res)
 
 
-fp= file('outcmaes_obj.dat','w')
+fp= open('outcmaes_obj.dat','w')
 for x1 in frange(-2.0,2.0,100):
   for x2 in frange(-2.0,2.0,100):
     x= np.array([x1,x2])
@@ -73,7 +73,7 @@ for x1 in frange(-2.0,2.0,100):
   fp.write('\n')
 fp.close()
 
-fp= file('outcmaes_res.dat','w')
+fp= open('outcmaes_res.dat','w')
 #for x in res[0]:
 x= res[0]
 fp.write('%f %f %f\n' % (x[0],x[1],fobj(x)))
@@ -85,4 +85,4 @@ fp.close()
 
 #cma.savefig('outcmaesgraph')
 
-print '''qplot -x -3d -s 'set xlabel "x";set ylabel "y";set view equal xy' outcmaes_obj.dat w l outcmaes_res.dat ps 3 data/res00{00,02,05,10,15}.dat'''
+print('''qplot -x -3d -s 'set xlabel "x";set ylabel "y";set view equal xy' outcmaes_obj.dat w l outcmaes_res.dat ps 3 data/res00{00,02,05,10,15}.dat''')

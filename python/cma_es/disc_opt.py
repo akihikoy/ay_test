@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Discrete parameter optimizer
 import math,random
 
@@ -94,13 +94,13 @@ class TProbDiscOpt:
     if self.UsingNoneSet:
       best_s,best_o= max([(self.Means[o], o) for o in self.option_set-self.NoneSet])
     else:
-      best_s,best_o= max(zip(self.Means, range(self.N)))
+      best_s,best_o= max(list(zip(self.Means, list(range(self.N)))))
     return best_o, best_s
 
   def Stopped(self):
     if len(self.option_set-self.NoneSet)==0:  return True
     if self.same_opt_cnt>=self.TolSameOpt:  return True
-    if self.score_mean<>None and self.score_sqmean<>None and GetSTD(self.score_mean,self.score_sqmean)<self.TolScore:  return True
+    if self.score_mean is not None and self.score_sqmean is not None and GetSTD(self.score_mean,self.score_sqmean)<self.TolScore:  return True
     return False
 
   def Select(self):
@@ -114,7 +114,7 @@ class TProbDiscOpt:
       probs= BoltzmannPolicy(self.BoltzmannTau, ucb)
     self.prev_index= self.index
     self.index= SelectFromPolicy(probs)
-    if self.prev_index<>None and self.index==self.prev_index: self.same_opt_cnt+=1
+    if self.prev_index is not None and self.index==self.prev_index: self.same_opt_cnt+=1
     else:  self.same_opt_cnt= 0
     #print 'TProbDiscOpt:DEBUG: Index:%i UCB:%f' % (self.index,ucb[self.index])
 
@@ -161,10 +161,10 @@ if __name__=='__main__':
     f= fobj(x)
     disc_opt.Update(f)
     it_count+= 1
-    print it_count,x,f
+    print(it_count,x,f)
 
-  print disc_opt.NoneSet
-  print disc_opt.Result()
+  print(disc_opt.NoneSet)
+  print(disc_opt.Result())
 
 
 

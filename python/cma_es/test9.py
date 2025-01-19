@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import cma
 import numpy as np
 
@@ -34,7 +34,7 @@ else:
 #scores= [fobj(x) for x in solutions]
 #es.tell(solutions,scores)
 
-print 'es.result():',es.result()
+print('es.result():',es.result())
 
 count= 0
 while not es.stop():
@@ -52,7 +52,7 @@ while not es.stop():
   #print 'es.result():',es.result()
   #print solutions
 
-  fp= file('data/res%04i.dat'%(count),'w')
+  fp= open('data/res%04i.dat'%(count),'w')
   count+=1
   for x in solutions:
     fp.write('%f %f\n' % (x[0],fobj(x)))
@@ -61,25 +61,25 @@ while not es.stop():
 
 res= es.result()
 
-print('best solutions fitness = %f' % (res[1]))
+print(('best solutions fitness = %f' % (res[1])))
 
-print res
+print(res)
 
 
-fp= file('outcmaes_obj.dat','w')
+fp= open('outcmaes_obj.dat','w')
 for x1 in frange(-2.0,2.0,100):
   x= np.array([x1])
   fp.write('%f %f\n' % (x[0],fobj(x)))
 fp.close()
 
-fp= file('outcmaes_res.dat','w')
+fp= open('outcmaes_res.dat','w')
 #for x in res[0]:
 x= res[0]
 fp.write('%f %f\n' % (x[0],fobj(x)))
 fp.close()
 
 cma.plot();
-print 'press a key to exit > ',
-raw_input()
+print('press a key to exit > ', end=' ')
+input()
 
 #cma.savefig('outcmaesgraph')
