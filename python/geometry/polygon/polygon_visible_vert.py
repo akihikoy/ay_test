@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_visible_vert.py
 #\brief   Get visible vertices from a point using Ray-casting algorithm.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jul.30, 2023
-from __future__ import print_function
+
 import numpy as np
 from line_line_intersect2 import DoLineLineIntersect
 #from polygon_is_clockwise2 import PolygonIsClockwise
@@ -95,7 +95,7 @@ def Main():
     point= np.random.uniform(bb_min,bb_max)
     print('Random point is selected: {}'.format(point))
   visibility= GetVisibleVertices(polygons[i_poly], point)
-  print('visible vertices=',np.array(range(len(polygons[i_poly])))[visibility])
+  print('visible vertices=',np.array(list(range(len(polygons[i_poly]))))[visibility])
 
   def write_polygon(fp,polygon):
     if len(polygon)>0:
@@ -134,7 +134,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

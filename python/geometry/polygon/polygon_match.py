@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_match.py
 #\brief  Match two polygons by maximizing the overlapped area.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -47,11 +47,11 @@ def MatchPolygons(points, points_ref, axes, bounds, maxeval=1000):
   while f_obj(r)==0.0 and maxeval>0:
     r= RandB(bounds)
     maxeval-= 1
-    print r,f_obj(r)
+    print(r,f_obj(r))
   if f_obj(r)==0.0:  return None, points
   bounds2= [[xmin,xmax] for xmin,xmax in zip(bounds[0],bounds[1])]
   res= scipy_minimize(f_obj, r, bounds=bounds2, options={'maxiter':maxeval})
-  print res
+  print(res)
   r= res['x']
   points_mv= points+np.dot(r,axes)
   return r, points_mv.tolist()
@@ -118,7 +118,7 @@ def Main():
   fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -131,13 +131,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

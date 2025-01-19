@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    bounded.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,5 +23,5 @@ if __name__=='__main__':
     for t in np.linspace(min(t_traj),max(t_traj),200):
       fp.write('{t} {x}\n'.format(t=t,x=spline.Evaluate(t,with_tan=False)))
 
-  print '#Plot by:'
-  print '''qplot -x /tmp/spline.dat w l /tmp/data.dat w p'''
+  print('#Plot by:')
+  print('''qplot -x /tmp/spline.dat w l /tmp/data.dat w p''')

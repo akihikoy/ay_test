@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ellipse_fit3.py
 #\brief   Fitting 2d points with ellipse.
 #         Algebraic ellipse fitting using eigenvalue decomposition, with auto-scaling of input.
@@ -15,19 +15,19 @@ def EllipseFit2D(XY):
   y= np.array([[XY[d][1]-centroid[1]] for d in range(len(XY))]) #centering data
   D= np.hstack((x*x, x*y, y*y, x, y, np.ones_like(x)))
   scale= np.max(np.abs(D),axis=0)
-  print 'scale',scale
+  print('scale',scale)
   D= D/scale
   S= np.dot(D.T,D)
   C= np.zeros([6,6])
   C[0,2]= C[2,0]= 2; C[1,1]= -1
   reg= 0.01
   E,V= np.linalg.eig(np.dot(np.linalg.inv(S+np.eye(S.shape[0])*reg), C))
-  print 'np.linalg.inv(S)',np.linalg.inv(S+np.eye(S.shape[0])*reg)
+  print('np.linalg.inv(S)',np.linalg.inv(S+np.eye(S.shape[0])*reg))
   n= np.argmax(np.abs(E))
   a= V[:,n]
   if a[0]<0:  a= -a
   a= a/scale
-  print 'a',a
+  print('a',a)
   #U,S,V= np.linalg.svd(np.dot(np.linalg.inv(S+np.eye(S.shape[0])*reg), C))
   #a= U[:,0]
   #if a[0]<0:  a= -a
@@ -59,7 +59,7 @@ def EllipseFit2D(XY):
     up= 2*(a*f*f+c*d*d+g*b*b-2*b*d*f-a*c*g)
     down1= (b*b-a*c)*( (c-a)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
     down2= (b*b-a*c)*( (a-c)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
-    print 'debug',up,down1,down2
+    print('debug',up,down1,down2)
     r1= np.sqrt(up/down1)
     r2= np.sqrt(up/down2)
     return r1, r2
@@ -75,7 +75,7 @@ if __name__=='__main__':
   c= [-9.99,2.3]
   r1,r2= 0.8,0.5
   angle= np.pi/3.0
-  print 'ground-truth:',c,r1,r2,angle
+  print('ground-truth:',c,r1,r2,angle)
   XY=[]
   with open('/tmp/data.dat','w') as fp:
     #for th in np.linspace(0.0,2.0*np.pi,50):
@@ -88,12 +88,12 @@ if __name__=='__main__':
       fp.write('%f %f\n'%(x,y))
 
   c,r1,r2,angle= EllipseFit2D(XY)
-  print 'estimated:',c,r1,r2,angle
+  print('estimated:',c,r1,r2,angle)
   with open('/tmp/fit.dat','w') as fp:
     for th in np.linspace(0, 2*np.pi, 1000):
       x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th)
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
 
-  print '#Plot by:'
-  print '''qplot -x /tmp/data.dat /tmp/fit.dat w l'''
+  print('#Plot by:')
+  print('''qplot -x /tmp/data.dat /tmp/fit.dat w l''')

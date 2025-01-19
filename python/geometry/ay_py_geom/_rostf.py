@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    _rostf.py
 #\brief   Copied some codes from ROS tf.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -298,7 +298,7 @@ _AXES2TUPLE = {
     'rzxy': (1, 1, 0, 1), 'ryxy': (1, 1, 1, 1), 'ryxz': (2, 0, 0, 1),
     'rzxz': (2, 0, 1, 1), 'rxyz': (2, 1, 0, 1), 'rzyz': (2, 1, 1, 1)}
 
-_TUPLE2AXES = dict((v, k) for k, v in _AXES2TUPLE.items())
+_TUPLE2AXES = dict((v, k) for k, v in list(_AXES2TUPLE.items()))
 
 def vector_norm(data, axis=None, out=None):
     """Return length, i.e. eucledian norm, of ndarray along axis.
@@ -383,33 +383,33 @@ def unit_vector(data, axis=None, out=None):
 
 
 if __name__=='__main__':
-  print 'I=', identity_matrix()
+  print('I=', identity_matrix())
 
   Q1= [0.06146124, 0, 0, 0.99810947]
   Theta1= 0.123
   Ax1= (1.0, 0.0, 0.0)
-  print 'Q1=', Q1
-  print 'Theta1=', Theta1
-  print 'Ax1=', Ax1
+  print('Q1=', Q1)
+  print('Theta1=', Theta1)
+  print('Ax1=', Ax1)
 
   R1= rotation_matrix(Theta1, Ax1)
-  print 'R1= R about Theta1,Ax1=', R1
+  print('R1= R about Theta1,Ax1=', R1)
 
-  print 'Q1 to Euler=', euler_from_quaternion(Q1)
+  print('Q1 to Euler=', euler_from_quaternion(Q1))
 
   Q2= quaternion_about_axis(Theta1, Ax1)
-  print 'Q2= Q about Theta1,Ax1=', Q2
-  print 'Q1==Q2?', numpy.allclose(Q2, Q1)
+  print('Q2= Q about Theta1,Ax1=', Q2)
+  print('Q1==Q2?', numpy.allclose(Q2, Q1))
 
   R2= quaternion_matrix(Q1)
-  print 'R2= Q to R=', R2
-  print 'R1==R2?', numpy.allclose(R2, R1)
+  print('R2= Q to R=', R2)
+  print('R1==R2?', numpy.allclose(R2, R1))
 
   Q3= quaternion_from_matrix(R1)
-  print 'Q3= R to Q=', Q3
-  print 'Q1==Q3?', numpy.allclose(Q3, Q1)
+  print('Q3= R to Q=', Q3)
+  print('Q1==Q3?', numpy.allclose(Q3, Q1))
 
   Q4= quaternion_about_axis(2.0*Theta1, Ax1)
-  print 'Q4= Q about 2*Theta1,Ax1=', Q4
-  print 'Q4==Q1*Q2?', numpy.allclose(Q4, quaternion_multiply(Q1,Q2))
+  print('Q4= Q about 2*Theta1,Ax1=', Q4)
+  print('Q4==Q1*Q2?', numpy.allclose(Q4, quaternion_multiply(Q1,Q2)))
 

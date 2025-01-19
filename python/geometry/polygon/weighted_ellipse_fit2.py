@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    weighted_ellipse_fit2.py
 #\brief   Sample-weighted ellipse fitting.
 #         Based on ellipse_fit1:
@@ -33,8 +33,8 @@ if __name__=='__main__':
   c2= [0.55,0.2]
   r21,r22= 0.25,0.2
   angle2= -np.pi/8.0
-  print 'ground-truth(1):',c1,r11,r12,angle1
-  print 'ground-truth(2):',c2,r21,r22,angle2
+  print('ground-truth(1):',c1,r11,r12,angle1)
+  print('ground-truth(2):',c2,r21,r22,angle2)
   XY=[]
   W=[]
   w_scale= 100.0
@@ -54,7 +54,7 @@ if __name__=='__main__':
       XY.append([x,y])
       fp.write('%f %f\n'%(x,y))
       W.append(1.0/(1.0+w_scale*SqErrorFromEllipse([x,y],c1,r11,r12,angle1)))
-  print 'W',W
+  print('W',W)
 
   #from ellipse_fit1 import EllipseFit2D
   #from ellipse_fit2 import EllipseFit2D
@@ -65,12 +65,12 @@ if __name__=='__main__':
   #from ellipse_fit7 import EllipseFit2D
   #c,r1,r2,angle= EllipseFit2D(XY)
   c,r1,r2,angle= SampleWeightedEllipseFit2D(XY, W)  #centroid=np.array([0.,0.])
-  print 'estimated:',c,r1,r2,angle
+  print('estimated:',c,r1,r2,angle)
   with open('/tmp/fit.dat','w') as fp:
     for th in np.linspace(0, 2*np.pi, 1000):
       x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th)
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
 
-  print '#Plot by:'
-  print '''qplot -x /tmp/data.dat /tmp/fit.dat w l'''
+  print('#Plot by:')
+  print('''qplot -x /tmp/data.dat /tmp/fit.dat w l''')

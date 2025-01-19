@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    plan_2d_grasp3.py
 #\brief   Planning grasping on 2D.
 #         Objects are given as polygons.
@@ -53,25 +53,25 @@ def Main():
   res= cma.fmin(f_obj, [0.0,0.0,0.0,0.08], 0.006, cma_opt)
   #print res
   p_grasp= res[0]
-  print 'Best p_grasp=',p_grasp
+  print('Best p_grasp=',p_grasp)
   ev= gps.Evaluate(p_grasp)
 
-  print 'lps_ing_obj:',map(lambda a:a.tolist(), ev['lps_ing_obj'])
+  print('lps_ing_obj:',[a.tolist() for a in ev['lps_ing_obj']])
 
   #Compute areas of intersections:
   #NOTE: Use these values for evaluating collision.
   #Intersection with target object:
-  print 'Intersection area/target object: f1, f2=',
-  print ev['area_f1_obj_s'][gps.ObjTarget],
-  print ev['area_f2_obj_s'][gps.ObjTarget]
+  print('Intersection area/target object: f1, f2=', end=' ')
+  print(ev['area_f1_obj_s'][gps.ObjTarget], end=' ')
+  print(ev['area_f2_obj_s'][gps.ObjTarget])
   #Intersection with other objects:
   for obj in range(len(gps.Contours)):
     if obj==gps.ObjTarget:  continue
-    print 'Intersection area/object',obj,': f1, f2=',
-    print ev['area_f1_obj_s'][obj],
-    print ev['area_f2_obj_s'][obj]
+    print('Intersection area/object',obj,': f1, f2=', end=' ')
+    print(ev['area_f1_obj_s'][obj], end=' ')
+    print(ev['area_f2_obj_s'][obj])
 
-  print 'Total collision area=',sum(ev['area_f1_obj_s'])+sum(ev['area_f2_obj_s'])
+  print('Total collision area=',sum(ev['area_f1_obj_s'])+sum(ev['area_f2_obj_s']))
 
   #Save data into files for plotting:
 
@@ -108,7 +108,7 @@ def Main():
   fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -123,13 +123,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

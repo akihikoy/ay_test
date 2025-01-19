@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 '''
 #ref. http://stackoverflow.com/questions/11716268/point-in-polygon-algorithm
@@ -26,10 +26,10 @@ def PointInPolygon2D(points, point):
 #'''
 
 def FRange(xmin,xmax,num_div):
-  return [xmin+(xmax-xmin)*x/float(num_div) for x in range(num_div+1)]
+  return [xmin+(xmax-xmin)*x/float(num_div) for x in range(int(num_div)+1)]
 
 def Main():
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
 
   import gen_data
   import time
@@ -51,7 +51,7 @@ def Main():
               for x in FRange(bb_min[0],bb_max[0],50)
               for y in FRange(bb_min[1],bb_max[1],50)]
   t_end= time.time()
-  print 'Computation time: ',t_end-t_start
+  print('Computation time: ',t_end-t_start)
 
   def write_in_out(fp1,fp2,x,y,inout=None):
     p= [x,y]
@@ -61,8 +61,8 @@ def Main():
     else:
       fp2.write(' '.join(map(str,p))+'\n')
     #print p,inout
-  with file('/tmp/points_in.dat','w') as fp1:
-    with file('/tmp/points_out.dat','w') as fp2:
+  with open('/tmp/points_in.dat','w') as fp1:
+    with open('/tmp/points_out.dat','w') as fp2:
       for x,y,inout in x_y_inout:
         write_in_out(fp1,fp2,x,y,inout)
       fp1.write('\n')
@@ -71,11 +71,11 @@ def Main():
         write_in_out(fp1,fp2,x,y)
         if i>0:  write_in_out(fp1,fp2,0.5*(x+points[i-1][0]),0.5*(y+points[i-1][1]))
 
-  print 'Plot by'
-  print "qplot -x /tmp/orig.dat w l /tmp/points_in.dat /tmp/points_out.dat"
+  print('Plot by')
+  print("qplot -x /tmp/orig.dat w l /tmp/points_in.dat /tmp/points_out.dat")
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -88,13 +88,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

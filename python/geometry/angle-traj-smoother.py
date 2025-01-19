@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import math
 import copy
 import numpy as np
@@ -40,5 +40,5 @@ while t<10:
 traj_old= copy.deepcopy(traj)
 AngleTrajSmoother(traj)
 for a,b in zip(traj_old,traj):
-  print ' '.join(map(str,a)),' '.join(map(str,b))
+  print(' '.join(map(str,a)),' '.join(map(str,b)))
 

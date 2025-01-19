@@ -1,12 +1,12 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #Basic tools (trajectory).
 import numpy as np
 import numpy.linalg as la
 import math
 import random
 import copy
-from util import *
-from geom import *
+from .util import *
+from .geom import *
 
 #Get a sequence of times, from 0 to dt including inum points (0 is not included).
 def TimeTraj(dt, inum):
@@ -126,7 +126,7 @@ def XTrajToQTraj(func_ik, x_traj, start_angles):
   N= len(x_traj)
   q_prev= start_angles
   q_traj= None
-  for x,n in zip(x_traj, range(N)):
+  for x,n in zip(x_traj, list(range(N))):
     q= func_ik(x, q_prev)
     if q is None:  return None
     if q_traj is None:  q_traj= [[0.0]*len(q) for i in range(N)]
@@ -166,7 +166,7 @@ class TCubicHermiteSpline:
     idx= self.FindIdx(t,self.idx_prev)
     if abs(t-self.KeyPts[-1].T)<1.0e-6:  idx= len(self.KeyPts)-2
     if idx<0 or idx>=len(self.KeyPts)-1:
-      print 'WARNING: Given t= %f is out of the key points (index: %i)' % (t,idx)
+      print('WARNING: Given t= %f is out of the key points (index: %i)' % (t,idx))
       if idx<0:
         idx= 0
         t= self.KeyPts[0].T

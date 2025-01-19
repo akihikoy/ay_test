@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_min_area_rect.py
 #\brief   Wrap of minAreaRect of OpenCv.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jul.31, 2023
-from __future__ import print_function
+
 from cv2 import minAreaRect as cv2_minAreaRect
 import numpy as np
 
@@ -78,7 +78,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

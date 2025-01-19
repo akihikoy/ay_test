@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ellipse_fit4.py
 #\brief   Fitting 2d points with ellipse.
 #         Algebraic ellipse fitting using linear least squares (no boundary conditions).
@@ -17,7 +17,7 @@ def EllipseFit2D(XY):
   b= np.ones_like(x)
   x= np.linalg.lstsq(A, b)[0].squeeze()
   a= np.hstack((x,[-1.0]))
-  print 'a',a
+  print('a',a)
 
   def ellipse_center(a,centroid):
     b,c,d,f,g,a= a[1]/2, a[2], a[3]/2, a[4]/2, a[5], a[0]
@@ -44,7 +44,7 @@ def EllipseFit2D(XY):
     up= 2*(a*f*f+c*d*d+g*b*b-2*b*d*f-a*c*g)
     down1= (b*b-a*c)*( (c-a)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
     down2= (b*b-a*c)*( (a-c)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
-    print 'debug',up,down1,down2
+    print('debug',up,down1,down2)
     r1= np.sqrt(up/down1)
     r2= np.sqrt(up/down2)
     return r1, r2
@@ -60,7 +60,7 @@ if __name__=='__main__':
   c= [-9.99,2.3]
   r1,r2= 0.8,0.5
   angle= np.pi/3.0
-  print 'ground-truth:',c,r1,r2,angle
+  print('ground-truth:',c,r1,r2,angle)
   XY=[]
   with open('/tmp/data.dat','w') as fp:
     #for th in np.linspace(0.0,2.0*np.pi,50):
@@ -73,12 +73,12 @@ if __name__=='__main__':
       fp.write('%f %f\n'%(x,y))
 
   c,r1,r2,angle= EllipseFit2D(XY)
-  print 'estimated:',c,r1,r2,angle
+  print('estimated:',c,r1,r2,angle)
   with open('/tmp/fit.dat','w') as fp:
     for th in np.linspace(0, 2*np.pi, 1000):
       x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th)
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
 
-  print '#Plot by:'
-  print '''qplot -x /tmp/data.dat /tmp/fit.dat w l'''
+  print('#Plot by:')
+  print('''qplot -x /tmp/data.dat /tmp/fit.dat w l''')

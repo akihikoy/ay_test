@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    box_plane_intersection.py
 #\brief   Get an intersection polygon between box and plane.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -20,18 +20,18 @@ def BoxPlaneIntersection(box, x_box, x_plane):
                [ W*0.5,  D*0.5,  H*0.5],
                [-W*0.5,  D*0.5,  H*0.5]]
   #Project box_points onto the x_plane frame:
-  l_box_points= map(lambda p: TransformLeftInv(x_plane,Transform(x_box,p)), box_points)
+  l_box_points= [TransformLeftInv(x_plane,Transform(x_box,p)) for p in box_points]
 
   #Indexes of box edges.
   box_edges= [[0,1],[1,2],[2,3],[3,0],
               [4,5],[5,6],[6,7],[7,4],
               [1,5],[4,0],[3,7],[6,2]]
   #Extract box edges that have an intersection with the plane.
-  box_edges= filter(lambda (i1,i2): l_box_points[i1][2]<=0<=l_box_points[i2][2] or l_box_points[i2][2]<=0<=l_box_points[i1][2], box_edges)
+  box_edges= [i1_i2 for i1_i2 in box_edges if l_box_points[i1_i2[0]][2]<=0<=l_box_points[i1_i2[1]][2] or l_box_points[i1_i2[1]][2]<=0<=l_box_points[i1_i2[0]][2]]
   if len(box_edges)==0:  return []
   #Calculate intersection points.
   f_intersect= lambda p1,p2: [(p1[0]*p2[2]-p1[2]*p2[0])/(p2[2]-p1[2]), (p1[1]*p2[2]-p1[2]*p2[1])/(p2[2]-p1[2])] if abs(p2[2]-p1[2])>EPS else [(p1[0]+p2[0])*0.5, (p1[1]+p2[1])*0.5]
-  l_p_intersect= map(lambda (i1,i2):f_intersect(l_box_points[i1],l_box_points[i2]), box_edges)
+  l_p_intersect= [f_intersect(l_box_points[i1_i21[0]],l_box_points[i1_i21[1]]) for i1_i21 in box_edges]
 
   #Make it convex:
   hull= scipy_ConvexHull(l_p_intersect)
@@ -55,8 +55,8 @@ if __name__=='__main__':
   #x_plane= [0.49, 0.03, -0.17, 0.0, 0.0, 0.0, 1.0]
 
   l_p_intersect= BoxPlaneIntersection([W,D,H], x_box, x_plane)
-  print 'l_p_intersect:',l_p_intersect
-  p_intersect= map(lambda l_p: Transform(x_plane,list(l_p)+[0]), l_p_intersect)
+  print('l_p_intersect:',l_p_intersect)
+  p_intersect= [Transform(x_plane,list(l_p)+[0]) for l_p in l_p_intersect]
 
   fig= pyplot.figure()
   ax= fig.add_subplot(111, projection='3d')

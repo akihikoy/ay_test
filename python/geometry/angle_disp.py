@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import math
 
 #Modify angle to [-pi,pi]
@@ -25,5 +25,5 @@ def FRange1(xmin,xmax,num_div):
 
 angles= FRange1(-math.pi*1.2, math.pi*1.2, 20)
 for i in range(len(angles)-1):
-  print AngleDisplacement(angles[i],angles[i+1]), AngleDisplacement(angles[i+1],angles[i])
+  print(AngleDisplacement(angles[i],angles[i+1]), AngleDisplacement(angles[i+1],angles[i]))
 

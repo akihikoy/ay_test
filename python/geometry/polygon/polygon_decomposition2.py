@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_decomposition2.py
 #\brief   Polygon decomposition algorithm using SplitPolygonAtReflexVertex and DivideConvexByArea.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Aug.01, 2023
-from __future__ import print_function
+
 from polygon_divide_by_area import DivideConvexByArea
 from polygon_split_at_reflex import SplitPolygonAtReflexVertex
 from polygon_area import PolygonArea
@@ -115,7 +115,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

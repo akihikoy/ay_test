@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_com2.py
 #\brief   Improved version of polygon centroid.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -75,10 +75,10 @@ if __name__=='__main__':
   center2= PolygonCentroid2(polygon)
   t2= (time.time()-t0)*1e3
 
-  print '# of polygon points: {}'.format(len(polygon))
-  print 'Center: {}: {}'.format('PolygonCentroid1', center1)
-  print 'Center: {}: {}'.format('PolygonCentroid2', center2)
-  print 'Diff: {}'.format(np.abs(center1-center2))
-  print 'Time: {}: {} ms'.format('PolygonCentroid1', t1)
-  print 'Time: {}: {} ms'.format('PolygonCentroid2', t2)
+  print('# of polygon points: {}'.format(len(polygon)))
+  print('Center: {}: {}'.format('PolygonCentroid1', center1))
+  print('Center: {}: {}'.format('PolygonCentroid2', center2))
+  print('Diff: {}'.format(np.abs(center1-center2)))
+  print('Time: {}: {} ms'.format('PolygonCentroid1', t1))
+  print('Time: {}: {} ms'.format('PolygonCentroid2', t2))
 

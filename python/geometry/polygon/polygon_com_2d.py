@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_com_2d.py
 #\brief   Polygon centroid in 2D.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -51,10 +51,10 @@ if __name__=='__main__':
   center2d= PolygonCentroid2D(polygon_2d)
   t2d= (time.time()-t0)*1e3
 
-  print '# of polygon points: {}'.format(len(polygon_3d))
-  print 'Center: {}: {}'.format('PolygonCentroid3D', center3d)
-  print 'Center: {}: {}'.format('PolygonCentroid2D', center2d)
-  print 'Diff: {}'.format(np.abs(center3d[:2]-center2d))
-  print 'Time: {}: {} ms'.format('PolygonCentroid3D', t3d)
-  print 'Time: {}: {} ms'.format('PolygonCentroid2D', t2d)
+  print('# of polygon points: {}'.format(len(polygon_3d)))
+  print('Center: {}: {}'.format('PolygonCentroid3D', center3d))
+  print('Center: {}: {}'.format('PolygonCentroid2D', center2d))
+  print('Diff: {}'.format(np.abs(center3d[:2]-center2d)))
+  print('Time: {}: {} ms'.format('PolygonCentroid3D', t3d))
+  print('Time: {}: {} ms'.format('PolygonCentroid2D', t2d))
 

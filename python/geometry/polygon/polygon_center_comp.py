@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_center_comp.py
 #\brief   Comparison of polygon center estimation.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -62,7 +62,7 @@ if __name__=='__main__':
   for method in ('Mean','Median','MinAreaRect','PCA','CoM'):
     t0= time.time()
     center= eval('PolygonCenter_{}(polygon)'.format(method))
-    print 'Time: {}: {} ms'.format(method,(time.time()-t0)*1e3)
+    print('Time: {}: {} ms'.format(method,(time.time()-t0)*1e3))
     ax.scatter(*center, label=method, marker=markers[sum(ord(s) for s in method)%len(markers)], s=64)
   ax.set_xlabel('x')
   ax.set_ylabel('y')

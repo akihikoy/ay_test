@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_decomposition.py
 #\brief   Test code of polygon decomposition by Mark Keil's algorithm.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jul.30, 2023
-from __future__ import print_function
+
 from polygon_is_clockwise2 import PolygonIsClockwise
 from polygon_visible_vert import GetVisibleVerticesFromVertex
 from polygon_is_reflex_vertex import PolygonIsReflexVertex
@@ -119,7 +119,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

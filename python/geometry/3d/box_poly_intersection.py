@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    box_poly_intersection.py
 #\brief   Get an intersection polygon between a box and a polygon on a plane.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,11 +23,11 @@ if __name__=='__main__':
 
   x_poly= np.random.uniform(-1,1,3).tolist() + QFromAxisAngle(np.random.uniform(0,1,3),np.random.uniform(-np.pi,np.pi)).tolist()
   l_points2d_poly= Generate2DPoly([-1,-1],[1,1])
-  points2d_poly= map(lambda l_p: Transform(x_poly,list(l_p)+[0]), l_points2d_poly)
+  points2d_poly= [Transform(x_poly,list(l_p)+[0]) for l_p in l_points2d_poly]
 
   l_p_intersect= BoxPolyIntersection([W,D,H], x_box, x_poly, l_points2d_poly)
-  print 'l_p_intersect:',l_p_intersect
-  p_intersect= map(lambda l_p: Transform(x_poly,list(l_p)+[0]), l_p_intersect)
+  print('l_p_intersect:',l_p_intersect)
+  p_intersect= [Transform(x_poly,list(l_p)+[0]) for l_p in l_p_intersect]
 
   fig= pyplot.figure()
   ax= fig.add_subplot(111, projection='3d')

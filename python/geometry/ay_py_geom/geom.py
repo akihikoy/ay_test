@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #Basic tools (geometry).
 import numpy as np
 import numpy.linalg as la
 import math
-from util import *
-import _rostf
+from .util import *
+from . import _rostf
 
 #Convert radian to [-pi,pi)
 def AngleMod1(q):
@@ -19,14 +19,14 @@ def DegToRad(q):
   if type(q) in (float,int):
     return conv(q)
   else:
-    return map(conv, q)
+    return list(map(conv, q))
 
 def RadToDeg(q):
   conv= lambda x: float(x)/math.pi*180.0
   if type(q) in (float,int):
     return conv(q)
   else:
-    return map(conv, q)
+    return list(map(conv, q))
 
 #Displacement of two angles (angle2-angle1), whose absolute value is less than pi
 def AngleDisplacement(angle1, angle2):
@@ -41,7 +41,7 @@ def AngleDisplacement(angle1, angle2):
 
 #Check if an angle is between [a_range[0],a_range[1]]
 def IsAngleIn(angle, a_range):
-  a_range= map(AngleMod1,a_range)
+  a_range= list(map(AngleMod1,a_range))
   if a_range[0]<a_range[1]:
     if a_range[1]-a_range[0]>math.pi:  return angle<=a_range[0] or  a_range[1]<=angle
     else:                              return a_range[0]<=angle and angle<=a_range[1]

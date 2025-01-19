@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    contours_to_mountains1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -147,7 +147,7 @@ def WriteContoursStructure(file_name, contours, vertices=None, valleys=None):
       for subcontour in subcontours:
         fp.write(' <@{idx} {l}pts {size[0]}x{size[1]}>'.format(idx=subcontour.idx, l=len(subcontour.points), size=np.max(subcontour.points,0)-np.min(subcontour.points,0)) )
       fp.write('\n')
-    subcontours_to_str= lambda subcontours: ' '.join(map(lambda c:'@{0}'.format(c.idx),subcontours))
+    subcontours_to_str= lambda subcontours: ' '.join(['@{0}'.format(c.idx) for c in subcontours])
     if vertices:
       fp.write('#vertices= {0}\n'.format(subcontours_to_str(vertices)) )
       fp.write('#mountains= \n')
@@ -195,34 +195,34 @@ def WriteMountainContours(file_name, vertices):
 
 if __name__=='__main__':
   import pickle
-  cv_contours= pickle.load(open('data/mlcontours1.dat','rb'))
-  #cv_contours= pickle.load(open('data/mlcontours2.dat','rb'))
-  #cv_contours= pickle.load(open('data/mlcontours2a.dat','rb'))
+  cv_contours= pickle.load(open('data/mlcontours1.dat','rb'), encoding='latin1')
+  #cv_contours= pickle.load(open('data/mlcontours2.dat','rb'), encoding='latin1')
+  #cv_contours= pickle.load(open('data/mlcontours2a.dat','rb'), encoding='latin1')
   contours= LoadFromCVMultilevelContours(cv_contours)
 
   #Print structure of contours:
-  print '# Original:'
+  print('# Original:')
   WriteContoursStructure('/dev/stdout', contours)
   #Write for plot:
   WriteMultilevelContours('/tmp/contours0.dat', contours)
 
   #Filtering contours:
   contours= FilterContours(contours, 60, 60)
-  print '# Filtered:'
+  print('# Filtered:')
   WriteContoursStructure('/dev/stdout', contours)
   WriteMultilevelContours('/tmp/contours1.dat', contours)
-  print '# Contours: Plot by:'
+  print('# Contours: Plot by:')
   level_min= min(contours[0][0].level,contours[-1][0].level)
   level_max= max(contours[0][0].level,contours[-1][0].level)
   ps_per_lv= 3.9/(level_max-level_min)
-  print '# Original and filtered contours:'
-  print '''qplot -x /tmp/contours0.dat w l /tmp/contours1.dat w l lw 2 '''
-  print '# Filtered contours with variable-size points (ps=level):'
-  print '''qplot -x /tmp/contours1.dat u 1:2:'(0.1+{ps_per_lv}*($3-{level_min}))' w p pt 6 ps variable '''.format(ps_per_lv=ps_per_lv,level_min=level_min)
-  print '# Filtered contours with lines (line color per level):'
-  print '''bash -c 'p=""; for i in `seq 0 {nc}`;do p="$p /tmp/contours1.dat index $i w l";done; qplot -x $p' '''.format(nc=len(contours)-1)
-  print '# Filtered contours with variable-size points (ps=level; point color per level):'
-  print '''bash -c 'p=""; for i in `seq {nc} -1 0`;do p="$p /tmp/contours1.dat index $i u 1:2:(0.1+{ps_per_lv}*(\$3-{level_min})) w p pt 6 ps variable";done; qplot -x $p' '''.format(nc=len(contours)-1,ps_per_lv=ps_per_lv,level_min=level_min)
+  print('# Original and filtered contours:')
+  print('''qplot -x /tmp/contours0.dat w l /tmp/contours1.dat w l lw 2 ''')
+  print('# Filtered contours with variable-size points (ps=level):')
+  print('''qplot -x /tmp/contours1.dat u 1:2:'(0.1+{ps_per_lv}*($3-{level_min}))' w p pt 6 ps variable '''.format(ps_per_lv=ps_per_lv,level_min=level_min))
+  print('# Filtered contours with lines (line color per level):')
+  print('''bash -c 'p=""; for i in `seq 0 {nc}`;do p="$p /tmp/contours1.dat index $i w l";done; qplot -x $p' '''.format(nc=len(contours)-1))
+  print('# Filtered contours with variable-size points (ps=level; point color per level):')
+  print('''bash -c 'p=""; for i in `seq {nc} -1 0`;do p="$p /tmp/contours1.dat index $i u 1:2:(0.1+{ps_per_lv}*(\$3-{level_min})) w p pt 6 ps variable";done; qplot -x $p' '''.format(nc=len(contours)-1,ps_per_lv=ps_per_lv,level_min=level_min))
 
   #Analyzing the hierarchical structure.
   AnalyzeContoursHierarchy(contours)
@@ -231,16 +231,16 @@ if __name__=='__main__':
 
   #Write hierarchical structure.
   WriteMountainContours('/tmp/m_contours.dat', vertices)
-  print '# Mountain contours: Plot by:'
+  print('# Mountain contours: Plot by:')
   level_min= min(contours[0][0].level,contours[-1][0].level)
   level_max= max(contours[0][0].level,contours[-1][0].level)
   ps_per_lv= 3.9/(level_max-level_min)
-  print '# 0th Mountain contours with variable-size points (ps=level):'
-  print '''qplot -x /tmp/m_contours.dat u 1:2:'(0.1+{ps_per_lv}*($3-{level_min}))' index 0 w p pt 6 ps variable '''.format(ps_per_lv=ps_per_lv,level_min=level_min)
-  print '# Mountain contours with lines (line color per mountain):'
-  print '''bash -c 'p=""; for i in `seq 0 {nv}`;do p="$p /tmp/m_contours.dat index $i w l";done; qplot -x $p' '''.format(nv=len(vertices)-1)
-  print '# Mountain contours with variable-size points (ps=level; point color per mountain):'
-  print '''bash -c 'p=""; for i in `seq 0 {nv}`;do p="$p /tmp/m_contours.dat u 1:2:(0.1+{ps_per_lv}*(\$3-{level_min})) index $i w p pt 6 ps variable";done; qplot -x $p' '''.format(nv=len(vertices)-1,ps_per_lv=ps_per_lv,level_min=level_min)
-  print '# i-th mountain contours (line color per level):'
-  print '''bash -c 'i=0; p=""; for e in `seq 0 60`;do p="$p /tmp/m_contours.dat index $i ev :::$e::$e w l";done; qplot -x $p' '''
+  print('# 0th Mountain contours with variable-size points (ps=level):')
+  print('''qplot -x /tmp/m_contours.dat u 1:2:'(0.1+{ps_per_lv}*($3-{level_min}))' index 0 w p pt 6 ps variable '''.format(ps_per_lv=ps_per_lv,level_min=level_min))
+  print('# Mountain contours with lines (line color per mountain):')
+  print('''bash -c 'p=""; for i in `seq 0 {nv}`;do p="$p /tmp/m_contours.dat index $i w l";done; qplot -x $p' '''.format(nv=len(vertices)-1))
+  print('# Mountain contours with variable-size points (ps=level; point color per mountain):')
+  print('''bash -c 'p=""; for i in `seq 0 {nv}`;do p="$p /tmp/m_contours.dat u 1:2:(0.1+{ps_per_lv}*(\$3-{level_min})) index $i w p pt 6 ps variable";done; qplot -x $p' '''.format(nv=len(vertices)-1,ps_per_lv=ps_per_lv,level_min=level_min))
+  print('# i-th mountain contours (line color per level):')
+  print('''bash -c 'i=0; p=""; for e in `seq 0 60`;do p="$p /tmp/m_contours.dat index $i ev :::$e::$e w l";done; qplot -x $p' ''')
 

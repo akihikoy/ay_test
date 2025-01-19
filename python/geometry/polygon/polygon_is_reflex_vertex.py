@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_is_reflex_vertex.py
 #\brief   Check if a vertex is reflex vertex (angle>180).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jul.30, 2023
-from __future__ import print_function
+
 import numpy as np
 from polygon_is_clockwise2 import PolygonIsClockwise
 from polygon_visible_vert import GetVisibleVerticesFromVertex
@@ -44,7 +44,7 @@ def Main():
       print('i_point={}: IsReflexVertex={}'.format(i_point,True))
       point= polygons[i_poly][i_point]
       visibility= GetVisibleVerticesFromVertex(polygons[i_poly], i_point)
-      print('--visible vertices=',np.array(range(len(polygons[i_poly])))[visibility])
+      print('--visible vertices=',np.array(list(range(len(polygons[i_poly]))))[visibility])
       reflex_vertices.append((i_point,point,visibility))
   print('reflex_vertices=',[i_point for i_point,point,visibility in reflex_vertices])
 
@@ -89,7 +89,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

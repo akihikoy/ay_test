@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #import tf
-import rostf
+import _rostf as rostf
 import math
 import numpy as np
 import numpy.linalg as la
@@ -91,15 +91,15 @@ if __name__=='__main__':
   q= QFromAxisAngle([rand1() for d in range(3)], math.pi*rand1())
   #q= [0.05240207810290061, -0.620853105352924, -0.6535491923757895, 0.4297311914779772]
   q= np.array(q)
-  print 'q=',q
-  print 'la.norm(q)=',la.norm(q)
-  print 'ROSQToRot(q)=',ROSQToRot(q)
-  print 'ROSQToRot(-q)=',ROSQToRot(-q)
-  print 'ROSRotToQ(ROSQToRot(q))=',ROSRotToQ(ROSQToRot(q))
-  print 'QToRot(q)=',QToRot(q)
-  print 'QToRot(-q)=',QToRot(-q)
-  print 'RotToQ(QToRot(q))=',RotToQ(QToRot(q))
+  print('q=',q)
+  print('la.norm(q)=',la.norm(q))
+  print('ROSQToRot(q)=',ROSQToRot(q))
+  print('ROSQToRot(-q)=',ROSQToRot(-q))
+  print('ROSRotToQ(ROSQToRot(q))=',ROSRotToQ(ROSQToRot(q)))
+  print('QToRot(q)=',QToRot(q))
+  print('QToRot(-q)=',QToRot(-q))
+  print('RotToQ(QToRot(q))=',RotToQ(QToRot(q)))
 
-  print 'ROSQToRot(q)==QToRot(q)?', np.allclose(ROSQToRot(q),QToRot(q))
-  print 'ROSQToRot(-q)==QToRot(-q)?', np.allclose(ROSQToRot(-q),QToRot(-q))
-  print 'ROSRotToQ(ROSQToRot(q))==RotToQ(QToRot(q))?', np.allclose(ROSRotToQ(ROSQToRot(q)),RotToQ(QToRot(q)))
+  print('ROSQToRot(q)==QToRot(q)?', np.allclose(ROSQToRot(q),QToRot(q)))
+  print('ROSQToRot(-q)==QToRot(-q)?', np.allclose(ROSQToRot(-q),QToRot(-q)))
+  print('ROSRotToQ(ROSQToRot(q))==RotToQ(QToRot(q))?', np.allclose(ROSRotToQ(ROSQToRot(q)),RotToQ(QToRot(q))))

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
 import numpy.linalg as la
 import math
@@ -107,12 +107,12 @@ def QuaternionFromMatrix(matrix):
   return q
 
 if __name__=='__main__':
-  fp= file('/tmp/quaternion.dat','w')
+  fp= open('/tmp/quaternion.dat','w')
   R1= Rodrigues(np.array([0.1,-0.5,-0.5]))
   R2= Rodrigues(np.array([1.0,0.5,0.5]))
-  print 'R1=',R1
+  print('R1=',R1)
   fp.write(' '.join(map(str,QuaternionFromMatrix(R1)))+'\n')
-  print '------------'
+  print('------------')
   #print np.dot(R1.T,R1)
   #print np.dot(R2.T,R2)
   trans_R= np.dot(R2,R1.T)
@@ -121,9 +121,9 @@ if __name__=='__main__':
   N= 10
   for t in range(N):
     R= np.dot(Rodrigues(float(t+1)/float(N)*w),R1)
-    print R
+    print(R)
     fp.write(' '.join(map(str,QuaternionFromMatrix(R)))+'\n')
-  print '------------'
-  print 'R2=',R2
+  print('------------')
+  print('R2=',R2)
   fp.write(' '.join(map(str,QuaternionFromMatrix(R2)))+'\n')
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from numpy import *
 import math
 import bound_box1.qhull_2d as qhull_2d
@@ -15,7 +15,7 @@ class TPolygonBoundBox2D:
     self.Angle, self.Area, self.Width, self.Height, self.Center, self.CornerPoints= min_bounding_rect.minBoundingRect(self.HullPoints)
 
 if __name__=='__main__':
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
 
   from gen_data import *
   #points= To2d(Gen3d_01())
@@ -26,33 +26,33 @@ if __name__=='__main__':
 
   bb= TPolygonBoundBox2D(points)
 
-  print 'Convex hull points: \n', bb.HullPoints, "\n"
-  print "Minimum area bounding box:"
-  print "  Rotation angle:", bb.Angle, "rad  (", bb.Angle*(180/math.pi), "deg )"
-  print "  Width:", bb.Width, " Height:", bb.Height, "  Area:", bb.Area
-  print "  Center point: \n", bb.Center
-  print "  Corner points: \n", bb.CornerPoints
+  print('Convex hull points: \n', bb.HullPoints, "\n")
+  print("Minimum area bounding box:")
+  print("  Rotation angle:", bb.Angle, "rad  (", bb.Angle*(180/math.pi), "deg )")
+  print("  Width:", bb.Width, " Height:", bb.Height, "  Area:", bb.Area)
+  print("  Center point: \n", bb.Center)
+  print("  Corner points: \n", bb.CornerPoints)
 
-  fp= file('/tmp/orig.dat','w')
+  fp= open('/tmp/orig.dat','w')
   for p in points:
     fp.write(' '.join(map(str,p))+'\n')
   fp.close()
 
-  fp= file('/tmp/qhull.dat','w')
+  fp= open('/tmp/qhull.dat','w')
   for p in bb.HullPoints:
     fp.write(' '.join(map(str,p))+'\n')
   fp.write(' '.join(map(str,bb.HullPoints[0]))+'\n')
   fp.close()
 
-  fp= file('/tmp/corner.dat','w')
+  fp= open('/tmp/corner.dat','w')
   for p in bb.CornerPoints:
     fp.write(' '.join(map(str,p))+'\n')
   fp.write(' '.join(map(str,bb.CornerPoints[0]))+'\n')
   fp.close()
 
-  fp= file('/tmp/center.dat','w')
+  fp= open('/tmp/center.dat','w')
   fp.write(' '.join(map(str,bb.Center))+'\n')
   fp.close()
 
-  print 'Plot by'
-  print "qplot -x -s 'set size ratio -1' /tmp/orig.dat w l /tmp/qhull.dat w l /tmp/corner.dat w l /tmp/center.dat w p pt 6 ps 2"
+  print('Plot by')
+  print("qplot -x -s 'set size ratio -1' /tmp/orig.dat w l /tmp/qhull.dat w l /tmp/corner.dat w l /tmp/center.dat w p pt 6 ps 2")

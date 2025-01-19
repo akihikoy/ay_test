@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ellipse_fit_a1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -12,7 +12,7 @@ from ellipse_fit1 import EllipseFit2D
 #from ellipse_fit5 import EllipseFit2D
 #from ellipse_fit6 import EllipseFit2D
 #from ellipse_fit7 import EllipseFit2D
-#from weighted_ellipse_fit2 import SampleWeightedEllipseFit2D
+from weighted_ellipse_fit2 import SampleWeightedEllipseFit2D
 
 if __name__=='__main__':
   #XY= [[422.84861231767934, 183.35433718765748], [432.42098791122203, 185.66463484510922], [448.80873543846809, 198.35756013846091], [462.41213465470298, 213.99776957705564], [465.26249879343175, 223.42344059012029], [455.69012319988906, 221.11314293266855], [439.302375672643, 208.42021763931686], [425.69897645640816, 192.78000820072214], [413.36813181074763, 182.20417128937467], [429.19778386994096, 178.49865945853901], [453.73091707592442, 189.37350645742433], [472.59635472413851, 208.45837440281599], [474.74297930036346, 224.5736064884031], [458.91332724117012, 228.27911831923876], [434.38019403518666, 217.40427132035344], [415.51475638697258, 198.31940337496178], [396.04237982107253, 168.20574039810251], [420.03259937610784, 164.96296341337927], [458.09514085276896, 184.22957242547176], [487.93348367241646, 214.71944917603588], [492.06873129003856, 238.57203737967527], [468.07851173500325, 241.8148143643985], [430.01597025834212, 222.54820535230601], [400.17762743869463, 192.05832860174189]]
@@ -23,13 +23,13 @@ if __name__=='__main__':
 
   #c,r1,r2,angle= EllipseFit2D(XY)
   c,r1,r2,angle= SampleWeightedEllipseFit2D(XY,[1.0]*len(XY))
-  print 'estimated:',c,r1,r2,angle
+  print('estimated:',c,r1,r2,angle)
   with open('/tmp/fit.dat','w') as fp:
     for th in np.linspace(0, 2*np.pi, 1000):
       x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th)
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
 
-  print '#Plot by:'
-  print '''qplot -x /tmp/data.dat /tmp/fit.dat w l'''
+  print('#Plot by:')
+  print('''qplot -x /tmp/data.dat /tmp/fit.dat w l''')
 

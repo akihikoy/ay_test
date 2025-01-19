@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    plot_cube2.py
 #\brief   Plot oriented cube.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -18,7 +18,7 @@ def PlotCube(ax, cube, x_cube, col=['cyan','r']):
                 [ W*0.5, -D*0.5,  H*0.5 ],
                 [ W*0.5,  D*0.5,  H*0.5],
                 [-W*0.5,  D*0.5,  H*0.5]]
-  cube_points= np.array(map(lambda p: Transform(x_cube,p), cube_points))
+  cube_points= np.array([Transform(x_cube,p) for p in cube_points])
   plot_cube.PlotCube(ax, cube_points, col)
 
 

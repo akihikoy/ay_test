@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    plan_2d_feat.py
 #\brief   Convert grasp surface polygon to feature vector for learning.
 #         No spline version.
@@ -19,7 +19,7 @@ def PolygonToSurfaceFeat(polygon, w_finger, num=9):
     xmin= np.min(points,axis=0)[0]
     xmax= np.max(points,axis=0)[0]
     feat= []
-    segments= zip(points,points[1:]+[points[0]])
+    segments= list(zip(points,points[1:]+[points[0]]))
     for x in np.mgrid[-0.499*w_finger[0]:0.499*w_finger[0]:num*1j]:
       if x<xmin or x>xmax:  feat.append([x,-0.1 if is_upper else 0.1])
       else:
@@ -77,11 +77,11 @@ def Main():
   with open('/tmp/polygons.dat','w') as fp:
     write_polygon(fp,polygon)
   with open('/tmp/feat.dat','w') as fp:
-    write_polygon(fp,feat[:len(feat)/2],False)
-    write_polygon(fp,feat[len(feat)/2:],False)
+    write_polygon(fp,feat[:len(feat)//2],False)
+    write_polygon(fp,feat[len(feat)//2:],False)
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -97,13 +97,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

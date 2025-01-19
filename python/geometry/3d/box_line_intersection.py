@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    box_line_intersection.py
 #\brief   Get an intersection part of a 3D oriented box and a line segment.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -42,7 +42,7 @@ if __name__=='__main__':
   p2= np.random.uniform(-1,1,3)
 
   pi1,pi2= BoxLineIntersection([W,D,H], x_box, p1, p2)
-  print 'Intersection line segment:',pi1,pi2
+  print('Intersection line segment:',pi1,pi2)
 
   fig= pyplot.figure()
   ax= fig.add_subplot(111, projection='3d')

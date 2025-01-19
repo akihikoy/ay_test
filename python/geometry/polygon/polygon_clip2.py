@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_clip2.py
 #\brief   Test ClipPolygon(2).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,12 +15,12 @@ def Main():
 
   polygon2= ClipPolygon(polygon, rect)
 
-  print '''Areas:
+  print('''Areas:
     polygon: {0}
     rect: {1}
     polygon2: {2}
     polygon2-rect: {3}
-    '''.format(PolygonArea(polygon),PolygonArea(rect),PolygonArea(polygon2),PolygonArea(polygon2)-PolygonArea(rect))
+    '''.format(PolygonArea(polygon),PolygonArea(rect),PolygonArea(polygon2),PolygonArea(polygon2)-PolygonArea(rect)))
 
   def save_poly(poly,name):
     fp= open('/tmp/'+name,'w')
@@ -35,7 +35,7 @@ def Main():
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -49,13 +49,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

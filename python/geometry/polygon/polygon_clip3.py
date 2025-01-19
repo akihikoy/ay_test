@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_clip3.py
 #\brief   Refactored version of ClipPolygon: extracted some subroutines;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -75,7 +75,7 @@ def Main():
             #[100, 200]]
   polygon= []
   N= 100
-  for i in xrange(N):
+  for i in range(N):
     th= (float(i)+Rand(-0.4,0.4))*2.0*math.pi/float(N)
     r= Rand(1.0, 100.0)
     x= r*math.cos(th)
@@ -120,7 +120,7 @@ def Main():
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -134,13 +134,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

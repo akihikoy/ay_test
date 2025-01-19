@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import yaml
 import math,random
 import numpy as np
@@ -6,11 +6,11 @@ import numpy.linalg as la
 from pca2 import TPCA
 
 def Gen3d_01():
-  points= yaml.load(file('../data/polygon.yaml').read())['polygon']
+  points= yaml.load(open('../data/polygon.yaml').read(),Loader=yaml.SafeLoader)['polygon']
   return points
 
 def Gen3d_02():
-  points= yaml.load(file('../data/polygon2.yaml').read())['polygon']
+  points= yaml.load(open('../data/polygon2.yaml').read(),Loader=yaml.SafeLoader)['polygon']
   return points
 
 def Gen3d_11():
@@ -80,14 +80,14 @@ if __name__=='__main__':
   #points= To2d(Gen3d_12())
   #points= To2d(Gen3d_13())
 
-  fp= file('/tmp/orig.dat','w')
+  fp= open('/tmp/orig.dat','w')
   for p in points:
     fp.write(' '.join(map(str,p))+'\n')
   fp.close()
 
-  print 'Plot by'
+  print('Plot by')
   if len(points[0])==2:
-    print "qplot -x /tmp/orig.dat w l"
+    print("qplot -x /tmp/orig.dat w l")
   elif len(points[0])==3:
-    print "qplot -x -3d -s 'set ticslevel 0' /tmp/orig.dat w l"
+    print("qplot -x -3d -s 'set ticslevel 0' /tmp/orig.dat w l")
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_convex_ratio.py
 #\brief   Calculate the convex ratio: index to evaluate how a given polygon is close to convex.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -34,7 +34,7 @@ def Main():
 
   polygon= polygons[np.random.choice(list(range(len(polygons))))]
   print('##########################')
-  print('ConvexRatio= {}'.format(ConvexRatio(polygon)))
+  print(('ConvexRatio= {}'.format(ConvexRatio(polygon))))
   print('##########################')
 
   def write_polygon(fp,polygon):
@@ -61,13 +61,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print('###',cmd)
+      print(('###',cmd))
       os.system(cmd)
 
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

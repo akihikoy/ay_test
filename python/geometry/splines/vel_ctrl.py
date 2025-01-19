@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
 import numpy.linalg as la
 
@@ -87,7 +87,7 @@ def ModifyTrajVelocityV(t0, v, traj, time_step, T, num_iter_l=50, num_iter_e=6):
 
 
 if __name__=='__main__':
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
   from cubic_hermite_spline import TCubicHermiteSpline
   import gen_data
   import math
@@ -100,14 +100,14 @@ if __name__=='__main__':
   spline.Initialize(data, tan_method=spline.CARDINAL, c=0.0)
   dt= 0.005
 
-  pf= file('/tmp/spline1.dat','w')
+  pf= open('/tmp/spline1.dat','w')
   t= data[0][0]
   while t<data[-1][0]:
     pf.write('%f %f\n' % (t, spline.Evaluate(t)))
     t+= dt
-  print 'Generated:','/tmp/spline1.dat'
+  print('Generated:','/tmp/spline1.dat')
 
-  pf= file('/tmp/spline2.dat','w')
+  pf= open('/tmp/spline2.dat','w')
   t= data[0][0]
   ti= data[0][0]  #Internal time
   T= data[-1][0]  #Length
@@ -118,13 +118,13 @@ if __name__=='__main__':
     ti,x,v= ModifyTrajVelocity(ti, v_trg, lambda s:spline.Evaluate(s), dt, T)
     pf.write('%f %f %f %f\n' % (t, x, v, v_trg))
     t+= dt
-  print 'Generated:','/tmp/spline2.dat'
+  print('Generated:','/tmp/spline2.dat')
 
-  pf= file('/tmp/spline0.dat','w')
+  pf= open('/tmp/spline0.dat','w')
   for d in data:
     pf.write('%f %f\n' % (d[0],d[1]))
-  print 'Generated:','/tmp/spline0.dat'
+  print('Generated:','/tmp/spline0.dat')
 
 
-  print 'Plot by:'
-  print 'qplot -x /tmp/spline1.dat w l /tmp/spline0.dat w p pt 5 ps 2 /tmp/spline2.dat w l /tmp/spline2.dat u 1:4 w l /tmp/spline2.dat u 1:3 w lp'
+  print('Plot by:')
+  print('qplot -x /tmp/spline1.dat w l /tmp/spline0.dat w p pt 5 ps 2 /tmp/spline2.dat w l /tmp/spline2.dat u 1:4 w l /tmp/spline2.dat u 1:3 w lp')

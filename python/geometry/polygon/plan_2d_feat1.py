@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    plan_2d_feat.py
 #\brief   Convert grasp surface polygon to feature vector for learning.
 #         Spline-based approach.
@@ -35,13 +35,13 @@ def Main():
     keypoints2.append([+0.501*w_finger[0],y_mean])
     return keypoints2
 
-  keypoints1= filter(lambda p:p[1]>y_mean,polygon)
+  keypoints1= [p for p in polygon if p[1]>y_mean]
   keypoints1= arrange_kp(keypoints1)
   spline1= TCubicHermiteSpline()
   spline1.Initialize(keypoints1, tan_method=spline1.CARDINAL, c=1.0)
   feat1= [[x,spline1.Evaluate(x)] for x in np.mgrid[-0.499*w_finger[0]:0.499*w_finger[0]:9j]]
 
-  keypoints2= filter(lambda p:p[1]<y_mean,polygon)
+  keypoints2= [p for p in polygon if p[1]<y_mean]
   keypoints2= arrange_kp(keypoints2)
   spline2= TCubicHermiteSpline()
   spline2.Initialize(keypoints2, tan_method=spline2.CARDINAL, c=1.0)
@@ -67,7 +67,7 @@ def Main():
   fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -81,13 +81,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

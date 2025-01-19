@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_divide_by_area.py
 #\brief   Divide a (convex) polygon so that each sub-polygon has the same area.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Aug.01, 2023
-from __future__ import print_function
+
 from polygon_min_area_rect import MinAreaRect
 from polygon_split_by_line import SplitPolygonByInfLine
 from polygon_point_in_out import PointInPolygon2D
@@ -139,7 +139,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

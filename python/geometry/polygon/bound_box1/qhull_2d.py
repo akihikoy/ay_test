@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Compute the convex hull of a set of 2D points
 # A Python implementation of the qhull algorithm
@@ -25,17 +25,25 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from __future__ import division
+
+from __future__ import print_function
 from numpy import *
+import sys
 
 link = lambda a,b: concatenate((a,b[1:]))
 edge = lambda a,b: concatenate(([a],[b]))
+#link = lambda a, b: concatenate((a, b[1:]), axis=0)
+#edge = lambda a, b: array([a, b])
 
 def qhull2D(sample):
+    EPS = 1.0e-14
+    sample = asarray(sample)
     def dome(sample,base):
         h, t = base
         dists = dot(sample-h, dot(((0,-1),(1,0)),(t-h)))
-        outer = repeat(sample, dists>0, 0)
+        #outer = repeat(sample, dists>0, 0)
+        #outer = sample[dists > 0]
+        outer = sample[dists > EPS]
         if len(outer):
             pivot = sample[argmax(dists)]
             return link(dome(outer, edge(h, pivot)),

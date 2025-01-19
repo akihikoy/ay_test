@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Test program to find minimum-area bounding rectangle
 #
@@ -65,13 +65,13 @@ if __name__ == "__main__":
     # Reverse order of points, to match output from other qhull implementations
     hull_points = hull_points[::-1]
 
-    print 'Convex hull points: \n', hull_points, "\n"
+    print('Convex hull points: \n', hull_points, "\n")
 
     # Find minimum area bounding rectangle
     (rot_angle, area, width, height, center_point, corner_points) = minBoundingRect(hull_points)
 
-    print "Minimum area bounding box:"
-    print "Rotation angle:", rot_angle, "rad  (", rot_angle*(180/math.pi), "deg )"
-    print "Width:", width, " Height:", height, "  Area:", area
-    print "Center point: \n", center_point # numpy array
-    print "Corner points: \n", corner_points, "\n"  # numpy array
+    print("Minimum area bounding box:")
+    print("Rotation angle:", rot_angle, "rad  (", rot_angle*(180/math.pi), "deg )")
+    print("Width:", width, " Height:", height, "  Area:", area)
+    print("Center point: \n", center_point) # numpy array
+    print("Corner points: \n", corner_points, "\n")  # numpy array

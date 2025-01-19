@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ellipse_fit1.py
 #\brief   Fitting 2d points with ellipse.
 #         Geometric fitting with SVD.
@@ -26,7 +26,7 @@ if __name__=='__main__':
   c= [-9.99,2.3]
   r1,r2= 0.8,0.5
   angle= np.pi/3.0
-  print 'ground-truth:',c,r1,r2,angle
+  print('ground-truth:',c,r1,r2,angle)
   XY=[]
   with open('/tmp/data.dat','w') as fp:
     #for th in np.linspace(0.0,2.0*np.pi,50):
@@ -48,12 +48,12 @@ if __name__=='__main__':
       #fp.write('%f %f\n'%(x,y))
 
   c,r1,r2,angle= EllipseFit2D(XY)
-  print 'estimated:',c,r1,r2,angle
+  print('estimated:',c,r1,r2,angle)
   with open('/tmp/fit.dat','w') as fp:
     for th in np.linspace(0, 2*np.pi, 1000):
       x= c[0] + r1*np.cos(angle)*np.cos(th) - r2*np.sin(angle)*np.sin(th)
       y= c[1] + r1*np.sin(angle)*np.cos(th) + r2*np.cos(angle)*np.sin(th)
       fp.write('%f %f\n'%(x,y))
 
-  print '#Plot by:'
-  print '''qplot -x /tmp/data.dat /tmp/fit.dat w l'''
+  print('#Plot by:')
+  print('''qplot -x /tmp/data.dat /tmp/fit.dat w l''')

@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_split_by_line.py
 #\brief   Split a polygon by a line.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jul.31, 2023
-from __future__ import print_function
+
 import numpy as np
 from polygon_line_intersect import InfLinePolygonIntersection
 
@@ -18,7 +18,7 @@ def SplitPolygonByInfLine(p1, dp1, points):
   points= list(points)
   rs_list= InfLinePolygonIntersection(p1, dp1, points, return_rs=True, keep_none=True)
   r_list= [rs if rs is None else rs[0] for rs in rs_list]
-  num_intersect= len(filter(None,r_list))
+  num_intersect= len([_f for _f in r_list if _f])
   if num_intersect<2:  return [points]
   r_list= np.array(r_list)
   r_list[r_list==None]= np.nan
@@ -94,7 +94,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

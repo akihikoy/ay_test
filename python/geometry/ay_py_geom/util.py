@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #Basic tools (utility).
 import numpy as np
 import numpy.linalg as la
@@ -7,7 +7,7 @@ import os
 import sys
 import copy
 import threading
-import Queue  #For thread communication
+import queue  #For thread communication
 import time
 import datetime
 import random
@@ -96,7 +96,7 @@ def Norm(x):
 
 #Max norm of a vector x
 def MaxNorm(x):
-  return max(map(abs,x))
+  return max(list(map(abs,x)))
 
 
 #Return a normalized vector with L2 norm
@@ -342,7 +342,7 @@ def EstStrConvert(v_str):
   return v_str
 
 class Types:
-  stdprim= (int,long,float,bool,str)
+  stdprim= (int,int,float,bool,str)
   npbool= (np.bool_)
   npint= (np.int_, np.intc, np.intp, np.int8, np.int16, np.int32, np.int64)
   npuint= (np.uint8, np.uint16, np.uint32, np.uint64)
@@ -356,15 +356,15 @@ def ToStdType(x, except_cnv=lambda y:y):
   if isinstance(x, Types.npfloat):  return float(x)
   if isinstance(x, Types.stdprim):  return x
   if isinstance(x, np.ndarray):  return x.tolist()
-  if isinstance(x, (list,tuple,set)):  return map(lambda x2:ToStdType(x2,except_cnv), x)
-  if isinstance(x, dict):  return {ToStdType(k,except_cnv):ToStdType(v,except_cnv) for k,v in x.iteritems()}
+  if isinstance(x, (list,tuple,set)):  return [ToStdType(x2,except_cnv) for x2 in x]
+  if isinstance(x, dict):  return {ToStdType(k,except_cnv):ToStdType(v,except_cnv) for k,v in x.items()}
   try:
-    return {ToStdType(k,except_cnv):ToStdType(v,except_cnv) for k,v in x.__dict__.iteritems()}
+    return {ToStdType(k,except_cnv):ToStdType(v,except_cnv) for k,v in x.__dict__.items()}
   except AttributeError:
     return except_cnv(x)
     #pass
-  print 'Failed to convert:',x
-  print 'Type:',type(x)
+  print('Failed to convert:',x)
+  print('Type:',type(x))
   raise
 
 #Add a sub-dictionary with the key into a dictionary d
@@ -379,19 +379,19 @@ def AddSubDict(d,key):
 #c1,c2: internal variable (DO NOT USE)
 def PrintDict(d,max_level=-1,level=0,keyonly=False,col=None,c1='',c2=''):
   if col is not None:  c1,c2= ACol.I(col,None)
-  for k,v in d.iteritems():
+  for k,v in d.items():
     if type(v)==dict:
-      print '%s%s[%s]%s= ...' % ('  '*level, c1, str(k), c2)
+      print('%s%s[%s]%s= ...' % ('  '*level, c1, str(k), c2))
       if max_level<0 or level<max_level:
         PrintDict(v,max_level=max_level,level=level+1,keyonly=keyonly,col=None,c1=c1,c2=c2)
     elif keyonly:
-      print '%s%s[%s]%s= %s' % ('  '*level, c1, str(k), c2, type(v))
+      print('%s%s[%s]%s= %s' % ('  '*level, c1, str(k), c2, type(v)))
     else:
-      print '%s%s[%s]%s= %r' % ('  '*level, c1, str(k), c2, v)
+      print('%s%s[%s]%s= %r' % ('  '*level, c1, str(k), c2, v))
 
 #Insert a new dictionary to the base dictionary
 def InsertDict(d_base, d_new):
-  for k_new,v_new in d_new.iteritems():
+  for k_new,v_new in d_new.items():
     if k_new in d_base and (type(v_new)==dict and type(d_base[k_new])==dict):
       InsertDict(d_base[k_new], v_new)
     else:
@@ -488,8 +488,8 @@ def InsertYAML(d_base, file_name):
 #Another simple print function to be used as an action
 def Print(*s):
   for ss in s:
-    print ss,
-  print ''
+    print(ss, end=' ')
+  print('')
 
 #ASCII colors
 class ACol:
@@ -523,29 +523,29 @@ def CStr(col,*s):
 #Print with a color (col can be a code or an int)
 def CPrint(col,*s):
   if len(s)==0:
-    print ''
+    print('')
   else:
     c1,c2= ACol.I(col,None)
-    print c1+str(s[0]),
+    print(c1+str(s[0]), end=' ')
     for ss in s[1:]:
-      print ss,
-    print c2
+      print(ss, end=' ')
+    print(c2)
 
 #Print an exception with a good format
 def PrintException(e, msg=''):
   c1,c2,c3,ce= ACol.I(4,1,0,None)
-  print '%sException( %s%r %s)%s:' % (c1, c2,type(e), c1, msg)
-  print '%r' % (e)
+  print('%sException( %s%r %s)%s:' % (c1, c2,type(e), c1, msg))
+  print('%r' % (e))
   #print '  type: ',type(e)
   #print '  args: ',e.args
   #print '  message: ',e.message
   #print '  sys.exc_info(): ',sys.exc_info()
-  print '  %sTraceback: ' % (c3)
-  print '{'
+  print('  %sTraceback: ' % (c3))
+  print('{')
   traceback.print_tb(sys.exc_info()[2])
-  print '}'
-  print '%s# Exception( %s%r %s)%s:' % (c1, c2,type(e), c1, msg)
-  print '# %r%s' % (e, ce)
+  print('}')
+  print('%s# Exception( %s%r %s)%s:' % (c1, c2,type(e), c1, msg))
+  print('# %r%s' % (e, ce))
 
 #Container class that can hold any variables
 #ref. http://blog.beanz-net.jp/happy_programming/2008/11/python-5.html
@@ -559,15 +559,15 @@ class TContainerCore(object):
   def __repr__(self):
     return str(self.__dict__)
   def __iter__(self):
-    return self.__dict__.itervalues()
+    return iter(self.__dict__.values())
   def items(self):
-    return self.__dict__.items()
+    return list(self.__dict__.items())
   def iteritems(self):
-    return self.__dict__.iteritems()
+    return iter(self.__dict__.items())
   def keys(self):
-    return self.__dict__.keys()
+    return list(self.__dict__.keys())
   def values(self):
-    return self.__dict__.values()
+    return list(self.__dict__.values())
   def __getitem__(self,key):
     return self.__dict__[key]
   def __setitem__(self,key,value):
@@ -577,17 +577,17 @@ class TContainerCore(object):
   def __contains__(self,key):
     return key in self.__dict__
   def Cleanup(self):
-    keys= self.__dict__.keys()
+    keys= list(self.__dict__.keys())
     for k in keys:
       self.__dict__[k]= None
       del self.__dict__[k]
 class TContainerDebug(TContainerCore):
   def __init__(self):
     super(TContainerDebug,self).__init__()
-    print 'Created TContainer object',hex(id(self))
+    print('Created TContainer object',hex(id(self)))
   def __del__(self):
     super(TContainerDebug,self).__del__()
-    print 'Deleting TContainer object',hex(id(self))
+    print('Deleting TContainer object',hex(id(self)))
 '''Helper function to generate a container object.
   Note: the function name is like a class name;
     this is because originally TContainer was a class
@@ -690,10 +690,10 @@ class TThreadManager:
       self.thread_list[name].StopRequest()
 
   def StopAll(self):
-    for k in self.thread_list.keys():
-      print 'Stop thread %r...' % k,
+    for k in list(self.thread_list.keys()):
+      print('Stop thread %r...' % k, end=' ')
       del self.thread_list[k]
-      print 'ok'
+      print('ok')
 
   def Join(self,name):
     if name in self.thread_list:
@@ -729,7 +729,7 @@ class TSignal:
     idx= self.counter
     self.counter+= 1
     with self.locker:
-      self.queues[idx]= Queue.Queue()
+      self.queues[idx]= queue.Queue()
     queue= self.TQueue(self,idx,self.queues[idx])
     return queue
   def DeleteQueue(self,idx):
@@ -738,7 +738,7 @@ class TSignal:
         del self.queues[idx]
   def put(self,item,block=True,timeout=None):
     with self.locker:
-      items= self.queues.items()
+      items= list(self.queues.items())
     for idx,queue in items:
       queue.put(item,block,timeout)
 

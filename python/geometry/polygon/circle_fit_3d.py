@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #3D-circle fitting algirithm
 import numpy as np
 import numpy.linalg as la
@@ -21,10 +21,7 @@ def CircleFit3D(XYZ):
   return pca.Reconstruct(c,[0,1]), r, Rot
 
 
-import sys,os
-filedir= os.path.dirname(os.path.abspath(__file__))
-sys.path.append(filedir+'/lfd_trick')
-from base.base_geom import *
+from geom.geom import *
 
 def Main():
   from random import random, uniform
@@ -33,8 +30,8 @@ def Main():
   r= 0.5
   #Rot= QToRot(QFromAxisAngle([1.0,1.0,0.0],DegToRad(30.0)))
   Rot= QToRot(QFromAxisAngle([1.0,1.0,0.0],uniform(-math.pi,math.pi)))
-  print 'ground-truth:',c,r,'\n',Rot
-  print '|ex|,|ey|,|ez|:',Norm(Rot[:,0]),Norm(Rot[:,1]),Norm(Rot[:,2])
+  print('ground-truth:',c,r,'\n',Rot)
+  print('|ex|,|ey|,|ez|:',Norm(Rot[:,0]),Norm(Rot[:,1]),Norm(Rot[:,2]))
   XYZ=[]
   fp= open('/tmp/data.dat','w')
   #for th in FRange1(0.6*math.pi,0.9*math.pi,100):
@@ -49,9 +46,9 @@ def Main():
   fp.close()
 
   c,r,Rot= CircleFit3D(XYZ)
-  print 'CircleFit:',c,r,'\n',Rot
-  print '|ex|,|ey|,|ez|:',Norm(Rot[:,0]),Norm(Rot[:,1]),Norm(Rot[:,2])
-  print 'cross(ex,ey),ez:',np.cross(Rot[:,0],Rot[:,1]),Rot[:,2]
+  print('CircleFit:',c,r,'\n',Rot)
+  print('|ex|,|ey|,|ez|:',Norm(Rot[:,0]),Norm(Rot[:,1]),Norm(Rot[:,2]))
+  print('cross(ex,ey),ez:',np.cross(Rot[:,0],Rot[:,1]),Rot[:,2])
   fp= open('/tmp/fit.dat','w')
   for th in FRange1(-math.pi,+math.pi,100):
     x= r*math.cos(th)
@@ -61,7 +58,7 @@ def Main():
   fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -3d -s 'set size square;set size ratio -1'
@@ -74,13 +71,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

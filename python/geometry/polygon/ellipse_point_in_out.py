@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ellipse_point_in_out.py
 #\brief   Check if a point is in an ellipse or not.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -33,12 +33,12 @@ if __name__=='__main__':
       fp1.write(' '.join(map(str,p))+'\n')
     else:
       fp2.write(' '.join(map(str,p))+'\n')
-    print p,inout
+    print(p,inout)
   with open('/tmp/points_in.dat','w') as fp1:
     with open('/tmp/points_out.dat','w') as fp2:
       for x in np.linspace(-2.0,0.0,50):
         for y in np.linspace(1.3,3.3,50):
           write_in_out(fp1,fp2,x,y)
 
-  print '# Plot by'
-  print "qplot -x -s 'set size ratio -1' /tmp/orig.dat w l /tmp/points_in.dat /tmp/points_out.dat"
+  print('# Plot by')
+  print("qplot -x -s 'set size ratio -1' /tmp/orig.dat w l /tmp/points_in.dat /tmp/points_out.dat")

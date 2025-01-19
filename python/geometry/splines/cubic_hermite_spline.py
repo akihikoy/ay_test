@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Cubic Hermite Spline
 
 # Matlab-like mod function that returns always positive
@@ -37,7 +37,7 @@ class TCubicHermiteSpline:
     idx= self.FindIdx(t,self.idx_prev)
     if abs(t-self.KeyPts[-1].T)<1.0e-6:  idx= len(self.KeyPts)-2
     if idx<0 or idx>=len(self.KeyPts)-1:
-      print 'WARNING: Given t= %f is out of the key points (index: %i)' % (t,idx)
+      print('WARNING: Given t= %f is out of the key points (index: %i)' % (t,idx))
       if idx<0:
         idx= 0
         t= self.KeyPts[0].T
@@ -168,19 +168,19 @@ if __name__=="__main__":
   spline.Initialize(data, tan_method=spline.CARDINAL, c=0.0)
   #spline.KeyPts[0].M= 5.0
   #spline.KeyPts[-1].M= -5.0
-  pf= file('/tmp/spline1.dat','w')
+  pf= open('/tmp/spline1.dat','w')
   t= data[0][0]
   while t<data[-1][0]:
     pf.write('%f %s\n' % (t, ' '.join(map(str,spline.Evaluate(t,with_dd=True)))))
     t+= 0.001
-  print 'Generated:','/tmp/spline1.dat'
+  print('Generated:','/tmp/spline1.dat')
 
-  pf= file('/tmp/spline0.dat','w')
+  pf= open('/tmp/spline0.dat','w')
   for d in data:
     pf.write('%f %f\n' % (d[0],d[1]))
-  print 'Generated:','/tmp/spline0.dat'
+  print('Generated:','/tmp/spline0.dat')
 
-  print 'Plot by:'
-  print 'qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"'
-  print 'qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline1.dat u 1:3 ax x1y2 w l t "\'dx\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"'
-  print 'qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline1.dat u 1:3 ax x1y2 w l t "\'dx\'" /tmp/spline1.dat u 1:4 ax x1y2 w l t "\'ddx\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"'
+  print('Plot by:')
+  print('qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"')
+  print('qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline1.dat u 1:3 ax x1y2 w l t "\'dx\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"')
+  print('qplot -x -s "set ytics nomirror; set y2tics" /tmp/spline1.dat w l t "\'x\'" /tmp/spline1.dat u 1:3 ax x1y2 w l t "\'dx\'" /tmp/spline1.dat u 1:4 ax x1y2 w l t "\'ddx\'" /tmp/spline0.dat w p pt 5 ps 2 t "\'given points\'"')

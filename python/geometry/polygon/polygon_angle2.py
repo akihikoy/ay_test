@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import math
 import numpy as np
 import numpy.linalg as la
@@ -52,7 +52,7 @@ def AngleDisplacement(angle1, angle2):
 
 #Check if an angle is between [a_range[0],a_range[1]]
 def IsAngleIn(angle, a_range):
-  a_range= map(AngleMod1,a_range)
+  a_range= list(map(AngleMod1,a_range))
   if a_range[0]<a_range[1]:
     if a_range[1]-a_range[0]>math.pi:  return angle<=a_range[0] or  a_range[1]<=angle
     else:                              return a_range[0]<=angle and angle<=a_range[1]
@@ -134,8 +134,8 @@ class TParameterizedPolygon:
       self.Angles.append(self.Angles[0])
       self.Points.append(points[0])
       self.Points2D.append(pca.Projected[0,[0,1]])
-    self.IdxAngleMin= min(range(len(self.Angles)), key=lambda i: self.Angles[i])
-    self.IdxAngleMax= max(range(len(self.Angles)), key=lambda i: self.Angles[i])
+    self.IdxAngleMin= min(list(range(len(self.Angles))), key=lambda i: self.Angles[i])
+    self.IdxAngleMax= max(list(range(len(self.Angles))), key=lambda i: self.Angles[i])
     #print 'angles:',angles
     #print 'self.Angles:',self.Angles
     self.Bounds= self.ComputeBounds()
@@ -169,7 +169,7 @@ class TParameterizedPolygon:
       alpha= abs(angle-self.Angles[i_closest])
       alpha2= 2.0*math.pi+self.Angles[i_closest2]-angle
     else:
-      i_closest= filter(lambda i: IsAngleIn(angle,[self.Angles[i],self.Angles[i+1]]), range(len(self.Angles)-1))
+      i_closest= [i for i in range(len(self.Angles)-1) if IsAngleIn(angle,[self.Angles[i],self.Angles[i+1]])]
       if len(i_closest)==0:  return None
       i_closest= i_closest[0]
       i_closest2= i_closest+1
@@ -211,7 +211,7 @@ if __name__=='__main__':
   #points= Gen3d_13()
 
 
-  fp= file('/tmp/orig.dat','w')
+  fp= open('/tmp/orig.dat','w')
   for p in points:
     fp.write(' '.join(map(str,p))+'\n')
   fp.close()
@@ -220,19 +220,19 @@ if __name__=='__main__':
   ppolygon= TParameterizedPolygon(points)
   #ppolygon= TParameterizedPolygon(points, center_modifier=lambda c:[0.0,0.0,c[2]])
   #print '\n'.join(map(str,ppolygon.Angles))
-  print 'ppolygon.Center=',ppolygon.Center
-  print 'ppolygon.IdxAngleMin=',ppolygon.IdxAngleMin
-  print 'ppolygon.IdxAngleMax=',ppolygon.IdxAngleMax
-  print 'ppolygon.PCAAxes=',ppolygon.PCAAxes
-  print 'ppolygon.PCAValues=',ppolygon.PCAValues
-  print 'ppolygon.Axes=',ppolygon.Axes
-  print 'ppolygon.AxValues=',ppolygon.AxValues
-  print 'ppolygon.Offset=',ppolygon.Offset
-  print 'ppolygon.Bounds=',ppolygon.Bounds
-  print 'ppolygon.IsClosed=',ppolygon.IsClosed
+  print('ppolygon.Center=',ppolygon.Center)
+  print('ppolygon.IdxAngleMin=',ppolygon.IdxAngleMin)
+  print('ppolygon.IdxAngleMax=',ppolygon.IdxAngleMax)
+  print('ppolygon.PCAAxes=',ppolygon.PCAAxes)
+  print('ppolygon.PCAValues=',ppolygon.PCAValues)
+  print('ppolygon.Axes=',ppolygon.Axes)
+  print('ppolygon.AxValues=',ppolygon.AxValues)
+  print('ppolygon.Offset=',ppolygon.Offset)
+  print('ppolygon.Bounds=',ppolygon.Bounds)
+  print('ppolygon.IsClosed=',ppolygon.IsClosed)
 
-  fp= file('/tmp/res.dat','w')
-  fp2= file('/tmp/resw.dat','w')
+  fp= open('/tmp/res.dat','w')
+  fp2= open('/tmp/resw.dat','w')
   #for angle in FRange1(-math.pi*1.2, math.pi*1.2, 10):
   for angle in FRange1(-math.pi, math.pi, 100):
     p= ppolygon.AngleToPoint(angle)
@@ -242,19 +242,19 @@ if __name__=='__main__':
       fp.write('%s %f %f\n' % (' '.join(map(str,p)), angle, a))
       fp.write('\n\n')
       if abs(AngleDisplacement(a,angle))>0.001:
-        print '######WARNING',angle*180./math.pi,a*180./math.pi,abs(AngleDisplacement(a,angle))*180./math.pi
+        print('######WARNING',angle*180./math.pi,a*180./math.pi,abs(AngleDisplacement(a,angle))*180./math.pi)
         fp2.write('%s %f %f\n' % (' '.join(map(str,ppolygon.Center)), 0.0, 0.0))
         fp2.write('%s %f %f\n' % (' '.join(map(str,p)), angle, a))
         fp2.write('\n\n')
         #break
     else:
       if IsIn(angle,ppolygon.Bounds):
-        print 'Invalid angle',angle*180./math.pi
+        print('Invalid angle',angle*180./math.pi)
   fp.close()
   fp2.close()
 
 
-  fp= file('/tmp/res2.dat','w')
+  fp= open('/tmp/res2.dat','w')
   fp.write('%s\n' % (' '.join(map(str,ppolygon.Center))))
   fp.write('%s\n' % (' '.join(map(str,ppolygon.Center+0.1*ppolygon.PCAAxes[:,0]))))
   fp.write('\n\n')
@@ -266,7 +266,7 @@ if __name__=='__main__':
   fp.write('\n\n')
   fp.close()
 
-  fp= file('/tmp/res3.dat','w')
+  fp= open('/tmp/res3.dat','w')
   fp.write('%s\n' % (' '.join(map(str,ppolygon.Center))))
   fp.write('%s\n' % (' '.join(map(str,ppolygon.Center+0.1*ppolygon.Axes[:,0]))))
   fp.write('\n\n')
@@ -278,9 +278,9 @@ if __name__=='__main__':
   fp.write('\n\n')
   fp.close()
 
-  print 'Plot by'
-  print 'polygon:'
-  print "qplot -x -3d /tmp/orig.dat w l /tmp/res.dat w l"
-  print 'axes:'
-  print "qplot -x -3d /tmp/orig.dat w l /tmp/res.dat w l /tmp/res2.dat w l /tmp/res3.dat w l"
+  print('Plot by')
+  print('polygon:')
+  print("qplot -x -3d /tmp/orig.dat w l /tmp/res.dat w l")
+  print('axes:')
+  print("qplot -x -3d /tmp/orig.dat w l /tmp/res.dat w l /tmp/res2.dat w l /tmp/res3.dat w l")
 

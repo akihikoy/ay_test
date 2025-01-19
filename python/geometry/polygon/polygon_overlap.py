@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_overlap.py
 #\brief   Check if two polygons are overlapping.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -38,8 +38,8 @@ if __name__=='__main__':
   points1,points2= polygons[2](),polygons[3](); points2= [[x+1.,y] for [x,y] in points2]
   #points1,points2= polygons[2](),polygons[3](); points2= [[x+1.,y+1.] for [x,y] in points2]
 
-  print 'overlapping, points1<points2, points2<points1='
-  print PolygonOverlap(points1,points2), PolygonInclude(points2,points1), PolygonInclude(points1,points2)
+  print('overlapping, points1<points2, points2<points1=')
+  print(PolygonOverlap(points1,points2), PolygonInclude(points2,points1), PolygonInclude(points1,points2))
 
 
   with open('/tmp/points1.dat','w') as fp:
@@ -48,5 +48,5 @@ if __name__=='__main__':
   with open('/tmp/points2.dat','w') as fp:
     for p in points2:
       fp.write(' '.join(map(str,p))+'\n')
-  print 'qplot -x /tmp/points1.dat w l /tmp/points2.dat w l'
+  print('qplot -x /tmp/points1.dat w l /tmp/points2.dat w l')
 

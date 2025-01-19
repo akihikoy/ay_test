@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 sys.path.append('..')
 from splines.cubic_hermite_spline import TCubicHermiteSpline
@@ -30,20 +30,20 @@ def IdSampler(N):
   if N==0:  return []
   if N==1:  return [0]
   if N==2:  return [0,1]
-  src= range(N)
+  src= list(range(N))
   res= []
   res.append(src.pop(0))
   res.append(src.pop(-1))
   d= 2
   while True:
     for i in range(1,d,2):
-      res.append(src.pop(len(src)*i/d))
+      res.append(src.pop(len(src)*i//d))
       if len(src)==0:  return res
     d*= 2
 
 def FSampler(xmin,xmax,num_div):
   data= FRange(xmin,xmax,num_div)
-  return [data[i] for i in IdSampler(num_div)]
+  return [data[i] for i in IdSampler(int(num_div))]
 
 #p= func(t)
 def EvalWaveFunc(func, points, resolution=20):
@@ -125,7 +125,7 @@ def OptimizeWaveFunc2(func, p1_0, p2_0, eval_func):
 
 
 if __name__=='__main__':
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
 
   from gen_data import *
   #points= To2d(Gen3d_01())
@@ -134,7 +134,7 @@ if __name__=='__main__':
   points= To2d2(Gen3d_12())
   #points= To2d2(Gen3d_13())
 
-  fp= file('/tmp/orig.dat','w')
+  fp= open('/tmp/orig.dat','w')
   for p in points.tolist()+[points[0].tolist()]:
     fp.write(' '.join(map(str,p))+'\n')
   fp.close()
@@ -142,20 +142,20 @@ if __name__=='__main__':
   pca= TPCA(points)
 
   u_dir= pca.EVecs[0]
-  print 'direction=',u_dir
+  print('direction=',u_dir)
   direction= math.atan2(u_dir[1],u_dir[0])
   start= pca.Mean
   while True:
     start2= np.array(start)-0.01*u_dir
     if not PointInPolygon2D(points, start2):  break
     start= start2
-  print 'start=',start
+  print('start=',start)
   rot= np.array([[math.cos(direction),-math.sin(direction)],[math.sin(direction),math.cos(direction)]])
 
   wave= TWaveGenerator()
 
   ##Test spreading wave (without planning)
-  #fp= file('/tmp/spread1.dat','w')
+  #fp= open('/tmp/spread1.dat','w')
   #n_old= 0
   #for t in FRange(0.0,10.0,120):
     #ti= Mod(t,1.0)
@@ -168,19 +168,19 @@ if __name__=='__main__':
   #fp.close()
 
   #Spreading wave (with planning)
-  fp= file('/tmp/spread2.dat','w')
+  fp= open('/tmp/spread2.dat','w')
   while True:
     func= lambda ti,p1,p2: np.array(start) + np.dot(rot, np.array(wave.Evaluate(ti,m1=p1,m2=p2)))
     p1o,p2o= OptimizeWaveFunc1(func, p1_0=2.0, p2_0=2.0, eval_func=lambda f:EvalWaveFunc(f,points))
     #p1o,p2o= OptimizeWaveFunc2(func, p1_0=2.0, p2_0=2.0, eval_func=lambda f:EvalWaveFunc(f,points))
     if None in (p1o,p2o):  break
-    print p1o, p2o, EvalWaveFunc(lambda t:func(t,p1o,p2o),points), func(0.0,p1o,p2o), PointInPolygon2D(points,func(0.0,p1o,p2o))
+    print(p1o, p2o, EvalWaveFunc(lambda t:func(t,p1o,p2o),points), func(0.0,p1o,p2o), PointInPolygon2D(points,func(0.0,p1o,p2o)))
     for t in FRange(0.0,1.0,100):
       p= func(t,p1o,p2o)
       fp.write(' '.join(map(str,p))+'\n')
     start= p
   fp.close()
 
-  print 'Plot by'
-  print "qplot -x -s 'set size ratio -1' /tmp/orig.dat w l /tmp/spread2.dat w l"
+  print('Plot by')
+  print("qplot -x -s 'set size ratio -1' /tmp/orig.dat w l /tmp/spread2.dat w l")
 

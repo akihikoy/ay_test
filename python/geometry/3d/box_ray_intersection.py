@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    box_ray_intersection.py
 #\brief   Get an intersection between a ray and a cube.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -61,13 +61,13 @@ if __name__=='__main__':
   ray_o= np.array([rnd(), rnd(), rnd()])
   ray_d= np.array([rnd(), rnd(), rnd()])
 
-  print 'box_min',box_min
-  print 'box_max',box_max
-  print 'ray_o',ray_o
-  print 'ray_d',ray_d
+  print('box_min',box_min)
+  print('box_max',box_max)
+  print('ray_o',ray_o)
+  print('ray_d',ray_d)
 
   tmin,tmax= BoxRayIntersection(ray_o, ray_d, box_min, box_max)
-  print 'tmin,tmax', tmin,tmax
+  print('tmin,tmax', tmin,tmax)
   if tmin is not None and tmax is not None:
     pmin= np.array(ray_o)+tmin*ray_d
     pmax= np.array(ray_o)+tmax*ray_d

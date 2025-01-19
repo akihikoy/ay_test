@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 if __name__=='__main__':
-  def PrintEq(s):  print '%s= %r' % (s, eval(s))
+  def PrintEq(s):  print('%s= %r' % (s, eval(s)))
   from cubic_hermite_spline import TCubicHermiteSpline
   from vel_ctrl import ModifyTrajVelocityV
   import gen_data
@@ -18,16 +18,16 @@ if __name__=='__main__':
     splines[d].Initialize(data_d, tan_method=splines[d].CARDINAL, c=0.0, m=0.0)
   dt= 0.005
 
-  pf= file('/tmp/spline1.dat','w')
+  pf= open('/tmp/spline1.dat','w')
   t= data[0][0]
   while True:
     x= [splines[d].Evaluate(t) for d in range(len(splines))]
     pf.write('%f %s\n' % (t, ' '.join(map(str,x))))
     if t>data[-1][0]:  break
     t+= dt
-  print 'Generated:','/tmp/spline1.dat'
+  print('Generated:','/tmp/spline1.dat')
 
-  pf= file('/tmp/spline2.dat','w')
+  pf= open('/tmp/spline2.dat','w')
   t= data[0][0]
   ti= data[0][0]  #Internal time
   T= data[-1][0]  #Length
@@ -40,17 +40,17 @@ if __name__=='__main__':
     ti,x,v= ModifyTrajVelocityV(ti, v_trg, traj, dt, T)
     pf.write('%f %s %f %f\n' % (t, ' '.join(map(str,x)), v, v_trg))
     t+= dt
-  print 'Generated:','/tmp/spline2.dat'
+  print('Generated:','/tmp/spline2.dat')
 
-  pf= file('/tmp/spline0.dat','w')
+  pf= open('/tmp/spline0.dat','w')
   for d in data:
     pf.write('%s\n' % ' '.join(map(str,d)))
-  print 'Generated:','/tmp/spline0.dat'
+  print('Generated:','/tmp/spline0.dat')
 
 
-  print 'Plot by:'
-  print '3d:'
-  print "qplot -x -3d -s 'set view equal xyz;set ticslevel 0' /tmp/spline1.dat u 2:3:4 w l /tmp/spline0.dat u 2:3:4 w p pt 5 ps 2 /tmp/spline2.dat u 2:3:4 ev 20 w lp"
-  print 'x+v:'
-  print 'set f=2; qplot -x /tmp/spline1.dat u 1:$f w l /tmp/spline0.dat u 1:$f w p pt 5 ps 2 /tmp/spline2.dat u 1:$f w l /tmp/spline2.dat u 1:6 w l /tmp/spline2.dat u 1:5 w lp'
+  print('Plot by:')
+  print('3d:')
+  print("qplot -x -3d -s 'set view equal xyz;set ticslevel 0' /tmp/spline1.dat u 2:3:4 w l /tmp/spline0.dat u 2:3:4 w p pt 5 ps 2 /tmp/spline2.dat u 2:3:4 ev 20 w lp")
+  print('x+v:')
+  print('set f=2; qplot -x /tmp/spline1.dat u 1:$f w l /tmp/spline0.dat u 1:$f w p pt 5 ps 2 /tmp/spline2.dat u 1:$f w l /tmp/spline2.dat u 1:6 w l /tmp/spline2.dat u 1:5 w lp')
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_line_intersect.py
 #\brief   Get intersection points between a polygon and a line segment.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -13,14 +13,14 @@ def LinePolygonIntersection(p1, p2, points, return_rs=False, keep_none=False):
   pIs= [LineLineIntersection(p1,p2,pA,pB,return_rs=return_rs)
         for pA,pB in zip(points, points[1:]+[points[0]])]
   if keep_none:  return pIs
-  return filter(None,pIs)
+  return [_f for _f in pIs if _f]
 
 #Return a list of intersections between inf line (p1+r*dp1) and a polygon (points).
 def InfLinePolygonIntersection(p1, dp1, points, return_rs=False, keep_none=False):
   pIs= [InfLineLineIntersection(p1,dp1,pA,pB,return_rs=return_rs)
         for pA,pB in zip(points, points[1:]+[points[0]])]
   if keep_none:  return pIs
-  return filter(None,pIs)
+  return [_f for _f in pIs if _f]
 
 def Main():
   def write_polygon(fp,polygon):
@@ -42,8 +42,8 @@ def Main():
   dp1= (p2-p1); dp1/= np.linalg.norm(dp1)
   pIs= LinePolygonIntersection(p1,p2,polygon)
   pIs2= InfLinePolygonIntersection(p1,dp1,polygon)
-  print '# of intersections with line seg:',len(pIs)
-  print '# of intersections with inf line:',len(pIs2)
+  print('# of intersections with line seg:',len(pIs))
+  print('# of intersections with inf line:',len(pIs2))
 
   with open('/tmp/polygons.dat','w') as fp:
     write_polygon(fp,polygon)
@@ -52,7 +52,7 @@ def Main():
     if len(pIs2)>0:  write_polygon(fp,pIs2)
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -65,13 +65,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

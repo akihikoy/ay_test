@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    param_Nd.py
 #\brief   Parameterized splines on N-dimensional space.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -57,16 +57,16 @@ def Main():
     if t>data[-1][0]:  break
     t+= 0.02
     #t+= 0.001
-  print 'Generated:','/tmp/spline1.dat'
+  print('Generated:','/tmp/spline1.dat')
 
   pf= open('/tmp/spline0.dat','w')
   for d in data:
     pf.write('%s\n' % ' '.join(map(str,d)))
-  print 'Generated:','/tmp/spline0.dat'
+  print('Generated:','/tmp/spline0.dat')
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   pline= ''
   for d in range(Nd):
@@ -84,13 +84,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

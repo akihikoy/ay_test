@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_is_clockwise.py
 #\brief   Check if a polygon is clockwise.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -38,7 +38,7 @@ def Main():
     ]
 
   #Modify polygons
-  for i in np.random.choice(range(len(polygons)), size=np.random.choice(list(range(len(polygons))))):
+  for i in np.random.choice(list(range(len(polygons))), size=np.random.choice(list(range(len(polygons))))):
     polygons[i].reverse()
   for i in range(len(polygons)):
     i_split= np.random.choice(len(polygons[i]))
@@ -61,7 +61,7 @@ def Main():
         write_polygon(fp2,polygon)
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -75,13 +75,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

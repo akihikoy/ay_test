@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #import tf
-import rostf
+import _rostf as rostf
 import math
 import numpy as np
 import numpy.linalg as la
@@ -35,8 +35,8 @@ if __name__=='__main__':
   #q= [0.05240207810290061, -0.620853105352924, -0.6535491923757895, 0.4297311914779772]
   q= np.array(q)
   e= YZXEulerFromQuaternion(q)
-  print 'q=',q
-  print 'YZX-Euler=',e
+  print('q=',q)
+  print('YZX-Euler=',e)
   rotY= RFromAxisAngle([0.,1.,0.],e[0])
   rotZ= RFromAxisAngle([0.,0.,1.],e[1])
   rotX= RFromAxisAngle([1.,0.,0.],e[2])
@@ -45,7 +45,7 @@ if __name__=='__main__':
   #print 'rotZ',rotZ
   #E= RotToQ( np.dot( rotX, np.dot(rotZ, rotY ) ) )
   E= RotToQ( np.dot( rotY, np.dot(rotZ, rotX ) ) )
-  print 'Q from YZX euler=', E
-  print 'q==E?', np.allclose(q,E)
-  print 'QToRot(q)==QToRot(E)?', np.allclose(QToRot(q),QToRot(E))
+  print('Q from YZX euler=', E)
+  print('q==E?', np.allclose(q,E))
+  print('QToRot(q)==QToRot(E)?', np.allclose(QToRot(q),QToRot(E)))
 

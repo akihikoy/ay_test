@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    line_line_intersect2.py
 #\brief   Check if two line segments have an intersection.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -26,11 +26,11 @@ def Main():
   p2= np.random.uniform([-10,-10],[10,10])
   pA= np.random.uniform([-10,-10],[10,10])
   pB= np.random.uniform([-10,-10],[10,10])
-  print '#points:',p1, p2, pA, pB
+  print('#points:',p1, p2, pA, pB)
   pI= LineLineIntersection(p1, p2, pA, pB)
-  print '##########################'
-  print '###intersection:',pI, DoLineLineIntersect(p1, p2, pA, pB)
-  print '##########################'
+  print('##########################')
+  print('###intersection:',pI, DoLineLineIntersect(p1, p2, pA, pB))
+  print('##########################')
 
   with open('/tmp/lines.dat','w') as fp:
     write_polygon(fp,[p1, p2])
@@ -38,7 +38,7 @@ def Main():
     if pI is not None:  write_polygon(fp,[pI])
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -50,13 +50,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

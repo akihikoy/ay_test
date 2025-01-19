@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_area.py
 #\brief   Obtaining area of polygon in 2D.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    May.19, 2017
-from __future__ import print_function
+
 import numpy as np
 
 #Calculate area of a polygon in 2D.
@@ -64,7 +64,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

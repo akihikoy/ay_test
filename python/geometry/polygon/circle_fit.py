@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #2D-circle fitting algirithm
 #Src:
 #http://people.cas.uab.edu/~mosya/cl/HyperSVD.m
@@ -23,7 +23,7 @@ def CircleFit2D(XY):
   #print "V=",V
   #print S[3]/S[0]
   if S[3]/S[0]<1.0e-12:  # singular case
-    print "SINGULAR"
+    print("SINGULAR")
     A= (V.transpose())[:,3]
   else:  # regular case
     R= np.average(np.array(ZXY1),0)
@@ -67,7 +67,7 @@ def Main():
   #wrand= 0.00
   #c= [0.0,0.0]
   #r= 0.012
-  print 'ground-truth:',c,r
+  print('ground-truth:',c,r)
   XY=[]
   fp= open('/tmp/data.dat','w')
   #for th in FRange1(0.6*math.pi,0.9*math.pi,100):
@@ -80,7 +80,7 @@ def Main():
   fp.close()
 
   c,r= CircleFit2D(XY)
-  print 'CircleFit:',c,r
+  print('CircleFit:',c,r)
   fp= open('/tmp/fit.dat','w')
   for th in FRange1(-math.pi,+math.pi,100):
     x= c[0]+r*math.cos(th)
@@ -89,7 +89,7 @@ def Main():
   fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -s 'set size square;set size ratio -1' /tmp/fit.dat w l /tmp/data.dat w p &''',
@@ -99,13 +99,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

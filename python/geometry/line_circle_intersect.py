@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    line_circle_intersect.py
 #\brief   Get intersections of a line segment and a circle.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -43,7 +43,7 @@ if __name__=='__main__':
   rad= np.random.uniform(5,20)
   t_intersects= LineCircleIntersections(p1, p2, pc, rad)
   p_intersects= [(1.0-t)*p1+t*p2 for t in t_intersects]
-  print 't_intersects:',t_intersects
+  print('t_intersects:',t_intersects)
 
   poly_circle= [pc+rad*np.array([np.cos(th),np.sin(th)]) for th in np.linspace(0,np.pi*2,100)]
 
@@ -53,6 +53,6 @@ if __name__=='__main__':
     for pI in p_intersects:
       write_polygon(fp, [pI])
 
-  print '#Plot by:'
-  print '''qplot -x -s 'set size ratio -1' /tmp/lines.dat u 1:2:'(column(-1)+1)' w lp lc var pt 4'''
+  print('#Plot by:')
+  print('''qplot -x -s 'set size ratio -1' /tmp/lines.dat u 1:2:'(column(-1)+1)' w lp lc var pt 4''')
 

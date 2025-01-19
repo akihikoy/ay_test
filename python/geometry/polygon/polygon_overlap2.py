@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_overlap2.py
 #\brief   Check if two polygons overlap.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -60,14 +60,14 @@ if __name__=='__main__':
   t_start= time.time()
   res= PolygonOverlap(polygon1,polygon2)
   t_end= time.time()
-  print 'PolygonOverlap(polygon1,polygon2)= {}'.format(res)
-  print '  comp time: {:.3f} ms'.format((t_end-t_start)*1e3)
+  print('PolygonOverlap(polygon1,polygon2)= {}'.format(res))
+  print('  comp time: {:.3f} ms'.format((t_end-t_start)*1e3))
 
   t_start= time.time()
   res= PolygonOverlapCV(polygon1,polygon2)
   t_end= time.time()
-  print 'PolygonOverlapCV(polygon1,polygon2)= {}'.format(res)
-  print '  comp time: {:.3f} ms'.format((t_end-t_start)*1e3)
+  print('PolygonOverlapCV(polygon1,polygon2)= {}'.format(res))
+  print('  comp time: {:.3f} ms'.format((t_end-t_start)*1e3))
 
   fig= plt.figure()
   ax= fig.add_subplot(1,1,1)

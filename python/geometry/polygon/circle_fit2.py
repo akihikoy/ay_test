@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    circle_fit2.py
 #\brief   Refactored version of circle_fit with more tests;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -68,8 +68,8 @@ def Main():
   polygon= polygons[np.random.choice(list(range(len(polygons))))]
   center_mean= np.mean(polygon,axis=0)
   center_svd,radius_svd= CircleFit2D(polygon)
-  print('center_mean={}'.format(center_mean,center_mean))
-  print('center_svd={} radius_svd={}'.format(center_svd,radius_svd))
+  print(('center_mean={}'.format(center_mean,center_mean)))
+  print(('center_svd={} radius_svd={}'.format(center_svd,radius_svd)))
 
   circle_svd= [[center_svd[0]+radius_svd*np.cos(th), center_svd[1]+radius_svd*np.sin(th)]
                for th in np.linspace(-np.pi,+np.pi,100)]
@@ -100,13 +100,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print('###',cmd)
+      print(('###',cmd))
       os.system(cmd)
 
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

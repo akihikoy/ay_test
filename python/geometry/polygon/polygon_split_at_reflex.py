@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    polygon_split_at_reflex.py
 #\brief   Split a polygon into two at a reflex vertex so that the sum of convex-ratio is maximized.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jul.31, 2023
-from __future__ import print_function
+
 from polygon_is_clockwise2 import PolygonIsClockwise
 from polygon_convex_ratio import ConvexRatio
 from polygon_is_reflex_vertex import PolygonIsReflexVertex
@@ -123,7 +123,7 @@ def PlotGraphs():
   print('##########################')
   print('###Press enter to close###')
   print('##########################')
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

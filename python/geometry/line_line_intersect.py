@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    line_line_intersect.py
 #\brief   Get intersection of two line segments.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -62,11 +62,11 @@ def Main():
   dp1= (p2-p1); dp1/= np.linalg.norm(dp1)
   pA= np.random.uniform([-10,-10],[10,10])
   pB= np.random.uniform([-10,-10],[10,10])
-  print '#points:',p1, p2, pA, pB
+  print('#points:',p1, p2, pA, pB)
   pI= LineLineIntersection(p1, p2, pA, pB)
   pI2= InfLineLineIntersection(p1, dp1, pA, pB)
-  print 'line-line-intersection:',pI
-  print 'infline-line-intersection:',pI2
+  print('line-line-intersection:',pI)
+  print('infline-line-intersection:',pI2)
 
   with open('/tmp/lines.dat','w') as fp:
     write_polygon(fp,[p1, p2])
@@ -75,7 +75,7 @@ def Main():
     if pI2 is not None:  write_polygon(fp,[pI2])
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -87,13 +87,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':
