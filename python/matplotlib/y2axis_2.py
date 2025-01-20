@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    y2axis_2.py
 #\brief   Similar to y2axis, but put a single legend box.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

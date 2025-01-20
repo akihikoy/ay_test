@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    close_by_q.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -12,6 +12,6 @@ if __name__=='__main__':
   plt.scatter(X, 2.0*X+np.random.uniform(size=len(X)), color='blue', label='random')
 
   plt.title('Close by pressing q')
-  print 'keymap.quit:', plt.rcParams['keymap.quit']
+  print('keymap.quit:', plt.rcParams['keymap.quit'])
   plt.rcParams['keymap.quit'].append('q')
   plt.show()

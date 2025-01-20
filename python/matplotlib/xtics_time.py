@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    xtics_time.py
 #\brief   Showing x major tics with elapsed time (mm:ss) format.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

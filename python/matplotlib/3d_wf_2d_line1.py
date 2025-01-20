@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    3d_wf_2d_line1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net

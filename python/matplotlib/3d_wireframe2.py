@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    3d_wireframe2.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net

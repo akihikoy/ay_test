@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sub_scatter_line1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net

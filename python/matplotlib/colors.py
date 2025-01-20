@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    colors.py
 #\brief   Explore Matplotlib colors.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -17,17 +17,17 @@ if __name__=='__main__':
     ax.plot(X, (1+i)*np.log(X), linewidth=1, label='Default[{}]'.format(i))
   for i in range(0,10):
     X= np.linspace(-0.1,-5,200)
-    ax.plot(X, (1+i)*np.log(-X), color=plt_cols.BASE_COLORS.values()[i%len(plt_cols.BASE_COLORS)], linewidth=1, linestyle='dashdot', label='BASE_COLORS[{}]'.format(i))
+    ax.plot(X, (1+i)*np.log(-X), color=list(plt_cols.BASE_COLORS.values())[i%len(plt_cols.BASE_COLORS)], linewidth=1, linestyle='dashdot', label='BASE_COLORS[{}]'.format(i))
   for i in range(0,10):
     X= np.linspace(0.1,5,200)
-    ax.plot(X, -(1+i)*np.log(X), color=plt_cols.TABLEAU_COLORS.values()[i%len(plt_cols.TABLEAU_COLORS)], linewidth=1, linestyle='dashed',  label='TABLEAU_COLORS[{}]'.format(i))
+    ax.plot(X, -(1+i)*np.log(X), color=list(plt_cols.TABLEAU_COLORS.values())[i%len(plt_cols.TABLEAU_COLORS)], linewidth=1, linestyle='dashed',  label='TABLEAU_COLORS[{}]'.format(i))
   for i in range(0,10):
     X= np.linspace(-0.1,-5,200)
-    ax.plot(X, -(1+i)*np.log(-X), color=plt_cols.CSS4_COLORS.values()[i%len(plt_cols.CSS4_COLORS)], linewidth=1, linestyle='solid',  label='CSS4_COLORS[{}]'.format(i))
+    ax.plot(X, -(1+i)*np.log(-X), color=list(plt_cols.CSS4_COLORS.values())[i%len(plt_cols.CSS4_COLORS)], linewidth=1, linestyle='solid',  label='CSS4_COLORS[{}]'.format(i))
 
   fig2= plt.figure(figsize=(8,8))
   ax2= fig2.add_subplot(1,1,1)
-  sorted_css4= [c_rgb for c_hsv,c_rgb in sorted((tuple(plt_cols.rgb_to_hsv(plt_cols.to_rgb(c))), c) for c in plt_cols.CSS4_COLORS.itervalues())]
+  sorted_css4= [c_rgb for c_hsv,c_rgb in sorted((tuple(plt_cols.rgb_to_hsv(plt_cols.to_rgb(c))), c) for c in plt_cols.CSS4_COLORS.values())]
   for i in range(0,10):
     X= np.linspace(0.1,5,200)
     ax2.plot(X, (1+i)*np.log(X), color=sorted_css4[i%len(sorted_css4)], linewidth=1, linestyle='solid',  label='sorted_css4[{}]'.format(i))

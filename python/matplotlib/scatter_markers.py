@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    scatter_markers.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 if __name__=='__main__':
   markers= ['.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
-  print '# of markers:', len(markers)
+  print('# of markers:', len(markers))
   X= np.linspace(-2,2,20)
 
   plt.rcParams['keymap.quit'].append('q')

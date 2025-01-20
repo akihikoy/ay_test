@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    bar1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -21,6 +21,6 @@ if __name__=='__main__':
 
   plt.xlabel('x')
   plt.ylabel('y')
-  plt.xticks(bar_loc, x_data)
+  plt.xticks(ticks=bar_loc, labels=x_data)
   plt.legend(loc='upper left')
   plt.show()

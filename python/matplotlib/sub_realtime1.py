@@ -1,11 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sub_realtime1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Oct.28, 2021
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
+matplotlib.use('TkAgg')
 
 if __name__=='__main__':
   #plt.rcParams['figure.figsize']= 10,5

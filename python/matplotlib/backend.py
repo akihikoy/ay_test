@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    backend.py
 #\brief   Test of GUI backend of matplotlib.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -13,13 +13,13 @@ import sys
 if __name__=='__main__':
   gui_envs= ['TKAgg','GTKAgg','Qt4Agg','WXAgg','Agg']
   gui_env= sys.argv[1] if len(sys.argv)>1 else 'TKAgg'
-  if gui_env not in gui_envs:
-    raise Exception('Invalid GUI env:',gui_env,'; available:',gui_envs)
+  #if gui_env not in gui_envs:
+    #raise Exception('Invalid GUI env:',gui_env,'; available:',gui_envs)
 
-  print 'Current backend:',matplotlib.get_backend()
-  matplotlib.use(gui_env, warn=False, force=True)
+  print('Current backend:',matplotlib.get_backend())
+  matplotlib.use(gui_env, force=True)
   import matplotlib.pyplot as plt
-  print 'Current backend:',matplotlib.get_backend()
+  print('Current backend:',matplotlib.get_backend())
 
   fig= plt.figure()
   ax= fig.add_subplot(1,1,1,title='Test',xlabel='x',ylabel='y')
