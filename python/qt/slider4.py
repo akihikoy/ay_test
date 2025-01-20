@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    slider4.py
 #\brief   New QWidget slider class
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -112,8 +112,8 @@ class TSlider(QtGui.QWidget):
 
 
 def Print(*s):
-  for ss in s:  print ss,
-  print ''
+  for ss in s:  print(ss, end=' ')
+  print('')
 
 class TSliderTest(QtGui.QWidget):
   def __init__(self):

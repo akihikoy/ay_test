@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    rviz2.py
 #\brief   Embedding RViz as a Qt widget (simplified example);
 #\author  Akihiko Yamaguchi, info@akihikoy.net

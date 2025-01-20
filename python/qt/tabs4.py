@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    tabs4.py
 #\brief   Test tab 4: Multiple tab lines.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -13,8 +13,8 @@ from PyQt4 import QtCore,QtGui
 #QtGui.QPainter= PyQt5QtGui.QPainter
 
 def Print(*s):
-  for ss in s:  print ss,
-  print ''
+  for ss in s:  print(ss, end=' ')
+  print('')
 
 class TTab(QtGui.QWidget):
   def __init__(self):

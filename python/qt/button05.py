@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    button05.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import sys
 from PyQt4 import QtCore, QtGui
 
 def Print(s):
-  print s
+  print(s)
 
 class TButton(QtGui.QWidget):
   def __init__(self):

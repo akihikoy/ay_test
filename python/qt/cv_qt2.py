@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    cv_qt2.py
 #\brief   Displaying OpenCV images in Qt framework (animation version).
 #\author  Akihiko Yamaguchi, info@akihikoy.net

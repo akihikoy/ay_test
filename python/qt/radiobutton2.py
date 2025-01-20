@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    radiobutton2.py
 #\brief   Test expanding radio button.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import sys
 from PyQt4 import QtCore,QtGui
 
 def Print(s):
-  print s
+  print(s)
 
 class TRadioButton(QtGui.QWidget):
   def __init__(self):

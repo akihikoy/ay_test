@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #\file    simple_panel1.py
 #\brief   Qt-based simple panel designer.
@@ -9,8 +9,11 @@
 import sys, copy
 from PyQt4 import QtCore,QtGui
 
+def _disp_float(value):
+  return str(round(value, 8))
+
 def MergeDict(d_base, d_new):
-  for k_new,v_new in d_new.iteritems():
+  for k_new,v_new in d_new.items():
     if k_new in d_base and (type(v_new)==dict and type(d_base[k_new])==dict):
       MergeDict(d_base[k_new], v_new)
     else:
@@ -75,7 +78,7 @@ class TSlider(QtGui.QWidget):
     self.setLabel(value)
 
   def setLabel(self, value):
-    self.label.setText(str(value).rjust(len(str(self.range_step[1]))))
+    self.label.setText(_disp_float(value).rjust(len(_disp_float(self.range_step[1]))))
 
   #style: 0:Default, 1:Variable handle size.
   def Construct(self, range_step, n_labels, slider_style, onvaluechange):
@@ -112,7 +115,7 @@ class TSlider(QtGui.QWidget):
       #tick_font= QtGui.QFont(self.label.font().family(), self.label.font().pointSize()*0.6)
       label_step= (range_step[1]-range_step[0])/(n_labels-1)
       for i_label in range(n_labels):
-        label= str(range_step[0]+i_label*label_step)
+        label= _disp_float(range_step[0]+i_label*label_step)
         tick_label= QtGui.QLabel(label,self)
         #tick_label.setFont(tick_font)
         if i_label<(n_labels-1)/2:  align= QtCore.Qt.AlignLeft
@@ -274,9 +277,9 @@ class TSimplePanel(QtGui.QWidget):
 
   #Add widgets from widget description dict.
   def AddWidgets(self, widgets):
-    for name,(w_type, w_param) in widgets.iteritems():
+    for name,(w_type, w_param) in widgets.items():
       self.widgets_in[name]= (w_type, w_param)
-    for name in widgets.iterkeys():
+    for name in widgets.keys():
       w_type, w_param= self.widgets_in[name]
       self.widgets[name]= self.widget_generator[w_type](w_param)
 
@@ -318,7 +321,7 @@ class TSimplePanel(QtGui.QWidget):
 
   def ResizeText(self, event):
     s= self.rect().height()/self.font_height_scale
-    for name,obj in self.widgets.iteritems():
+    for name,obj in self.widgets.items():
       if 'font_size_range' not in obj.__dict__:  continue
       self.ResizeTextOfObj(obj, obj.font_size_range, s)
 
@@ -549,8 +552,8 @@ def RunPanelApp():
 
 if __name__=='__main__':
   def Print(*s):
-    for ss in s:  print ss,
-    print ''
+    for ss in s:  print(ss, end=' ')
+    print('')
 
   widgets= {
     'btn1': (

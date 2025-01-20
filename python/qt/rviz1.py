@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    rviz1.py
 #\brief   Embedding RViz as a Qt widget;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -161,7 +161,7 @@ class MyViz( QtGui.QWidget ):
             if view_man.getViewAt( i ).getName() == view_name:
                 view_man.setCurrentFrom( view_man.getViewAt( i ))
                 return
-        print( "Did not find view named %s." % view_name )
+        print(( "Did not find view named %s." % view_name ))
 
 ## Start the Application
 ## ^^^^^^^^^^^^^^^^^^^^^

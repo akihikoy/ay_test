@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    terminal_tab6a.py
 #\brief   Test of using the library terminal_tab6lib.py;
 #\author  Akihiko Yamaguchi, info@akihikoy.net

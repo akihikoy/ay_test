@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    button02.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net

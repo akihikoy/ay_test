@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    terminal_tab7a.py
 #\brief   Test of using the library terminal_tab7lib.py;
 #\author  Akihiko Yamaguchi, info@akihikoy.net

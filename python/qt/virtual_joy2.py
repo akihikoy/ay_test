@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    virtual_joy2.py
 #\brief   Virtual joystick example.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -106,12 +106,12 @@ class TVirtualJoyStick(QtGui.QWidget):
       if self.stick_pos.length()>1.0:  self.stick_pos.setLength(1.0)
       #print 'debug', self.stick_pos, self.stick_pos.p2(), self.stick_pos.length(), self.stick_pos.angle()
       self.update()
-    print self.position()
+    print(self.position())
 
 
 def Print(*s):
-  for ss in s:  print ss,
-  print ''
+  for ss in s:  print(ss, end=' ')
+  print('')
 
 class TVirtualJoyStickTest(QtGui.QWidget):
   def __init__(self):

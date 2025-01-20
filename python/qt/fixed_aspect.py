@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    fixed_aspect.py
 #\brief   Fixed aspect ratio example.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,7 +14,7 @@ from PyQt4.QtGui import *
 class MyWidget(QWidget):
 
     clicked = pyqtSignal()
-    keyPressed = pyqtSignal(unicode)
+    keyPressed = pyqtSignal(str)
 
     def __init__(self, parent = None):
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    slider_style1.py
 #\brief   Test styles of slider.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -13,8 +13,8 @@ from PyQt4 import QtCore,QtGui
 #QtGui= QtWidgets
 
 def Print(*s):
-  for ss in s:  print ss,
-  print ''
+  for ss in s:  print(ss, end=' ')
+  print('')
 
 try:
   class SliderProxyStyle(QtGui.QProxyStyle):
@@ -106,7 +106,7 @@ class TSlider(QtGui.QWidget):
         ''')
     elif style=='Style-5':
       if SliderProxyStyle is None:
-        print 'Style-5 uses PyQt5. Comment out the PyQt4 import line and uncomment the PyQt import lines.'
+        print('Style-5 uses PyQt5. Comment out the PyQt4 import line and uncomment the PyQt import lines.')
         return
       self.slider1.setStyleSheet('')
       style= SliderProxyStyle(self.slider1.style())

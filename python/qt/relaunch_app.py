@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    relaunch_app.py
 #\brief   Test of relaunching the Qt app.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -57,7 +57,7 @@ if __name__=='__main__':
   #sys.exit(a.exec_())
   exit_code= a.exec_()
 
-  print 'The GUI app has ended with exit code: {}.'.format(exit_code)
+  print('The GUI app has ended with exit code: {}.'.format(exit_code))
 
   if w.flag_relaunch:
     RelaunchProgram()

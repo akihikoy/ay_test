@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    terminal_tab5lib.py
 #\brief   Simple Tab-Terminal GUI command launcher (library).
 #\author  Akihiko Yamaguchi, info@akihikoy.net

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    terminal_tab8a.py
 #\brief   Test of using the library terminal_tab7lib.py;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,8 +23,8 @@ if __name__=='__main__':
       ('ls',('ls',E)),
       ('ls opt1',('ls /dev/tty{opt1}',E)),
       ('ls opt2',('ls /dev/input/{opt2}',E)),
-      ('nodes',['rostopic list',E]),
-      ('topics',['rosnode list',E]) ]),
+      ('nodes',['rosnode list',E]),
+      ('topics',['rostopic list',E]) ]),
     ('opt2',':radio',['js0','js1']),
     ]
   exit_command= [E,'C-c']

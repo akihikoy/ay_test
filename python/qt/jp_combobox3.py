@@ -5,15 +5,15 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Mar.02, 2023
-
+from __future__ import print_function
 import sys
 from PyQt4 import QtCore,QtGui
 
 def Print(*s):
   for ss in s:
-    if isinstance(ss,QtCore.QString):  print ss.toUtf8(),
-    else:  print ss
-  print ''
+    if isinstance(ss,QtCore.QString):  print(ss.toUtf8(), end=' ')
+    else:  print(ss)
+  print('')
 
 class TComboBox(QtGui.QWidget):
   def __init__(self):

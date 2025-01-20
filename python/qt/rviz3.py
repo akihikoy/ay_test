@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    rviz3.py
 #\brief   Embedding RViz as a Qt widget (delayed configuration);
 #\author  Akihiko Yamaguchi, info@akihikoy.net

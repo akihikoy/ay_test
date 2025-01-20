@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    radiobutton4.py
 #\brief   RadioBox class.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -36,7 +36,7 @@ class TRadioBox(QtGui.QWidget):
     self.setLayout(self.layout)
 
 def Print(s):
-  print s
+  print(s)
 
 class TRadioButton(QtGui.QWidget):
   def __init__(self):

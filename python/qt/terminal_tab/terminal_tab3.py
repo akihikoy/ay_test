@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    terminal_tab3.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net

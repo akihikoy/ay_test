@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    config_panel1.py
 #\brief   Test of a parameter configuration panel.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -13,8 +13,8 @@ from simple_panel1 import TSimplePanel,InitPanelApp,RunPanelApp
 
 if __name__=='__main__':
   def Print(*s):
-    for ss in s:  print ss,
-    print ''
+    for ss in s:  print(ss, end=' ')
+    print('')
 
   params={
     'sensitivity_sl': 0.08,
@@ -24,7 +24,7 @@ if __name__=='__main__':
     }
   def UpdateParam(name, value):
     params[name]= value
-    print yaml.dump(params)
+    print(yaml.dump(params))
 
   widgets= {
     'slider_sensitivity_sl': (

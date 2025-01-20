@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    bg_action.py
 #\brief   Test if an event callback is executed in background or foreground.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,12 +9,12 @@ import sys
 from PyQt4 import QtGui
 
 def Proc():
-  print 'Heavy process started...'
+  print('Heavy process started...')
   x= 0
-  for i in xrange(100000000):
+  for i in range(100000000):
     x= (x+i)/2**0.5
-    if i%1000000==0:  print '  ..',i,x
-  print '  Done; x=',x
+    if i%1000000==0:  print('  ..',i,x)
+  print('  Done; x=',x)
 
 class TButtons(QtGui.QWidget):
   def __init__(self):

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    virtual_joy3.py
 #\brief   Virtual joystick example.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -169,8 +169,8 @@ class TVirtualJoyStick(QtGui.QWidget):
 
 
 def Print(*s):
-  for ss in s:  print ss,
-  print ''
+  for ss in s:  print(ss, end=' ')
+  print('')
 
 class TVirtualJoyStickTest(QtGui.QWidget):
   def __init__(self):

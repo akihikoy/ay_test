@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    status_grid.py
 #\brief   Showing a list of status items with visual icons on a grid.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -11,7 +11,7 @@ from PyQt4 import QtCore,QtGui
 from draw_primitive1 import TRenderPrimitive
 
 def Print(s):
-  print s
+  print(s)
 
 class TStatusGrid(QtGui.QWidget):
   def __init__(self):

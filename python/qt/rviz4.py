@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    rviz4.py
 #\brief   Embedding RViz as a Qt widget (delayed configuration);
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,9 +25,9 @@ import rviz
 
 class TRVizUtil(rviz.VisualizationFrame):
   def __init__(self):
-    print '##DEBUG-1.0'
+    print('##DEBUG-1.0')
     super(TRVizUtil, self).__init__()
-    print '##DEBUG-1.1'
+    print('##DEBUG-1.1')
 
     self.reader= rviz.YamlConfigReader()
     self.config= rviz.Config()
@@ -68,13 +68,13 @@ class TRVizExample(QtGui.QWidget):
 
     mainlayout= QtGui.QGridLayout()
 
-    print '##DEBUG-1'
+    print('##DEBUG-1')
     self.rviz_widget= TRVizUtil()
-    print '##DEBUG-2'
+    print('##DEBUG-2')
     global p_roscore
     if p_roscore is not None:
       self.rviz_widget.Initialize()
-    print '##DEBUG-3'
+    print('##DEBUG-3')
     mainlayout.addWidget(self.rviz_widget,0,0)
 
     btn1= QtGui.QPushButton('InitRViz', self)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    close_dialog.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net

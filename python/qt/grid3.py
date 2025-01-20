@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #\file    grid3.py
 #\brief   certain python script
@@ -10,7 +10,7 @@ import sys
 from PyQt4 import QtGui
 
 def Print(s):
-  print s
+  print(s)
 
 class TGrid(QtGui.QWidget):
   def __init__(self):

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    draw1.py
 #\brief   Drawing example.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -11,8 +11,8 @@ import sys
 from PyQt4 import QtCore,QtGui
 
 def Print(*s):
-  for ss in s:  print ss,
-  print ''
+  for ss in s:  print(ss, end=' ')
+  print('')
 
 class RenderArea(QtGui.QWidget):
   points = QtGui.QPolygon([
@@ -23,7 +23,7 @@ class RenderArea(QtGui.QWidget):
   ])
 
   Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc, Chord, \
-      Pie, Path, Text, Pixmap = range(13)
+      Pie, Path, Text, Pixmap = list(range(13))
 
   def __init__(self, parent=None):
     super(RenderArea, self).__init__(parent)
@@ -277,17 +277,17 @@ class TDraw(QtGui.QWidget):
   def penChanged(self):
     width = self.penWidthSpinBox.value()
     style = QtCore.Qt.PenStyle(self.penStyleComboBox.itemData(
-            self.penStyleComboBox.currentIndex()).toInt()[0])
+            self.penStyleComboBox.currentIndex()))
     cap = QtCore.Qt.PenCapStyle(self.penCapComboBox.itemData(
-            self.penCapComboBox.currentIndex()).toInt()[0])
+            self.penCapComboBox.currentIndex()))
     join = QtCore.Qt.PenJoinStyle(self.penJoinComboBox.itemData(
-            self.penJoinComboBox.currentIndex()).toInt()[0])
+            self.penJoinComboBox.currentIndex()))
 
     self.renderArea.setPen(QtGui.QPen(QtCore.Qt.blue, width, style, cap, join))
 
   def brushChanged(self):
     style = QtCore.Qt.BrushStyle(self.brushStyleComboBox.itemData(
-        self.brushStyleComboBox.currentIndex()).toInt()[0])
+        self.brushStyleComboBox.currentIndex()))
 
     if style == QtCore.Qt.LinearGradientPattern:
       linearGradient = QtGui.QLinearGradient(0, 0, 100, 100)

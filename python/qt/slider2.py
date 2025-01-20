@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    slider2.py
 #\brief   Slider with labels.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,8 +9,8 @@ import sys
 from PyQt4 import QtCore,QtGui
 
 def Print(*s):
-  for ss in s:  print ss,
-  print ''
+  for ss in s:  print(ss, end=' ')
+  print('')
 
 class TSlider(QtGui.QWidget):
   def __init__(self):

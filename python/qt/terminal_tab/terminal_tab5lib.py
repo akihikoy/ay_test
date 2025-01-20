@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    terminal_tab5lib.py
 #\brief   Simple Tab-Terminal GUI command launcher (library).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -142,7 +142,7 @@ def RunTerminalTab(title,terminals,exit_command):
   app= QtGui.QApplication(sys.argv)
   win= TTerminalTab(title,terminals,exit_command)
   sys.exit(app.exec_())
-  print 'bye.'
+  print('bye.')
 
 if __name__=='__main__':
   E= 'Enter'

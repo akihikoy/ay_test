@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    terminal_tab8lib.py
 #\brief   Simple Tab-Terminal GUI command launcher (library).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,8 +23,8 @@ class TTerminalTab(QtGui.QWidget):
 
   # Get a dict of option name: option content
   def ExpandOpt(self):
-    opt= {name:rbgroup.checkedButton().text() for name,rbgroup in self.RBOptions.iteritems()}
-    opt.update({name:cmbbx.currentText() for name,cmbbx in self.CBOptions.iteritems()})
+    opt= {name:rbgroup.checkedButton().text() for name,rbgroup in self.RBOptions.items()}
+    opt.update({name:cmbbx.currentText() for name,cmbbx in self.CBOptions.items()})
     return opt
 
   def CmdToLambda(self,term,cmd):

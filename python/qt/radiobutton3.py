@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    radiobutton3.py
 #\brief   Radio button with a user-editable "Other".
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import sys
 from PyQt4 import QtCore,QtGui
 
 def Print(s):
-  print s
+  print(s)
 
 class TRadioButton(QtGui.QWidget):
   def __init__(self):
