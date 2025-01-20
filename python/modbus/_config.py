@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    _config.py
 #\brief   Configuration.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

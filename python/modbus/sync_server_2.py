@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sync_server_2.py
 #\brief   Synchronous Modbus TCP server test 2.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,7 +14,7 @@ def MergeDict(d_base, d_new, allow_new_key=True):
     for d_new_i in d_new:
       MergeDict(d_base, d_new_i)
   else:
-    for k_new,v_new in d_new.iteritems() if hasattr(d_new,'iteritems') else d_new.items():
+    for k_new,v_new in d_new.items():
       if not allow_new_key and k_new not in d_base:
         raise Exception('MergeDict: Unexpected key:',k_new)
       if k_new in d_base and (isinstance(v_new,dict) and isinstance(d_base[k_new],dict)):
@@ -55,12 +55,12 @@ class TCallbackDataBlock(ModbusSequentialDataBlock):
 
 def BeforeGetCallback(kind, db, address, count):
   #print 'Get {}[{}:{}]'.format(kind, address, address+count)
-  print 'Get {}[{}:{}] = {}'.format(kind, address, address+count, db.access_values(address,count))
+  print('Get {}[{}:{}] = {}'.format(kind, address, address+count, db.access_values(address,count)))
 
 def BeforeSetCallback(kind, db, address, value):
   #print 'Set {}[{}] to {}'.format(kind, address, value)
   val_orig= db.access_values(address,len(value) if isinstance(value,list) else 1)
-  print 'Set {}[{}] from {} to {}'.format(kind, address, val_orig, value)
+  print('Set {}[{}] from {} to {}'.format(kind, address, val_orig, value))
 
 def StartModbusServer():
   #store= ModbusSlaveContext(

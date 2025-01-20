@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sync_server_3a.py
 #\brief   Synchronous Modbus TCP server test 3(thread ver).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -19,7 +19,7 @@ def MergeDict(d_base, d_new, allow_new_key=True):
     for d_new_i in d_new:
       MergeDict(d_base, d_new_i)
   else:
-    for k_new,v_new in d_new.iteritems() if hasattr(d_new,'iteritems') else d_new.items():
+    for k_new,v_new in d_new.items():
       if not allow_new_key and k_new not in d_base:
         raise Exception('MergeDict: Unexpected key:',k_new)
       if k_new in d_base and (isinstance(v_new,dict) and isinstance(d_base[k_new],dict)):
@@ -80,6 +80,9 @@ class TDevice(object):
     self.th.start()
 
   def Loop(self):
+    print('''Keyboard operation:
+      p: Print the registers.
+      q: Quit the server.''')
     rate_adjuster= TRate(10)
     with TKBHit() as kbhit:
       while True:
@@ -87,15 +90,15 @@ class TDevice(object):
           key= kbhit.KBHit()
         else:  break
         if key=='q':
-          print 'Exiting the server...'
+          print('Exiting the server...')
           break
         elif key=='p':
-          print 'In reg: {}, Hold reg: {}'.format(self.input_reg.getValues(1,10), self.hold_reg.getValues(0,3))
+          print('In reg: {}, Hold reg: {}'.format(self.input_reg.getValues(1,10), self.hold_reg.getValues(0,3)))
 
         with self.hold_reg.data_locker:
           act_req= self.hold_reg.access_values(ADDR_ACTION_REQ, 1)[0]
           self.hold_reg.values[self.hold_reg.start(ADDR_ACTION_REQ)]= ACTION_NONE
-        print 'act_req:', act_req
+        print('act_req:', act_req)
 
         if act_req==ACTION_SET_ZERO:
           with self.input_reg.data_locker:
@@ -127,6 +130,7 @@ class TDevice(object):
             self.input_reg.values[start:start+10]= data
 
         rate_adjuster.sleep()
+    print('End of TDevice.Loop')
 
 class TModbusServer(object):
   def __init__(self, device, port):
@@ -161,5 +165,6 @@ if __name__=='__main__':
   server= TModbusServer(device, port)
   server.StartLoop()
   device.Loop()
+  print('device.Loop has ended')
   server.StopLoop()
 

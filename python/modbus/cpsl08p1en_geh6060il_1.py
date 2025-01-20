@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    cpsl08p1en_geh6060il_1.py
 #\brief   Test code of operating the GEH6060IL gripper from the IO-Link master CPSL08P1EN through Modbus.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Sep.20, 2023
-from __future__ import print_function
+
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from pymodbus.pdu import ExceptionResponse
 from kbhit2 import KBHAskGen, KBHAskYesNo

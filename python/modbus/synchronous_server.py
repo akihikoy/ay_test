@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #Copied from: https://github.com/pymodbus-dev/pymodbus/blob/v2.5.2/examples/common/synchronous_server.py
 
 """

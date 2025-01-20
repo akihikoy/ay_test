@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    motoman_client.py
 #\brief   Client test for the Modbus server on the Motoman robot.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Sep.20, 2023
-from __future__ import print_function
+
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from pymodbus.pdu import ExceptionResponse
 from kbhit2 import KBHAskGen
@@ -36,7 +36,7 @@ if __name__=='__main__':
         print('--Values: {}'.format(res_r.registers))
 
       #Write registers:
-      value= raw_input('Type value:')
+      value= input('Type value:')
       if value=='q':  break
       res_w= client.write_register(address, int(value))
       print('Write: {}'.format(res_w))
