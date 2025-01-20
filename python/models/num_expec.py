@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    num_expec.py
 #\brief   Numerical expectation
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import math
 import numpy as np
 
 def Len(x):
-  if x==None:  return 0
+  if x is None:  return 0
   elif isinstance(x,list):  return len(x)
   elif isinstance(x,(np.ndarray,np.matrix)):
     if len(x.shape)==1:  return x.shape[0]
@@ -77,7 +77,7 @@ def Main():
   #func= lambda x: 1.0 if abs(x[0,0]**2+x[1,0]**2)<2.0 else 0.0
   func= lambda x: (1.0 if abs(max(x[0,0],x[1,0]))<1.0 else 0.0)*(1.0 if x[0,0]>0.0 else -1.0)
 
-  fp= file('/tmp/true.dat','w')
+  fp= open('/tmp/true.dat','w')
   for x1 in FRange1(-3.0,3.0,50):
     for x2 in FRange1(-3.0,3.0,50):
       y= func(np.mat([x1,x2]).T)
@@ -87,7 +87,7 @@ def Main():
 
   var= np.mat([[1.0, 0.0],
                [0.0, 0.5]])
-  fp= file('/tmp/expec.dat','w')
+  fp= open('/tmp/expec.dat','w')
   for x1 in FRange1(-3.0,3.0,50):
     for x2 in FRange1(-3.0,3.0,50):
       x= np.mat([x1,x2]).T
@@ -99,7 +99,7 @@ def Main():
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -3d /tmp/true.dat w l /tmp/expec.dat w l &''',
@@ -109,13 +109,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

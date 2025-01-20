@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    stars.py
 #\brief   Draw beautiful stars.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -7,14 +7,14 @@
 from math import sin, cos, pi
 
 def Shape1(r=1.0, N=5, t=1, x=[0.0,0.0,0.0]):
-  print x[0],x[1]
+  print(x[0],x[1])
   for i in range(N):
     x[0]+= r*cos(x[2])
     x[1]+= r*sin(x[2])
     if   t==1:  x[2]-= 2.0*pi/N
     elif t==2:  x[2]-= 2.0*pi-4.0*pi/N
     elif t==3:  x[2]-= pi-pi/N
-    print x[0],x[1]
+    print(x[0],x[1])
   return x
 
 def Shape2(r1=1.0, N1=5, t1=3, N2=3, x=[0.0,0.0,0.0]):
@@ -29,7 +29,7 @@ def Shape3(r1=1.0, N1=5, t1=3, N2=3, r3=1.0, N3=6, x=[0.0,0.0,0.0]):
     x[0]+= r3*cos(x[2])
     x[1]+= r3*sin(x[2])
     x[2]-= 2.0*pi/N3
-    print ''
+    print('')
   return x
 
 def Main():
@@ -46,7 +46,7 @@ def Main():
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -s 'set size ratio -1;unset tics'
@@ -60,10 +60,10 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  raw_input()
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    icp_fit1.py
 #\brief   Fitting function with an optimizer (two-mode linear model).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -84,6 +84,6 @@ if __name__=='__main__':
   res= scipy.optimize.differential_evolution(lambda x:Error(seq,x), np.array([xmin,xmax]).T, strategy='best1bin',
                       maxiter=maxiter, popsize=popsize, tol=tol, mutation=(0.5, 1), recombination=0.7)
   print(res)
-  print('Result=',res.x,Error(seq,res.x))
+  print(('Result=',res.x,Error(seq,res.x)))
   Plot(seq,res.x)
 

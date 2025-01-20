@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from funcs import Func,Plot
 import scipy.optimize
@@ -12,7 +12,7 @@ f= lambda x:Func(x,fkind)
 # Minimize the function f
 res= scipy.optimize.minimize(f,[0.0,0.0])
 
-print res
-print 'Result=',res.x
+print(res)
+print('Result=',res.x)
 
 Plot(xmin,xmax,f,x_points=[res.x])

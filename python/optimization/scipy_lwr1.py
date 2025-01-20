@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    scipy_lwr1.py
 #\brief   Solving for LWR(x)==y wrt x.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    scipy_differential_evolution1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -19,7 +19,7 @@ f= lambda x:Func(x,fkind)
 tol= 1.0e-5
 res= scipy.optimize.differential_evolution(f, np.array([xmin,xmax]).T, strategy='best1bin', maxiter=300, popsize=10, tol=tol, mutation=(0.5, 1), recombination=0.7)
 
-print res
-print 'Result=',res.x
+print(res)
+print('Result=',res.x)
 
 Plot(xmin,xmax,f,x_points=[res.x])

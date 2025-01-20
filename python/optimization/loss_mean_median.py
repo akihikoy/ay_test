@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    loss_mean_median.py
 #\brief   Squared loss vs absolute loss, and mean vs median.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -17,8 +17,8 @@ if __name__=='__main__':
   res_sqloss= scipy.optimize.minimize(f_sqloss,[0.0])
   res_absloss= scipy.optimize.minimize(f_absloss,[0.0])
 
-  print 'D=',D
-  print 'mean=',np.mean(D)
-  print 'median=',np.median(D)
-  print 'res_sqloss=',res_sqloss.x
-  print 'res_absloss=',res_absloss.x
+  print('D=',D)
+  print('mean=',np.mean(D))
+  print('median=',np.median(D))
+  print('res_sqloss=',res_sqloss.x)
+  print('res_absloss=',res_absloss.x)

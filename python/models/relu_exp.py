@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    relu_exp.py
 #\brief   Expectation of ReLU (rectified linear unit).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -36,7 +36,7 @@ def Main():
       if var_out>-epsilon:  return mu_out, 0.0
       else:
         msg= 'ERROR in relu_gauss: %f, %f, %f, %f'%(mu, sigma, mu_out, var_out)
-        print msg
+        print(msg)
         raise Exception(msg)
     return cast(mu_out), cast(var_out)
 
@@ -95,7 +95,7 @@ def Main():
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa
@@ -120,13 +120,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

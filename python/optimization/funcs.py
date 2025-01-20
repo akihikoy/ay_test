@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    funcs.py
 #\brief   Objective functions to be minimized.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -26,11 +26,11 @@ def Plot(xmin,xmax,func,x_points=None,N=50):
     with open('/tmp/points.dat','w') as fp:
       for x in x_points:
         fp.write('%f %f %f\n' % (x[0],x[1],func(x)))
-    print 'Plot by:'
-    print '  qplot -x -3d /tmp/func.dat w l /tmp/points.dat'
+    print('Plot by:')
+    print('  qplot -x -3d /tmp/func.dat w l /tmp/points.dat')
   else:
-    print 'Plot by:'
-    print '  qplot -x -3d /tmp/func.dat w l'
+    print('Plot by:')
+    print('  qplot -x -3d /tmp/func.dat w l')
 
 if __name__=='__main__':
   import sys

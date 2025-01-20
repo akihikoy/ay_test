@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    scipy_solve_1d_eq.py
 #\brief   Comparing method for solving 1d variable equation.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -41,7 +41,7 @@ res= scipy.optimize.fsolve(lambda x:f(x[0]),[0.0])  #WARNING: Does not consider 
 results.append(['optimize.fsolve\t\t\t',res[0],f(res[0]),time.time()-t_start])
 
 
-print 'method\t\t\t\t\t x\t\t f(x)\t\t\t time'
+print('method\t\t\t\t\t x\t\t f(x)\t\t\t time')
 for method,x,f_x,t in results:
-  print method,':\t',x,'\t',f_x,'\t',t
+  print(method,':\t',x,'\t',f_x,'\t',t)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    lin_motion.py
 #\brief   Identifying linear motion from position observations.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -28,10 +28,10 @@ if __name__=='__main__':
     tp_seq.append([t_curr,pos_curr+np.random.uniform([-0.1]*3,[0.1]*3)])
 
   pos_est,vel_est= GetPosVelFromTimePosSeq(tp_seq)
-  print 'vel=',vel
-  print 'pos_curr=',pos_curr
-  print 'vel_est=',vel_est,np.linalg.norm(vel-vel_est)
-  print 'pos_est=',pos_est,np.linalg.norm(pos_curr-pos_est)
+  print('vel=',vel)
+  print('pos_curr=',pos_curr)
+  print('vel_est=',vel_est,np.linalg.norm(vel-vel_est))
+  print('pos_est=',pos_est,np.linalg.norm(pos_curr-pos_est))
   with open('/tmp/motion_data.dat','w') as fp:
     for t_curr,p_data in tp_seq:
       fp.write('{0} {1}\n'.format(t_curr,' '.join(map(str,p_data))))
@@ -43,5 +43,5 @@ if __name__=='__main__':
     for t_curr,p_data in tp_seq:
       p_est= pos_est+(t_curr-tp_seq[-1][0])*vel_est
       fp.write('{0} {1}\n'.format(t_curr,' '.join(map(str,p_est))))
-  print '''Plot by:'''
-  print '''qplot -3d -x /tmp/motion_true.dat u 2:3:4 w l /tmp/motion_data.dat u 2:3:4 w p /tmp/motion_est.dat u 2:3:4 w lp'''
+  print('''Plot by:''')
+  print('''qplot -3d -x /tmp/motion_true.dat u 2:3:4 w l /tmp/motion_data.dat u 2:3:4 w p /tmp/motion_est.dat u 2:3:4 w lp''')

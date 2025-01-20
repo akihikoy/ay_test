@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    np_array_idx.py
 #\brief   Examples of numpy array slicing and indexing
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -10,9 +10,9 @@ import numpy as np
 
 def do(expr):
   if '=' not in expr:
-    print expr,'=\n',repr(eval(expr))
+    print(expr,'=\n',repr(eval(expr)))
   else:
-    print expr
+    print(expr)
     exec(expr)
 
 a= np.array([1,2,3,4,5,6,7,8,9])

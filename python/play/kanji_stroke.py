@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    kanji_stroke.py
 #\brief   Loading kanji stroke from kanji.json.
 #         This program is originally made by John Pascore and Prachi Bodas.
@@ -136,7 +136,7 @@ def getPathingFromPath(path):
 
 def getPathForChar(data, char):
   if char not in data:
-    print 'Not found in database:', char
+    print('Not found in database:', char)
     return None
   path= data[char]
   pathing= getPathingFromPath(path)
@@ -150,16 +150,16 @@ if __name__=='__main__':
     data= f.read()
     data= json.loads(data)
 
-  print '''
+  print('''
 Note: plot command:
 qplot -x -s 'set size square' /tmp/kanji.txt w lp
 qplot -x -3d -s 'set size square' /tmp/kanji.txt w p
-'''
+''')
 
   while True:
-    c= raw_input('type a kanji: ')
+    c= input('type a kanji: ')
     if c in ('','q'):  break
-    path= getPathForChar(data, unicode(c,'utf8'))
+    path= getPathForChar(data, c)
     if path is None:  continue
     fp= open('/tmp/kanji.txt','w')
     z= 0
@@ -169,4 +169,4 @@ qplot -x -3d -s 'set size square' /tmp/kanji.txt w p
         z+= 1
       fp.write('\n')
     fp.close()
-    print 'Printed "{kanji}" in /tmp/kanji.txt'.format(kanji=c)
+    print('Printed "{kanji}" in /tmp/kanji.txt'.format(kanji=c))

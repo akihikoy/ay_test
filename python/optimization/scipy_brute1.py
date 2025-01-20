@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    scipy_brute1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -18,6 +18,6 @@ f= lambda x:Func(x,fkind)
 # Minimize the function f
 res= scipy.optimize.brute(f, np.array([xmin,xmax]).T, Ns=5)
 
-print 'Result=',res
+print('Result=',res)
 
 Plot(xmin,xmax,f,x_points=[res])

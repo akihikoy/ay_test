@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    mp_opt.py
 #\brief   Optimization with multiprocess.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Sep.02, 2020
 import multiprocessing as mp
-import Queue
+import queue
 import random
 
 from funcs import Func,Plot
@@ -15,7 +15,7 @@ import time
 
 #Single-process optimizer.
 def SubOpt(pid, queue_out, fkind):
-  print 'Started:',pid,fkind
+  print('Started:',pid,fkind)
   xmin= [-10.,-10.]
   xmax= [10.,10.]
   f_slow= lambda x:[Func(x,fkind),time.sleep(0.005)][0]  #Simulate a complicated function.
@@ -33,7 +33,7 @@ def Main1(fkind):
   queue_out= mp.Queue()
   pid= 0  #process ID
   processes= {}  #pid:process
-  for _ in xrange(20):
+  for _ in range(20):
     p= random.random()
     new_proc= mp.Process(target=SubOpt, args=(pid,queue_out,fkind))
     processes[pid]= new_proc
@@ -46,10 +46,10 @@ def Main1(fkind):
     processes[pid_out].join()
     del processes[pid_out]
     results.append((pid_out,x,score))
-    print 'Finished:',results[-1]
+    print('Finished:',results[-1])
 
   results.sort(key=lambda r:r[-1])
-  print 'Best=',results[0]
+  print('Best=',results[0])
   return results
 
 '''
@@ -61,7 +61,7 @@ def Main2(fkind, num_sol=3):
   queue_out= mp.Queue()
   pid= 0  #process ID
   processes= {}  #pid:process
-  for _ in xrange(20):
+  for _ in range(20):
     p= random.random()
     new_proc= mp.Process(target=SubOpt, args=(pid,queue_out,fkind))
     processes[pid]= new_proc
@@ -74,14 +74,14 @@ def Main2(fkind, num_sol=3):
     processes[pid_out].join()
     del processes[pid_out]
     results.append((pid_out,x,score))
-    print 'Finished:',results[-1]
+    print('Finished:',results[-1])
     if len(results)>=num_sol:  break
 
-  for proc in processes.values():  proc.terminate()
-  for proc in processes.values():  proc.join()
+  for proc in list(processes.values()):  proc.terminate()
+  for proc in list(processes.values()):  proc.join()
 
   results.sort(key=lambda r:r[-1])
-  print 'Best=',results[0]
+  print('Best=',results[0])
   return results
 
 if __name__=='__main__':

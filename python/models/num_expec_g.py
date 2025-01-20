@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    num_expec_g.py
 #\brief   Sampling based numerical expectation.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -52,19 +52,19 @@ def Main():
   var= 0.5**2
   y_exp_test= np.array([[NumExpec2(TrueFunc,x[0],var)] for x in x_test]).astype(np.float32)
 
-  fp1= file('/tmp/exp_true.dat','w')
+  fp1= open('/tmp/exp_true.dat','w')
   for x,y in zip(x_test,y_test):
     fp1.write('%s %s\n' % (' '.join(map(str,x)),' '.join(map(str,y))))
   fp1.close()
 
-  fp1= file('/tmp/exp_05.dat','w')
+  fp1= open('/tmp/exp_05.dat','w')
   for x,y in zip(x_test,y_exp_test):
     fp1.write('%s %s\n' % (' '.join(map(str,x)),' '.join(map(str,y))))
   fp1.close()
 
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa /tmp/exp_true.dat w l /tmp/exp_05.dat w l &''',
@@ -74,13 +74,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

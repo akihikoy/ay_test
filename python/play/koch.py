@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from numpy import *
 from math import *
 
@@ -10,8 +10,8 @@ def Rot(p,theta):
 
 def DrawLineRecursively(x1,x2,p_list,n,N):
   if n==N:
-    print ' '.join(map(str,x1))
-    print ' '.join(map(str,x2))
+    print(' '.join(map(str,x1)))
+    print(' '.join(map(str,x2)))
   else:
     p0= p_list[0]
     d1= p_list[-1]-p_list[0]

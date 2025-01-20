@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    log_sigmoid.py
 #\brief   Stable computation for Log(Sigmoid(x)).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,5 +15,5 @@ if __name__=='__main__':
   with open('/tmp/p.dat','w') as fp:
     for x in np.arange(0.0,1.0,0.01):
       fp.write('{0} {1} {2}\n'.format(x, np.log(Sigmoid(x,xt,beta)), LogSigmoid(x,xt,beta)))
-  print 'Plot by:'
-  print 'qplot -x /tmp/p.dat u 1:3 w l /tmp/p.dat u 1:2 w l'
+  print('Plot by:')
+  print('qplot -x /tmp/p.dat u 1:3 w l /tmp/p.dat u 1:2 w l')

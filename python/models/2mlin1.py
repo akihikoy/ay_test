@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    2mlin1.py
 #\brief   2-mode linear system (ver.1).
 #\author  Akihiko Yamaguchi, info@akihikoy.net

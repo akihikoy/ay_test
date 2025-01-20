@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    pose_opt1.py
 #\brief   Optimization of 6d pose (xyz+quaternion).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -311,24 +311,24 @@ def OptimizeRSPose(sample_list, pos_loss_gain=30.0):
     num_f_eval[0]+= 1
     return err
 
-  print '##OptimizeRSPose##'
+  print('##OptimizeRSPose##')
   #print 'sample_list [(x_marker_robot,x_marker_rs)]:'
   #for (x_marker_robot,x_marker_rs) in sample_list:  print ' ',(x_marker_robot,x_marker_rs)
   # Minimize the pose_error
   xmin,xmax= [-5,-5,-5, -5,-5,-5],[5,5,5, 5,5,5]
   tol= 1.0e-6
   bounds= np.array([xmin,xmax]).T
-  print 'Optimizing...'
+  print('Optimizing...')
   res= scipy.optimize.differential_evolution(pose_error, bounds, strategy='best1bin', maxiter=300, popsize=20, tol=tol, mutation=(0.5, 1), recombination=0.7)
   #res= scipy.optimize.minimize(pose_error, [0,0,0,0.1,0.1,0.1], bounds=bounds)
-  print ''
-  print 'Optimization result:\n',res
+  print('')
+  print('Optimization result:\n',res)
   x_rs= rs_pose_to_x(res.x)
-  print 'Error detail:'
+  print('Error detail:')
   for i_sample,(x_marker_robot,x_marker_rs) in enumerate(sample_list):
-    print '  #{}: err={} diff_x={}'.format(i_sample,
+    print('  #{}: err={} diff_x={}'.format(i_sample,
       loss_diff_x(DiffX(x_marker_robot,Transform(x_rs,x_marker_rs))),
-      DiffX(x_marker_robot,Transform(x_rs,x_marker_rs)) )
+      DiffX(x_marker_robot,Transform(x_rs,x_marker_rs)) ))
   return x_rs
 
 

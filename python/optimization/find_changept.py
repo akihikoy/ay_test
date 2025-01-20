@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    find_changept.py
 #\brief   Find a change point of a function.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,6 +25,6 @@ if __name__=='__main__':
 
   #res= scipy.optimize.golden(func_opt, brack=bound, tol=1e-06, maxiter=1000)
   res= scipy.optimize.minimize_scalar(func_opt, bounds=bounds, method='bounded', options={'xatol': 1e-05, 'maxiter': 500})
-  print res
-  print res.x, func(res.x), func_opt(res.x), func_opt(1), func_opt(0), func_opt(0.55)
+  print(res)
+  print(res.x, func(res.x), func_opt(res.x), func_opt(1), func_opt(0), func_opt(0.55))
 

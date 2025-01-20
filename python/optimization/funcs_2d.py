@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    funcs_2d.py
 #\brief   Objective functions to be minimized (ver.2, considering a batch operation).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
