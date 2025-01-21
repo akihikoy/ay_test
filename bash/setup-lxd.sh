@@ -33,5 +33,12 @@ lxc exec $cnt_name -- systemctl restart ssh
 
 lxc file push ~/prg/fvinstaller/fv+gripper/install.sh $cnt_name/home/fv/
 
+if [[ -e /lib/modules/`uname -r` ]];then
+  sudo lxc file push --recursive /lib/modules/`uname -r` $cnt_name/lib/modules/
+fi
+if [[ -e /usr/src/linux-headers-`uname -r` ]];then
+  sudo lxc file push --recursive /usr/src/linux-headers-`uname -r` $cnt_name/usr/src/
+fi
+
 lxc exec $cnt_name -- bash -c 'ssh fv@localhost'
 
