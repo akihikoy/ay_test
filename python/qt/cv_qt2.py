@@ -10,12 +10,13 @@ from PyQt4 import QtCore,QtGui
 import cv2
 
 class TImgDialog(QtGui.QDialog):
-  def __init__(self, parent=None):
+  def __init__(self, parent=None, cam_dev=0):
     super(TImgDialog, self).__init__(parent)
-    self.cap= cv2.VideoCapture(0)
+    self.cap= cv2.VideoCapture(cam_dev)
     self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-    print('Camera opened')
+    print(f'Camera({cam_dev}) opened')
+    print('Press q to quit.')
     #self.resize(321, 241)
     self.show()
 
@@ -25,6 +26,10 @@ class TImgDialog(QtGui.QDialog):
 
   def captureImage(self):
     ret,frame= self.cap.read()
+    if frame is None:
+      self.cv_img= None
+      print('WARNING: Failed to capture')
+      return
     self.cv_img= frame
     height, width, byte_value = self.cv_img.shape
     byte_value= byte_value * width
@@ -33,6 +38,8 @@ class TImgDialog(QtGui.QDialog):
 
   def paintEvent(self, event):
     self.captureImage()
+    if self.cv_img is None:
+      return
     self.resize(self.cv_img.shape[1], self.cv_img.shape[0])
     painter= QtGui.QPainter()
     painter.begin(self)
@@ -57,6 +64,6 @@ class TImgDialog(QtGui.QDialog):
 a = QtGui.QApplication(sys.argv)
 
 # The QWidget widget is the base class of all user interface objects in PyQt4.
-w = TImgDialog()
+w = TImgDialog(cam_dev=int(sys.argv[1]) if len(sys.argv)>1 else 0)
 
 sys.exit(a.exec_())
