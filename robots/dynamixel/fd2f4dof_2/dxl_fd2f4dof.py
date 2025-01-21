@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dxl_fd2f4dof.py
 #\brief   Control module of FD2F4DoF gripper.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

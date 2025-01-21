@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Reboot Dynamixel.
 
 from dxl_mikata6 import *
@@ -7,7 +7,7 @@ from dxl_mikata6 import *
 mikata= TMikata6()
 mikata.Setup()
 
-print 'Rebooting Dynamixel...'
+print('Rebooting Dynamixel...')
 mikata.Reboot()
 
 #mikata.DisableTorque()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control Dynamixel to follow a sin curve
 
 from dxl_util import *
@@ -18,7 +18,7 @@ dxl.EnableTorque()
 p_start= 2000
 dxl.MoveTo(p_start)
 time.sleep(2.0)  #wait 2 sec
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
 #Move to a target position
 for t in np.mgrid[0:6*math.pi:0.05]:

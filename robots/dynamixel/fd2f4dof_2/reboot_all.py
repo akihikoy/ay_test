@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Reboot Dynamixel.
 
 from dxl_fd2f4dof import *
@@ -7,7 +7,7 @@ from dxl_fd2f4dof import *
 gripper= TFD2F4DoF()
 gripper.Setup()
 
-print 'Rebooting Dynamixel...'
+print('Rebooting Dynamixel...')
 gripper.Reboot()
 
 #gripper.DisableTorque()

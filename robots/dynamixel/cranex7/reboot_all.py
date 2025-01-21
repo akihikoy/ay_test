@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Reboot Dynamixel.
 
 from dxl_cranex7 import *
@@ -7,7 +7,7 @@ from dxl_cranex7 import *
 crane= TCraneX7()
 crane.Setup()
 
-print 'Rebooting Dynamixel...'
+print('Rebooting Dynamixel...')
 crane.Reboot()
 
 #crane.DisableTorque()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Printing current position without enabling torque.
 
 from dxl_fd2f4dof import *
@@ -15,7 +15,7 @@ gripper.DisableTorque()
 
 try:
   while True:
-    print 'Position=','[',', '.join(['{:.4f}'.format(p) for p in gripper.Position()]),']'
+    print('Position=','[',', '.join(['{:.4f}'.format(p) for p in gripper.Position()]),']')
     time.sleep(0.001)
 except KeyboardInterrupt:
   pass

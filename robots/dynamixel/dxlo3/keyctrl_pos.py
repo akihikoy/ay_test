@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control dynamixel with key input (position control).
 #NOTE: Run before this script: ../fix_usb_latency.sh
 
@@ -31,7 +31,7 @@ p_start= [dxl[i].Position() for i,_ in enumerate(DXL_ID)]
 for i,_ in enumerate(DXL_ID):
   dxl[i].MoveTo(p_start[i])
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',[dxl[i].Position() for i,_ in enumerate(DXL_ID)]
+print('Current position=',[dxl[i].Position() for i,_ in enumerate(DXL_ID)])
 
 
 def ReadKeyboard(is_running, key_cmd, key_locker):
@@ -76,7 +76,7 @@ while True:
 
   if mov!=0:
     trg= [dxl[0].Position()+mov, dxl[1].Position()-mov]
-    print c,mov,trg
+    print(c,mov,trg)
     for i,_ in enumerate(DXL_ID):
       dxl[i].MoveTo(int(trg[i]), blocking=False)
     #time.sleep(0.002)
@@ -85,12 +85,12 @@ while True:
     pass
 
   #time.sleep(0.002)
-  print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(
+  print('Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(
     [dxl[i].Position() for i,_ in enumerate(DXL_ID)],
     [dxl[i].Velocity() for i,_ in enumerate(DXL_ID)],
     [dxl[i].Current() for i,_ in enumerate(DXL_ID)],
     [dxl[i].PWM() for i,_ in enumerate(DXL_ID)],
-    [dxl[i].Temperature() for i,_ in enumerate(DXL_ID)])
+    [dxl[i].Temperature() for i,_ in enumerate(DXL_ID)]))
 
 is_running[0]= False
 t1.join()

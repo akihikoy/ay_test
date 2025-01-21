@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Printing current state.
 
 from dxl_fd2f4dof import *
@@ -13,7 +13,7 @@ gripper.EnableTorque()
 gripper.SetPWM({jname:0 for jname in gripper.JointNames()})
 
 def StateCallback(state):
-  print 'State=',state
+  print('State=',state)
 
 gripper.StartStateObs(StateCallback)
 

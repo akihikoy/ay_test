@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Printing current state.
 
 from dxl_mikata6 import *
@@ -13,7 +13,7 @@ mikata.EnableTorque()
 mikata.SetPWM({jname:0 for jname in mikata.JointNames()})
 
 def StateCallback(state):
-  print 'State=',state
+  print('State=',state)
 
 mikata.StartStateObs(StateCallback)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Relax Dynamixel servos (set all PWMs to zero).
 
 from dxl_fd2f4dof import *

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control dynamixel with key input (position control).
 #NOTE: Run before this script: ../fix_usb_latency.sh
 
@@ -26,7 +26,7 @@ gripper.EnableTorque()
 pose= gripper.Position()
 gripper.MoveTo({jname:p for jname,p in zip(gripper.JointNames(),pose)})
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',gripper.Position()
+print('Current position=',gripper.Position())
 
 
 def ReadKeyboard(is_running, key_cmd, key_locker):
@@ -72,7 +72,7 @@ try:
 
     if mov is not None:
       trg= np.array(gripper.Position()) + mov
-      print c,mov,trg
+      print(c,mov,trg)
       gripper.MoveTo({jname:p for jname,p in zip(gripper.JointNames(),trg)})
       #time.sleep(0.002)
     else:
@@ -91,9 +91,9 @@ try:
       #[dxl[i].Velocity() for i,_ in enumerate(DXL_ID)],
       #[dxl[i].Current() for i,_ in enumerate(DXL_ID)],
       #[dxl[i].PWM() for i,_ in enumerate(DXL_ID)])
-    print 'Position=','[',', '.join(['{:.4f}'.format(p) for p in gripper.Position()]),']'
+    print('Position=','[',', '.join(['{:.4f}'.format(p) for p in gripper.Position()]),']')
 finally:
-  print 'Finishing...'
+  print('Finishing...')
   is_running[0]= False
   t1.join()
 

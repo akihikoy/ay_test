@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Enable servo motors.
 
 from dxl_fd2f4dof import *

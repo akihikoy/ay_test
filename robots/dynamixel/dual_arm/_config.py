@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #ID1: ROTATION
 #ID2: LINEAR (up/down)

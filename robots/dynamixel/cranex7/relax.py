@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Relax Dynamixel servos (set all PWMs to zero).
 
 from dxl_cranex7 import *

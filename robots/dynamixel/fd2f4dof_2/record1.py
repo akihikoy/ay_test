@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Record key points by moving the arm.
 
 from dxl_fd2f4dof import *
@@ -25,7 +25,7 @@ try:
     elif c is not None:
       #print gripper.State()
       #print gripper.State()['position']
-      print '[',', '.join(['{:.4f}'.format(p) for p in gripper.Position()]),'],'
+      print('[',', '.join(['{:.4f}'.format(p) for p in gripper.Position()]),'],')
     #gripper.MoveTo(gripper.Position(as_dict=True),blocking=False)
     time.sleep(0.0025)
 except KeyboardInterrupt:

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control dynamixel with key input (position control ver 2b).
 #The same as ver 2 except for the implementation (using thread).
 
@@ -21,7 +21,7 @@ dxl.EnableTorque()
 p_start= 2100
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
 
 def ReadKeyboard(is_running, key_cmd, key_locker):
@@ -80,9 +80,9 @@ def Holding(holding_state):
       dxl.MoveTo(int(trg+trg_offset), blocking=False)
 
     with holding_state['port_locker']:
-      print 'Err: {5} \t offset: {6} \t P: {0} \t V: {1} \t C: {2} \t PWM: {3} \t TEMP: {4}'.format(
+      print('Err: {5} \t offset: {6} \t P: {0} \t V: {1} \t C: {2} \t PWM: {3} \t TEMP: {4}'.format(
         dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature(),
-        trg-pos, trg_offset)
+        trg-pos, trg_offset))
 
     time.sleep(0.002)
 
@@ -107,7 +107,7 @@ while True:
         dxl.Write(addr, max_pwm)
         #dxl.EnableTorque()
         dxl.CheckTxRxResult()
-        print addr,':',max_pwm,dxl.Read(addr)
+        print(addr,':',max_pwm,dxl.Read(addr))
     elif c=='r':
       with holding_state['port_locker']:
         dxl.Reboot();
@@ -120,7 +120,7 @@ while True:
     #trg= max(0,min(255,dxl.Position()+mov))
     with holding_state['port_locker']:
       trg= dxl.Position()+mov
-    print c,mov,trg
+    print(c,mov,trg)
     #dxl.MoveTo(int(trg+trg_offset), blocking=False)
     #dxl.MoveTo(int(trg), blocking=False)
     holding_state['trg']= trg

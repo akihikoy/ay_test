@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Change ID.
 import argparse
 parser= argparse.ArgumentParser(description='Change the ID of a Dynamixel.')

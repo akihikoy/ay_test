@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Enable dynamixel.
 
 from dxl_util import *

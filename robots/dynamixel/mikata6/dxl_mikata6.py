@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dxl_mikata6.py
 #\brief   Control module of 6DoF Mikata Arm.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

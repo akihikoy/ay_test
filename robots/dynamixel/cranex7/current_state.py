@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Printing current state.
 
 from dxl_cranex7 import *
@@ -13,7 +13,7 @@ crane.EnableTorque()
 crane.SetPWM({jname:0 for jname in crane.JointNames()})
 
 def StateCallback(state):
-  print 'State=',state
+  print('State=',state)
 
 crane.StartStateObs(StateCallback)
 

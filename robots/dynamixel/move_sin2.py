@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control Dynamixel to follow a sin curve (current-based PD control)
 
 from dxl_util import *
@@ -26,20 +26,20 @@ tol= 5
 kp,kd= 0.5, 0.2
 while True:
   curr= kp*(p_start-dxl.Position()) + kd*(0.0-dxl.Velocity())
-  print curr
+  print(curr)
   dxl.SetCurrent(int(curr))
   if abs(p_start-dxl.Position())<tol:
     dxl.SetCurrent(0)
     break
 
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
 #Move to a target position
 for t in np.mgrid[0:2*math.pi:0.01]:
   p_trg= p_start + 250*(0.5-0.5*math.cos(t))
   #print p_trg
   curr= kp*(p_trg-dxl.Position()) + kd*(0.0-dxl.Velocity())
-  print curr
+  print(curr)
   dxl.SetCurrent(int(curr))
   time.sleep(0.001)
   #print 'Current position=',dxl.Position()

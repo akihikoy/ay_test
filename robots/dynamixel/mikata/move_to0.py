@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Move to initial target position with trajectory control.
 
 from dxl_mikata import *

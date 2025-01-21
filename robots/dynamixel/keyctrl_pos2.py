@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control dynamixel with key input (position control ver 2).
 
 from dxl_util import *
@@ -20,7 +20,7 @@ dxl.EnableTorque()
 p_start= 2100
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
 
 def ReadKeyboard(is_running, key_cmd, key_locker):
@@ -63,7 +63,7 @@ while True:
       dxl.Write(addr, max_pwm)
       #dxl.EnableTorque()
       dxl.CheckTxRxResult()
-      print addr,':',max_pwm,dxl.Read(addr)
+      print(addr,':',max_pwm,dxl.Read(addr))
     elif c=='r':
       dxl.Reboot();
       time.sleep(0.1);
@@ -74,7 +74,7 @@ while True:
     #trg= max(0,min(255,trg+mov))
     #trg= max(0,min(255,dxl.Position()+mov))
     trg= dxl.Position()+mov
-    print c,mov,trg
+    print(c,mov,trg)
   else:
     #time.sleep(0.0025)
     pass
@@ -98,9 +98,9 @@ while True:
   dxl.MoveTo(int(trg+trg_offset), blocking=False)
   time.sleep(0.002)
   #print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())
-  print 'Err: {5} \t offset: {6} \t P: {0} \t V: {1} \t C: {2} \t PWM: {3} \t TEMP: {4}'.format(
+  print('Err: {5} \t offset: {6} \t P: {0} \t V: {1} \t C: {2} \t PWM: {3} \t TEMP: {4}'.format(
     dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature(),
-    trg-pos, trg_offset)
+    trg-pos, trg_offset))
 
 is_running[0]= False
 t1.join()

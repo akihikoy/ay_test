@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Move Dynamixel to the initial position, and to a target
 
 from dxl_util import *
@@ -19,7 +19,7 @@ for i,_ in enumerate(DXL_ID):
 
 dxl[0].MoveTo(dxl[0].Position()+dp_trg,blocking=True)
 
-print 'Current position=',[dxl[i].Position() for i,_ in enumerate(DXL_ID)]
+print('Current position=',[dxl[i].Position() for i,_ in enumerate(DXL_ID)])
 
 
 for i,_ in enumerate(DXL_ID):

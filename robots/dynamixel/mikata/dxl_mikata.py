@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dxl_mikata.py
 #\brief   Control module of Mikata Arm.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -51,7 +51,7 @@ class TMikata(object):
         dxl.Id= id
         dxl.Baudrate= self.baudrate
         if not dxl.Setup():
-          print 'Failed to setup Dynamixel at:',jname
+          print('Failed to setup Dynamixel at:',jname)
           return False
 
     #Conversions from/to Dynamixel value to/from PWM(percentage), current(mA),
@@ -73,7 +73,7 @@ class TMikata(object):
   def Quit(self):
     self.StopTrajectory()
     self.StopStateObs()
-    for dxl in self.dxl.values():
+    for dxl in list(self.dxl.values()):
       dxl.Quit()
 
   def EnableTorque(self,joint_names=None):
@@ -156,48 +156,48 @@ class TMikata(object):
   #  blocking: True: this function waits the target position is reached.  False: this function returns immediately.
   def MoveTo(self, target, blocking=True, threshold=0.05):
     with self.port_locker:
-      for jname,pos in target.iteritems():
+      for jname,pos in target.items():
         self.dxl[jname].MoveTo(self.invconv_pos[jname](pos),blocking=False)
 
     while blocking:
-      pos= self.Position(target.keys())
+      pos= self.Position(list(target.keys()))
       if None in pos:  return
       #print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (self.Id, target, pos))
-      if all((abs(trg-p)<=threshold for trg,p in zip(target.values(),pos))):  break
+      if all((abs(trg-p)<=threshold for trg,p in zip(list(target.values()),pos))):  break
 
   #Move the position to a given value(rad) with given current(mA).
   #  target: Target positions and currents {joint_name:(position(rad),current(mA))}
   #  blocking: True: this function waits the target position is reached.  False: this function returns immediately.
   def MoveToC(self, target, blocking=True, threshold=0.05):
     with self.port_locker:
-      for jname,(pos,curr) in target.iteritems():
+      for jname,(pos,curr) in target.items():
         self.dxl[jname].MoveToC(self.invconv_pos[jname](pos),self.invconv_curr[jname](curr),blocking=False)
 
     while blocking:
-      pos= self.Position(target.keys())
+      pos= self.Position(list(target.keys()))
       if None in pos:  return
       #print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (self.Id, target, pos))
-      if all((abs(trg[0]-p)<=threshold for trg,p in zip(target.values(),pos))):  break
+      if all((abs(trg[0]-p)<=threshold for trg,p in zip(list(target.values()),pos))):  break
 
   #Set current(mA)
   #  current: Target currents {joint_name:current(mA)}
   def SetCurrent(self, current):
     with self.port_locker:
-      for jname,curr in current.iteritems():
+      for jname,curr in current.items():
         self.dxl[jname].SetCurrent(self.invconv_curr[jname](curr))
 
   #Set velocity(rad/s)
   #  velocity: Target velocities {joint_name:velocity(rad/s)}
   def SetVelocity(self, velocity):
     with self.port_locker:
-      for jname,vel in velocity.iteritems():
+      for jname,vel in velocity.items():
         self.dxl[jname].SetVelocity(self.invconv_vel[jname](vel))
 
   #Set PWM(percentage).
   #  pwm: Target PWMs {joint_name:pwm(percentage)}
   def SetPWM(self, pwm):
     with self.port_locker:
-      for jname,pwm_ in pwm.iteritems():
+      for jname,pwm_ in pwm.items():
         self.dxl[jname].SetPWM(self.invconv_pwm[jname](pwm_))
 
   #Get current state saved in memory (no port access when running this function).
@@ -298,8 +298,8 @@ class TMikata(object):
       t_traj= [0.0]+t_traj
 
     #Modeling the trajectory with spline.
-    splines= [TCubicHermiteSpline() for d in xrange(dof)]
-    for d in xrange(len(splines)):
+    splines= [TCubicHermiteSpline() for d in range(dof)]
+    for d in range(len(splines)):
       data_d= [[t,q[d]] for q,t in zip(q_traj,t_traj)]
       splines[d].Initialize(data_d, tan_method=splines[d].CARDINAL, c=0.0, m=0.0)
 

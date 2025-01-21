@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Record key points by moving the arm.
 
 from dxl_cranex7 import *
@@ -22,7 +22,7 @@ try:
     if c=='q':  break
     elif c is not None:
       #print crane.State()
-      print crane.State()['position']
+      print(crane.State()['position'])
     #crane.MoveTo(crane.Position(as_dict=True),blocking=False)
     time.sleep(0.0025)
 except KeyboardInterrupt:

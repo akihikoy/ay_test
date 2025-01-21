@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Printing current position without enabling torque.
 
 from dxl_util import *
@@ -14,7 +14,7 @@ dxl.Setup()
 
 try:
   while True:
-    print 'Position=',dxl.Position()
+    print('Position=',dxl.Position())
     time.sleep(0.001)
 except KeyboardInterrupt:
   pass

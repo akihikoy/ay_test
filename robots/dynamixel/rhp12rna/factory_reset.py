@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #FactoryReset Dynamixel.
 
 from dxl_util import *
@@ -10,7 +10,7 @@ dxl.Id= DXL_ID
 dxl.Baudrate= BAUDRATE
 dxl.Setup()
 
-print 'FactoryReset Dynamixel...'
+print('FactoryReset Dynamixel...')
 dxl.FactoryReset()
 
 #dxl.DisableTorque()

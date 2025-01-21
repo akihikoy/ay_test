@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dxl_cranex7.py
 #\brief   Control module of Crane-X7 Arm.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

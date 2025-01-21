@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control dynamixel with key input (position control ver 2b).
 #The same as ver 2 except for the implementation (using thread).
 
@@ -22,7 +22,7 @@ dxl.EnableTorque()
 p_start= 2100
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
 
 def ReadKeyboard(is_running, key_cmd, key_locker):
@@ -168,7 +168,7 @@ while True:
         dxl.Write(addr, max_pwm)
         #dxl.EnableTorque()
         dxl.CheckTxRxResult()
-        print addr,':',max_pwm,dxl.Read(addr)
+        print(addr,':',max_pwm,dxl.Read(addr))
     elif c=='r':
       with port_locker:
         dxl.Reboot();
@@ -182,7 +182,7 @@ while True:
     with port_locker:
       trg= dxl.Position()+mov
       max_pwm= dxl.Read('GOAL_PWM')*0.9
-    print c,mov,trg
+    print(c,mov,trg)
     #dxl.MoveTo(int(trg+trg_offset), blocking=False)
     #dxl.MoveTo(int(trg), blocking=False)
     holding.SetTarget(trg, max_pwm)

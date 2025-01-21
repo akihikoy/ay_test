@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Print dynamixel status.
 
 from dxl_util import *
@@ -10,16 +10,16 @@ dxl.Id= DXL_ID
 dxl.Baudrate= BAUDRATE
 dxl.Setup()
 
-print '-----'
-print 'Status:'
+print('-----')
+print('Status:')
 dxl.PrintStatus()
-print '-----'
-print 'Hardware error status:'
+print('-----')
+print('Hardware error status:')
 dxl.PrintHardwareErrSt()
-print '-----'
-print 'Shutdown configuration:'
+print('-----')
+print('Shutdown configuration:')
 dxl.PrintShutdown()
-print '-----'
+print('-----')
 
 #dxl.DisableTorque()
 dxl.Quit()

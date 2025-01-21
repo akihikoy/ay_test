@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Following sine curve with trajectory control.
 
 from dxl_fd2f4dof import *
@@ -15,7 +15,7 @@ gripper.EnableTorque()
 p_start= [0.28, 0.28, 0.72, 0.72]
 gripper.MoveTo({jname:p for jname,p in zip(gripper.JointNames(),p_start)})
 time.sleep(0.5)
-print 'Current position=',gripper.Position()
+print('Current position=',gripper.Position())
 
 #Generate a trajectory
 amp= [-0.1, -0.1, -0.6, -0.6]

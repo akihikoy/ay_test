@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control dynamixel with key input (current control).
 #NOTE: Run before this script: rosrun ay_util fix_usb_latency.sh
 
@@ -61,7 +61,7 @@ while True:
 
   if mov!=0:
     trg= trg+mov
-    print c,mov,trg
+    print(c,mov,trg)
     #dxl.SetCurrent(trg)
     #time.sleep(0.002)
     #print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())

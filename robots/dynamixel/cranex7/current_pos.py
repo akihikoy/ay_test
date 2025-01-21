@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Printing current position without enabling torque.
 
 from dxl_cranex7 import *
@@ -14,7 +14,7 @@ crane.SetPWM({jname:0 for jname in crane.JointNames()})
 
 try:
   while True:
-    print 'Position=',crane.Position()
+    print('Position=',crane.Position())
     time.sleep(0.001)
 except KeyboardInterrupt:
   pass

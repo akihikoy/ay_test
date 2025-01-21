@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 DXL_DEV= '/dev/ttyUSB2'
 DXL_ID= [2]

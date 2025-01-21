@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Following sine curve.
 
 from dxl_mikata import *
@@ -15,7 +15,7 @@ mikata.EnableTorque()
 p_start= [0, 0, 1, -1.3, 0]
 mikata.MoveTo({jname:p for jname,p in zip(mikata.JointNames(),p_start)})
 time.sleep(0.5)
-print 'Current position=',mikata.Position()
+print('Current position=',mikata.Position())
 
 #Move to a target position
 gain= [0.45, 0.15, 0.15, 0.7, 0.7]

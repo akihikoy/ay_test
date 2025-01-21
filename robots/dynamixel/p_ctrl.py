@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Example of P control
 
 from dxl_util import *
@@ -18,7 +18,7 @@ dxl.EnableTorque()
 p_start= 2100
 dxl.MoveTo(p_start)
 time.sleep(2.0)  #wait 2 sec
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
 tol= 40  #Tolerance
 p_trg= 1500  #Target position

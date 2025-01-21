@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Printing current positions of two Dynamixels without enabling torque.
 
 from dxl_util import *
@@ -18,7 +18,7 @@ for i in (0,1):
 
 try:
   while True:
-    print 'Positions=',dxl[0].Position(),dxl[1].Position()
+    print('Positions=',dxl[0].Position(),dxl[1].Position())
     time.sleep(0.001)
 except KeyboardInterrupt:
   pass

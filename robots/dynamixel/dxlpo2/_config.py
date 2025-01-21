@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 DXL_ID= 1
 #BAUDRATE= 57600
 #BAUDRATE= 115200

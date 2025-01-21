@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Move to two target poses.
 
 from dxl_mikata import *

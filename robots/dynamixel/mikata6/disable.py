@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Disable motors.
 
 from dxl_mikata6 import *

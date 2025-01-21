@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Following a trajectory.
 
 from dxl_fd2f4dof import *
@@ -23,10 +23,10 @@ q_traj= [
   [ -0.1626, 0.2838, 0.6305, 0.7517 ],
   [ 0.1856, 0.2838, 0.5890, 0.7532 ],
   ]
-t_traj= np.array(range(len(q_traj)))*1.0
+t_traj= np.array(list(range(len(q_traj))))*1.0
 
-print q_traj
-print t_traj
+print(q_traj)
+print(t_traj)
 
 gripper.FollowTrajectory(gripper.JointNames(), q_traj, t_traj, blocking=True)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Stop gripper during moving.
 
 from dxl_util import *
@@ -18,19 +18,19 @@ dxl.EnableTorque()
 p_start= 26  #Open
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
-print 'Type current position, and then hold the gripper to prevent moving'
+print('Type current position, and then hold the gripper to prevent moving')
 
 p_trg= 776  #Close
-p_trg= int(raw_input('type target: '))
+p_trg= int(input('type target: '))
 
 dxl.MoveTo(p_trg,blocking=False)
 for i in range(7):
   time.sleep(0.02)  #wait 0.1 sec
-  print 'Current position=',dxl.Position()
+  print('Current position=',dxl.Position())
 
-print 'Reset the target position to the current position',dxl.Position()
+print('Reset the target position to the current position',dxl.Position())
 dxl.MoveTo(dxl.Position(),blocking=True)
 
 #dxl.DisableTorque()

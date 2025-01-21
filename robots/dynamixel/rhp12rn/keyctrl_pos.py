@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control dynamixel with key input (position control).
 #NOTE: Run before this script: rosrun ay_util fix_usb_latency.sh
 
@@ -23,7 +23,7 @@ dxl.EnableTorque()
 p_start= dxl.Position()
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
 
 def ReadKeyboard(is_running, key_cmd, key_locker):
@@ -64,7 +64,7 @@ while True:
     #trg= max(0,min(255,trg+mov))
     #trg= max(0,min(255,dxl.Position()+mov))
     trg= dxl.Position()+mov
-    print c,mov,trg
+    print(c,mov,trg)
     dxl.MoveTo(int(trg), blocking=False)
     #time.sleep(0.002)
     #print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())
@@ -73,7 +73,7 @@ while True:
     pass
 
   #time.sleep(0.002)
-  print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())
+  print('Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature()))
 
 is_running[0]= False
 t1.join()

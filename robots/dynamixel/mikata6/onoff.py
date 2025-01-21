@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Switching to enable and disable robot by pressing a key.
 from dxl_mikata6 import *
 import time

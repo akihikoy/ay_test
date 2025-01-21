@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Printing current position without enabling torque.
 
 from dxl_util import *
@@ -17,11 +17,11 @@ try:
   f= 0
   t0= time.time()
   while True:
-    print 'Positions=',[dxl[i].Position() for i,_ in enumerate(DXL_ID)]
+    print('Positions=',[dxl[i].Position() for i,_ in enumerate(DXL_ID)])
     f+= 1
     #time.sleep(0.001)
 except KeyboardInterrupt:
-  print 'Observation freq:',f/(time.time()-t0),'Hz'
+  print('Observation freq:',f/(time.time()-t0),'Hz')
 
 for i,_ in enumerate(DXL_ID):
   #dxl[i].DisableTorque()

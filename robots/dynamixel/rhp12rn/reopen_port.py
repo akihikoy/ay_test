@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Port reopen test.
 
 from dxl_util import *
@@ -15,39 +15,39 @@ dxl.EnableTorque()
 #Move to initial position
 p_trg= dxl.Position()+60
 dxl.MoveTo(p_trg)
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
-print 'Closing port...'
+print('Closing port...')
 dxl.Quit()
 
-raw_input('Type anything to continue > ')
+input('Type anything to continue > ')
 #time.sleep(0.1)
-print 'Reopening port...'
+print('Reopening port...')
 dxl.Setup()
 dxl.EnableTorque()
 
 p_trg= p_trg-20
 dxl.MoveTo(p_trg)
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 time.sleep(0.1)
 
-raw_input('Type anything to continue > ')
+input('Type anything to continue > ')
 
 p_trg= p_trg-20
 dxl.MoveTo(p_trg)
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
-raw_input('Type anything to continue > ')
-
-p_trg= p_trg-20
-dxl.MoveTo(p_trg)
-print 'Current position=',dxl.Position()
-
-raw_input('Type anything to continue > ')
+input('Type anything to continue > ')
 
 p_trg= p_trg-20
 dxl.MoveTo(p_trg)
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
+
+input('Type anything to continue > ')
+
+p_trg= p_trg-20
+dxl.MoveTo(p_trg)
+print('Current position=',dxl.Position())
 
 dxl.DisableTorque()
 dxl.Quit()

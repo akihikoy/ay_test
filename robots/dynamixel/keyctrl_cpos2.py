@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Control dynamixel with key input (current-based position control; version 2).
 
 from dxl_util import *
@@ -21,7 +21,7 @@ dxl.EnableTorque()
 p_start= 2100
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',dxl.Position()
+print('Current position=',dxl.Position())
 
 
 def ReadKeyboard(is_running, key_cmd, key_locker):
@@ -70,7 +70,7 @@ while True:
     #trg= max(0,min(255,dxl.Position()+mov))
     trg= dxl.Position()+mov
     #trg= trg+mov
-    print c,mov,trg
+    print(c,mov,trg)
     #dxl.MoveTo(int(trg), blocking=False)
     #trg_curr= dxl.CurrentLimit if mov>0 else -dxl.CurrentLimit
     #trg_curr= 3*(1 if mov>0 else -1)
@@ -101,11 +101,11 @@ while True:
       #trg_curr+= cstep
     #else:
     trg_offset= trg_offset + ostep*sign(trg-pos)
-  print trg-pos, trg_offset, trg_curr
+  print(trg-pos, trg_offset, trg_curr)
   csign= sign(trg+trg_offset-pos)
   dxl.MoveToC(int(trg+trg_offset), current=trg_curr*csign, blocking=False)
   time.sleep(0.002)
-  print 'Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature())
+  print('Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature()))
 
 is_running[0]= False
 t1.join()

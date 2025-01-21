@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Following a trajectory.
 
 from dxl_mikata import *
@@ -25,8 +25,8 @@ q_traj= [[0, 0, 1, -1.3, 0],
   [0, 0, 1, -1.3, 0]]
 t_traj= [2.0,3.0,4.0,5.0,7.0,9.0]
 
-print q_traj
-print t_traj
+print(q_traj)
+print(t_traj)
 
 mikata.FollowTrajectory(mikata.JointNames(), q_traj, t_traj, blocking=True)
 

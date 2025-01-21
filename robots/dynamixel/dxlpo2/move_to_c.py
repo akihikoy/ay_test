@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Move Dynamixel to the initial position, and to a target position and current
 
 from dxl_util import *
@@ -18,8 +18,8 @@ dxl.EnableTorque()
 p_start= 0  #Open
 dxl.MoveTo(p_start)
 time.sleep(0.5)  #wait .5 sec
-print 'Current position=',dxl.Position()
-print 'Current current=',dxl.Current()
+print('Current position=',dxl.Position())
+print('Current current=',dxl.Current())
 
 #p_trg= -250962  #Close
 #p_trg= -200000
@@ -33,8 +33,8 @@ c_trg= 1000
 #Move to a target position
 dxl.MoveToC(p_trg, c_trg)
 time.sleep(0.1)  #wait 0.1 sec
-print 'Current position=',dxl.Position()
-print 'Current current=',dxl.Current()
+print('Current position=',dxl.Position())
+print('Current current=',dxl.Current())
 
 #dxl.DisableTorque()
 dxl.Quit()

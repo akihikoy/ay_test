@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #Running predefined skills by pressing a key.
 from dxl_fd2f4dof import *
 import time
@@ -58,7 +58,7 @@ skills= {
     t_traj= [1.0,2.0,3.0] ),
   }
 
-print skills
+print(skills)
 
 try:
   kbhit= TKBHit()
