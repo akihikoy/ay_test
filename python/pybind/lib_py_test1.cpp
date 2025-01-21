@@ -5,13 +5,18 @@
     \version 0.1
     \date    Aug.15, 2022
 
-Compile:
+Compile (Python2):
 
 g++ -std=c++11 -O3 -Wall -shared -fPIC -I/usr/include/python2.7 `python -m pybind11 --includes` lib_py_test1.cpp lib_cpp_test1.cpp -o lib_py_test1`python3-config --extension-suffix`
 ln -s lib_py_test1.cpython-36m-x86_64-linux-gnu.so lib_py_test1.so
 
+Compile (Python3):
+
+g++ -std=c++11 -O3 -Wall -shared -fPIC -I/usr/include/python3.6 `python3 -m pybind11 --includes` lib_py_test1.cpp lib_cpp_test1.cpp -o lib_py_test1`python3-config --extension-suffix`
+ln -s lib_py_test1.cpython-36m-x86_64-linux-gnu.so lib_py_test1.so
+
 Run:
-python
+python or python3
 > import lib_py_test1
 > lib_py_test1.Add(100,200)
 300
@@ -61,10 +66,22 @@ namespace test_py
 
 using namespace test;
 
+// #define FOR_PYTHON2
+#define FOR_PYTHON3
+
 namespace py= pybind11;
+#if defined(FOR_PYTHON2)
 PYBIND11_PLUGIN(lib_py_test1)
+#elif defined(FOR_PYTHON3)
+PYBIND11_MODULE(lib_py_test1, m)
+#endif
 {
+  #if defined(FOR_PYTHON2)
   py::module m("lib_py_test1", "Wrapper of lib_cpp_test1 with pybind11");
+  #elif defined(FOR_PYTHON3)
+  m.doc() = "Wrapper of lib_cpp_test1 with pybind11";
+  #endif
+
   m.def("Add", &Add, "Add two integers.",
         py::arg("x"), py::arg("y")=1);
   m.def("VecConcatenate", &VecConcatenate);
