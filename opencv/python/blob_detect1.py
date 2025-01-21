@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    blob_detect1.py
 #\brief   Test code of SimpleBlobDetector.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

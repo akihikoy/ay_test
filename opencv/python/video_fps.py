@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    video_fps.py
 #\brief   Get FPS of a video file.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,4 +14,4 @@ if __name__=='__main__':
   if not vin.isOpened():
     raise Exception('Failed to open:',video_file)
 
-  print 'FPS from vin.get(CAP_PROP_FPS):', vin.get(getattr(cv2,'CV_CAP_PROP_FPS',getattr(cv2,'CAP_PROP_FPS',None)))
+  print('FPS from vin.get(CAP_PROP_FPS):', vin.get(getattr(cv2,'CV_CAP_PROP_FPS',getattr(cv2,'CAP_PROP_FPS',None))))

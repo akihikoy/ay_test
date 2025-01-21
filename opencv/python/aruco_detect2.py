@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    aruco_detect2.py
 #\brief   ArUco marker detection test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

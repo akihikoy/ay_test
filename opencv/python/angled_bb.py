@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    angled_bb.py
 #\brief   Get a bounding box aligned at a given angle.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -26,7 +26,7 @@ if __name__=='__main__':
   angle= np.random.uniform(-np.pi,np.pi)
 
   aabb_center,aabb_w,aabb_h= GetAlignedBoundingBox(points, angle)
-  print aabb_center,aabb_w,aabb_h
+  print(aabb_center,aabb_w,aabb_h)
 
   img= np.zeros((480,640,3), np.uint8)
   for pt in points:
@@ -42,4 +42,4 @@ if __name__=='__main__':
 
 
   cv2.imshow('image',img)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass

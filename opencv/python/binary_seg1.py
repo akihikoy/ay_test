@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    binary_seg1.py
 #\brief   Segmentation of small binary image;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,12 +9,12 @@ import cv2
 
 if __name__=='__main__':
   img = cv2.imread('../cpp/sample/binary2.png')
-  print img.shape
+  print(img.shape)
 
   disp_int32 = lambda img: np.uint8((img*2**8+(img>0)*2**10)/2**4)
   def disp_img(win_name, img, resize=(20,20)):
     cv2.imshow(win_name, cv2.resize(img,(img.shape[1]*resize[0],img.shape[0]*resize[1]),interpolation=cv2.INTER_NEAREST ))
-    while cv2.waitKey() not in map(ord,[' ','q']):  pass
+    while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass
 
   disp_img('input', img*255)
 
@@ -30,14 +30,14 @@ if __name__=='__main__':
 
   # sure background area
   sure_bg = cv2.dilate(opening,np.ones((1,1),np.uint8),iterations=3)
-  print 'sure_bg\n',sure_bg
+  print('sure_bg\n',sure_bg)
   disp_img('sure_bg',disp_int32(sure_bg))
 
   # Finding sure foreground area
   dist_transform = cv2.distanceTransform(gray,cv2.DIST_L2,5)
   disp_img('dist_transform',dist_transform/10)
   ret, sure_fg = cv2.threshold(dist_transform,0.5*dist_transform.max(),255,0)
-  print 'sure_fg\n',np.uint8(sure_fg/255)
+  print('sure_fg\n',np.uint8(sure_fg/255))
   disp_img('sure_fg',sure_fg)
 
   # Finding unknown region
@@ -51,23 +51,23 @@ if __name__=='__main__':
   #markers = markers+1
   fcres= cv2.findContours(sure_fg, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
   cnts= fcres[0] if len(fcres)==2 else fcres[1]
-  print 'cnts\n',cnts
+  print('cnts\n',cnts)
   markers = np.zeros(sure_fg.shape,np.int32)
   num_markers = len(cnts)
   for idx,cnt in enumerate(cnts):
     cv2.drawContours(markers, [cnt], -1, idx+1, 2, 8)
   markers = markers + 1
-  print 'markers(contours)\n',markers
+  print('markers(contours)\n',markers)
   disp_img('markers(contours)',disp_int32(markers))
 
 
   # Now, mark the region of unknown with zero
   markers[unknown>0] = 0
-  print 'markers(removing unknown)\n',markers
+  print('markers(removing unknown)\n',markers)
   disp_img('markers(removing unknown)',disp_int32(markers))
 
   cv2.watershed(img,markers)
-  print 'markers(watershed)\n',markers
+  print('markers(watershed)\n',markers)
   disp_img('markers(watershed)',disp_int32(markers))
 
   img[markers == -1] = np.array([1,0,0],np.uint8)

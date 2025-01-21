@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    depth2normal2.py
 #\brief   Convert a depth image to a normal image with considering 3D geometry.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -13,8 +13,8 @@ def DepthToNormalCore(img_depth, proj_mat):
   m= img_depth.astype('int16')
   Fx,Fy,Cx,Cy= proj_mat[0,0],proj_mat[1,1],proj_mat[0,2],proj_mat[1,2]
   Fz= 1e3
-  u= np.repeat([range(m.shape[1])],m.shape[0],axis=0)
-  v= np.repeat([range(m.shape[0])],m.shape[1],axis=0).T
+  u= np.repeat([list(range(m.shape[1]))],m.shape[0],axis=0)
+  v= np.repeat([list(range(m.shape[0]))],m.shape[1],axis=0).T
   d1= np.pad(m[:,1:], ((0,0),(0,1)), 'constant')
   d3= np.pad(m[:,:-1], ((0,0),(1,0)), 'constant')
   d2= np.pad(m[1:,:], ((0,1),(0,0)), 'constant')
@@ -56,15 +56,15 @@ if __name__=='__main__':
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth003.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth004.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
-  print img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)]
+  print(img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)])
 
   proj_mat= np.array([[612.449462890625, 0.0, 317.5238952636719, 0.0], [0.0, 611.5702514648438, 237.89498901367188, 0.0], [0.0, 0.0, 1.0, 0.0]])
 
   t_start= time.time()
   norm_alpha,norm_beta= DepthToNormal(img_depth, proj_mat, resize_ratio=0.25)
-  print 'Computation time:',time.time()-t_start
+  print('Computation time:',time.time()-t_start)
 
-  print [np.min(norm_alpha),np.max(norm_alpha)], [np.min(norm_beta),np.max(norm_beta)]
+  print([np.min(norm_alpha),np.max(norm_alpha)], [np.min(norm_beta),np.max(norm_beta)])
 
   beta_img= ((1.0-norm_beta/(0.5*np.pi))*255.).astype('uint8')
   hsvimg= np.dstack(((norm_alpha/np.pi*127.+128.).astype('uint8'),
@@ -76,4 +76,4 @@ if __name__=='__main__':
   cv2.imshow('normal',cv2.cvtColor(hsvimg, cv2.COLOR_HSV2BGR))
   #beta_img[beta_img<220]= 0
   cv2.imshow('normal(beta)',beta_img)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass

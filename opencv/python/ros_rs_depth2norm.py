@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_rs_depth2norm.py
 #\brief   Convert a depth image to a normal image.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

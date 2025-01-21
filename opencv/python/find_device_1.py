@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    find_device_1.py
 #\brief   Test of finding a video device (simple; just search for /dev/videoX).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Sep.26, 2023
-from __future__ import print_function
+
 import glob
 import cv2
 

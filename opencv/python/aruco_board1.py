@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    aruco_board1.py
 #\brief   ArUco board detection test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -50,7 +50,7 @@ if __name__=='__main__':
       #i+= 1
   #board= cv2.aruco.Board_create(np.array(objPoints).astype(np.float32), dictionary, np.array(ids))
 
-  print 'board=', board
+  print('board=', board)
 
   Alpha= 1.0
   K= np.array([ 2.7276124573617790e+02, 0., 3.2933938280614751e+02, 0.,
@@ -60,7 +60,7 @@ if __name__=='__main__':
           -7.4899999999988864e-03 ])
   size_in,size_out=  (640,480),(640,480)
   P,_= cv2.getOptimalNewCameraMatrix(K, D, size_in, Alpha, size_out)
-  print P, P.shape, P.dtype
+  print(P, P.shape, P.dtype)
 
   while(True):
     ret,frame= cap.read()
@@ -70,7 +70,7 @@ if __name__=='__main__':
       cv2.aruco.drawDetectedMarkers(frame, corners, ids)
       #print 'corners:', corners
       retval, rvec, tvec= cv2.aruco.estimatePoseBoard(corners, ids, board, P, D)
-      print 'retval, rvec, tvec=', retval, rvec, tvec
+      print('retval, rvec, tvec=', retval, rvec, tvec)
       #draw the axis
       #cv2.drawFrameAxes(frame, P, D, rvec, tvec, length=0.05)  #For OpenCV 3.4+
       cv2.aruco.drawAxis(frame, P, D, rvec, tvec, length=0.05);

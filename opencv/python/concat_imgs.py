@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    concat_imgs.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,4 +15,4 @@ if __name__=='__main__':
   cat_h= np.concatenate((img1,img2), axis=1)
   cv2.imshow('concatenate vertically', cat_v)
   cv2.imshow('concatenate horizontally', cat_h)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass

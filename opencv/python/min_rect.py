@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    min_rect.py
 #\brief   Test of minAreaRect.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -45,7 +45,7 @@ if __name__=='__main__':
   aabb_center,(aabb_w,aabb_h),aabb_angle= MinAreaRect(points)
 
   #print min_rect, type(min_rect)
-  print aabb_center,aabb_w,aabb_h,aabb_angle
+  print(aabb_center,aabb_w,aabb_h,aabb_angle)
 
   img= np.zeros((480,640,3), np.uint8)
   for pt in points:
@@ -61,5 +61,5 @@ if __name__=='__main__':
 
 
   cv2.imshow('image',img)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass
 

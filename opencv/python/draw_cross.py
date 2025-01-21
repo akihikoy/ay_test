@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    draw_cross.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -16,9 +16,9 @@ Draw a cross mark on the image center.
 '''
 def DrawCrossOnCenter(img, size=20, col=(255,0,128), thickness=1):
   rows,cols,_= img.shape
-  hsize= size/2
-  cv2.line(img, (cols/2-hsize,rows/2), (cols/2+hsize,rows/2), col, thickness)
-  cv2.line(img, (cols/2,rows/2-hsize), (cols/2,rows/2+hsize), col, thickness)
+  hsize= size//2
+  cv2.line(img, (cols//2-hsize,rows//2), (cols//2+hsize,rows//2), col, thickness)
+  cv2.line(img, (cols//2,rows//2-hsize), (cols//2,rows//2+hsize), col, thickness)
 
 
 if __name__=='__main__':

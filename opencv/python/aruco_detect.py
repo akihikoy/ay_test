@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    aruco_detect.py
 #\brief   ArUco marker detection test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -19,7 +19,7 @@ if __name__=='__main__':
 
     corners, ids, rejectedImgPoints= cv2.aruco.detectMarkers(frame, dictionary, parameters=parameters)
     cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-    print 'corners:', corners
+    print('corners:', corners)
 
     cv2.imshow('marker_detection',frame)
     if cv2.waitKey(1)&0xFF==ord('q'):

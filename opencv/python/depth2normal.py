@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    depth2normal.py
 #\brief   Convert a depth image to a normal image.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -38,18 +38,18 @@ if __name__=='__main__':
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth003.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
   #img_depth= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth004.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16)
-  print img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)]
+  print(img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)])
 
   t_start= time.time()
   img_norm,img_amp= DepthToNormalImg(img_depth, with_amp=True)
-  print 'Computation time:',time.time()-t_start
+  print('Computation time:',time.time()-t_start)
 
-  print np.min(img_norm.reshape(-1,3),axis=0),np.max(img_norm.reshape(-1,3),axis=0)
-  print np.min(img_amp),np.max(img_amp)
+  print(np.min(img_norm.reshape(-1,3),axis=0),np.max(img_norm.reshape(-1,3),axis=0))
+  print(np.min(img_amp),np.max(img_amp))
 
   cv2.imshow('depth',cv2.cvtColor(img_depth.astype('uint8'), cv2.COLOR_GRAY2BGR))
   cv2.imshow('normal(abs)',np.abs(img_norm))
   cv2.imshow('normal(amp)',img_amp.astype('uint8'))
   img_amp= cv2.GaussianBlur(img_amp,(5,5),0)
   cv2.imshow('normal(amp-blur)',img_amp.astype('uint8'))
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass

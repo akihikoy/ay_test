@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    mouse.py
 #\brief   Detect mouse event.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -8,11 +8,11 @@ import cv2
 
 def OnMouse(event, x, y, flags, param):
   if event==cv2.EVENT_LBUTTONUP:
-    print 'LBUTTONUP',x,y
+    print('LBUTTONUP',x,y)
   elif event==cv2.EVENT_RBUTTONUP and flags&cv2.EVENT_FLAG_SHIFTKEY:
-    print 'RBUTTONUP+SHIFTKEY',x,y
+    print('RBUTTONUP+SHIFTKEY',x,y)
   else:
-    print event,x,y,flags,param
+    print(event,x,y,flags,param)
 
 cv2.namedWindow("camera")
 cv2.setMouseCallback("camera", OnMouse)

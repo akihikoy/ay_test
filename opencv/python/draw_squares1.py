@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    draw_squares1.py
 #\brief   Draw squares.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

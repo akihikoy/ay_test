@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    resize.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import six.moves.cPickle as pickle
 import cv2
 
 if __name__=='__main__':
-  img= pickle.load(open('../../python/data/depth001.dat','rb'))['img_depth']
+  img= pickle.load(open('../../python/data/depth001.dat','rb'), encoding='latin1')['img_depth']
   #print img_depth.shape
 
   resize_ratio= 0.5
@@ -17,5 +17,5 @@ if __name__=='__main__':
 
   cv2.imshow('image',img*255)
   #cv2.imshow('localmax',localmax)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_ch_col.py
 #\brief   Change colors of images from a ROS image topic.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -55,7 +55,7 @@ def ImageCallback(msg, fmt, f_img_op):
       if not os.path.exists(filename):  break
     #cv2.imwrite(filename, img_viz)
     cv2.imwrite(filename, img_modified)
-    print 'Saved image into: {} ({})'.format(filename,fmt)
+    print('Saved image into: {} ({})'.format(filename,fmt))
     #NOTE: Use cv2.imread(filename, cv2.IMREAD_ANYDEPTH) to read depth image (16UC1).
   elif key==ord('q'):
     rospy.signal_shutdown('quit.')
@@ -85,8 +85,8 @@ class TChangeImgColor(object):
 
   def OnMouse(self, event, x, y, flags, param):
     if event==cv2.EVENT_LBUTTONUP:
-      print 'Add=',self.add_b,self.add_g,self.add_r
-      print 'Mult=',self.mult_b,self.mult_g,self.mult_r
+      print('Add=',self.add_b,self.add_g,self.add_r)
+      print('Mult=',self.mult_b,self.mult_g,self.mult_r)
 
   def ChangeImgColor(self, img):
     # Normalize the image to the range [0, 1] for easier manipulation

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    contour3.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -66,18 +66,18 @@ if __name__=='__main__':
   #img_depth,step,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth002.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),2,1,0
   #img_depth,step,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth003.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),2,1,0
   img_depth,step,v_s,v_l= cv2.cvtColor(cv2.imread('../cpp/sample/nprdepth004.png'), cv2.COLOR_BGR2GRAY).astype(np.uint16),10,1,0
-  print img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)]
+  print(img_depth.shape, img_depth.dtype, [np.min(img_depth), np.max(img_depth)])
 
   img_depth[img_depth==0]= np.max(img_depth)
   #img_depth= scipy.ndimage.gaussian_filter(img_depth, sigma=7)
   #cv2.imshow('filtered',img_depth*155)
 
 
-  print 'min:',np.min(img_depth)
-  print 'max:',np.max(img_depth)
+  print('min:',np.min(img_depth))
+  print('max:',np.max(img_depth))
   contours= FindMultilevelContours(img_depth, np.min(img_depth), np.max(img_depth), step, v_smaller=v_s, v_larger=v_l)
-  pickle.dump(contours,open('/tmp/contours1.dat','w'))
-  print '# of levels, contours, points:', len(contours), sum(len(cnts) for v,cnts in contours), sum(sum(len(cnt) for cnt in cnts) for v,cnts in contours)
+  pickle.dump(contours,open('/tmp/contours1.dat','wb'))
+  print('# of levels, contours, points:', len(contours), sum(len(cnts) for v,cnts in contours), sum(sum(len(cnt) for cnt in cnts) for v,cnts in contours))
   img_viz= DrawMultilevelContours(img_depth, contours)*1
 
   #data= img_depth.reshape(img_depth.shape[0],img_depth.shape[1])
@@ -86,4 +86,4 @@ if __name__=='__main__':
 
   cv2.imshow('depth',img_viz)
   #cv2.imshow('localmax',localmax)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass

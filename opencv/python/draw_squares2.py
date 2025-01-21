@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    draw_squares2.py
 #\brief   Draw squares (no overlap).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import cv2
 
 def GenSquarePattern2(img_w=200, img_h=200, w=20, h=20, N=10,
                       bg_col=(255,255,255), line_col=(2,48,155), fill_col=(86,168,228)):
-  Nw,Nh= img_w/w,img_h/h
+  Nw,Nh= img_w//w,img_h//h
   i_pts= np.random.permutation(Nw*Nh)[:N]
   pts= [(i//Nw,i%Nw) for i in i_pts]
 

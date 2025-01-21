@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #DEPRECATED: This is an old fashioned code.
 # -*- coding: utf-8 -*-
 # src: http://d.hatena.ne.jp/kuri27/20110523/1306099283
@@ -25,6 +25,6 @@ else:
 while True:
   img= cv.QueryFrame(capture)
   cv.ShowImage('camera', img)
-  k= cv.WaitKey(10);
+  k= cv.WaitKey(10) & 0xFF;
   if k==ord('q'):
     break

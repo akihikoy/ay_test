@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    aruco_board_rosimg1.py
 #\brief   ArUco board detection on ROS image topic.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -18,7 +18,7 @@ parameters= cv2.aruco.DetectorParameters_create()
 #NOTE: Use ../cpp/sample/marker/markers_1_9.svg as the board.
 board= cv2.aruco.GridBoard_create(markersX=3, markersY=3, markerLength=0.04, markerSeparation=0.02, dictionary=dictionary, firstMarker=1)
 
-print 'board=', board
+print('board=', board)
 
 rospy.init_node('aruco_board_rosimg1')
 
@@ -50,17 +50,17 @@ def ImageCallback(msg, fmt):
   else:  img_viz= img
   
   frame= img_viz
-  print 'frame=',frame.shape
-  print 'dtype=',frame.dtype
+  print('frame=',frame.shape)
+  print('dtype=',frame.dtype)
 
   corners, ids, rejectedImgPoints= cv2.aruco.detectMarkers(frame, board.dictionary, parameters=parameters)
   if ids is not None and len(ids)>0:
     cv2.aruco.drawDetectedMarkers(frame, corners, ids)
     #print 'corners:', corners
     retval, rvec, tvec= cv2.aruco.estimatePoseBoard(corners, ids, board, P, D)
-    print 'retval=', retval
-    print 'rvec=', rvec
-    print 'tvec=', tvec
+    print('retval=', retval)
+    print('rvec=', rvec)
+    print('tvec=', tvec)
     #draw the axis
     #cv2.drawFrameAxes(frame, P, D, rvec, tvec, length=0.05)  #For OpenCV 3.4+
     cv2.aruco.drawAxis(frame, P, D, rvec, tvec, length=0.05);

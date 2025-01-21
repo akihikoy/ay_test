@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    localmax.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -77,7 +77,7 @@ def FindLocalMaxima(img_depth, ground_depth):
 
   fcres= cv2.findContours(img_depth, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
   cnts= fcres[0] if len(fcres)==2 else fcres[1]
-  print cnts, len(cnts)
+  print(cnts, len(cnts))
   result= []
   for c in cnts:
     cX,cY= np.mean(c,axis=0)[0]
@@ -86,7 +86,7 @@ def FindLocalMaxima(img_depth, ground_depth):
 
 
 if __name__=='__main__':
-  img_depth= pickle.load(open('../../python/data/depth001.dat','rb'))['img_depth']
+  img_depth= pickle.load(open('../../python/data/depth001.dat','rb'), encoding='latin1')['img_depth']
   #img_depth= cv2.cvtColor(cv2.imread('/tmp/obs_img_depth.png'), cv2.COLOR_BGR2GRAY)
   #print img_depth.shape
 
@@ -94,12 +94,12 @@ if __name__=='__main__':
 
   #localmax= findIsolatedLocalMaxima(img_depth)
   localmax= FindLocalMaxima(img_depth, 380)
-  print localmax
+  print(localmax)
 
   for u,v in localmax:
     cv2.circle(img_depth, (u,v), 4, 255, 1)
 
   cv2.imshow('depth',img_depth*150)
   #cv2.imshow('localmax',localmax)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass
 

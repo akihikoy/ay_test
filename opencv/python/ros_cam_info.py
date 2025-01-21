@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_cam_info.py
 #\brief   Get camera parameters from a ROS topic.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -35,10 +35,10 @@ if __name__=='__main__':
   rospy.init_node('ros_cam_info')
   topic= sys.argv[1] if len(sys.argv)>1 else '/camera/aligned_depth_to_color/camera_info'
   proj_mat= GetCameraProjectionMatrix(cam_info_topic=topic)
-  print 'proj_mat=\n',proj_mat
+  print('proj_mat=\n',proj_mat)
 
   P,K,D,R= GetCameraInfo(cam_info_topic=topic)
-  print 'P=\n',P
-  print 'K=\n',K
-  print 'D=\n',D
-  print 'R=\n',R
+  print('P=\n',P)
+  print('K=\n',K)
+  print('D=\n',D)
+  print('R=\n',R)

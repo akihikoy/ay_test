@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    watershed1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,7 +15,7 @@ if __name__=='__main__':
   disp_int32 = lambda img: img*2**10+(img>0)*2**14
   def disp_img(win_name, img):
     cv2.imshow(win_name, img)
-    while cv2.waitKey() not in map(ord,[' ','q']):  pass
+    while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass
 
   gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
   ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
@@ -48,7 +48,7 @@ if __name__=='__main__':
   #markers = markers+1
   fcres= cv2.findContours(sure_fg, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
   cnts= fcres[0] if len(fcres)==2 else fcres[1]
-  print cnts
+  print(cnts)
   markers = np.zeros(sure_fg.shape,np.int32)
   num_markers = len(cnts)
   for idx,cnt in enumerate(cnts):
@@ -59,17 +59,17 @@ if __name__=='__main__':
 
   # Now, mark the region of unknown with zero
   markers[unknown==255] = 0
-  print markers
+  print(markers)
   disp_img('markers(removing unknown)',disp_int32(markers))
 
   cv2.watershed(img,markers)
-  print markers
+  print(markers)
   disp_img('markers(watershed)',disp_int32(markers))
 
-  img[markers == -1] /= 2
+  img[markers == -1] //= 2
   img[markers == -1] += np.array([128,0,0],np.uint8)
   for idx in range(0,num_markers+2):
-    img[markers == idx] /= 2
+    img[markers == idx] //= 2
     img[markers == idx] += np.array([0,idx*2,0],np.uint8)
 
   disp_img('image',img)

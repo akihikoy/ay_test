@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    mouse_poly.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -11,7 +11,7 @@ def OnMouse(event, x, y, flags, param):
   if event==cv2.EVENT_LBUTTONUP:
     poly.append([x,y])
   elif event==cv2.EVENT_RBUTTONUP:
-    print poly
+    print(poly)
     while len(poly):  poly.pop()
 
 poly= []

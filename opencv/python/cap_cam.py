@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    cap_cam.py
 #\brief   Capture video from a camera.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

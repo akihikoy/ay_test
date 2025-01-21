@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    cam_mat.py
 #\brief   Camera matrix from camera calibration parameters;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -19,11 +19,11 @@ size_in= (320,240)
 size_out= (320,240)
 P,roi= cv2.getOptimalNewCameraMatrix(K, D, size_in, alpha, size_out)
 
-print '''
+print('''
 K= {K}
 D= {D}
 alpha= {alpha}
 size_in,size_out= {size_in}, {size_out}
 P= {P}
 roi= {roi}
-'''.format(K=K,D=D,alpha=alpha,size_in=size_in,size_out=size_out,P=P,roi=roi)
+'''.format(K=K,D=D,alpha=alpha,size_in=size_in,size_out=size_out,P=P,roi=roi))

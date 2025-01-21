@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    binary_seg2.py
 #\brief   Segmentation of small binary image;
 #         Simplified from binary_seg1.py
@@ -38,12 +38,12 @@ if __name__=='__main__':
   #img= cv2.imread('../cpp/sample/binary4.png')
   #img= cv2.imread('../cpp/sample/binary5.png')
   #img= cv2.imread('../cpp/sample/binary6.png')
-  print img.shape
+  print(img.shape)
 
   disp_int32= lambda img: np.uint8((img*2**8+(img>0)*2**10)/2**4)
   def disp_img(win_name, img, resize=(20,20)):
     cv2.imshow(win_name, cv2.resize(img,(img.shape[1]*resize[0],img.shape[0]*resize[1]),interpolation=cv2.INTER_NEAREST ))
-    while cv2.waitKey() not in map(ord,[' ','q']):  pass
+    while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass
 
   disp_img('input', img*255)
 

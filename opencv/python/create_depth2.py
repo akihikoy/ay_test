@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    create_depth2.py
 #\brief   Generate a depth image for test(2).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -22,17 +22,17 @@ if __name__=='__main__':
 
   filename= '../cpp/sample/test_depth2.png'
   cv2.imwrite(filename,img)
-  print 'File is saved into:',filename
+  print('File is saved into:',filename)
 
   cv2.imshow('depth',img)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() not in list(map(ord,[' ','q'])):  pass
 
   img= np.array([[[f_depth2(x,y)] for x in range(width)] for y in range(height)])
   img= img.astype(np.uint8)
 
   filename= '../cpp/sample/test_depth3.png'
   cv2.imwrite(filename,img)
-  print 'File is saved into:',filename
+  print('File is saved into:',filename)
 
   cv2.imshow('depth',img)
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass

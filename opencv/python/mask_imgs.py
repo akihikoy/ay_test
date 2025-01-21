@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    mask_imgs.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -11,7 +11,7 @@ if __name__=='__main__':
   img1= cv2.imread('../cpp/sample/banana-peel_620x350_71497523358.jpg')
   img2= cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY).astype(np.uint8)
   img3= 1.0-img2/255.0
-  print 'shapes:',img1.shape,img2.shape,img3.shape
+  print('shapes:',img1.shape,img2.shape,img3.shape)
 
   def apply_mask(img):
     points= np.array([[100,100],[100,200],[200,200],[200,100]])
@@ -27,4 +27,4 @@ if __name__=='__main__':
   cv2.imshow('win1', apply_mask(img1))
   cv2.imshow('win2', apply_mask(img2))
   cv2.imshow('win3', apply_mask(img3))
-  while cv2.waitKey() not in map(ord,[' ','q']):  pass
+  while cv2.waitKey() & 0xFF not in map(ord,[' ','q']):  pass

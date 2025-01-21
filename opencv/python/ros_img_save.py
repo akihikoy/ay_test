@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_img_save.py
 #\brief   Save a ROS image topic.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -41,7 +41,7 @@ def ImageCallback(msg, fmt):
       if not os.path.exists(filename):  break
     #cv2.imwrite(filename, img_viz)
     cv2.imwrite(filename, img)
-    print 'Saved image into: {} ({})'.format(filename,fmt)
+    print('Saved image into: {} ({})'.format(filename,fmt))
     #NOTE: Use cv2.imread(filename, cv2.IMREAD_ANYDEPTH) to read depth image (16UC1).
   elif key==ord('q'):
     rospy.signal_shutdown('quit.')

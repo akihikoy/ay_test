@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    draw_poly.py
 #\brief   Draw polygon.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

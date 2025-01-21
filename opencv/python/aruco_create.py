@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    aruco_create.py
 #\brief   Creating an ArUco marker.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,8 +15,8 @@ if __name__=='__main__':
   dictionary= cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
   img= cv2.aruco.drawMarker(dictionary, ID, size, borderBits=1)
 
-  print 'Created a marker {}.'.format(ID)
-  print 'Press q on the window to quit.'
+  print('Created a marker {}.'.format(ID))
+  print('Press q on the window to quit.')
   while(True):
     cv2.imshow('marker_{}'.format(ID),img)
     if cv2.waitKey(1)&0xFF==ord('q'):  break
@@ -24,5 +24,5 @@ if __name__=='__main__':
 
   filename= '../cpp/sample/marker/marker_{}.png'.format(ID)
   cv2.imwrite(filename, img)
-  print 'Saved to:',filename
+  print('Saved to:',filename)
 

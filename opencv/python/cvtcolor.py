@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    cvtcolor.py
 #\brief   Convert color
 #\author  Akihiko Yamaguchi, info@akihikoy.net
