@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    cont_io.py
 #\brief   Continuous input scan/output from GPIO.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Jan.22, 2024
-from __future__ import print_function
+
 import ctypes
 import cdio
 import sys
