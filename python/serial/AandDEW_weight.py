@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    AandDEW_weight.py
 #\brief   Read data from the A and D EW weight.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -12,16 +12,19 @@ if __name__=='__main__':
   baudrate= int(sys.argv[2]) if len(sys.argv)>2 else 2400
 
   ser= serial.Serial(dev,baudrate,serial.SEVENBITS,serial.PARITY_EVEN)
+  ser.reset_input_buffer()
+  ser.reset_output_buffer()
 
   try:
     while True:
       raw= ser.readline()
       if len(raw)!=17:
         value= None
+        print('Invalid data')
         continue
       else:
         value= float(raw[3:12])
-      print '"{raw}" / {v} ({l})'.format(raw=repr(raw), v=value, l=len(raw))
+      print('"{raw}" / {v} ({l})'.format(raw=repr(raw), v=value, l=len(raw)))
 
   finally:
     ser.close()

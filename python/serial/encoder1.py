@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    encoder1.py
-#\brief   Loading data from a linear encoder.
+#\brief   Loading data from a linear encoder (via Arduino).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Oct.19, 2021
@@ -10,9 +10,12 @@ import threading
 import time
 
 class TLinearEncoder(object):
-  def __init__(self, dev='/dev/ttyACM0', br=2e6, start=True, disp=False):
+  def __init__(self, dev='/dev/ttyACM0', br=115200, start=True, disp=False):
+    #Use br=2e6 for Mega, 115200 for Nano.
     #serial.SEVENBITS
     self.ser= serial.Serial(dev,br,serial.SEVENBITS,serial.PARITY_NONE)
+    self.ser.reset_input_buffer()
+    self.ser.reset_output_buffer()
     self.disp= disp
     self.locker= threading.RLock()
     if start: self.Start()
@@ -64,7 +67,7 @@ class TLinearEncoder(object):
           self.value= value
 
         #if n%100==0:
-        if self.disp: print '{n} Received: {raw} ({l}), {v}'.format(n=n, raw=repr(raw), l=len(raw), v=value)
+        if self.disp: print('{n} Received: {raw} ({l}), {v}'.format(n=n, raw=repr(raw), l=len(raw), v=value))
         #time.sleep(0.005)
 
     finally:
@@ -73,14 +76,14 @@ class TLinearEncoder(object):
 
 if __name__=='__main__':
   dev= sys.argv[1] if len(sys.argv)>1 else '/dev/ttyACM0'
-  baudrate= int(sys.argv[2]) if len(sys.argv)>2 else 2e6
+  baudrate= int(sys.argv[2]) if len(sys.argv)>2 else 115200
 
   lin= TLinearEncoder(dev, baudrate, disp=False)
   try:
     while True:
       time.sleep(0.1)
-      if not isinstance(lin.Value,float):  print 'LIN invalid value:',lin.Raw; time.sleep(0.1); continue
-      print '{n} Latest: {raw} ({l}), {v}'.format(n=lin.N, raw=repr(lin.Raw), l=len(lin.Raw), v=lin.Value)
+      if not isinstance(lin.Value,float):  print('LIN invalid value:',lin.Raw); time.sleep(0.1); continue
+      print('{n} Latest: {raw} ({l}), {v}'.format(n=lin.N, raw=repr(lin.Raw), l=len(lin.Raw), v=lin.Value))
 
   except KeyboardInterrupt:
     pass

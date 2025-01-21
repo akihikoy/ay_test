@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    knn_reg.py
 #\brief   Nearest Neighbor for Regression
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,11 +23,11 @@ data_y= [[f(x)+0.1*rand()] for x in data_x]
 knn= neighbors.KNeighborsRegressor(n_neighbors=5, weights='distance')  #weights in ['uniform', 'distance']
 reg= knn.fit(data_x, data_y)
 
-print 'score:',reg.score(data_x, data_y)
+print('score:',reg.score(data_x, data_y))
 
 #Now we can estimate y for a given x by
 #  y_pred= reg.predict(x)
-print reg.predict([[1.0,1.0]])
+print(reg.predict([[1.0,1.0]]))
 
 
 #Plot reg.predict(x)

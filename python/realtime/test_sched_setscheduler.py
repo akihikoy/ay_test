@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    test_sched_setscheduler.py
 #\brief   Testing sched_setscheduler system call in Python.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -21,12 +21,12 @@ SCHED_FIFO= ctypes.c_int(1)
 SCHED_RR= ctypes.c_int(2)
 
 libc= ctypes.CDLL("libc.so.6")
-print "Before my scheduler=", libc.sched_getscheduler(os.getpid())
+print("Before my scheduler=", libc.sched_getscheduler(os.getpid()))
 
 param= ctypes.c_int(99)
 err= libc.sched_setscheduler(os.getpid(), SCHED_FIFO, ctypes.byref(param))
 if err != 0:
-  print "errno=", ctypes.get_errno()
+  print("errno=", ctypes.get_errno())
 
-print "After my scheduler=", libc.sched_getscheduler(os.getpid())
+print("After my scheduler=", libc.sched_getscheduler(os.getpid()))
 

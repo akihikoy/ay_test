@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    reg_cmp.py
 #\brief   Comparing regression models.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -47,8 +47,8 @@ linreg= LinearRegression().fit(data_x, data_y)
 def EvalDataError(model, data_x, data_y):
   return np.sqrt(np.mean((model.predict(data_x)-data_y)**2))
 
-print 'gpr-RMSE=', EvalDataError(gpr, data_x, data_y)
-print 'linreg-RMSE=', EvalDataError(linreg, data_x, data_y)
+print('gpr-RMSE=', EvalDataError(gpr, data_x, data_y))
+print('linreg-RMSE=', EvalDataError(linreg, data_x, data_y))
 
 
 #Plot setup

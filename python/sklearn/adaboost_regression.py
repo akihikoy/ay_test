@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #import sys,os
 #sys.path.append(os.environ['HOME']+'/local/lib/python')
 

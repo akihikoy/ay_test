@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    stpmotor_encoder1.py
 #\brief   Stepping motor control with reading encoder value via Arduino.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,6 +14,8 @@ class TSteppingMotorLinearEncoder(object):
   def __init__(self, dev='/dev/ttyACM0', br=2e6, start=True, disp=False):
     #serial.SEVENBITS
     self.ser= serial.Serial(dev,br,serial.EIGHTBITS,serial.PARITY_NONE)
+    self.ser.reset_input_buffer()
+    self.ser.reset_output_buffer()
     self.disp= disp
     self.locker= threading.RLock()
     if start: self.Start()
@@ -65,7 +67,7 @@ class TSteppingMotorLinearEncoder(object):
           self.value= value
 
         #if n%100==0:
-        if self.disp: print '{n} Received: {raw} ({l}), {v}'.format(n=n, raw=repr(raw), l=len(raw), v=value)
+        if self.disp: print('{n} Received: {raw} ({l}), {v}'.format(n=n, raw=repr(raw), l=len(raw), v=value))
         #time.sleep(0.005)
 
     finally:
@@ -98,8 +100,8 @@ if __name__=='__main__':
         else:
           break
 
-        if not isinstance(ctrl.Value,float):  print 'LIN invalid value:',ctrl.Raw; time.sleep(0.1); continue
-        print '{n} Latest: {raw} ({l}), {v}'.format(n=ctrl.N, raw=repr(ctrl.Raw), l=len(ctrl.Raw), v=ctrl.Value)
+        if not isinstance(ctrl.Value,float):  print('LIN invalid value:',ctrl.Raw); time.sleep(0.1); continue
+        print('{n} Latest: {raw} ({l}), {v}'.format(n=ctrl.N, raw=repr(ctrl.Raw), l=len(ctrl.Raw), v=ctrl.Value))
         time.sleep(0.001)
 
   except KeyboardInterrupt:

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os,time,sys,signal
 import subprocess
@@ -76,16 +76,16 @@ def add_to_pline(elem,comma):
   pline[-1]=pline[-1]+' '+elem
 
 it= iter(sys.argv)
-it.next() # skip exec name
+next(it) # skip exec name
 while True:
   try:
-    a= it.next()
-    if a=='-help' or a=='--help': print usage; sys.exit(0)
+    a= next(it)
+    if a=='-help' or a=='--help': print(usage); sys.exit(0)
     elif a=='-3d': plotter='splot'
-    elif a=='-s': setting[-1]=setting[-1]+'; '+it.next()
+    elif a=='-s': setting[-1]=setting[-1]+'; '+next(it)
     elif a=='+s': setting.append('')
     elif a=='-o':
-      filename=it.next()
+      filename=next(it)
       noext,ext= os.path.splitext(filename)
       if noext=='-':  #Auto filename
         i= 0
@@ -93,7 +93,7 @@ while True:
         filename= '/tmp/'+str(i)+ext
       else:
         if os.path.exists(filename):
-          print filename+' : already exists. will you overwrite?'
+          print(filename+' : already exists. will you overwrite?')
           if not ask_yes_no():  sys.exit(0)
       ext= ext.lower()
       if   ext=='.png': s_file='set terminal png size 800, 640 transparent'
@@ -101,34 +101,34 @@ while True:
       elif ext=='.svg': s_file='set terminal svg size 1200 780 fname "Trebuchet MS" fsize 24'
       elif ext=='.eps': s_file='set terminal postscript eps color "Trebuchet MS" 11'
       else:
-        print 'WARNING: undefined extension. save graph as png...'
+        print('WARNING: undefined extension. save graph as png...')
         s_file='set terminal png size 800, 640 transparent'
       s_file=s_file+'; set output "'+filename+'";'
       setting[0]=s_file+setting[0]
       terminal=''
     elif a=='-it': iterative=True
-    elif a=='-i': tsleep=float(it.next()); iterative=True
-    elif a=='-cs': commonstyle=' '+it.next()
+    elif a=='-i': tsleep=float(next(it)); iterative=True
+    elif a=='-cs': commonstyle=' '+next(it)
     elif a=='-ac': autocomma=' ,'
     elif a=='-nc': autocomma=''
     elif a=='-showerr': stderr_redirect=None
     elif a=='-x': keytoexit=True
-    elif a=='-x2': keep_in_bg=str(it.next())
+    elif a=='-x2': keep_in_bg=str(next(it))
     elif a in ('-x2kill','-x2k'):
-      gnuplot_pid_list_g= gnuplot_pid_list+str(it.next())
+      gnuplot_pid_list_g= gnuplot_pid_list+str(next(it))
       fp= open(gnuplot_pid_list_g)
-      pids= map(int, fp.read().split())
+      pids= list(map(int, fp.read().split()))
       fp.close()
-      print 'Terminating gnuplot processes:',pids
+      print('Terminating gnuplot processes:',pids)
       for pid in pids:
         try:
           os.kill(pid, signal.SIGTERM)
         except Exception as e:
-          print 'Failed to kill:',pid
-          print ' ',e
-      print 'Deleting pid list file:',gnuplot_pid_list_g
+          print('Failed to kill:',pid)
+          print(' ',e)
+      print('Deleting pid list file:',gnuplot_pid_list_g)
       os.remove(gnuplot_pid_list_g)
-      print 'Done.'
+      print('Done.')
       sys.exit(0)
     elif a=='-':
       if stdindata=='':
@@ -148,20 +148,20 @@ while True:
     break
 
 if len(pline)==1 and pline[-1]=='':
-  print usage; sys.exit(0)
+  print(usage); sys.exit(0)
 
 while len(setting)<len(pline):  setting.append('')
 
-print terminal
+print(terminal)
 for p,s in zip(pline,setting):
-  print s
-  print plotter+' '+p
+  print(s)
+  print(plotter+' '+p)
 
 persist='--persist'
 if keytoexit or keep_in_bg!=None: persist=''
 
-if not iterative:  g= subprocess.Popen('gnuplot -background white '+persist,shell=True,stdin=subprocess.PIPE,stderr=stderr_redirect)
-else: terminal=''; g= subprocess.Popen('gnuplot -noraise',shell=True,stdin=subprocess.PIPE,stderr=stderr_redirect)
+if not iterative:  g= subprocess.Popen('gnuplot -background white '+persist,shell=True,stdin=subprocess.PIPE,stderr=stderr_redirect,universal_newlines=True)
+else: terminal=''; g= subprocess.Popen('gnuplot -noraise',shell=True,stdin=subprocess.PIPE,stderr=stderr_redirect,universal_newlines=True)
 g.stdin.write(terminal+'\n')
 for p,s in zip(pline,setting):
   g.stdin.write(s+'\n')
@@ -180,12 +180,12 @@ if iterative:
     sys.exit(0)
 
 if keytoexit:
-  print 'press a key to exit > ',
-  raw_input()
+  print('press a key to exit > ', end=' ')
+  input()
 
 if keep_in_bg!=None:
   fp= open(gnuplot_pid_list+keep_in_bg,'a+')
   fp.write('%i\n'%g.pid)
   fp.close()
-  print 'Waiting gnuplot [{pid} in {gid}]. Use [qplot -x2kill {gid}] to terminate the gnuplot processes.'.format(pid=g.pid, gid=keep_in_bg)
+  print('Waiting gnuplot [{pid} in {gid}]. Use [qplot -x2kill {gid}] to terminate the gnuplot processes.'.format(pid=g.pid, gid=keep_in_bg))
   g.wait()  #Actually this does not work; even if we quit the gnuplot window, that process keeps

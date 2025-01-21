@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    iolink_geh6060il_1.py
 #\brief   Test code of operating the GEH6060IL gripper through the IO-Link USB master.
 #         NOTE: It turned out that this does not work.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Sep.14, 2023
-from __future__ import print_function
+
 import sys
 import serial
 import time

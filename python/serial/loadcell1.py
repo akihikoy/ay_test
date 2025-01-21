@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    loadcell1.py
 #\brief   Serial communication test with Arduino where loadcells are installed.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,6 +14,8 @@ if __name__=='__main__':
   baudrate= int(sys.argv[2]) if len(sys.argv)>2 else 2e6
 
   ser= serial.Serial(dev,baudrate,serial.SEVENBITS,serial.PARITY_NONE)
+  ser.reset_input_buffer()
+  ser.reset_output_buffer()
 
   count= 0
   t_prev= time.time()
@@ -23,14 +25,14 @@ if __name__=='__main__':
       try:
         value= float(raw.replace('Reading:','').replace('g\r\n','').strip())
       except ValueError:
-        print 'No regular value: {raw} ({l})'.format(raw=repr(raw), l=len(raw))
+        print('No regular value: {raw} ({l})'.format(raw=repr(raw), l=len(raw)))
         continue
-      print '{raw} ({l}), {value}'.format(raw=repr(raw), l=len(raw), value=value)
+      print('{raw} ({l}), {value}'.format(raw=repr(raw), l=len(raw), value=value))
       #if len(raw)!=17:  continue
       #value= float(raw[3:12])
       count+= 1
       if count%40==0:
-        print 'FPS:',40./(time.time()-t_prev)
+        print('FPS:',40./(time.time()-t_prev))
         t_prev= time.time()
 
       #ser.reset_input_buffer()

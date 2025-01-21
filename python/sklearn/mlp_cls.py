@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    mlp_cls.py
 #\brief   sklearn MLP for classification test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

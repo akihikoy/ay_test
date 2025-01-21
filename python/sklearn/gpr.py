@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #NOTE: Remove and Upgrade scikit-learn (v.1.8 is necessary)
 #  sudo apt-get remove python-sklearn python-sklearn-lib
 #  sudo pip install -U scikit-learn
@@ -28,7 +28,7 @@ gp= GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=9)
 gp.fit(data_x, data_y)
 #Now we can estimate y for a given x by
 #  y_pred= gp.predict(x)
-print gp.predict([[1.0,1.0]])
+print(gp.predict([[1.0,1.0]]))
 
 #Plot gp.predict(x)
 XY= np.mgrid[-2:2:0.1,-2:2:0.1]

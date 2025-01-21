@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    IMADA_ZTS.py
 #\brief   Loading data from IMADA ZTS force sensor;
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -35,6 +35,8 @@ if __name__=='__main__':
 
   #serial.SEVENBITS
   ser= serial.Serial(dev,baudrate,serial.EIGHTBITS,serial.PARITY_NONE,serial.STOPBITS_ONE)
+  ser.reset_input_buffer()
+  ser.reset_output_buffer()
 
   try:
     '''
@@ -44,18 +46,19 @@ if __name__=='__main__':
     XAS: Stop sending data.
     XFC: Request a list of units.
     '''
-    ser.write('XFC\r')
-    raw= ser.read_until('\r')
+    ser.write(b'XFC\r')
+    raw= ser.read_until(b'\r').decode('utf-8')
+    print(f'Read: {raw}')
     if raw[:3]=='XFC':
       units= [ZTS_UNIT_CODE[raw[i:i+2]] for i in range(3,15,2)]
     else:  units= ['None']*6
-    print 'Units:',units
+    print('Units:',units)
 
-    #ser.write('XAG\r')
+    #ser.write(b'XAG\r')
     n= 0
     while True:
-      ser.write('XAR\r')
-      raw= ser.read_until('\r')
+      ser.write(b'XAR\r')
+      raw= ser.read_until(b'\r').decode('utf-8')
 
       try:
         value= float(raw[1:7])
@@ -67,14 +70,14 @@ if __name__=='__main__':
 
       n+= 1
       #if n%100==0:
-      print '{n} Received: {raw} ({l}), {v} {u}'.format(n=n, raw=repr(raw), l=len(raw), v=value, u=unit)
+      print('{n} Received: {raw} ({l}), {v} {u}'.format(n=n, raw=repr(raw), l=len(raw), v=value, u=unit))
       time.sleep(0.01)
       #NOTE: If you want to set the sleep time zero (no sleep),
       #  it would be better to use the continuous data mode at 2000Hz,
       #  started by XAG and stopped by XAS. In this case, do not send XAR.
 
   except KeyboardInterrupt:
-    #ser.write('XAS\r')
+    #ser.write(b'XAS\r')
     pass
 
   finally:

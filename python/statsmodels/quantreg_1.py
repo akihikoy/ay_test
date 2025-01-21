@@ -4,6 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Feb.29, 2020
+from __future__ import print_function
 import numpy as np
 import statsmodels.api as sm
 from statsmodels.regression.quantile_regression import QuantReg
@@ -43,7 +44,7 @@ if __name__=='__main__':
   data_x= [x[:-2]+x[-1:] for x in data_x]
 
   Theta= np.array([[1.0]+x for x in data_x])
-  print '\n'.join(map(str,[[len(x),len(theta),len(f)] for x,theta,f in zip(data_x,Theta,data_f)]))
+  print('\n'.join(map(str,[[len(x),len(theta),len(f)] for x,theta,f in zip(data_x,Theta,data_f)])))
   #quant_reg= QuantReg(data_f, Theta)
   quant_reg= QuantReg(np.array(data_f), np.array(Theta))
   fit1= quant_reg.fit(q=0.1)
@@ -52,8 +53,8 @@ if __name__=='__main__':
   w1= fit1.params
   w5= fit5.params
   w9= fit9.params
-  print fit9.summary()
-  print 'Parameters w1:',w1
-  print 'Parameters w5:',w5
-  print 'Parameters w9:',w9
+  print(fit9.summary())
+  print('Parameters w1:',w1)
+  print('Parameters w5:',w5)
+  print('Parameters w9:',w9)
 

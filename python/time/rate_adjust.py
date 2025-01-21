@@ -75,7 +75,7 @@ if __name__=='__main__':
   t0= time.time()
 
   while True:
-    print('---------',time.time()-t0)
+    print(('---------',time.time()-t0))
     t0= time.time()
     s= 0
     for i in range(int(600*random.random())):

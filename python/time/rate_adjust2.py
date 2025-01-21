@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    rate_adjust2.py
 #\brief   Test of TRate.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

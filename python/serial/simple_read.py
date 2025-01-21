@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    simple_read.py
 #\brief   Simply read from serial port.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,11 +14,13 @@ if __name__=='__main__':
 
   #serial.SEVENBITS
   ser= serial.Serial(dev,baudrate,serial.EIGHTBITS,serial.PARITY_NONE)
+  ser.reset_input_buffer()
+  ser.reset_output_buffer()
 
   try:
     while True:
       raw= ser.readline()
-      print 'Received: {raw} ({l})'.format(raw=repr(raw), l=len(raw))
+      print('Received: {raw} ({l})'.format(raw=repr(raw), l=len(raw)))
 
   finally:
     ser.close()

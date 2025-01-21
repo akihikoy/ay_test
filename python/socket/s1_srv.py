@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    s1_srv.py
 #\brief   Test of socket communication (server)
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,34 +25,34 @@ if __name__=='__main__':
 
   # Bind the socket to the port
   server_address= ('localhost', 20000)
-  print 'Starting server %s:%s' % server_address
+  print('Starting server %s:%s' % server_address)
   sock.bind(server_address)
 
   # Listen for incoming connections
   sock.listen(1)
 
   # Wait for a connection
-  print 'Waiting for a connection'
+  print('Waiting for a connection')
   connection, client_address= sock.accept()
 
   try:
-    print 'Got a client: %s:%s' % client_address
+    print('Got a client: %s:%s' % client_address)
 
     # Receive the data in small chunks and retransmit it
     while True:
       #data= connection.recv(16)
-      data= socket_util.recv_msg(connection)
-      print 'Received: "%s"' % data
+      data= socket_util.recv_msg(connection).decode('utf-8')
+      print('Received: "{}"'.format(data))
       if data:
-        new_data= 'Your data is "%s"' % data
+        new_data= 'Your data is "{}"'.format(data)
         #connection.sendall(new_data)
-        socket_util.send_msg(connection, new_data)
+        socket_util.send_msg(connection, new_data.encode('utf-8'))
       else:
-        print 'No more data from', client_address
+        print('No more data from', client_address)
         break
 
   finally:
     # Clean up the connection
-    print 'Closing connection'
+    print('Closing connection')
     connection.close()
 

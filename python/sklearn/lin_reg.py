@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    lin_reg.py
 #\brief   Linear regression
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -22,13 +22,13 @@ data_y= [[f(x)+0.1*rand()] for x in data_x]
 
 
 reg= LinearRegression().fit(data_x, data_y)
-print 'score:',reg.score(data_x, data_y)
-print 'coef_:',reg.coef_
-print 'intercept_:',reg.intercept_
+print('score:',reg.score(data_x, data_y))
+print('coef_:',reg.coef_)
+print('intercept_:',reg.intercept_)
 
 #Now we can estimate y for a given x by
 #  y_pred= reg.predict(x)
-print reg.predict([[1.0,1.0]])
+print(reg.predict([[1.0,1.0]]))
 
 
 #Plot reg.predict(x)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    s1_cli.py
 #\brief   Test of socket communication (client)
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -26,18 +26,18 @@ if __name__=='__main__':
 
   # Connect the socket to the port where the server is listening
   server_address= ('localhost', 20000)
-  print 'Connecting to %s:%s' % server_address
+  print('Connecting to %s:%s' % server_address)
   sock.connect(server_address)
 
   try:
     while True:
       # Send data
-      message= raw_input('quit or msg > ')
+      message= input('quit or msg > ')
       if message=='quit':  break
 
-      print 'Sending: "%s"' % message
+      print('Sending: "%s"' % message)
       #sock.sendall(message)
-      socket_util.send_msg(sock, message)
+      socket_util.send_msg(sock, message.encode('utf-8'))
 
       ## Look for the response
       #amount_received = 0
@@ -48,11 +48,11 @@ if __name__=='__main__':
         #amount_received += len(data)
         #print 'received "%s"' % data
 
-      data= socket_util.recv_msg(sock)
-      print 'Received: "%s"' % data
+      data= socket_util.recv_msg(sock).decode('utf-8')
+      print('Received: "{}"'.format(data))
 
   finally:
-    print 'Closing connection'
+    print('Closing connection')
     sock.close()
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    s2_srv.py
 #\brief   Socket programming test: the server sends a dict data every 10 hz, and receives a string command to change the dict values.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -18,7 +18,7 @@ def server_loop(conn):
     while True:
       # Send current data_dict to client at 10Hz
       data= (json.dumps(data_dict)+'\n').encode('utf-8')
-      print 'Sending {}...'.format(data)
+      print('Sending {}...'.format(data))
       conn.sendall(data)
       time.sleep(0.1)  # 100ms for 10Hz
 
@@ -27,7 +27,7 @@ def server_loop(conn):
       if ready[0]:
         data = conn.recv(1024).decode('utf-8')
         if data:
-          print 'Received: {}'.format(data)
+          print('Received: {}'.format(data))
           # Assuming command is in format "key:value"
           key, value = data.split(":")
           if key in data_dict and key == "number":
@@ -35,7 +35,7 @@ def server_loop(conn):
           else:
             data_dict[key] = value
   except Exception as e:
-    print "Error: {}".format(e)
+    print("Error: {}".format(e))
   finally:
     conn.close()
 
@@ -46,9 +46,9 @@ def main():
   sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   sock.bind((HOST, PORT))
   sock.listen(1)
-  print 'Waiting for a connection'
+  print('Waiting for a connection')
   connection, client_address= sock.accept()
-  print 'Connected by', client_address
+  print('Connected by', client_address)
   server_loop(connection)
 
 if __name__ == "__main__":

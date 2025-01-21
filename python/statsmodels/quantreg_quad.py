@@ -4,6 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Feb.29, 2020
+from __future__ import print_function
 import numpy as np
 import statsmodels.api as sm
 from statsmodels.regression.quantile_regression import QuantReg
@@ -37,7 +38,7 @@ if __name__=='__main__':
 
   t0= time.time()
   data_x, data_f= GenerateSample(xmin, xmax, N_sample=300, Func=Func, NoiseFunc=NoiseFunc)
-  print 'GenerateSample/Computation time:',time.time()-t0
+  print('GenerateSample/Computation time:',time.time()-t0)
 
   t0= time.time()
   Theta= np.array([QuadFeat(x) for x in data_x])
@@ -48,12 +49,12 @@ if __name__=='__main__':
   w1= fit1.params
   w5= fit5.params
   w9= fit9.params
-  print fit9.summary()
-  print 'Parameters w1:',w1
-  print 'Parameters w5:',w5
-  print 'Parameters w9:',w9
-  print 'QuantReg/Computation time:',time.time()-t0
-  print 'Predict:',fit9.predict(QuadFeat([0.,0]))
+  print(fit9.summary())
+  print('Parameters w1:',w1)
+  print('Parameters w5:',w5)
+  print('Parameters w9:',w9)
+  print('QuantReg/Computation time:',time.time()-t0)
+  print('Predict:',fit9.predict(QuadFeat([0.,0])))
 
   fp= file('/tmp/data.dat','w')
   for x,f in zip(data_x, data_f):
@@ -70,5 +71,5 @@ if __name__=='__main__':
       fp.write('%f %f %f %f %f\n' % (x0,x1, f1,f5,f9))
     fp.write('\n')
 
-  print 'qplot -x -3d /tmp/approx.dat w l /tmp/approx.dat u 1:2:4 w l /tmp/approx.dat u 1:2:5 w l /tmp/data.dat'
+  print('qplot -x -3d /tmp/approx.dat w l /tmp/approx.dat u 1:2:4 w l /tmp/approx.dat u 1:2:5 w l /tmp/data.dat')
 

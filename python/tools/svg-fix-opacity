@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    svg-fix-opacity
 #\brief   Fix opacity:0.9x issue of SVG files.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -21,16 +21,16 @@ usage='''Fix opacity:0.9x issue of SVG files.  Output to display.
 it= iter(sys.argv[1:])
 while True:
   try:
-    a= it.next()
-    if a in ('-help','--help'): print usage; sys.exit(0)
+    a= next(it)
+    if a in ('-help','--help'): print(usage); sys.exit(0)
     if a in ('-test','--test'): test= True
-    elif a=='-2': d2= it.next()
+    elif a=='-2': d2= next(it)
     else: in_svg= a
   except StopIteration:
     break
 
 if in_svg=='':
-  print usage
+  print(usage)
   sys.exit(1)
 
 re_opc=re.compile(r'opacity:0\.9['+d2+r'-9][0-9]*')
@@ -42,8 +42,8 @@ while True:
 
   if not test:
     line= re_opc.sub('opacity:1',line)
-    print line,
+    print(line, end=' ')
   else:
     if re_opc.search(line):
-      print line,
+      print(line, end=' ')
 

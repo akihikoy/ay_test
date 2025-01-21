@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    zts_lin.py
 #\brief   Reading values simultaneously from an IMADA ZTS force sensor and a linear encoder on Arduino.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,11 +9,14 @@ from encoder1 import TLinearEncoder
 import sys
 import time
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 #import threading
 #import copy
 import multiprocessing as mp
-import Queue
+import queue
+
+matplotlib.use('TkAgg')
 
 def PlotLoop(queue_data):
   data= []
@@ -27,7 +30,7 @@ def PlotLoop(queue_data):
       for i in range(100):
         value= queue_data.get(block=False)
         data.append(value)
-    except Queue.Empty:
+    except queue.Empty:
       pass
     if len(data)==0:
       time.sleep(0.02)
@@ -73,9 +76,9 @@ if __name__=='__main__':
     while True:
       t= time.time()
       n_zts, n_lin, v_zts, u_zts, v_lin= zts.N, lin.N, zts.Value, zts.Unit, lin.Value
-      if not isinstance(v_zts,float):  print 'ZTS invalid value:',zts.Raw; time.sleep(dt_sleep); continue
-      if not isinstance(v_lin,float):  print 'LIN invalid value:',lin.Raw; time.sleep(dt_sleep); continue
-      print '{n_zts:06d} {n_lin:06d} Latest: {v_zts:9.04f}{u_zts} {v_lin:9.04f}'.format(n_zts=n_zts, n_lin=n_lin, v_zts=v_zts, u_zts=u_zts, v_lin=v_lin)
+      if not isinstance(v_zts,float):  print('ZTS invalid value:',zts.Raw); time.sleep(dt_sleep); continue
+      if not isinstance(v_lin,float):  print('LIN invalid value:',lin.Raw); time.sleep(dt_sleep); continue
+      print('{n_zts:06d} {n_lin:06d} Latest: {v_zts:9.04f}{u_zts} {v_lin:9.04f}'.format(n_zts=n_zts, n_lin=n_lin, v_zts=v_zts, u_zts=u_zts, v_lin=v_lin))
 
       if log_fp:
         log_fp.write('{} {} {} {}\n'.format(t, v_zts, u_zts, v_lin))
@@ -91,6 +94,6 @@ if __name__=='__main__':
     lin.Stop()
     if log_fp:
       log_fp.close()
-      print 'Logged into:',log_file_name
+      print('Logged into:',log_file_name)
     if with_plot:
       proc_plot.terminate()

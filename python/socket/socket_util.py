@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    socket_util.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -9,7 +9,7 @@ import struct
 
 # Prefix each message with a 4-byte length (network byte order)
 def send_msg(sock, msg):
-  msg= struct.pack('>I', len(msg)+1) + msg + '\n'
+  msg= struct.pack('>I', len(msg)+1) + msg + b'\n'
   sock.sendall(msg)
 
 # Read message length and unpack it into an integer
@@ -20,11 +20,13 @@ def recv_msg(sock):
   msglen= struct.unpack('>I', raw_msglen)[0]
   # Read the message data
   data= recvall(sock, msglen)
-  return data[:-1] if data[-1]=="\n" else data
+  #print(f'debug data={data}, data[-1]={data[-1]}', data.endswith(b'\n'), data[:-1])
+  #return data[:-1] if data.endswith(b'\n') else data
+  return data.strip()
 
 # Helper function to recv n bytes or return None if EOF is hit
 def recvall(sock, n):
-  data= ''
+  data= b''
   while len(data) < n:
     packet= sock.recv(n - len(data))
     if not packet:

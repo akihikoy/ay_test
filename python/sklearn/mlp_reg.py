@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    mlp_reg.py
 #\brief   sklearn MLP for regression test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
