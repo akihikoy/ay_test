@@ -8,7 +8,8 @@
 # http://stackoverflow.com/questions/14834494/pyqt-clicking-x-doesnt-trigger-closeevent
 
 import sys
-from PyQt4 import QtGui, QtCore, uic
+#from PyQt4 import QtGui, QtCore, uic
+from _import_qt import *
 
 class MainWindow(QtGui.QWidget):
   def __init__(self):

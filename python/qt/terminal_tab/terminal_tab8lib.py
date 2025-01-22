@@ -13,7 +13,8 @@
 
 import sys, os
 import signal
-from PyQt4 import QtCore,QtGui,QtTest
+#from PyQt4 import QtCore,QtGui,QtTest
+from _import_qt import *
 
 class TTerminalTab(QtGui.QWidget):
   def __init__(self,title,widgets,exit_command,size=(800,400),horizontal=True,no_focus=True):
@@ -156,6 +157,9 @@ class TTerminalTab(QtGui.QWidget):
       tabs.addTab(tab, term)
 
       terminal= QtGui.QWidget(self)
+      terminal.setAttribute(QtCore.Qt.WA_NativeWindow)
+      terminal.resize(self.width()//2-50, self.height()-100)
+      terminal.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
       hBoxlayout= QtGui.QHBoxLayout()
       tab.setLayout(hBoxlayout)
       hBoxlayout.addWidget(terminal)
@@ -187,7 +191,7 @@ class TTerminalTab(QtGui.QWidget):
       self.TermProcesses.append(
         self.StartProc(
           'urxvt',
-          ['-embed', str(self.qtterm[term].winId()),
+          ['-embed', str(int(self.qtterm[term].winId())),
             '-e', 'tmux', 'new', '-s', self.pid+term]) )
       #print 'new terminal proc:',self.pid+term,self.TermProcesses[-1].pid()
       #QtTest.QTest.qWait(100)

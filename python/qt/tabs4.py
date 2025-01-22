@@ -6,11 +6,12 @@
 #\date    Aug.19, 2023
 
 import sys
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
 #from PyQt5 import QtCore,QtWidgets
 #import PyQt5.QtGui as PyQt5QtGui
 #QtGui= QtWidgets
 #QtGui.QPainter= PyQt5QtGui.QPainter
+from _import_qt import *
 
 def Print(*s):
   for ss in s:  print(ss, end=' ')

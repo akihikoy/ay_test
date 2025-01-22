@@ -8,7 +8,8 @@
 #Ref. https://stackoverflow.com/questions/55876713/how-to-create-a-joystick-controller-widget-in-pyqt/55899694#55899694
 
 import sys
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 
 class TVirtualJoyStick(QtGui.QWidget):
   def __init__(self, *args, **kwargs):

@@ -6,31 +6,32 @@
 #\date    Dec.14, 2016
 
 import sys
-from PyQt4.QtCore import pyqtSlot
-from PyQt4.QtGui import *
+#from PyQt4.QtCore import pyqtSlot
+#from PyQt4.QtGui import *
+from _import_qt import *
 
 # Create a window
-app = QApplication(sys.argv)
-w = QWidget()
+app = QtGui.QApplication(sys.argv)
+w = QtGui.QWidget()
 w.resize(320, 240)
 w.setWindowTitle("Hello World!")
 
 # Add a button
-btn = QPushButton('Hello World!', w)
+btn = QtGui.QPushButton('Hello World!', w)
 btn.setToolTip('Click me!')
 btn.resize(btn.sizeHint())
 btn.move(100, 80)
 
 # Create the actions
-@pyqtSlot()
+#@pyqtSlot()
 def on_click():
     print('3.clicked\n')
 
-@pyqtSlot()
+#@pyqtSlot()
 def on_press():
     print('1.pressed')
 
-@pyqtSlot()
+#@pyqtSlot()
 def on_release():
     print('2.released')
 

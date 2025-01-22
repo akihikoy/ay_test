@@ -6,7 +6,8 @@
 #\date    Mar.31, 2017
 
 import sys
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 
 class TTerminalTab(QtGui.QWidget):
   def __init__(self):

@@ -8,7 +8,8 @@
 #Class version of button01.py
 
 import sys
-from PyQt4 import QtGui
+#from PyQt4 import QtGui
+from _import_qt import *
 
 class TButton(QtGui.QWidget):
   def __init__(self):

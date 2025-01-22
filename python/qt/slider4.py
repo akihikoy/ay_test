@@ -6,7 +6,8 @@
 #\date    Apr.15, 2021
 
 import sys
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 
 class TSlider(QtGui.QWidget):
   def __init__(self, *args, **kwargs):

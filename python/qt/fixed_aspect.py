@@ -8,27 +8,28 @@
 #src: https://wiki.python.org/moin/PyQt/Creating%20a%20widget%20with%20a%20fixed%20aspect%20ratio
 
 import sys
-from PyQt4.QtCore import pyqtSignal, QSize, Qt
-from PyQt4.QtGui import *
+#from PyQt4.QtCore import pyqtSignal, QSize, Qt
+#from PyQt4.QtGui import *
+from _import_qt import *
 
-class MyWidget(QWidget):
+class MyWidget(QtGui.QWidget):
 
-    clicked = pyqtSignal()
-    keyPressed = pyqtSignal(str)
+    clicked = QtCore.pyqtSignal()
+    keyPressed = QtCore.pyqtSignal(str)
 
     def __init__(self, parent = None):
 
-        QWidget.__init__(self, parent)
-        self.color= QColor(0, 0, 0)
-        sizePolicy= QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        QtGui.QWidget.__init__(self, parent)
+        self.color= QtGui.QColor(0, 0, 0)
+        sizePolicy= QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHeightForWidth(True)
         self.setSizePolicy(sizePolicy)
 
     def paintEvent(self, event):
 
-        painter = QPainter()
+        painter = QtGui.QPainter()
         painter.begin(self)
-        painter.fillRect(event.rect(), QBrush(self.color))
+        painter.fillRect(event.rect(), QtGui.QBrush(self.color))
         painter.end()
 
     def keyPressEvent(self, event):
@@ -45,7 +46,7 @@ class MyWidget(QWidget):
 
         if event.button() == Qt.LeftButton:
 
-            self.color = QColor(self.color.green(), self.color.blue(),
+            self.color = QtGui.QColor(self.color.green(), self.color.blue(),
                                 127 - self.color.red())
             self.update()
             self.clicked.emit()
@@ -53,26 +54,26 @@ class MyWidget(QWidget):
 
     def sizeHint(self):
 
-        return QSize(400, 600)
+        return QtCore.QSize(400, 600)
 
     def heightForWidth(self, width):
 
-        return width * 1.5
+        return int(width * 1.5)
 
 
 if __name__ == "__main__":
 
-    app = QApplication(sys.argv)
-    window = QWidget()
+    app = QtGui.QApplication(sys.argv)
+    window = QtGui.QWidget()
 
     mywidget = MyWidget()
-    label = QLabel()
+    label = QtGui.QLabel()
 
     mywidget.clicked.connect(label.clear)
     mywidget.keyPressed.connect(label.setText)
 
-    layout = QVBoxLayout()
-    layout.addWidget(mywidget, 0, Qt.AlignCenter)
+    layout = QtGui.QVBoxLayout()
+    layout.addWidget(mywidget, 0, QtCore.Qt.AlignCenter)
     layout.addWidget(label)
     window.setLayout(layout)
 

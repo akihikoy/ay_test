@@ -6,7 +6,8 @@
 #\date    Apr.14, 2021
 
 import sys
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 
 def Print(*s):
   for ss in s:  print(ss, end=' ')

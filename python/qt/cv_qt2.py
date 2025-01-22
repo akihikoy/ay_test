@@ -6,7 +6,8 @@
 #\date    Sep.27, 2023
 
 import sys
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 import cv2
 
 class TImgDialog(QtGui.QDialog):

@@ -8,6 +8,7 @@
 '''
 This is based on the tutorial:
 https://github.com/ros-visualization/visualization_tutorials/blob/groovy-devel/rviz_python_tutorial/myviz.py
+https://github.com/ros-visualization/visualization_tutorials/blob/noetic-devel/rviz_python_tutorial/myviz.py
 
 NOTE: rviz Qt does not work with PyQt4.
 '''
@@ -22,12 +23,13 @@ import sys
 #from PyQt4 import QtCore,QtGui
 
 #Quick solution to use PyQt4 program with PyQt5.
-from PyQt5 import QtCore,QtWidgets
-import PyQt5.QtGui as PyQt5QtGui
-QtGui= QtWidgets
-for component in ('QFont', 'QPalette', 'QColor', 'QLinearGradient', 'QPainter'):
-  setattr(QtGui,component, getattr(PyQt5QtGui,component))
+#from PyQt5 import QtCore,QtWidgets
+#import PyQt5.QtGui as PyQt5QtGui
+#QtGui= QtWidgets
+#for component in ('QFont', 'QPalette', 'QColor', 'QLinearGradient', 'QPainter'):
+  #setattr(QtGui,component, getattr(PyQt5QtGui,component))
 
+from _import_qt import *
 
 ## Next import all the Qt bindings into the current namespace, for
 ## convenience.  This uses the "python_qt_binding" package which hides
@@ -38,7 +40,10 @@ for component in ('QFont', 'QPalette', 'QColor', 'QLinearGradient', 'QPainter'):
 #from python_qt_binding.QtCore import *
 
 ## Finally import the RViz bindings themselves.
-import rviz
+#Melodic:
+#import rviz
+#Noetic:
+from rviz import bindings as rviz
 
 ## The MyViz class is the main container widget.
 class MyViz( QtGui.QWidget ):

@@ -7,10 +7,12 @@
 
 import sys
 
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
 
 #from PyQt5 import QtCore,QtWidgets
 #QtGui= QtWidgets
+
+from _import_qt import *
 
 def Print(*s):
   for ss in s:  print(ss, end=' ')

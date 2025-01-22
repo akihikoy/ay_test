@@ -7,7 +7,8 @@
 
 import sys
 import yaml
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 #from slider4 import TSlider
 from simple_panel1 import TSimplePanel,InitPanelApp,RunPanelApp
 

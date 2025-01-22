@@ -7,7 +7,8 @@
 
 import sys
 import random
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 
 def Print(*s):
   for ss in s:  print(ss, end=' ')
@@ -31,7 +32,7 @@ class TRenderPrimitive(QtGui.QWidget):
     self.setSizePolicy(size_policy)
 
   def setRandomColor(self):
-    self.color= [255*random.random(),255*random.random(),255*random.random()]
+    self.color= list(map(int,[255*random.random(),255*random.random(),255*random.random()]))
 
   def setShape(self, shape):
     self.shape= shape
@@ -46,11 +47,11 @@ class TRenderPrimitive(QtGui.QWidget):
     return QtCore.QSize(self.max_size, self.heightForWidth(self.max_size))
 
   def heightForWidth(self, width):
-    return width*1.2
+    return int(width*1.2)
 
   def paintEvent(self, event):
     col1= QtGui.QColor(*self.color)
-    col2= QtGui.QColor(0.6*self.color[0], 0.6*self.color[1], 0.6*self.color[2])
+    col2= QtGui.QColor(*list(map(int,[0.6*self.color[0], 0.6*self.color[1], 0.6*self.color[2]])))
     linear_gradient= QtGui.QLinearGradient(0, 0, self.width(), self.height())
     linear_gradient.setColorAt(0.0, QtCore.Qt.white)
     linear_gradient.setColorAt(0.2, col1)
@@ -66,10 +67,10 @@ class TRenderPrimitive(QtGui.QWidget):
     painter.translate(0, 0)
 
     if self.shape in ('ellipse','rect'):
-      rect= QtCore.QRect(self.width()*self.margin[0], self.height()*self.margin[1], self.width()*(1.0-2.0*self.margin[0]), self.height()*(1.0-2.0*self.margin[1]))
+      rect= QtCore.QRect(int(self.width()*self.margin[0]), int(self.height()*self.margin[1]), int(self.width()*(1.0-2.0*self.margin[0])), int(self.height()*(1.0-2.0*self.margin[1])))
     elif self.shape in ('circle','square'):
-      l= min(self.width()*(1.0-2.0*self.margin[0]), self.height()*(1.0-2.0*self.margin[1]))
-      rect= QtCore.QRect((self.width()-l)/2, (self.height()-l)/2, l, l)
+      l= int(min(self.width()*(1.0-2.0*self.margin[0]), self.height()*(1.0-2.0*self.margin[1])))
+      rect= QtCore.QRect((self.width()-l)//2, (self.height()-l)//2, l, l)
 
     if self.shape in ('ellipse','circle'):
       painter.drawEllipse(rect)

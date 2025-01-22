@@ -12,15 +12,20 @@ roslib.load_manifest('rviz')
 #from PyQt4 import QtCore,QtGui
 
 #Quick solution to use PyQt4 program with PyQt5.
-from PyQt5 import QtCore,QtWidgets
-import PyQt5.QtGui as PyQt5QtGui
-QtGui= QtWidgets
-for component in ('QFont', 'QPalette', 'QColor', 'QLinearGradient', 'QPainter'):
-  setattr(QtGui,component, getattr(PyQt5QtGui,component))
+#from PyQt5 import QtCore,QtWidgets
+#import PyQt5.QtGui as PyQt5QtGui
+#QtGui= QtWidgets
+#for component in ('QFont', 'QPalette', 'QColor', 'QLinearGradient', 'QPainter'):
+  #setattr(QtGui,component, getattr(PyQt5QtGui,component))
+
+from _import_qt import *
 
 #from python_qt_binding.QtGui import *
 #from python_qt_binding.QtCore import *
-import rviz
+#Melodic:
+#import rviz
+#Noetic:
+from rviz import bindings as rviz
 
 class TRVizExample(QtGui.QWidget):
   def __init__(self):

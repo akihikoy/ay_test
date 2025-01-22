@@ -6,7 +6,8 @@
 #\date    Dec.14, 2016
 
 import sys
-from PyQt4 import QtGui
+#from PyQt4 import QtGui
+from _import_qt import *
 
 def Print(s):
   print(s)

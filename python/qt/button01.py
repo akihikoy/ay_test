@@ -6,13 +6,14 @@
 #\date    Dec.14, 2016
 
 import sys
-from PyQt4.QtGui import *
+#from PyQt4.QtGui import *
+from _import_qt import *
 
 # Create an PyQT4 application object.
-a = QApplication(sys.argv)
+a = QtGui.QApplication(sys.argv)
 
 # The QWidget widget is the base class of all user interface objects in PyQt4.
-w = QWidget()
+w = QtGui.QWidget()
 
 # Set window size.
 w.resize(320, 240)
@@ -21,7 +22,7 @@ w.resize(320, 240)
 w.setWindowTitle("Hello World!")
 
 # Add a button
-btn = QPushButton('Hello World!', w)
+btn = QtGui.QPushButton('Hello World!', w)
 btn.setToolTip('Click to quit!')
 btn.clicked.connect(exit)
 btn.resize(btn.sizeHint())

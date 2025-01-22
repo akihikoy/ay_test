@@ -6,7 +6,8 @@
 #\date    Apr.16, 2021
 
 import sys
-from PyQt4 import QtGui
+#from PyQt4 import QtGui
+from _import_qt import *
 
 def Proc():
   print('Heavy process started...')

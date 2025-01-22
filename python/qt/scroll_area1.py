@@ -8,7 +8,8 @@
 #ref. https://stackoverflow.com/questions/46024724/pyqt-how-to-create-a-scrollable-window
 
 import sys
-from PyQt4 import QtCore, QtGui
+#from PyQt4 import QtCore, QtGui
+from _import_qt import *
 
 def Print(s):
   print(s)

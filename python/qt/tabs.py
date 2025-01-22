@@ -7,8 +7,9 @@
 
 # https://pythonspot.com/en/qt4-tabs/
 
-from PyQt4 import QtGui
-from PyQt4 import QtCore
+#from PyQt4 import QtGui
+#from PyQt4 import QtCore
+from _import_qt import *
 import sys
 
 def main():

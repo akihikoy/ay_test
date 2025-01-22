@@ -7,7 +7,8 @@
 #\date    Apr.14, 2021
 
 import sys, copy
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 
 def _disp_float(value):
   return str(round(value, 8))

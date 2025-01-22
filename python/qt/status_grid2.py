@@ -6,7 +6,8 @@
 #\date    Apr.27, 2023
 import sys
 import math
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 from draw_primitive1 import TRenderPrimitive
 
 def Print(s):

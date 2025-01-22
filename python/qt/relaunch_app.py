@@ -5,7 +5,8 @@
 #\version 0.1
 #\date    Aug.28, 2024
 import sys
-from PyQt4 import QtCore, QtGui
+#from PyQt4 import QtCore, QtGui
+from _import_qt import *
 import os
 
 def RelaunchProgram():

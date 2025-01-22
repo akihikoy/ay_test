@@ -8,7 +8,8 @@
 #src: https://gitpress.io/u/1155/pyqt-example-basicdrawing
 
 import sys
-from PyQt4 import QtCore,QtGui
+#from PyQt4 import QtCore,QtGui
+from _import_qt import *
 
 def Print(*s):
   for ss in s:  print(ss, end=' ')
