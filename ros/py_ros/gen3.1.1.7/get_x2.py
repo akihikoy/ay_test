@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    get_x2.py
 #\brief   Get Cartesian pose with Gen3's service.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -29,4 +29,4 @@ if __name__=='__main__':
   theta_z= deg2rad(feedback.output.base.tool_pose_theta_z)
 
   Q= tf.transformations.quaternion_from_euler(theta_x,theta_y,theta_z)
-  print np.array([x,y,z]+list(Q))
+  print(np.array([x,y,z]+list(Q)))

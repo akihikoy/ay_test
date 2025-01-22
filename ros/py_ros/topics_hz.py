@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    topics_hz.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -21,8 +21,8 @@ if __name__=='__main__':
     return v[0] if v is not None else None
   while not rospy.is_shutdown():
     for topic in topics:
-      print '{}: {}'.format(topic, get_hz(topic))
+      print('{}: {}'.format(topic, get_hz(topic)))
     #hz.print_hz([topic])
     #rospy.sleep(0.1)
     rospy.sleep(1.0)
-    print '---'
+    print('---')

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    fk_check.py
 #\brief   Baxter: check the FK correctness.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -40,7 +40,7 @@ if __name__=='__main__':
   init_state= rs.state().enabled
   def clean_shutdown():
     if not init_state:
-      print 'Disabling robot...'
+      print('Disabling robot...')
       rs.disable()
   rospy.on_shutdown(clean_shutdown)
   rs.enable()
@@ -77,31 +77,31 @@ if __name__=='__main__':
   limbs[LEFT].move_to_joint_positions(angles, timeout=20.0)
   time.sleep(1.0)
 
-  print 'End Cartesian poses at goal joint positions.'
+  print('End Cartesian poses at goal joint positions.')
   angles= {joint:q0[j] for j,joint in enumerate(joint_names[RIGHT])}  #Deserialize
   x= kin[RIGHT].forward_position_kinematics(joint_values=angles)
   viz_x(x, 0)
-  print '--RIGHT:',x
+  print('--RIGHT:',x)
   angles= {joint:q1[j] for j,joint in enumerate(joint_names[LEFT])}  #Deserialize
   x= kin[LEFT].forward_position_kinematics(joint_values=angles)
   viz_x(x, 0)
-  print '--LEFT:',x
+  print('--LEFT:',x)
 
-  print 'End Cartesian poses at actual joint positions.'
+  print('End Cartesian poses at actual joint positions.')
   x= kin[RIGHT].forward_position_kinematics(joint_values=limbs[RIGHT].joint_angles())
   viz_x(x, 1)
-  print '--RIGHT:',x
+  print('--RIGHT:',x)
   x= kin[LEFT].forward_position_kinematics(joint_values=limbs[LEFT].joint_angles())
   viz_x(x, 1)
-  print '--LEFT:',x
+  print('--LEFT:',x)
 
-  print 'End Cartesian poses at actual joint positions obtained through baxter_interface.'
+  print('End Cartesian poses at actual joint positions obtained through baxter_interface.')
   x= BPoseToX(limbs[RIGHT].endpoint_pose())
   viz_x(x, 2)
-  print '--RIGHT:',x
+  print('--RIGHT:',x)
   x= BPoseToX(limbs[LEFT].endpoint_pose())
   viz_x(x, 2)
-  print '--LEFT:',x
+  print('--LEFT:',x)
 
   #print limbs[RIGHT].
 

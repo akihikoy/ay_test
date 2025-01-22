@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    velctrl1.py
 #\brief   Velocity control ver.1 (waiving).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -40,7 +40,7 @@ if __name__=='__main__':
       rate.sleep()
 
   except KeyboardInterrupt:
-    print 'Interrupted'
+    print('Interrupted')
 
   finally:
     #To make sure the robot stops:

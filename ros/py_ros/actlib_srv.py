@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    actlib_srv.py
 #\brief   actionlib SimpleActionServer test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -31,13 +31,13 @@ class FibonacciAction(object):
     self._feedback.sequence.append(1)
 
     # publish info to the console for the user
-    print '%s: Executing, creating fibonacci sequence of order %i with seeds %i, %i' % (self._action_name, goal.order, self._feedback.sequence[0], self._feedback.sequence[1])
+    print('%s: Executing, creating fibonacci sequence of order %i with seeds %i, %i' % (self._action_name, goal.order, self._feedback.sequence[0], self._feedback.sequence[1]))
 
     # start executing the action
     for i in range(1, goal.order):
       # check that preempt has not been requested by the client
       if self._as.is_preempt_requested():
-        print '%s: Preempted' % self._action_name
+        print('%s: Preempted' % self._action_name)
         self._as.set_preempted()
         success= False
         break
@@ -49,7 +49,7 @@ class FibonacciAction(object):
 
     if success:
       self._result.sequence= self._feedback.sequence
-      print '%s: Succeeded' % self._action_name
+      print('%s: Succeeded' % self._action_name)
       self._as.set_succeeded(self._result)
 
 if __name__=='__main__':

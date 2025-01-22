@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    follow_q_traj1.py
 #\brief   Following joint angle trajectory.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -26,7 +26,7 @@ if __name__=='__main__':
 
   pub_traj= rospy.Publisher('/joint_path_command', trajectory_msgs.msg.JointTrajectory, queue_size=1)
   if not WaitForSubscribers(pub_traj, 3.0):
-    print 'WARNING: No subscribers of /joint_path_command'
+    print('WARNING: No subscribers of /joint_path_command')
 
   joint_names= ['joint_'+jkey for jkey in ('s','l','e','u','r','b','t')]
   joint_names= rospy.get_param('controller_joint_names')

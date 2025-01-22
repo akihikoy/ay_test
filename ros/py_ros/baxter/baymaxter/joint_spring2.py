@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    joint_spring2.py
 #\brief   joint spring test
 #\author  Akihiko Yamaguchi, info@akihikoy.net

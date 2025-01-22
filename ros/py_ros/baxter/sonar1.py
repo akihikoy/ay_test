@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sonar1.py
 #\brief   Baxter: getting data from sonor sensor
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,7 +25,7 @@ def IsPointInFront(points, max_angle, max_dist):
 def CallBack(msg):
   #print '----------------'
   #print msg
-  if IsPointInFront(msg.points,30.0/180.0*math.pi,1.1):  print 'Found a near point!',msg.header.seq
+  if IsPointInFront(msg.points,30.0/180.0*math.pi,1.1):  print('Found a near point!',msg.header.seq)
 
 if __name__=='__main__':
   rospy.init_node('baxter_test')

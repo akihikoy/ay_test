@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    head1.py
 #\brief   Baxter: head control
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,7 +23,7 @@ if __name__=='__main__':
   init_state= rs.state().enabled
   def clean_shutdown():
     if not init_state:
-      print 'Disabling robot...'
+      print('Disabling robot...')
       rs.disable()
   rospy.on_shutdown(clean_shutdown)
   rs.enable()

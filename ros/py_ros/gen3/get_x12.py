@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    get_x1.py
 #\brief   Compare the Cartesian pose values: KDL estimate vs. base_feedback.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -84,7 +84,7 @@ def BaseFeedbackCallback(feedback):
   Q= tf.transformations.quaternion_from_euler(theta_x,theta_y,theta_z)
   x_bf= np.array([x,y,z]+list(Q))
   VizCube(1,x_bf,[0.,0.,1.])
-  print 'x_js-x_bf=', np.array([v if abs(v)>1.0e-6 else 0 for v in (x_js-x_bf)[:3]]+[v if abs(v)>1.0e-3 else 0 for v in (x_js-x_bf)[3:]])
+  print('x_js-x_bf=', np.array([v if abs(v)>1.0e-6 else 0 for v in (x_js-x_bf)[:3]]+[v if abs(v)>1.0e-3 else 0 for v in (x_js-x_bf)[3:]]))
 
 if __name__=='__main__':
   np.set_printoptions(precision=4)

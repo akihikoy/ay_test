@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_sub_img.py
 #\brief   Subscribe a ROS image topic.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

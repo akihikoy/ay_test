@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    cancel_goal.py
 #\brief   Cancel the trajectory control.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -29,9 +29,9 @@ if __name__=='__main__':
 
   client= actionlib.SimpleActionClient('/follow_joint_trajectory', control_msgs.msg.FollowJointTrajectoryAction)
 
-  print 'Press space to cancel the trajectory.'
+  print('Press space to cancel the trajectory.')
   while KBHAskGen(' ','q')==' ':
-    print 'Cancelling the trajectory...'
+    print('Cancelling the trajectory...')
     client.cancel_goal()
     #client.wait_for_result(timeout=rospy.Duration(20.0))
 

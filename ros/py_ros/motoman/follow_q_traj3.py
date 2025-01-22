@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    follow_q_traj3.py
 #\brief   Following joint angle trajectory
 #         where target velocity is automatically decided with spline.
@@ -50,7 +50,7 @@ if __name__=='__main__':
 
   pub_traj= rospy.Publisher('/joint_path_command', trajectory_msgs.msg.JointTrajectory, queue_size=1)
   if not WaitForSubscribers(pub_traj, 3.0):
-    print 'WARNING: No subscribers of /joint_path_command'
+    print('WARNING: No subscribers of /joint_path_command')
 
   joint_names= ['joint_'+jkey for jkey in ('s','l','e','u','r','b','t')]
   joint_names= rospy.get_param('controller_joint_names')
@@ -61,7 +61,7 @@ if __name__=='__main__':
            [0.21, -0.59, 0.30, -1.46, 0.35, -0.68, 0.31],
            [0.0]*7]
   dq_traj= QTrajToDQTraj(q_traj, t_traj)
-  print dq_traj
+  print(dq_traj)
   traj= ToROSTrajectory(joint_names, q_traj, t_traj, dq_traj)
 
   pub_traj.publish(traj)

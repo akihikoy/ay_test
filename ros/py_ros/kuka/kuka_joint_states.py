@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    kuka_joint_states.py
 #\brief   Convert /iiwa/state/JointPosition topic to /joint_states.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,11 +23,11 @@ def Callback(pub_st, msg):
     #if len(msg.velocity)>0:  msg2.velocity= [msg.velocity[i] for i in idxs]
     #if len(msg.effort)>0:  msg2.effort= [msg.effort[i] for i in idxs]
     #pub_st.publish(msg2)
-  joint_names= ('a%d'%d for d in xrange(1,8))
+  joint_names= ('a%d'%d for d in range(1,8))
   msg2= sensor_msgs.msg.JointState()
   msg2.header= msg.header
   #idxs= [i for i,name in enumerate(msg.name) if name not in remove_names]
-  msg2.name= ['iiwa_joint_%d'%d for d in xrange(1,8)]
+  msg2.name= ['iiwa_joint_%d'%d for d in range(1,8)]
   msg2.position= [getattr(msg.position,name) for name in joint_names]
   #if len(msg.velocity)>0:  msg2.velocity= [msg.velocity[i] for i in idxs]
   #if len(msg.effort)>0:  msg2.effort= [msg.effort[i] for i in idxs]

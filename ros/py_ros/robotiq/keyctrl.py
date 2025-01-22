@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    keyctrl.py
 #\brief   Keyboard control a Robotiq gripper.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -57,7 +57,7 @@ if __name__ == '__main__':
       if mov!=0:
         #trg= max(0,min(255,trg+mov))
         trg= max(0,min(255,rq.status.gPO+mov))
-        print c,mov,trg
+        print(c,mov,trg)
         #rq.MoveGripper(pos=int(trg), max_effort=255, speed=50, blocking=False)
         rq.MoveGripper(pos=int(trg), max_effort=100, speed=1, blocking=False)
         rospy.sleep(0.002)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     else:
       #trg= max(0,min(255,trg+mov))
       trg= max(0,min(255,rq.status.gPO+mov))
-      print c,mov,trg
+      print(c,mov,trg)
       #rq.MoveGripper(pos=int(trg), max_effort=255, speed=50, blocking=False)
       rq.MoveGripper(pos=int(trg), max_effort=100, speed=100, blocking=False)
       rospy.sleep(0.015)
@@ -85,6 +85,6 @@ if __name__ == '__main__':
     is_running[0]= False
     t1.join()
 
-  print 'done'
+  print('done')
 
 

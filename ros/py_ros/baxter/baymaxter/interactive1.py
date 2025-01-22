@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    interactive1.py
 #\brief   Interactive demo of Baymaxter
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -80,7 +80,7 @@ if __name__=='__main__':
   robot.Init()
 
   def InitMsg():
-    print 'Hello. This is a Baymaxter interactive demo.'
+    print('Hello. This is a Baymaxter interactive demo.')
     GoNatural(robot)
 
   sm= TStateMachine()

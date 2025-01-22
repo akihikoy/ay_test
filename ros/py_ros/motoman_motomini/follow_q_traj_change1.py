@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    follow_q_traj_change1.py
 #\brief   Follow a trajectory and change the trajectory when indicated by the operator.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,7 +15,7 @@ import time, math, sys, copy
 from kbhit2 import TKBHit
 
 StateToStr= {getattr(actionlib_msgs.msg.GoalStatus,key):key for key in ('PENDING', 'ACTIVE', 'RECALLED', 'REJECTED', 'PREEMPTED', 'ABORTED', 'SUCCEEDED', 'LOST')}
-print 'StateToStr=',StateToStr
+print('StateToStr=',StateToStr)
 
 x_curr= None
 q_curr= None
@@ -67,21 +67,21 @@ if __name__=='__main__':
     goal= make_traj(0.2)
     goal.trajectory.header.stamp= rospy.Time.now()
     client.send_goal(goal)
-    print 'trajectory started. hit space to change the trajectory.'
+    print('trajectory started. hit space to change the trajectory.')
     while not rospy.is_shutdown():
       c= kbhit.KBHit()
       if c==' ':
-        print 'changing the trajectory...'
+        print('changing the trajectory...')
         goal= make_traj(-0.2, with_current=True)  #ERROR: Trajectory start position doesn't match current robot position (3011)
         #goal= make_traj(-0.2, with_current=False)  #ERROR: Validation failed: Trajectory doesn't start at current position
         goal.trajectory.header.stamp= rospy.Time.now()
         client.send_goal(goal)
         break
       if client.get_state() != actionlib_msgs.msg.GoalStatus.ACTIVE:
-        print 'state: {} ({})'.format(StateToStr[client.get_state()], client.get_state())
+        print('state: {} ({})'.format(StateToStr[client.get_state()], client.get_state()))
       if client.get_state() not in (actionlib_msgs.msg.GoalStatus.PENDING, actionlib_msgs.msg.GoalStatus.ACTIVE):
         break
       rate_adjustor.sleep()
-  print client.get_result()
+  print(client.get_result())
 
   rospy.signal_shutdown('Done.')

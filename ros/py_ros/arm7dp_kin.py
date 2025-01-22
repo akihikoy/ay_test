@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    arm7dp_kin.py
 #\brief   Kinematics of ode1/arm7_door_push_node.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -26,7 +26,7 @@ def ReviseJacobian(J, th=1.0e-3):
     sqsum= [j*j for j in J[r,:]]
     if sqsum<th*th:  #r-th row is singular
       J[r,:]= 0.0
-      print 'Revised J: r=%d, sqsum=%f' % (r,sqsum)
+      print('Revised J: r=%d, sqsum=%f' % (r,sqsum))
 
 '''Compute a forward kinematics of an arm.
 Return the gripper base pose on the base's frame.
@@ -120,9 +120,9 @@ def IK(l, x_trg, x_ext=None, start_angles=None, param=TIKParam(), with_st=False)
     q+= param.StepSize*np.dot(la.pinv(J),err)
     q+= param.QDiffPenalty*(start_angles-q)  #Penalizing angles change
     q+= RandVec(q.shape[0],-param.SearchNoise,param.SearchNoise)  #Search noise to avoid singularity
-    q= np.array(map(AngleMod1,q))
+    q= np.array(list(map(AngleMod1,q)))
     #print Norm(err), Norm(err_p), Norm(err_R), '; ', q.tolist()
-  q= np.array(map(AngleMod1,q))
+  q= np.array(list(map(AngleMod1,q)))
   if with_st:
     st= TIKStatus()
     st.IsSolved= is_solved
@@ -164,7 +164,7 @@ if __name__=='__main__':
 
     t.srvp.ode_resume()
     l.config= sim.GetConfig(t)
-    print 'Current config=',l.config
+    print('Current config=',l.config)
 
     #Setup config
     l.config.JointNum= 7
@@ -176,7 +176,7 @@ if __name__=='__main__':
     #Reset to get state for plan
     sim.ResetConfig(t,l.config)
     time.sleep(0.1)  #Wait for l.sensors is updated
-    print 'l.sensors=',l.sensors
+    print('l.sensors=',l.sensors)
 
     def FKTest():
       msg= sim.ode1.msg.ODEViz()
@@ -207,11 +207,11 @@ if __name__=='__main__':
     for x_trg in x_dat:
       l.control_callback= lambda:IKTest(x_trg)
       q,ik_st= sim.IK(l, x_trg=x_trg, with_st=True)
-      print ik_st.IsSolved, ik_st.NumIter, ik_st.Error, ik_st.ErrorPos, ik_st.ErrorRot
+      print(ik_st.IsSolved, ik_st.NumIter, ik_st.Error, ik_st.ErrorPos, ik_st.ErrorRot)
       if q is not None:
         sim.MoveToTheta(t,l,q,dth_max=0.1)
       else:
-        print 'IK unsolved! Execute the last q.'
+        print('IK unsolved! Execute the last q.')
         sim.MoveToTheta(t,l,ik_st.LastQ,dth_max=0.1)
       sim.SimSleep(t,l,0.5)
 

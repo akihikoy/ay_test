@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    velctrl3.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -46,10 +46,10 @@ if __name__=='__main__':
       rate.sleep()
 
   except KeyboardInterrupt:
-    print 'Interrupted'
+    print('Interrupted')
 
   finally:
-    print 'Stopping the robot...'
+    print('Stopping the robot...')
     msg.data= [0.0]*6
     pub.publish(msg)
 

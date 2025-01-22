@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    key_velctrl1.py
 #\brief   Velocity control with keyboard.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -68,7 +68,7 @@ if __name__=='__main__':
         traj.points[0].accelerations= [10.0]*6
 
     pub_vel.publish(traj)
-    print traj.points[0].velocities
+    print(traj.points[0].velocities)
     rate.sleep()
 
   #To make sure the robot stops:

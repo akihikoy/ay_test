@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    arm7dp_key.py
 #\brief   End-effector control with key input for ode1/arm7_door_push_node.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -51,7 +51,7 @@ if __name__=='__main__':
 
     t.srvp.ode_resume()
     l.config= sim.GetConfig(t)
-    print 'Current config=',l.config
+    print('Current config=',l.config)
 
     #Setup config
     l.config.JointNum= 15
@@ -64,7 +64,7 @@ if __name__=='__main__':
     #Reset to get state for plan
     sim.ResetConfig(t,l.config)
     time.sleep(0.1)  #Wait for l.sensors is updated
-    print 'l.sensors=',l.sensors
+    print('l.sensors=',l.sensors)
 
     #l.x_trg= sim.FK(l,l.sensors.joint_angles)
     l.x_trg= [0.4,0.0,0.5, 0.0,0.0,0.0,1.0]
@@ -79,15 +79,15 @@ if __name__=='__main__':
 
     while l.running:
       q,ik_st= sim.IK(l, x_trg=l.x_trg, param=ik_param, with_st=True)
-      print ik_st.IsSolved, ik_st.NumIter, ik_st.Error, ik_st.ErrorPos, ik_st.ErrorRot
+      print(ik_st.IsSolved, ik_st.NumIter, ik_st.Error, ik_st.ErrorPos, ik_st.ErrorRot)
       if q is not None:
         l.x_trg_prev= copy.deepcopy(l.x_trg)
-        print l.x_trg, q
+        print(l.x_trg, q)
         sim.MoveToTheta(t,l,q,dth_max=0.1)
       else:
-        print 'IK unsolved!'
+        print('IK unsolved!')
         sim.MoveToTheta(t,l,ik_st.LastQ,dth_max=0.1)
-        print l.x_trg, ik_st.LastQ
+        print(l.x_trg, ik_st.LastQ)
         #print l.sensors.joint_angles
         l.x_trg= copy.deepcopy(l.x_trg_prev)
 

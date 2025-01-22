@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_srv1.py
 #\brief   Simple service server.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -11,7 +11,7 @@ import std_srvs.srv
 C= 1
 def TestService(req):
   global C
-  print 'Service required',C
+  print('Service required',C)
   C+= 1
   return std_srvs.srv.EmptyResponse()
 

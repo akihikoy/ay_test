@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    follow_q_traj1.py
 #\brief   Follow a joint angle trajectory.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -51,7 +51,7 @@ if __name__=='__main__':
   for dt in (1.0, 0.5, 0.4, 0.3):
     client.cancel_goal()
     angles= list(GetState().position)
-    print 'dt= {} current angles= {}'.format(dt,angles)
+    print('dt= {} current angles= {}'.format(dt,angles))
     angles[2]= min(0.0, angles[2])
     goal= reset_goal()
     add_point(goal, 0.0, angles, [0.0]*dof)
@@ -65,7 +65,7 @@ if __name__=='__main__':
     #rospy.sleep(1.0)
     #client.cancel_goal()
     client.wait_for_result(timeout=rospy.Duration(20.0))
-    print client.get_result()
+    print(client.get_result())
     rospy.sleep(0.3)  #NOTE: Too large, but when 0.2: Validation failed: Trajectory doesn't start at current position.
 
   rospy.signal_shutdown('Done.')

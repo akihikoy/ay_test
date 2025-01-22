@@ -20,7 +20,7 @@ import sensor_msgs.msg
 from PIL import Image as PILImage
 
 def ImageCallback(msg):
-  print('received:',type(msg))
+  print(('received:',type(msg)))
   #img= CvBridge().imgmsg_to_cv2(msg, "bgr8")
   #img= cv2.flip(img, 1)
   #cv2.imshow('image', img)
@@ -33,7 +33,7 @@ def ImageCallback(msg):
                 msg.data, 'raw', encoding_ros_to_pil[msg.encoding], 0, 1)
   filename= '/tmp/frame.png'
   pil.save(filename)
-  print('  image saved as:', filename)
+  print(('  image saved as:', filename))
 
 if __name__=='__main__':
   rospy.init_node('ros_sub_img')

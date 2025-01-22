@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    move_to_q1.py
 #\brief   Baxter: move to a joint angle vector
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,7 +25,7 @@ if __name__=='__main__':
   init_state= rs.state().enabled
   def clean_shutdown():
     if not init_state:
-      print 'Disabling robot...'
+      print('Disabling robot...')
       rs.disable()
   rospy.on_shutdown(clean_shutdown)
   rs.enable()
@@ -51,12 +51,12 @@ if __name__=='__main__':
   #  threshold: joint position accuracy (rad) at which waypoints must achieve;
   #    default is defined as settings.JOINT_ANGLE_TOLERANCE, which is 0.008726646
 
-  print joint_names[RIGHT]
-  print [limbs[RIGHT].joint_angle(joint) for joint in joint_names[RIGHT]]
+  print(joint_names[RIGHT])
+  print([limbs[RIGHT].joint_angle(joint) for joint in joint_names[RIGHT]])
   q0=[ 0.70, 0.02,  0.05, 1.51,  1.05, 0.18, -0.41]
   q1=[-0.70, 0.02, -0.05, 1.51, -1.05, 0.18,  0.41]
   angles= {joint:q0[j] for j,joint in enumerate(joint_names[RIGHT])}  #Deserialize
-  print angles
+  print(angles)
   #limbs[RIGHT].set_joint_positions(angles)
   #time.sleep(1.0)
   limbs[RIGHT].move_to_joint_positions(angles, timeout=20.0, threshold=0.01)

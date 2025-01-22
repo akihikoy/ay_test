@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    move_to_zero.py
 #\brief   Move to zero pose.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -38,7 +38,7 @@ if __name__=='__main__':
     goal.trajectory.points.append(point)
 
   angles= GetState().position
-  print 'current angles:',angles
+  print('current angles:',angles)
   add_point(goal, 0.0, angles, [0.0]*dof)
   add_point(goal, 3.0, [0.0]*dof, [0.0]*dof)
 
@@ -48,6 +48,6 @@ if __name__=='__main__':
   #client.cancel_goal()
   #client.wait_for_result(timeout=rospy.Duration(20.0))
 
-  print client.get_result()
+  print(client.get_result())
 
   rospy.signal_shutdown('Done.')

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    send_fake_io1.py
 #\brief   Sending a fake IO states (digital in).
 #\author  Akihiko Yamaguchi, info@akihikoy.net

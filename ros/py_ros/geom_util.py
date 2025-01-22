@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    geom_util.py
 #\brief   Geometry utility (using ROS tf).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -42,7 +42,7 @@ def Norm(x):
 
 #Max norm of a vector x
 def MaxNorm(x):
-  return max(map(abs,x))
+  return max(list(map(abs,x)))
 
 
 #Return a normalized vector with L2 norm
@@ -92,14 +92,14 @@ def DegToRad(q):
   if type(q) in (float,int):
     return conv(q)
   else:
-    return map(conv, q)
+    return list(map(conv, q))
 
 def RadToDeg(q):
   conv= lambda x: float(x)/math.pi*180.0
   if type(q) in (float,int):
     return conv(q)
   else:
-    return map(conv, q)
+    return list(map(conv, q))
 
 #Displacement of two angles (angle2-angle1), whose absolute value is less than pi
 def AngleDisplacement(angle1, angle2):
@@ -114,7 +114,7 @@ def AngleDisplacement(angle1, angle2):
 
 #Check if an angle is between [a_range[0],a_range[1]]
 def IsAngleIn(angle, a_range):
-  a_range= map(AngleMod1,a_range)
+  a_range= list(map(AngleMod1,a_range))
   if a_range[0]<a_range[1]:
     if a_range[1]-a_range[0]>math.pi:  return angle<=a_range[0] or  a_range[1]<=angle
     else:                              return a_range[0]<=angle and angle<=a_range[1]
@@ -439,7 +439,7 @@ def XTrajToQTraj(func_ik, x_traj, start_angles):
   N= len(x_traj)
   q_prev= start_angles
   q_traj= None
-  for x,n in zip(x_traj, range(N)):
+  for x,n in zip(x_traj, list(range(N))):
     q= func_ik(x, q_prev)
     if q==None:  return None
     if q_traj==None:  q_traj= [[0.0]*len(q) for i in range(N)]

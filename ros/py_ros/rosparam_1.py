@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    rosparam_1.py
 #\brief   Test of uploading to / downloading from the ROS parameter server.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -8,7 +8,7 @@
 ./rosparam_1.py _role:=up
 ./rosparam_1.py _role:=down
 '''
-from __future__ import print_function
+
 import roslib; roslib.load_manifest('std_msgs')
 import rospy
 import sys

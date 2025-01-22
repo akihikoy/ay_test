@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    get_q1.py
 #\brief   Get current joint angles.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,10 +25,10 @@ def GetState():
 if __name__=='__main__':
   rospy.init_node('ur_test')
 
-  for i in xrange(100000):
+  for i in range(100000):
     if rospy.is_shutdown():  break
 
     x,q= GetState()
-    print '@%d, x=%r'%(i,x)
-    print '@%d, q(reordered)=%r'%(i,q)
+    print('@%d, x=%r'%(i,x))
+    print('@%d, q(reordered)=%r'%(i,q))
     rospy.sleep(2.0e-3)

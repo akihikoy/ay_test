@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    hello1.py
 #\brief   Baymaxter hello motion
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -37,7 +37,7 @@ def DoHello(robot, sw=False):
   client_l= robot.FollowQTraj(ql_traj,t_traj,arm=LEFT,blocking=False)
   client_r.wait_for_result(timeout=rospy.Duration(t_traj[-1]+5.0))
   client_l.wait_for_result(timeout=rospy.Duration(t_traj[-1]+5.0))
-  print client_r.get_result(), client_l.get_result()
+  print(client_r.get_result(), client_l.get_result())
 
   time.sleep(1.0)
   robot.NodHead()
@@ -49,7 +49,7 @@ def DoHello(robot, sw=False):
   client_l= robot.FollowQTraj(ql_traj,t_traj,arm=LEFT,blocking=False)
   client_r.wait_for_result(timeout=rospy.Duration(t_traj[-1]+5.0))
   client_l.wait_for_result(timeout=rospy.Duration(t_traj[-1]+5.0))
-  print client_r.get_result(), client_l.get_result()
+  print(client_r.get_result(), client_l.get_result())
 
 
 if __name__=='__main__':

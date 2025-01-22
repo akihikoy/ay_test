@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    get_q3.py
 #\brief   Get joint angles with Gen3's service.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,6 +15,6 @@ if __name__=='__main__':
   srvRefreshFeedback= rospy.ServiceProxy('RefreshFeedback', kortex_driver.srv.RefreshFeedback)
 
   feedback= srvRefreshFeedback()
-  print feedback
+  print(feedback)
   q= [a.position/180.0*3.141592653589793 for a in feedback.output.actuators]
-  print 'q=',q
+  print('q=',q)

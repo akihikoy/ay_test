@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    different_msg_pub.py
 #\brief   Test: what if subscriber subscribes a topic
 #         whose type is different from but has the same contents with
@@ -19,7 +19,7 @@ if __name__=='__main__':
   while not rospy.is_shutdown():
     msg= ar_track_alvar.msg.AlvarMarker()
     msg.id= i
-    print 'send:',msg
+    print('send:',msg)
     pub_msg.publish(msg)
     time.sleep(0.5)
     i+= 1

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    robotiq.py
 #\brief   Robotiq 2 finger gripper interface.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -43,8 +43,8 @@ class TRobotiq:
 
   @staticmethod
   def PrintStatus(st):
-    print 'Flags(ACT,GTO,STA,OBJ,FLT):',st.gACT,st.gGTO,st.gSTA,st.gOBJ,st.gFLT,
-    print 'State(PR,PO,CU):',st.gPR,st.gPO,st.gCU
+    print('Flags(ACT,GTO,STA,OBJ,FLT):',st.gACT,st.gGTO,st.gSTA,st.gOBJ,st.gFLT, end=' ')
+    print('State(PR,PO,CU):',st.gPR,st.gPO,st.gCU)
 
   def Activate(self):
     cmd= robotiq_msgs.CModel_robot_output();
@@ -112,7 +112,7 @@ if __name__=='__main__':
   rq= TRobotiq()
   rq.Init()
   rospy.sleep(1)
-  raw_input('wait activation>')
+  input('wait activation>')
 
   #def sensor_callback(st):
     #rq.PrintStatus(st)
@@ -135,9 +135,9 @@ if __name__=='__main__':
       l.event= 2
       rq.SensorCallback= None
 
-  print 'opening gripper'
+  print('opening gripper')
   rq.MoveGripper(pos=0, max_effort=0, speed=255)
-  print 'closing gripper'
+  print('closing gripper')
   rq.MoveGripper(pos=255, max_effort=0, speed=0)
 
   while rq.status.gPR!=255:  rospy.sleep(0.001)
@@ -149,6 +149,6 @@ if __name__=='__main__':
       rq.StopGripper()
       break
     rospy.sleep(0.001)
-  print 'event=',l.event
+  print('event=',l.event)
 
   rq.Cleanup()

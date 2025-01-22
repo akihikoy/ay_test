@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dummy_robot.py
 #\brief   Dummy robot ver.2.
 #         This subscribes joint_path_command topic, follow_joint_trajectory (actionlib) topic,
@@ -84,7 +84,7 @@ class TDummyRobot(object):
     q= [q0+v*dt for q0,v in zip(self.js.position,msg.points[0].velocities)]
     with self.js_locker:
       self.js.position= q
-      self.js.velocities= msg.points[0].velocities
+      self.js.velocity= msg.points[0].velocities
     rate.sleep()
     self.follow_traj_active= False
 
@@ -100,7 +100,7 @@ class TDummyRobot(object):
       #print t, q
       with self.js_locker:
         self.js.position= q
-        self.js.velocities= dq
+        self.js.velocity= dq
       rate.sleep()
     self.follow_traj_active= False
 
@@ -113,9 +113,9 @@ class TDummyRobot(object):
       q_traj= [self.js.position]+q_traj
       dq_traj= [self.js.velocity]+dq_traj
       t_traj= [rospy.Duration(0.0)]+t_traj
-    print 'Received trajectory command:'
-    print [t.to_sec() for t in t_traj]
-    print q_traj
+    print('Received trajectory command:')
+    print([t.to_sec() for t in t_traj])
+    print(q_traj)
 
     #Modeling the trajectory with spline.
     splines= [TCubicHermiteSpline() for d in range(self.dof)]
@@ -136,7 +136,7 @@ class TDummyRobot(object):
     t0= rospy.Time.now()
     while all(((rospy.Time.now()-t0)<T, self.follow_traj_active, not rospy.is_shutdown())):
       if self.ftaction_actsrv.is_preempt_requested():
-        print '%s: Preempted' % self.ftaction_name
+        print('%s: Preempted' % self.ftaction_name)
         self.ftaction_actsrv.set_preempted()
         success= False
         break
@@ -148,14 +148,14 @@ class TDummyRobot(object):
       #print t, q
       with self.js_locker:
         self.js.position= q
-        self.js.velocities= dq
+        self.js.velocity= dq
 
       self.ftaction_actsrv.publish_feedback(self.ftaction_feedback)
       rate.sleep()
 
     if self.follow_traj_active and success:
       self.ftaction_result.error_code= self.ftaction_result.SUCCESSFUL
-      print '%s: Succeeded' % self.ftaction_name
+      print('%s: Succeeded' % self.ftaction_name)
       self.ftaction_actsrv.set_succeeded(self.ftaction_result)
     self.follow_traj_active= False
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    arm7dp_core.py
 #\brief   Using ode1/arm7_door_push_node.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -23,24 +23,24 @@ class TContainer:
   def __init__(self,debug=False):
     #self._debug= debug
     #if self._debug:
-    if debug:  print 'Created TContainer object',hex(id(self))
+    if debug:  print('Created TContainer object',hex(id(self)))
   def __del__(self):
     #if self._debug:
-    print 'Deleting TContainer object',hex(id(self))
+    print('Deleting TContainer object',hex(id(self)))
   def __str__(self):
     return str(self.__dict__)
   def __repr__(self):
     return str(self.__dict__)
   def __iter__(self):
-    return self.__dict__.itervalues()
+    return iter(self.__dict__.values())
   def items(self):
-    return self.__dict__.items()
+    return list(self.__dict__.items())
   def iteritems(self):
-    return self.__dict__.iteritems()
+    return iter(self.__dict__.items())
   def keys(self):
-    return self.__dict__.keys()
+    return list(self.__dict__.keys())
   def values(self):
-    return self.__dict__.values()
+    return list(self.__dict__.values())
   def __getitem__(self,key):
     return self.__dict__[key]
   def __setitem__(self,key,value):
@@ -50,7 +50,7 @@ class TContainer:
   def __contains__(self,key):
     return key in self.__dict__
   def Cleanup(self):
-    keys= self.__dict__.keys()
+    keys= list(self.__dict__.keys())
     for k in keys:
       if k!='_debug':
         self.__dict__[k]= None
@@ -62,14 +62,14 @@ def PrintException(e, msg=''):
   c2= ''
   c3= ''
   ce= ''
-  print '%sException( %s%r %s)%s:' % (c1, c2,type(e), c1, msg)
-  print '%r' % (e)
-  print '  %sTraceback: ' % (c3)
-  print '{'
+  print('%sException( %s%r %s)%s:' % (c1, c2,type(e), c1, msg))
+  print('%r' % (e))
+  print('  %sTraceback: ' % (c3))
+  print('{')
   traceback.print_tb(sys.exc_info()[2])
-  print '}'
-  print '%s# Exception( %s%r %s)%s:' % (c1, c2,type(e), c1, msg)
-  print '# %r%s' % (e, ce)
+  print('}')
+  print('%s# Exception( %s%r %s)%s:' % (c1, c2,type(e), c1, msg))
+  print('# %r%s' % (e, ce))
 
 #Return std_msgs/ColorRGBA
 def RGBA(r,g,b,a):
@@ -90,38 +90,38 @@ def Initialize():
   return t,l
 
 def Cleanup(t):
-  for k in t.sub.keys():
-    print 'Stop subscribing %r...' % k,
+  for k in list(t.sub.keys()):
+    print('Stop subscribing %r...' % k, end=' ')
     t.sub[k].unregister()
     del t.sub[k]
-    print 'ok'
+    print('ok')
 
-  for k in t.pub.keys():
-    print 'Stop publishing %r...' % k,
+  for k in list(t.pub.keys()):
+    print('Stop publishing %r...' % k, end=' ')
     t.pub[k].unregister()
     del t.pub[k]
-    print 'ok'
+    print('ok')
 
-  for k in t.srvp.keys():
-    print 'Delete service proxy %r...' % k,
+  for k in list(t.srvp.keys()):
+    print('Delete service proxy %r...' % k, end=' ')
     del t.srvp[k]
-    print 'ok'
+    print('ok')
 
 def SetupServiceProxy(t,l):
   if 'ode_get_config' not in t.srvp:
-    print 'Waiting for /arm7dp_sim/get_config...'
+    print('Waiting for /arm7dp_sim/get_config...')
     rospy.wait_for_service('/arm7dp_sim/get_config',3.0)
     t.srvp.ode_get_config= rospy.ServiceProxy('/arm7dp_sim/get_config', ode1.srv.ODEGetConfig2, persistent=False)
   if 'ode_reset2' not in t.srvp:
-    print 'Waiting for /arm7dp_sim/reset2...'
+    print('Waiting for /arm7dp_sim/reset2...')
     rospy.wait_for_service('/arm7dp_sim/reset2',3.0)
     t.srvp.ode_reset2= rospy.ServiceProxy('/arm7dp_sim/reset2', ode1.srv.ODESetConfig2, persistent=False)
   if 'ode_pause' not in t.srvp:
-    print 'Waiting for /arm7dp_sim/pause...'
+    print('Waiting for /arm7dp_sim/pause...')
     rospy.wait_for_service('/arm7dp_sim/pause',3.0)
     t.srvp.ode_pause= rospy.ServiceProxy('/arm7dp_sim/pause', std_srvs.srv.Empty, persistent=False)
   if 'ode_resume' not in t.srvp:
-    print 'Waiting for /arm7dp_sim/resume...'
+    print('Waiting for /arm7dp_sim/resume...')
     rospy.wait_for_service('/arm7dp_sim/resume',3.0)
     t.srvp.ode_resume= rospy.ServiceProxy('/arm7dp_sim/resume', std_srvs.srv.Empty, persistent=False)
 
@@ -190,8 +190,8 @@ def MoveToTheta(t,l,th,dth_max=0.5):
   cnt= True
   while cnt and not rospy.is_shutdown():
     theta= l.sensors.joint_angles
-    dth= np.array(map(AngleMod1,np.array(th) - theta))
-    dth0= max(map(abs,dth))
+    dth= np.array(list(map(AngleMod1,np.array(th) - theta)))
+    dth0= max(list(map(abs,dth)))
     if dth0>dth_max:  dth*= dth_max/dth0
     else:  cnt= False
     MoveDTheta(t,l,dth)
@@ -227,7 +227,7 @@ if __name__=='__main__':
 
     t.srvp.ode_resume()
     l.config= sim.GetConfig(t)
-    print 'Current config=',l.config
+    print('Current config=',l.config)
 
     #Setup config
     l.config.JointNum= 7
@@ -239,7 +239,7 @@ if __name__=='__main__':
     #Reset to get state for plan
     sim.ResetConfig(t,l.config)
     time.sleep(0.1)  #Wait for l.sensors is updated
-    print 'l.sensors=',l.sensors
+    print('l.sensors=',l.sensors)
 
     #l.sensor_callback= lambda: VizCube(t,l)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    velctrl2.py
 #\brief   Velocity control sample.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -37,7 +37,7 @@ class RobotMover(object):
         self.pub = rospy.Publisher('/joint_group_vel_controller/command',
                                    Float64MultiArray, queue_size=10)
         self.msg = Float64MultiArray()
-        print "Speed is {}".format(speed)
+        print("Speed is {}".format(speed))
         self.msg.data = [0, 0, 0, 0, 0, speed]
         self.msg.layout.data_offset = 1
 
@@ -45,7 +45,7 @@ class RobotMover(object):
         self.pub.publish(self.msg)
 
     def signal_handler(self, sig, frame):
-        print 'You pressed Ctrl+C!'
+        print('You pressed Ctrl+C!')
         self.msg.data = [0, 0, 0, 0, 0, 0.0]
         self.pub.publish(self.msg)
         sys.exit(0)
@@ -55,10 +55,10 @@ if __name__ == "__main__":
     try:
         speed = float(sys.argv[1])
     except IndexError as err:
-        print "No speed given."
+        print("No speed given.")
         sys.exit(1)
     except ValueError as err:
-        print "No valid speed given"
+        print("No valid speed given")
         sys.exit(1)
 
     robot_mover = RobotMover(speed)

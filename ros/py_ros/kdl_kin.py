@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    kdl_kin2.py
 #\brief   Robot kinematics solver using KDL.
 #         IK is updated to use weighted pseudo inverse of Jacobian.
@@ -37,7 +37,7 @@ class TKinematics(object):
     self._arm_chain = self._kdl_tree.getChain(self._base_link, self._tip_link)
 
     #self.joint_names = [joint.name for joint in self._robot.joints if joint.type!='fixed']
-    self.joint_names = [self._arm_chain.getSegment(i).getJoint().getName() for i in range(self._arm_chain.getNrOfSegments()) if self._arm_chain.getSegment(i).getJoint().getType()!=PyKDL.Joint.None]
+    self.joint_names = [self._arm_chain.getSegment(i).getJoint().getName() for i in range(self._arm_chain.getNrOfSegments()) if self._arm_chain.getSegment(i).getJoint().getType()!=getattr(PyKDL.Joint,'None')]
     self._num_jnts = len(self.joint_names)
 
     # Store joint information for future use
@@ -52,24 +52,24 @@ class TKinematics(object):
     self._dyn_kdl = PyKDL.ChainDynParam(self._arm_chain, PyKDL.Vector.Zero())
 
   def print_robot_description(self):
-    print "URDF non-fixed joints: %d;" % len([joint.type for joint in self._robot.joints if joint.type!='fixed'])
-    print "URDF total joints: %d" % len(self._robot.joints)
-    print "URDF links: %d" % len(self._robot.links)
-    print "URDF link names: %s" % [link.name for link in self._robot.links]
-    print "URDF joint names: %s" % [joint.name for joint in self._robot.joints]
-    print "URDF Root: %s" % self._robot.get_root()
+    print("URDF non-fixed joints: %d;" % len([joint.type for joint in self._robot.joints if joint.type!='fixed']))
+    print("URDF total joints: %d" % len(self._robot.joints))
+    print("URDF links: %d" % len(self._robot.links))
+    print("URDF link names: %s" % [link.name for link in self._robot.links])
+    print("URDF joint names: %s" % [joint.name for joint in self._robot.joints])
+    print("URDF Root: %s" % self._robot.get_root())
 
-    print "KDL segments: %d" % self._kdl_tree.getNrOfSegments()
-    print "KDL joints: %d" % self._kdl_tree.getNrOfJoints()
+    print("KDL segments: %d" % self._kdl_tree.getNrOfSegments())
+    print("KDL joints: %d" % self._kdl_tree.getNrOfJoints())
 
-    print "KDL-chain segments: %d" % self._arm_chain.getNrOfSegments()
-    print "KDL-chain joints: %d" % self._arm_chain.getNrOfJoints()
-    print "KDL-chain segment names: %s" % [self._arm_chain.getSegment(i).getName() for i in range(self._arm_chain.getNrOfSegments())]
-    print "KDL-chain joint names: %s" % [self._arm_chain.getSegment(i).getJoint().getName() for i in range(self._arm_chain.getNrOfSegments())]
-    print "KDL-chain joint types: %s" % [self._arm_chain.getSegment(i).getJoint().getType() for i in range(self._arm_chain.getNrOfSegments())]
+    print("KDL-chain segments: %d" % self._arm_chain.getNrOfSegments())
+    print("KDL-chain joints: %d" % self._arm_chain.getNrOfJoints())
+    print("KDL-chain segment names: %s" % [self._arm_chain.getSegment(i).getName() for i in range(self._arm_chain.getNrOfSegments())])
+    print("KDL-chain joint names: %s" % [self._arm_chain.getSegment(i).getJoint().getName() for i in range(self._arm_chain.getNrOfSegments())])
+    print("KDL-chain joint types: %s" % [self._arm_chain.getSegment(i).getJoint().getType() for i in range(self._arm_chain.getNrOfSegments())])
     #print [self._arm_chain.getSegment(i) for i in range(self._arm_chain.getNrOfSegments())]
 
-    print "Effective joint names: %s" % self.joint_names
+    print("Effective joint names: %s" % self.joint_names)
 
   def get_joint_information(self):
     self._urdf_joints = {joint.name:joint for joint in self._robot.joints if joint.type!='fixed'}
@@ -207,34 +207,34 @@ class TKinematics(object):
 
 
 if __name__=='__main__':
-  print 'Testing TKinematics (robot_description == Yaskawa Motoman is assumed).'
-  print 'Before executing this script, run:'
-  print '  rosparam load `rospack find motoman_sia10f_support`/urdf/sia10f.urdf robot_description'
+  print('Testing TKinematics (robot_description == Yaskawa Motoman is assumed).')
+  print('Before executing this script, run:')
+  print('  rosparam load `rospack find motoman_sia10f_support`/urdf/sia10f.urdf robot_description')
   kin= TKinematics(end_link='link_t')
   kin.print_robot_description()
 
   q0= [0.0]*7
   angles= {joint:q0[j] for j,joint in enumerate(kin.joint_names)}  #Deserialize
   x0= kin.forward_position_kinematics(angles)
-  print 'q0=',q0
-  print 'x0= FK(q0)=',x0
+  print('q0=',q0)
+  print('x0= FK(q0)=',x0)
 
   import random
   q1= [3.0*(random.random()-0.5) for j in range(7)]
   angles= {joint:q1[j] for j,joint in enumerate(kin.joint_names)}  #Deserialize
   x1= kin.forward_position_kinematics(angles)
-  print 'q1=',q1
-  print 'x1= FK(q1)=',x1
+  print('q1=',q1)
+  print('x1= FK(q1)=',x1)
 
   seed= [0.0]*7
   #seed= [3.0*(random.random()-0.5) for j in range(7)]
   q2= kin.inverse_kinematics(x1[:3], x1[3:], seed=seed, maxiter=2000, eps=1.0e-4)  #, maxiter=500, eps=1.0e-6
-  print 'q2= IK(x1)=',q2
+  print('q2= IK(x1)=',q2)
   if q2 is not None:
     angles= {joint:q2[j] for j,joint in enumerate(kin.joint_names)}  #Deserialize
     x2= kin.forward_position_kinematics(angles)
-    print 'x2= FK(q2)=',x2
-    print 'x2==x1?', np.allclose(x2,x1)
-    print '|x2-x1|=',np.linalg.norm(x2-x1)
+    print('x2= FK(q2)=',x2)
+    print('x2==x1?', np.allclose(x2,x1))
+    print('|x2-x1|=',np.linalg.norm(x2-x1))
   else:
-    print 'Failed to solve IK.'
+    print('Failed to solve IK.')

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    service_available.py
 #\brief   Function to check if a service is available.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,11 +25,11 @@ if __name__=='__main__':
 
   service_name= '/gripper_driver/move'
 
-  print 'Testing IsServiceAvailable({})...'.format(service_name)
-  print ' result:',IsServiceAvailable(service_name)
+  print('Testing IsServiceAvailable({})...'.format(service_name))
+  print(' result:',IsServiceAvailable(service_name))
 
   service_name= '/gripper_driver/jump'
 
-  print 'Testing IsServiceAvailable({})...'.format(service_name)
-  print ' result:',IsServiceAvailable(service_name)
+  print('Testing IsServiceAvailable({})...'.format(service_name))
+  print(' result:',IsServiceAvailable(service_name))
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    actlib_cli.py
 #\brief   actionlib SimpleActionClient test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -35,6 +35,6 @@ if __name__=='__main__':
   try:
     rospy.init_node('fibonacci_client_py')
     result= fibonacci_client()
-    print "Result:", ', '.join([str(n) for n in result.sequence])
+    print("Result:", ', '.join([str(n) for n in result.sequence]))
   except rospy.ROSInterruptException:
-    print "program interrupted before completion"
+    print("program interrupted before completion")

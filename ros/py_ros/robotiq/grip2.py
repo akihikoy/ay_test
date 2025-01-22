@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    grip2.py
 #\brief   We investigate the relation between command (0-255) and position (meters).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -15,7 +15,7 @@ if __name__=='__main__':
   rq.Init()
 
   while not rospy.is_shutdown():
-    c= raw_input('Type 0-255 or {o,c,q} > ')
+    c= input('Type 0-255 or {o,c,q} > ')
     if c=='q':  break
     elif c=='o':  rq.OpenGripper(blocking=True)
     elif c=='c':  rq.CloseGripper(blocking=True)
@@ -24,9 +24,9 @@ if __name__=='__main__':
         cmd= int(c)
         rq.MoveGripper(pos=cmd, max_effort=0, speed=0, blocking=True)
       except ValueError as e:
-        print 'Invalid command:',c
+        print('Invalid command:',c)
     #print 'Position: %r'%(rq.status.gPO)
-    print rq.PrintStatus(rq.status)
+    print(rq.PrintStatus(rq.status))
 
   rq.Cleanup()
 

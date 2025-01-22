@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    follow_q_traj1.py
 #\brief   Follow a joint angle trajectory.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

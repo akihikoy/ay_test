@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    get_param.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -12,7 +12,7 @@ import sys
 if __name__=='__main__':
   rospy.init_node('ros_min')
   param= rospy.get_param('~param', 'hoge')
-  print 'param=',param
+  print('param=',param)
 
 '''
 #WARNING: The following code does not work.

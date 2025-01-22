@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    move_x1.py
 #\brief   Moving the robot in Cartesian space.
 #         The robot moves 5 cm above of the current pose.

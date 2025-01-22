@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    follow_q_traj1.py
 #\brief   Follow a joint angle trajectory.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -45,7 +45,7 @@ if __name__=='__main__':
     goal.trajectory.points.append(point)
 
   angles= GetState().position
-  print 'current angles:',angles
+  print('current angles:',angles)
   dt= 1.0
   add_point(goal, 0.0, angles, [0.0]*6)
   add_point(goal, dt*1.0, [q+0.2 for q in angles], [0.0]*6)
@@ -58,6 +58,6 @@ if __name__=='__main__':
   #client.cancel_goal()
   #client.wait_for_result(timeout=rospy.Duration(20.0))
 
-  print client.get_result()
+  print(client.get_result())
 
   rospy.signal_shutdown('Done.')

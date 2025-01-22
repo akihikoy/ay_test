@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_sub1.py
 #\brief   Stand alone simple ROS test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -10,7 +10,7 @@ import std_msgs.msg
 import time
 
 def Callback(msg):
-  print 'received:',msg
+  print('received:',msg)
 
 if __name__=='__main__':
   rospy.init_node('ros_sub1')

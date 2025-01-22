@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    grip1.py
 #\brief   Robotiq Gripper control.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -81,13 +81,13 @@ if __name__=='__main__':
   rq= TRobotiq()
   rq.Init()
   time.sleep(1)
-  raw_input('wait activation>')
-  print robotiq_msgs.CModel_robot_output()
+  input('wait activation>')
+  print(robotiq_msgs.CModel_robot_output())
 
-  print 'closing gripper'
+  print('closing gripper')
   rq.CloseGripper()
   time.sleep(1)
-  print 'opening gripper'
+  print('opening gripper')
   rq.OpenGripper()
   time.sleep(1)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    joint_wiggle.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -12,7 +12,7 @@ import math
 def QToKuka(q):
   msg= iiwa_msgs.msg.JointPosition()
   pos= msg.position
-  joint_names= ('a%d'%d for d in xrange(1,8))
+  joint_names= ('a%d'%d for d in range(1,8))
   for name,value in zip(joint_names,q):  setattr(pos,name,value)
   return msg
 

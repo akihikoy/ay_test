@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    record_by_nav.py
 #\brief   Baxter: record poses by pressing navigation button
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -25,7 +25,7 @@ if __name__=='__main__':
   init_state= rs.state().enabled
   def clean_shutdown():
     if not init_state:
-      print 'Disabling robot...'
+      print('Disabling robot...')
       rs.disable()
   rospy.on_shutdown(clean_shutdown)
   rs.enable()
@@ -50,7 +50,7 @@ if __name__=='__main__':
       q_r= [angles_r[joint] for joint in joint_names[RIGHT]]  #Serialize
       angles_l= limbs[LEFT].joint_angles()
       q_l= [angles_l[joint] for joint in joint_names[LEFT]]  #Serialize
-      print '[q_r,q_l]=',[q_r,q_l]
+      print('[q_r,q_l]=',[q_r,q_l])
 
   # Navigator scroll wheel button press
   navigator_io[RIGHT].button0_changed.connect(print_angles)

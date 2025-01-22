@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dynamic_reconfig.py
 #\brief   How to use dynamic_reconfigure client
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -22,7 +22,7 @@ if __name__=='__main__':
   try:
     client= dynamic_reconfigure.client.Client('/camera/driver',timeout=3.0)
   except rospy.exceptions.ROSException as e:
-    print 'Error:',str(e)
+    print('Error:',str(e))
     sys.exit()
   params= {'data_skip': ds}
   config= client.update_configuration(params)

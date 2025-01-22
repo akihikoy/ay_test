@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    velctrl_noros1.py
 #\brief   Velocity control with direct connection to UR over Ethernet (no ROS).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -12,7 +12,7 @@ def AddCommandToQueue(socketobj, cmd):
   if cmd[-1]!='\n': cmd+= '\n'
   len_sent= socketobj.send(cmd)
   if len_sent!=len(cmd):
-    print 'Command was not sent properly; cmd {cmd} byte, sent {sent} byte'.format(cmd=len(cmd),sent=len_sent)
+    print('Command was not sent properly; cmd {cmd} byte, sent {sent} byte'.format(cmd=len(cmd),sent=len_sent))
 
 class TRobotState(object):
   ROBOT_STATE= 16
@@ -156,8 +156,8 @@ def GetRobotState(robot_hostname):
 
   socketobj.close()
 
-  print robot_state.version.major_version, robot_state.version.minor_version
-  print robot_state.GetVersion()
+  print(robot_state.version.major_version, robot_state.version.minor_version)
+  print(robot_state.GetVersion())
   return robot_state
 
 if __name__=='__main__':
@@ -197,7 +197,7 @@ if __name__=='__main__':
       rate.sleep()
 
   except KeyboardInterrupt:
-    print 'Interrupted'
+    print('Interrupted')
 
   finally:
     socketobj.close()

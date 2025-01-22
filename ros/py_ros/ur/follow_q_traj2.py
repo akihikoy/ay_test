@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    follow_q_traj1.py
 #\brief   Follow a joint angle trajectory.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -53,6 +53,6 @@ if __name__=='__main__':
   #client.cancel_goal()
   #client.wait_for_result(timeout=rospy.Duration(20.0))
 
-  print client.get_result()
+  print(client.get_result())
 
   #rospy.signal_shutdown('Done.')

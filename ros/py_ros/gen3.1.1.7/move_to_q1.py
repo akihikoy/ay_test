@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    move_to_q1.py
 #\brief   Move to target joint positions.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

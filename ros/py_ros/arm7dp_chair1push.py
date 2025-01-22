@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    arm7dp_chair1push.py
 #\brief   Chair1 push.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -43,7 +43,7 @@ if __name__=='__main__':
 
     t.srvp.ode_resume()
     l.config= sim.GetConfig(t)
-    print 'Current config=',l.config
+    print('Current config=',l.config)
 
     #Setup config
     l.config.JointNum= 19
@@ -57,7 +57,7 @@ if __name__=='__main__':
     #Reset to get state for plan
     sim.ResetConfig(t,l.config)
     time.sleep(0.1)  #Wait for l.sensors is updated
-    print 'l.sensors=',l.sensors
+    print('l.sensors=',l.sensors)
 
     def IK2(x_trg,q_curr):
       ik_param= sim.TIKParam()
@@ -67,7 +67,7 @@ if __name__=='__main__':
       if q is not None:
         return q
       else:
-        print 'IK unsolved!'
+        print('IK unsolved!')
         return ik_st.LastQ
 
     def MoveToX(t,l,x_trg,dth_max=0.1):
@@ -78,7 +78,7 @@ if __name__=='__main__':
       q_traj= XTrajToQTraj(IK2, x_traj, start_angles=l.sensors.joint_angles)
       if q_traj==None:  return
       for q in q_traj:
-        print q
+        print(q)
         sim.MoveToTheta(t,l,q,dth_max=dth_max)
       #l.x_trg= copy.deepcopy(x_trg)
       #print ik_st.IsSolved, ik_st.NumIter, ik_st.Error, ik_st.ErrorPos, ik_st.ErrorRot
@@ -106,7 +106,7 @@ if __name__=='__main__':
       x_way10[3:]= MultiplyQ(QFromAxisAngle([0.0,0.0,1.0],angle), x_way10[3:])
       #x_way0=
       diff= DiffX(Transform(x_seat2, x_way9), l.sensors.link_x[7:14])[:3]
-      print 'diff:',diff,Norm(diff)
+      print('diff:',diff,Norm(diff))
       if Norm(diff)>0.2:
         MoveToX(t,l,x_trg=Transform(x_seat2, x_way6))
         MoveToX(t,l,x_trg=Transform(x_seat2, x_way7))

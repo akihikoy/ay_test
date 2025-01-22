@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    move_q1.py
 #\brief   Move the robot to a target joint angles.
 #         It increments all joint angles in 0.02 rad.

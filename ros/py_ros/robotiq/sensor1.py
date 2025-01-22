@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    sensor1.py
 #\brief   Robotiq Gripper sensing.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -22,8 +22,8 @@ from grip1 import TRobotiq
 def EchoSensor(msg):
   #print '---'
   #print msg
-  print 'Flags(ACT,GTO,STA,OBJ,FLT):',msg.gACT,msg.gGTO,msg.gSTA,msg.gOBJ,msg.gFLT,
-  print 'State(PR,PO,CU):',msg.gPR,msg.gPO,msg.gCU
+  print('Flags(ACT,GTO,STA,OBJ,FLT):',msg.gACT,msg.gGTO,msg.gSTA,msg.gOBJ,msg.gFLT, end=' ')
+  print('State(PR,PO,CU):',msg.gPR,msg.gPO,msg.gCU)
 
 if __name__=='__main__':
   rospy.init_node('robotiq_test')
@@ -34,14 +34,14 @@ if __name__=='__main__':
   rq.Init()
   time.sleep(3)
 
-  print 'closing gripper'
+  print('closing gripper')
   #rq.CloseGripper()
   rq.MoveGripper(pos=255, max_effort=0, speed=0)
   time.sleep(5)
-  print 'opening gripper'
+  print('opening gripper')
   #rq.OpenGripper()
   rq.MoveGripper(pos=0, max_effort=0, speed=0)
   time.sleep(5)
 
-  print 'Exit with Ctrl+C'
+  print('Exit with Ctrl+C')
   rospy.spin()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    get_q2.py
 #\brief   Get joint angles.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -24,10 +24,10 @@ if __name__=='__main__':
 
   sub= rospy.Subscriber('/gen3a/joint_states', sensor_msgs.msg.JointState, JointStatesCallback)
 
-  for i in xrange(100000):
+  for i in range(100000):
     if rospy.is_shutdown():  break
 
-    print '@%d, x=%r'%(i,x_curr)
-    print '@%d, q=%r'%(i,q_curr)
-    print '@%d, dq=%r'%(i,dq_curr)
+    print('@%d, x=%r'%(i,x_curr))
+    print('@%d, q=%r'%(i,q_curr))
+    print('@%d, dq=%r'%(i,dq_curr))
     rospy.sleep(2.0e-3)

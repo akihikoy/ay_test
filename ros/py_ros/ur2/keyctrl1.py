@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    keyctrl1.py
 #\brief   Keyboard control to test switching the trajectory and velocity controllers.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -84,7 +84,7 @@ class TUR(object):
     #self.traj_client.wait_for_result(timeout=rospy.Duration(20.0))
 
     self.traj_client.wait_for_result()
-    print self.traj_client.get_result()
+    print(self.traj_client.get_result())
 
   class VelCtrl(object):
     def __init__(self,ur):
@@ -131,7 +131,7 @@ class TUR(object):
 
     def Step(self,dq):
       if self.mode!='vel':
-        print 'Warning: The velocity control mode is not active.'
+        print('Warning: The velocity control mode is not active.')
         return
       self.msg.data= dq
       self.ur.vel_pub.publish(self.msg)
@@ -155,7 +155,7 @@ if __name__=='__main__':
 
   ur= TUR()
   q_start= ur.Q()
-  print q_start
+  print(q_start)
 
   #KBD thread
   key_cmd= [None]
@@ -184,7 +184,7 @@ if __name__=='__main__':
         mov= None
         if c is not None:
           if c=='q':  break
-          elif c in key_map.keys():  mov= key_map[c]
+          elif c in list(key_map.keys()):  mov= key_map[c]
           elif c==' ':  mov= 'move_to_start'
 
         if mov=='move_to_start':
@@ -193,19 +193,19 @@ if __name__=='__main__':
           velctrl.StartVelCtrlMode()
           continue
 
-        elif mov in pmov_map.keys():
+        elif mov in list(pmov_map.keys()):
           ixyz,sign= pmov_map[mov]
           dp_curr[ixyz]+= sign*acceleration*dt
           if dp_curr[ixyz]>speed_max:  dp_curr[ixyz]= speed_max
           if dp_curr[ixyz]<-speed_max:  dp_curr[ixyz]= -speed_max
 
         for ixyz in range(3):
-          if mov in pmov_map.keys() and ixyz==pmov_map[mov][0]:  continue
+          if mov in list(pmov_map.keys()) and ixyz==pmov_map[mov][0]:  continue
           if dp_curr[ixyz]>acceleration*dt:  dp_curr[ixyz]-= acceleration*dt
           if dp_curr[ixyz]<-acceleration*dt:  dp_curr[ixyz]+= acceleration*dt
           if abs(dp_curr[ixyz])<=acceleration*dt:  dp_curr[ixyz]= 0.0
 
-        print 'dp_curr',dp_curr
+        print('dp_curr',dp_curr)
         dq= ( np.linalg.pinv(ur.J(ur.Q()))*(np.mat(dp_curr+[0,0,0]).T) ).ravel().tolist()[0]
         #dq= [0.0]*6
         #print 'dq',dq

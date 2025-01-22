@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    velctrl_noros2.py
 #\brief   Velocity control with direct connection to UR over Ethernet (no ROS).
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -129,8 +129,8 @@ if __name__=='__main__':
 
   #robot_hostname,is_e= 'ur3a',False
   robot_hostname,is_e= 'ur3ea',True
-  print 'robot & version:',robot_hostname,GetURState(robot_hostname).GetVersion()
-  res= raw_input('continue? > ')
+  print('robot & version:',robot_hostname,GetURState(robot_hostname).GetVersion())
+  res= input('continue? > ')
   if len(res)>0 and res[0] not in ('y','Y',' '):  sys.exit(0)
 
   velctrl= TURVelCtrl(robot_hostname)
@@ -150,7 +150,7 @@ if __name__=='__main__':
       rate.sleep()
 
   except KeyboardInterrupt:
-    print 'Interrupted'
+    print('Interrupted')
 
   finally:
     velctrl.Finish()

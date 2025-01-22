@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    rviz1.py
 #\brief   RVIZ tool, copied from lfd_trick/src/base/ros_viz.py
 #\author  Akihiko Yamaguchi, info@akihikoy.net

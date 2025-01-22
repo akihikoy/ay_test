@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    plot_hist1.py
 #\brief   Plot histogram of a list of topics.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -39,7 +39,7 @@ def CallbackTopic(msg, list_names, value_names):
     for name in list_names:
       list_value= getattr(list_value, name)
   except AttributeError:
-    print 'Failed to find list_names={}'.format(list_names)
+    print('Failed to find list_names={}'.format(list_names))
     #print 'Message content:',dir(msg),dir(msg.__class__)
     rospy.signal_shutdown('Exception')
   assert(isinstance(list_value,list))
@@ -52,7 +52,7 @@ def CallbackTopic(msg, list_names, value_names):
     values= [get_value(elem) for elem in list_value]
     #print values
   except AttributeError:
-    print 'Failed to find value_names={}'.format(value_names)
+    print('Failed to find value_names={}'.format(value_names))
     rospy.signal_shutdown('Exception')
   Values[0]= values
 
@@ -70,17 +70,17 @@ if __name__=='__main__':
   # Dynamically import the module and class based on topic type
   module_name,class_name= topic_type.split('/')
 
-  print 'topic_name= {}'.format(topic_name)
-  print 'module_name= {}'.format(module_name)
-  print 'class_name= {}'.format(class_name)
-  print 'list_names= {}'.format(list_names)
-  print 'value_names= {}'.format(value_names)
+  print('topic_name= {}'.format(topic_name))
+  print('module_name= {}'.format(module_name))
+  print('class_name= {}'.format(class_name))
+  print('list_names= {}'.format(list_names))
+  print('value_names= {}'.format(value_names))
 
   rospack= rospkg.RosPack()
   # Get the path for the specified package and add it to sys.path if not already included
   try:
     pkg_path= os.path.join(rospack.get_path(module_name), 'src')
-    print 'pkg_path= {}'.format(pkg_path)
+    print('pkg_path= {}'.format(pkg_path))
     if pkg_path not in sys.path:
       sys.path.append(pkg_path)
   except rospkg.common.ResourceNotFound:
@@ -113,12 +113,12 @@ if __name__=='__main__':
     plt.pause(0.01)
 
   if Values[0] is None:
-    print '============Print debug info============'
+    print('============Print debug info============')
     cmd= 'rostopic info {}'.format(topic_name)
-    print 'topic info ({}):'.format(cmd)
+    print('topic info ({}):'.format(cmd))
     os.system(cmd)
     cmd= 'rosmsg info {}/{}'.format(module_name,class_name)
-    print 'message info ({}):'.format(cmd)
+    print('message info ({}):'.format(cmd))
     os.system(cmd)
 
   sub.unregister()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    fk1.py
 #\brief   Baxter: forwrad kinematics
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -39,13 +39,13 @@ if __name__=='__main__':
   joint_names[RIGHT]= limbs[RIGHT].joint_names()
   joint_names[LEFT]=  limbs[LEFT].joint_names()
 
-  print '\n*** Baxter Description ***\n'
+  print('\n*** Baxter Description ***\n')
   kin[arm].print_robot_description()
-  print '\n*** Baxter KDL Chain - RIGHT ***\n'
+  print('\n*** Baxter KDL Chain - RIGHT ***\n')
   kin[RIGHT].print_kdl_chain()
-  print '\n*** Baxter KDL Chain - LEFT ***\n'
+  print('\n*** Baxter KDL Chain - LEFT ***\n')
   kin[LEFT].print_kdl_chain()
-  print '\n'
+  print('\n')
 
   #Test 1: FK of fixed angles (symmetry)
   q0=[ 0.40, 0.02,  0.05, 1.51,  1.05, 0.18, -0.41]
@@ -55,12 +55,12 @@ if __name__=='__main__':
   #q1= [0.0]*7
   angles= {joint:q0[j] for j,joint in enumerate(joint_names[RIGHT])}  #Deserialize
   x= kin[RIGHT].forward_position_kinematics(joint_values=angles)
-  print x
+  print(x)
   angles= {joint:q1[j] for j,joint in enumerate(joint_names[LEFT])}  #Deserialize
   x= kin[LEFT].forward_position_kinematics(joint_values=angles)
-  print x
-  print type(x)
-  print x.shape
+  print(x)
+  print(type(x))
+  print(x.shape)
 
   ##Test 2: FK around fixed angles (right arm)
   #q=[0.40, 0.02, 0.05, 1.51, 1.05, 0.18, -0.41]
@@ -72,8 +72,8 @@ if __name__=='__main__':
     #print i, kin[arm].forward_position_kinematics(joint_values=angles)
 
   #Test 3: FK of current angles (right arm)
-  for i in xrange(100000):
+  for i in range(100000):
     if rospy.is_shutdown():  break
     angles= limbs[arm].joint_angles()
-    print i, kin[arm].forward_position_kinematics(joint_values=angles)
+    print(i, kin[arm].forward_position_kinematics(joint_values=angles))
 

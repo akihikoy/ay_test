@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dummy_moto1.py
 #\brief   Dummy motoman robot.
 #         This subscribes joint_path_command and send joint_states.
@@ -49,7 +49,7 @@ class TRobotDummyMoto(object):
 
     t_prev= rospy.Duration(0.0)
     for q,t in zip(q_traj,t_traj):
-      print q,t,(t-t_prev).to_sec()
+      print(q,t,(t-t_prev).to_sec())
       rospy.sleep((t-t_prev).to_sec())
       t_prev= t
       with self.js_locker:

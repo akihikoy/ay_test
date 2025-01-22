@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 ROS node for controling a Robotiq C-Model gripper using the Modbus TCP protocol.
 ref. swri-ros-pkg/robotiq/robotiq_c_model_control/nodes/CModelTcpNode.py

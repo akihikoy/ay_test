@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_pub_img.py
 #\brief   Capture images from a camera and publish them as ROS image topics.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

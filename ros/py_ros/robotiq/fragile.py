@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    fragile.py
 #\brief   Grasping a fragile object.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -14,7 +14,7 @@ if __name__=='__main__':
   rq= TRobotiq()
   rq.Init()
   #rospy.sleep(1)
-  raw_input('wait activation>')
+  input('wait activation>')
 
   #def sensor_callback(st):
     #rq.PrintStatus(st)
@@ -37,10 +37,10 @@ if __name__=='__main__':
       l.event= 2
       rq.SensorCallback= None
 
-  print 'opening gripper'
+  print('opening gripper')
   rq.MoveGripper(pos=0, max_effort=255, speed=255)
   #print 'closing gripper'
-  raw_input('start closing?>')
+  input('start closing?>')
 
   rq.MoveGripper(pos=255, max_effort=0, speed=0)
   while rq.status.gPR!=255:  rospy.sleep(0.001)
@@ -52,9 +52,9 @@ if __name__=='__main__':
       rq.StopGripper()
       break
     rospy.sleep(0.001)
-  print 'event=',l.event
+  print('event=',l.event)
 
-  raw_input('opening gripper?>')
+  input('opening gripper?>')
   rq.MoveGripper(pos=0, max_effort=255, speed=255, blocking=True)
   rospy.sleep(1)
 

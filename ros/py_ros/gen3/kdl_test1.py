@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    kdl_test1.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -28,29 +28,29 @@ if __name__=='__main__':
   joint_types= [joint.type for joint in robot.joints]
   num_non_fixed_joints= len(joint_types)-joint_types.count('fixed')
 
-  print 'URDF links:',len(robot.links)
-  print 'URDF joints:',len(robot.joints)
-  print 'URDF non-fixed joints:',num_non_fixed_joints
-  print 'KDL joints:',tree.getNrOfJoints()
-  print 'KDL segments:',tree.getNrOfSegments()
+  print('URDF links:',len(robot.links))
+  print('URDF joints:',len(robot.joints))
+  print('URDF non-fixed joints:',num_non_fixed_joints)
+  print('KDL joints:',tree.getNrOfJoints())
+  print('KDL segments:',tree.getNrOfSegments())
 
-  print 'base_link          :',robot.get_root()
-  print 'link_names         :',link_names
-  print 'joint_names        :',joint_names
-  print 'joint_parents      :',joint_parents
-  print 'joint_limits       :',joint_limits
-  print 'joint_limits_lower :',joint_limits_lower
-  print 'joint_limits_upper :',joint_limits_upper
-  print 'joint_limits_vel   :',joint_limits_vel
-  print 'joint_types        :',joint_types
+  print('base_link          :',robot.get_root())
+  print('link_names         :',link_names)
+  print('joint_names        :',joint_names)
+  print('joint_parents      :',joint_parents)
+  print('joint_limits       :',joint_limits)
+  print('joint_limits_lower :',joint_limits_lower)
+  print('joint_limits_upper :',joint_limits_upper)
+  print('joint_limits_vel   :',joint_limits_vel)
+  print('joint_types        :',joint_types)
 
   import random
   base_link= robot.get_root()
   end_link= link_names[random.randint(0, len(link_names)-1)]
   #end_link= 'link_t'
   chain= tree.getChain(base_link, end_link)
-  print "Root link: %s; Random end link: %s" % (base_link, end_link)
-  print 'chain.getNrOfSegments():',chain.getNrOfSegments()
-  print [chain.getSegment(i).getName() for i in range(chain.getNrOfSegments())]
-  print [chain.getSegment(i).getJoint().getName() for i in range(chain.getNrOfSegments())]
+  print("Root link: %s; Random end link: %s" % (base_link, end_link))
+  print('chain.getNrOfSegments():',chain.getNrOfSegments())
+  print([chain.getSegment(i).getName() for i in range(chain.getNrOfSegments())])
+  print([chain.getSegment(i).getJoint().getName() for i in range(chain.getNrOfSegments())])
 

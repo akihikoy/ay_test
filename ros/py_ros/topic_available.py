@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    topic_available.py
 #\brief   Function to check if a topic is available.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -33,17 +33,17 @@ if __name__=='__main__':
   port_name= '/joint_states'
   port_type= sensor_msgs.msg.JointState
 
-  print 'Testing TopicArrives({},{})...'.format(port_name, port_type)
-  print ' result:',TopicArrives(port_name, port_type)
+  print('Testing TopicArrives({},{})...'.format(port_name, port_type))
+  print(' result:',TopicArrives(port_name, port_type))
 
-  print 'Testing IsTopicAvailable({},{})...'.format(port_name, port_type)
-  print ' result:',IsTopicAvailable(port_name, port_type)
+  print('Testing IsTopicAvailable({},{})...'.format(port_name, port_type))
+  print(' result:',IsTopicAvailable(port_name, port_type))
 
   port_name= '/joint_states2'
 
-  print 'Testing TopicArrives({},{})...'.format(port_name, port_type)
-  print ' result:',TopicArrives(port_name, port_type)
+  print('Testing TopicArrives({},{})...'.format(port_name, port_type))
+  print(' result:',TopicArrives(port_name, port_type))
 
-  print 'Testing IsTopicAvailable({},{})...'.format(port_name, port_type)
-  print ' result:',IsTopicAvailable(port_name, port_type)
+  print('Testing IsTopicAvailable({},{})...'.format(port_name, port_type))
+  print(' result:',IsTopicAvailable(port_name, port_type))
 

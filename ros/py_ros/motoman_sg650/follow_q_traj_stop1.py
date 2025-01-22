@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    follow_q_traj_stop1.py
 #\brief   Follow a trajectory and stop when indicated by the operator.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -17,7 +17,7 @@ import get_q2
 from kbhit2 import TKBHit
 
 StateToStr= {getattr(actionlib_msgs.msg.GoalStatus,key):key for key in ('PENDING', 'ACTIVE', 'RECALLED', 'REJECTED', 'PREEMPTED', 'ABORTED', 'SUCCEEDED', 'LOST')}
-print 'StateToStr=',StateToStr
+print('StateToStr=',StateToStr)
 
 if __name__=='__main__':
   rospy.init_node('moto_test')
@@ -48,11 +48,11 @@ if __name__=='__main__':
 
   for i in range(100):
     if get_q2.q_curr is not None:  break
-    print get_q2.q_curr
+    print(get_q2.q_curr)
     rospy.sleep(0.1)
   #angles= GetState().position
   angles= get_q2.q_curr
-  print 'current angles:',angles
+  print('current angles:',angles)
   dt= 1.0
   add_point(goal, 0.0, angles, [0.0]*dof)
   add_point(goal, dt*1.0, [0.6, -0.6, -0.1, 0.4], [0.0]*dof)
@@ -63,11 +63,11 @@ if __name__=='__main__':
     rate_adjustor= rospy.Rate(50)
     goal.trajectory.header.stamp= rospy.Time.now()
     client.send_goal(goal)
-    print 'trajectory started. hit space to stop.'
+    print('trajectory started. hit space to stop.')
     while not rospy.is_shutdown():
       c= kbhit.KBHit()
       if c==' ':
-        print 'stopping the trajectory...'
+        print('stopping the trajectory...')
         #Method-1: Basically stops, but sometimes (especially in the last period) does not stop.
         #  No message from MotoROS.
         client.cancel_goal()
@@ -86,10 +86,10 @@ if __name__=='__main__':
         #client.send_goal(goal_stop)
         break
       if client.get_state() != actionlib_msgs.msg.GoalStatus.ACTIVE:
-        print 'state: {} ({})'.format(StateToStr[client.get_state()], client.get_state())
+        print('state: {} ({})'.format(StateToStr[client.get_state()], client.get_state()))
       if client.get_state() not in (actionlib_msgs.msg.GoalStatus.PENDING, actionlib_msgs.msg.GoalStatus.ACTIVE):
         break
       rate_adjustor.sleep()
-  print client.get_result()
+  print(client.get_result())
 
   rospy.signal_shutdown('Done.')

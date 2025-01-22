@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    joint_spring.py
 #\brief   Joint spring controller test
 #\author  Akihiko Yamaguchi, info@akihikoy.net

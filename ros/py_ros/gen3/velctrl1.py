@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    velctrl1.py
 #\brief   Velocity control ver.1 (waiving).
 #         Video: https://youtu.be/BzuPKjanXP4
@@ -31,7 +31,7 @@ if __name__=='__main__':
     joint_speed.value= 0.0
     speed_req.input.joint_speeds.append(joint_speed)
 
-  raw_input('Press enter to start > ')
+  input('Press enter to start > ')
 
   t0= rospy.Time.now()
   rate= rospy.Rate(200)
@@ -54,7 +54,7 @@ if __name__=='__main__':
       rate.sleep()
 
   except KeyboardInterrupt:
-    print 'Interrupted'
+    print('Interrupted')
 
   finally:
     kbhit.Deactivate()

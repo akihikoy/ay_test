@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    get_q1.py
 #\brief   Baxter: get current joint angles
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -30,13 +30,13 @@ if __name__=='__main__':
   joint_names[RIGHT]= limbs[RIGHT].joint_names()
   joint_names[LEFT]=  limbs[LEFT].joint_names()
 
-  for i in xrange(100000):
+  for i in range(100000):
     if rospy.is_shutdown():  break
 
     angles= limbs[arm].joint_angles()
     q= [angles[joint] for joint in joint_names[arm]]  #Serialize
-    print '@%d, angles=%r'%(i,angles)
-    print '@%d, q=%r'%(i,q)
+    print('@%d, angles=%r'%(i,angles))
+    print('@%d, q=%r'%(i,q))
     time.sleep(2.0e-3)
 
 

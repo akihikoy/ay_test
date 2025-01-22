@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_cv.py
 #\brief   certain python script
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -20,7 +20,7 @@ class image_converter:
     try:
       cv_image= self.bridge.imgmsg_to_cv2(data, "bgr8")
     except CvBridgeError as e:
-      print e
+      print(e)
       return
 
     (rows,cols,channels)= cv_image.shape
@@ -40,4 +40,4 @@ if __name__ == '__main__':
   try:
     rospy.spin()
   except KeyboardInterrupt:
-    print "Shutting down"
+    print("Shutting down")

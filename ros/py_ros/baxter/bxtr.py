@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    bxtr.py
 #\brief   Baxter utility class
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -144,7 +144,7 @@ def EnableBaxter():
   init_state= rs.state().enabled
   def clean_shutdown():
     if not init_state:
-      print 'Disabling robot...'
+      print('Disabling robot...')
       rs.disable()
   rospy.on_shutdown(clean_shutdown)
   rs.enable()
@@ -280,7 +280,7 @@ class BxJointSprings(object):
       if stop_err is not None:
         errs= []
         for arm in self.arms:
-          errs.append(max(map(abs,self.angle_errs[arm].values()) if self.angle_errs[arm] is not None else 0.0))
+          errs.append(max(list(map(abs,list(self.angle_errs[arm].values()))) if self.angle_errs[arm] is not None else 0.0))
         max_err= max(errs)
         #print max_err
         if max_err>stop_err:  break
@@ -299,9 +299,9 @@ class BxJointSprings(object):
     Switches out of joint torque mode to exit cleanly
     """
     for arm in self.arms:
-      print 'Exiting virtual spring control mode',LRTostr(arm)
+      print('Exiting virtual spring control mode',LRTostr(arm))
       self.limbs[arm].exit_control_mode()
-      print 'done'
+      print('done')
       #self.limbs[arm].move_to_joint_positions(self.limbs[arm].joint_angles(), timeout=0.0)
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    baynat.py
 #\brief   Go to an initial pose.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -24,7 +24,7 @@ def GoNatural(robot):
   client_l= robot.FollowQTraj(ql_traj,t_traj,arm=LEFT,blocking=False)
   client_r.wait_for_result(timeout=rospy.Duration(t_traj[-1]+5.0))
   client_l.wait_for_result(timeout=rospy.Duration(t_traj[-1]+5.0))
-  print client_r.get_result(), client_l.get_result()
+  print(client_r.get_result(), client_l.get_result())
 
 if __name__=='__main__':
   rospy.init_node('baxter_test')

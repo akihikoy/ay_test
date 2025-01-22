@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ik1.py
 #\brief   IK for Mikata arm.
 #         As Mikata arm has 4 joints, we use a weighted pinv of Jacobian.
@@ -43,7 +43,7 @@ def InverseKinematics(kin, position, orientation=None, seed=None, min_joints=Non
 
   solved= False
   err= [100.0,90.0]
-  for i in xrange(maxiter):
+  for i in range(maxiter):
     angles= {joint:q[j] for j,joint in enumerate(kin.joint_names)}  #Deserialize
     x= kin.forward_position_kinematics(angles)
     J= kin.jacobian(angles)
@@ -87,9 +87,9 @@ def InverseKinematics(kin, position, orientation=None, seed=None, min_joints=Non
 if __name__=='__main__':
   np.set_printoptions(precision=3)
 
-  print 'Testing TKinematics (robot_description == Mikata Arm is assumed).'
-  print 'Before executing this script, run:'
-  print '  rosparam load `rospack find mikata_arm_description`/description/urdf/mikata_arm_4.urdf robot_description'
+  print('Testing TKinematics (robot_description == Mikata Arm is assumed).')
+  print('Before executing this script, run:')
+  print('  rosparam load `rospack find mikata_arm_description`/description/urdf/mikata_arm_4.urdf robot_description')
   kin= TKinematics(base_link='base_link', end_link='link_5')
   #kin.print_robot_description()
 
@@ -107,10 +107,10 @@ if __name__=='__main__':
   angles= {joint:q1[j] for j,joint in enumerate(kin.joint_names)}  #Deserialize
   x1= kin.forward_position_kinematics(angles)
   #J1= kin.jacobian(angles)
-  print 'q1=',q1
+  print('q1=',q1)
   #print 'x1= FK(q1)=',x1
   x1= x1+np.array([0.04,0.04,-0.03, 0.0,0.0,0.0,0.0])
-  print 'x1=',x1
+  print('x1=',x1)
   #print 'J1= J(q1)=',J1
 
   #COMPARING MY IK vs. KDL::IK
@@ -120,32 +120,32 @@ if __name__=='__main__':
   t0= time.time()
   res2a,q2a= kin.inverse_kinematics(x1[:3], x1[3:], seed=seed, maxiter=2000, eps=1.0e-4,
                                     w_x=np.diag(w_x).tolist(), with_st=True)
-  print 'IK(a) took:',time.time()-t0
+  print('IK(a) took:',time.time()-t0)
   t0= time.time()
   res2b,q2b= InverseKinematics(kin, x1[:3], x1[3:], seed=seed, maxiter=2000, eps=1.0e-4,
                                w_x=w_x,with_st=True)
-  print 'IK(b) took:',time.time()-t0
-  print ''
-  if not res2a:  print 'Failed to solve IK(a).'
-  print 'q2a= IK(x1)=',q2a
+  print('IK(b) took:',time.time()-t0)
+  print('')
+  if not res2a:  print('Failed to solve IK(a).')
+  print('q2a= IK(x1)=',q2a)
   if q2a is not None:
     angles= {joint:q2a[j] for j,joint in enumerate(kin.joint_names)}  #Deserialize
     x2a= kin.forward_position_kinematics(angles)
-    print 'x2a= FK(q2a)=',x2a
-    print 'x2a==x1?', np.allclose(x2a,x1)
-    print 'x2a-x1=',np.array(DiffX(x1, x2a))
-    print 'w_x|x2a-x1|=',np.linalg.norm(np.dot(np.diag(w_x),DiffX(x1, x2a)))
+    print('x2a= FK(q2a)=',x2a)
+    print('x2a==x1?', np.allclose(x2a,x1))
+    print('x2a-x1=',np.array(DiffX(x1, x2a)))
+    print('w_x|x2a-x1|=',np.linalg.norm(np.dot(np.diag(w_x),DiffX(x1, x2a))))
   else:
-    print 'Failed to solve IK(a).'
-  print ''
-  if not res2b:  print 'Failed to solve IK(b).'
-  print 'q2b= IK(x1)=',q2b
+    print('Failed to solve IK(a).')
+  print('')
+  if not res2b:  print('Failed to solve IK(b).')
+  print('q2b= IK(x1)=',q2b)
   if q2b is not None:
     angles= {joint:q2b[j] for j,joint in enumerate(kin.joint_names)}  #Deserialize
     x2b= kin.forward_position_kinematics(angles)
-    print 'x2b= FK(q2b)=',x2b
-    print 'x2b==x1?', np.allclose(x2b,x1)
-    print 'x2b-x1=',np.array(DiffX(x1, x2b))
-    print 'w_x|x2b-x1|=',np.linalg.norm(np.dot(np.diag(w_x),DiffX(x1, x2b)))
+    print('x2b= FK(q2b)=',x2b)
+    print('x2b==x1?', np.allclose(x2b,x1))
+    print('x2b-x1=',np.array(DiffX(x1, x2b)))
+    print('w_x|x2b-x1|=',np.linalg.norm(np.dot(np.diag(w_x),DiffX(x1, x2b))))
   else:
-    print 'Failed to solve IK(b).'
+    print('Failed to solve IK(b).')

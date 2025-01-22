@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_cli1.py
 #\brief   Simple service server.
 #\author  Akihiko Yamaguchi, info@akihikoy.net

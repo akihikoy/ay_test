@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    dummy_robot.py
 #\brief   Dummy robot.
 #         This subscribes joint_path_command and send joint_states.
@@ -67,9 +67,9 @@ class TDummyRobot(object):
       q_traj= [self.js.position]+q_traj
       dq_traj= [self.js.velocity]+dq_traj
       t_traj= [rospy.Duration(0.0)]+t_traj
-    print 'Received trajectory command:'
-    print [t.to_sec() for t in t_traj]
-    print q_traj
+    print('Received trajectory command:')
+    print([t.to_sec() for t in t_traj])
+    print(q_traj)
 
     #Modeling the trajectory with spline.
     splines= [TCubicHermiteSpline() for d in range(self.dof)]

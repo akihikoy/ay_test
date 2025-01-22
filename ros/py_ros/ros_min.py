@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #\file    ros_min.py
 #\brief   Stand alone simple ROS test.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
@@ -16,7 +16,7 @@ if __name__=='__main__':
   while not rospy.is_shutdown():
     a= (i*(i+1))/2
     s= 'ros_min ... %i'%a
-    print 'saying %r'%s
+    print('saying %r'%s)
     pub_str.publish(s)
     time.sleep(0.5)
     i+= 1
