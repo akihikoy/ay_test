@@ -6,6 +6,7 @@
 #\date    Mar.02, 2021
 import numpy as np
 from scipy.spatial import ConvexHull as scipy_ConvexHull
+from scipy.spatial.qhull import QhullError as scipy_QhullError
 from geometry import *
 
 def BoxPlaneIntersection(box, x_box, x_plane):
@@ -34,7 +35,10 @@ def BoxPlaneIntersection(box, x_box, x_plane):
   l_p_intersect= [f_intersect(l_box_points[i1_i21[0]],l_box_points[i1_i21[1]]) for i1_i21 in box_edges]
 
   #Make it convex:
-  hull= scipy_ConvexHull(l_p_intersect)
+  try:
+    hull= scipy_ConvexHull(l_p_intersect)
+  except scipy_QhullError:
+    return []
   #print hull.vertices
   l_p_intersect= np.array(l_p_intersect)[hull.vertices]
 
