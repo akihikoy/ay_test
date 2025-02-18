@@ -7,10 +7,10 @@
 #Use one of the servers:
 #  $ ./sync_server_3.py
 #  $ ./sync_server_3a.py
-from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+from pymodbus.client import ModbusTcpClient as ModbusClient
 from pymodbus.pdu import ExceptionResponse
 from kbhit2 import KBHAskGen
-from sync_server_3 import *
+from sync_server_3a import *
 
 if __name__=='__main__':
   from _config import *

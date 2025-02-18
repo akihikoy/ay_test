@@ -9,7 +9,9 @@ import copy
 import sys
 from kbhit2 import TKBHit
 from rate_adjust import TRate
-from pymodbus.server.sync import ModbusTcpServer, ModbusSocketFramer
+import asyncio
+from pymodbus.server.async_io import ModbusTcpServer
+from pymodbus.framer import ModbusSocketFramer
 from pymodbus.device import ModbusDeviceIdentification
 from pymodbus.datastore import ModbusSequentialDataBlock, ModbusSparseDataBlock
 from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
@@ -148,16 +150,35 @@ class TModbusServer(object):
 
     self.framer= ModbusSocketFramer
     self.port= port
-    self.server= ModbusTcpServer(context=self.context, framer=self.framer, identity=self.identity, address=('', self.port))
+    #self.server= ModbusTcpServer(context=self.context, framer=self.framer, identity=self.identity, address=('', self.port))
+    self.server= None
+    self.loop= None
+    self.th= None
+
+  async def _run_server(self):
+    self.server= ModbusTcpServer(context=self.context, framer=self.framer,
+                                 identity=self.identity, address=('', self.port))
+    await self.server.serve_forever()
 
   def StartLoop(self):
-    self.th= threading.Thread(name='server', target=self.server.serve_forever)
+    def _run(loop):
+      asyncio.set_event_loop(loop)
+      loop.run_until_complete(self._run_server())
+    self.loop= asyncio.new_event_loop()
+    self.th= threading.Thread(target=_run, args=(self.loop,), name='server')
     self.th.start()
 
   def StopLoop(self):
-    self.server.shutdown()
-    self.th.join()
-
+    if self.server is not None:
+      shutdown_future= asyncio.run_coroutine_threadsafe(self.server.shutdown(), self.loop)
+      try:
+        shutdown_future.result(timeout=10)
+      except Exception as e:
+        print("Error during shutdown:", e)
+    if self.loop is not None:
+      self.loop.call_soon_threadsafe(self.loop.stop)
+    if self.th is not None:
+      self.th.join()
 
 if __name__=='__main__':
   port= int(sys.argv[1]) if len(sys.argv)>1 else 5020
