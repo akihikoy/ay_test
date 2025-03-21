@@ -20,7 +20,7 @@ for i,_ in enumerate(DXL_ID):
   dxl[i].EnableTorque()
 
 dxl[i_dxl].MoveTo(dxl[i_dxl].Position()+dp_trg,blocking=True)
-\
+
 print('Current position=',[dxl[i].Position() for i,_ in enumerate(DXL_ID)])
 
 
