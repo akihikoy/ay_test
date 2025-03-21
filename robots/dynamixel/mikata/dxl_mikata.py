@@ -99,7 +99,7 @@ class TMikata(object):
     joint_names= self._joint_names(joint_names)
     with self.port_locker:
       values= [self.dxl[jname].PWM() for jname in joint_names]
-    values= [self.conv_pwm[jname](value) for value in values]
+    values= [self.conv_pwm[jname](value) for (jname,value) in zip(joint_names,values)]
     if as_dict:  return {jname:value for (jname,value) in zip(joint_names,values)}
     else:        return values
 
@@ -111,7 +111,7 @@ class TMikata(object):
     joint_names= self._joint_names(joint_names)
     with self.port_locker:
       values= [self.dxl[jname].Current() for jname in joint_names]
-    values= [self.conv_curr[jname](value) for value in values]
+    values= [self.conv_curr[jname](value) for (jname,value) in zip(joint_names,values)]
     if as_dict:  return {jname:value for (jname,value) in zip(joint_names,values)}
     else:        return values
 
@@ -123,7 +123,7 @@ class TMikata(object):
     joint_names= self._joint_names(joint_names)
     with self.port_locker:
       values= [self.dxl[jname].Velocity() for jname in joint_names]
-    values= [self.conv_vel[jname](value) for value in values]
+    values= [self.conv_vel[jname](value) for (jname,value) in zip(joint_names,values)]
     if as_dict:  return {jname:value for (jname,value) in zip(joint_names,values)}
     else:        return values
 
@@ -135,7 +135,7 @@ class TMikata(object):
     joint_names= self._joint_names(joint_names)
     with self.port_locker:
       values= [self.dxl[jname].Position() for jname in joint_names]
-    values= [self.conv_pos[jname](value) for value in values]
+    values= [self.conv_pos[jname](value) for (jname,value) in zip(joint_names,values)]
     if as_dict:  return {jname:value for (jname,value) in zip(joint_names,values)}
     else:        return values
 
@@ -147,7 +147,7 @@ class TMikata(object):
     joint_names= self._joint_names(joint_names)
     with self.port_locker:
       values= [self.dxl[jname].Temperature() for jname in joint_names]
-    values= [self.conv_temp[jname](value) for value in values]
+    values= [self.conv_temp[jname](value) for (jname,value) in zip(joint_names,values)]
     if as_dict:  return {jname:value for (jname,value) in zip(joint_names,values)}
     else:        return values
 
