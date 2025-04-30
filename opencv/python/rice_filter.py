@@ -15,18 +15,21 @@ if __name__=='__main__':
   img= cv2.imread(src_img)
   gray= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-  sobel_x= cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
-  sobel_y= cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+  equalized_gray= cv2.equalizeHist(gray)  #To remove shadow.
+
+  sobel_x= cv2.Sobel(equalized_gray, cv2.CV_64F, 1, 0, ksize=3)
+  sobel_y= cv2.Sobel(equalized_gray, cv2.CV_64F, 0, 1, ksize=3)
   edge= cv2.magnitude(sobel_x, sobel_y)
   edge= np.uint8(np.clip(edge, 0, 255))
 
-  _, edge_binary = cv2.threshold(edge, 30, 255, cv2.THRESH_BINARY)
+  _, edge_mask = cv2.threshold(edge, 30, 255, cv2.THRESH_BINARY)
+  #edge_mask= cv2.inRange(edge, 20, 70)
 
   kernel_noise= cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-  edge_binary= cv2.morphologyEx(edge_binary, cv2.MORPH_OPEN, kernel_noise)
+  edge_mask= cv2.morphologyEx(edge_mask, cv2.MORPH_OPEN, kernel_noise)
 
-  kernel= cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-  rice_mask= cv2.dilate(edge_binary, kernel)
+  kernel= cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+  rice_mask= cv2.dilate(edge_mask, kernel)
 
   add_rgb= np.array([-60, -60, -20], dtype=np.int16)
   result_img= img.astype(np.int16)
