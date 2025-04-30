@@ -24,7 +24,13 @@ def ImageCallback(msg):
     rospy.signal_shutdown('quit.')
     cv2.destroyAllWindows()
 
+def OnMouse(event, x, y, flags, param):
+  if event==cv2.EVENT_LBUTTONDOWN:
+    print('LBUTTONDOWN',x,y)
+
 if __name__=='__main__':
+  cv2.namedWindow('image')
+  cv2.setMouseCallback('image', OnMouse)
   rospy.init_node('ros_sub_img')
   image_sub= rospy.Subscriber("/camera/color/image_raw", sensor_msgs.msg.Image, ImageCallback)
   rospy.spin()
