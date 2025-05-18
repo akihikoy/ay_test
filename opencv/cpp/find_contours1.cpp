@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.24, 2023
 
-g++ -g -Wall -O2 -o find_contours1.out find_contours1.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o find_contours1.out find_contours1.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 $ ./find_contours1.out sample/binary1.png
 $ ./find_contours1.out sample/opencv-logo.png
@@ -55,7 +55,7 @@ int main(int argc, char**argv)
 
     /// Find contours.
     std::vector<std::vector<cv::Point> > contours;
-    cv::findContours(img_binary, contours, /*CV_RETR_EXTERNAL*/CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+    cv::findContours(img_binary, contours, /*cv::RETR_EXTERNAL*/cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
     /// Visualize results
     cv::Mat img_binary_col;
@@ -64,10 +64,10 @@ int main(int argc, char**argv)
     img*= 0.5;
     img+= img_binary_col;
     for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
-      cv::drawContours(img, contours, ic, CV_RGB(255,0,255), /*thickness=*/1, /*linetype=*/8);
+      cv::drawContours(img, contours, ic, cv::Scalar(255,0,255), /*thickness=*/1, /*linetype=*/8);
     for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
       for(int ip(0),ip_end(contours[ic].size()); ip<ip_end; ++ip)
-        cv::circle(img, contours[ic][ip], 2, CV_RGB(255,0,255));
+        cv::circle(img, contours[ic][ip], 2, cv::Scalar(255,0,255));
     cv::imshow("Input", img);
 
     char c(cv::waitKey(500));

@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.08, 2016
 
-g++ -g -Wall -O2 -o cv2-file_storage2.out cv2-file_storage2.cpp -lopencv_core
+g++ -g -Wall -O2 -o cv2-file_storage2.out cv2-file_storage2.cpp -lopencv_core -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <iostream>

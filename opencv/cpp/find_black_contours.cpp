@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.16, 2017
 
-g++ -g -Wall -O2 -o find_black_contours.out find_black_contours.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o find_black_contours.out find_black_contours.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 Based on:
   threshold_black.cpp
@@ -40,8 +40,8 @@ int main(int argc, char **argv)
   else         cap= CapOpen("0", /*width=*/0, /*height=*/0);
   if(!cap.isOpened())  return -1;
 
-  cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
-  cv::namedWindow("detected", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("camera", cv::WINDOW_AUTOSIZE);
+  cv::namedWindow("detected", cv::WINDOW_AUTOSIZE);
 
   int thresh_h(180), thresh_s(255), thresh_v(13);
   cv::createTrackbar("thresh_h", "detected", &thresh_h, 255, NULL);
@@ -75,12 +75,12 @@ int main(int argc, char **argv)
 
     // Contour detection
     std::vector<std::vector<cv::Point> > contours;
-    cv::findContours(frame_black, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    cv::findContours(frame_black, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
     if(contours.size()>0)
     {
       for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
       {
-        cv::drawContours(img_disp, contours, ic, CV_RGB(255,0,255), /*thickness=*/2, /*linetype=*/8);
+        cv::drawContours(img_disp, contours, ic, cv::Scalar(255,0,255), /*thickness=*/2, /*linetype=*/8);
         double area= cv::contourArea(contours[ic],false);
         if(area<area_min || area_max<area)  continue;
         cv::Rect bound= cv::boundingRect(contours[ic]);

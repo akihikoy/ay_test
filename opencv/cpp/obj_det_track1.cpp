@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.13, 2017
 
-g++ -I -Wall obj_det_track1.cpp -o obj_det_track1.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -I -Wall obj_det_track1.cpp -o obj_det_track1.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

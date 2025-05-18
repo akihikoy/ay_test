@@ -1,4 +1,4 @@
-// g++ -g -Wall -O2 -o rotate90n.out rotate90n.cpp -lopencv_core -lopencv_highgui -lopencv_videoio
+// g++ -g -Wall -O2 -o rotate90n.out rotate90n.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 // #define OPENCV_LEGACY
 #ifdef OPENCV_LEGACY
   #include <cv.h>

@@ -7,12 +7,12 @@
     \version 0.2
     \date    Mar.16, 2022
 
-g++ -g -Wall -O2 -o cv2-capture_fps.out cv2-capture_fps.cpp -lopencv_core -lopencv_highgui  -lopencv_videoio
-g++ -g -Wall -O2 -o cv2-capture_fps.out cv2-capture_fps.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui  -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-capture_fps.out cv2-capture_fps.cpp -lopencv_core -lopencv_highgui  -lopencv_videoio -I/usr/include/opencv4
+g++ -g -Wall -O2 -o cv2-capture_fps.out cv2-capture_fps.cpp -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -lopencv_core -lopencv_highgui  -lopencv_videoio -I/usr/include/opencv4
 
-xxx We have to use source-build OpenCV otherwise we cannot set CV_CAP_PROP_FPS:
+xxx We have to use source-build OpenCV otherwise we cannot set cv::CAP_PROP_FPS:
 xxx   HIGHGUI ERROR: V4L: Property <unknown property string>(5) not supported by device
-Note@2022-03-16 with repository-installed OpenCV 3.2.0: CV_CAP_PROP_FPS is available.
+Note@2022-03-16 with repository-installed OpenCV 3.2.0: cv::CAP_PROP_FPS is available.
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -92,26 +92,26 @@ int main(int argc, char**argv)
   std::cerr<<"camera opened"<<std::endl;
 
   // set resolution
-  cap.set(CV_CAP_PROP_FOURCC,CV_FOURCC('M','J','P','G'));
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
-  // cap.set(CV_CAP_PROP_FOURCC,CV_FOURCC('Y','U','Y','V'));
-  // cap.set(CV_CAP_PROP_AUTO_EXPOSURE, 0);
-  // cap.set(CV_CAP_PROP_EXPOSURE, 0.0);
-  // cap.set(CV_CAP_PROP_GAIN, 0.0);
+  cap.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('M','J','P','G'));
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
+  // cap.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('Y','U','Y','V'));
+  // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0);
+  // cap.set(cv::CAP_PROP_EXPOSURE, 0.0);
+  // cap.set(cv::CAP_PROP_GAIN, 0.0);
 
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
-  // cap.set(CV_CAP_PROP_FPS, 15);  // Works with built-in camera of T440p
-  // cap.set(CV_CAP_PROP_FPS, 60);
-  // cap.set(CV_CAP_PROP_FPS, 120);
-  // cap.set(CV_CAP_PROP_FPS, 61612./513.);  // Doesn't work with ELP USBFHD01M-L180 as we are using YUYV? BGR3?
-  cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-  cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
-  cap.set(CV_CAP_PROP_FPS, 60);  // Doesn't work with ELP USBFHD01M-L180 as we are using YUYV? BGR3?
-  // Note: CV_CAP_PROP_FPS worked with an Asahi-CM camera.
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 320);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
+  // cap.set(cv::CAP_PROP_FPS, 15);  // Works with built-in camera of T440p
+  // cap.set(cv::CAP_PROP_FPS, 60);
+  // cap.set(cv::CAP_PROP_FPS, 120);
+  // cap.set(cv::CAP_PROP_FPS, 61612./513.);  // Doesn't work with ELP USBFHD01M-L180 as we are using YUYV? BGR3?
+  cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+  cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+  cap.set(cv::CAP_PROP_FPS, 60);  // Doesn't work with ELP USBFHD01M-L180 as we are using YUYV? BGR3?
+  // Note: cv::CAP_PROP_FPS worked with an Asahi-CM camera.
 
   TFPSEstimator fps;
   int show_fps(0);

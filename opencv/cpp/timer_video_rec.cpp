@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.08, 2020
 
-g++ -g -Wall -O3 -o timer_video_rec.out timer_video_rec.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
+g++ -g -Wall -O3 -o timer_video_rec.out timer_video_rec.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -150,9 +150,9 @@ int main(int argc, char**argv)
     std::stringstream ss;
     ss<<vout_prefix<<std::setfill('0')<<std::setw(9)<<t_start_sec<<".avi";
     std::string file_name= ss.str();
-    // int codec= CV_FOURCC('P','I','M','1');  // mpeg1video
-    // int codec= CV_FOURCC('X','2','6','4');  // x264?
-    int codec= CV_FOURCC('m','p','4','v');  // mpeg4 (Simple Profile)
+    // int codec= cv::VideoWriter::fourcc('P','I','M','1');  // mpeg1video
+    // int codec= cv::VideoWriter::fourcc('X','2','6','4');  // x264?
+    int codec= cv::VideoWriter::fourcc('m','p','4','v');  // mpeg4 (Simple Profile)
     vout.open(file_name.c_str(), codec, FPS, cv::Size(frame.cols, frame.rows), true);
     if (!vout.isOpened())
     {
@@ -200,7 +200,7 @@ int main(int argc, char**argv)
     {
       std::stringstream ss;
       ss<<std::setfill('0')<<std::setw(9)<<t1.Sec<<" "<<std::setfill('0')<<std::setw(9)<<t1.NSec;
-      cv::putText(frame, ss.str(), cv::Point(frame.cols-text_size.width-5,frame.rows-text_baseline-5), cv::FONT_HERSHEY_SIMPLEX, font_scale, cv::Scalar(0,255,0), 1, CV_AA);
+      cv::putText(frame, ss.str(), cv::Point(frame.cols-text_size.width-5,frame.rows-text_baseline-5), cv::FONT_HERSHEY_SIMPLEX, font_scale, cv::Scalar(0,255,0), 1, cv::LINE_AA);
     }
 
     // Record the video.

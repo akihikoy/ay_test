@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.13, 2021
 
-g++ -I -Wall pca_normal.cpp -o pca_normal.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -I -Wall pca_normal.cpp -o pca_normal.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -140,7 +140,7 @@ void GetNormal(const cv::Mat &points)
   //   }
 
   print(points.size());
-  cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
+  cv::PCA pca(points, cv::Mat(), cv::PCA::DATA_AS_ROW);
   cv::Mat normal= pca.eigenvectors.row(2);
   if(normal.at<double>(0,2)<0)  normal= -normal;
 

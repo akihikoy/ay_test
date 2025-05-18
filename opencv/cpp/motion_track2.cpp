@@ -1,4 +1,4 @@
-// g++ -I -Wall motion_track2.cpp -o motion_track2.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+// g++ -I -Wall motion_track2.cpp -o motion_track2.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 // src. https://dl.dropboxusercontent.com/u/28096936/tuts/motionTrackingTut/finalCode/motionTracking.cpp
 
 //motionTracking.cpp
@@ -57,8 +57,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed){
         vector< vector<Point> > contours;
         vector<Vec4i> hierarchy;
         //find contours of filtered image using openCV findContours function
-        //findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE );// retrieves all contours
-        findContours(temp,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE );// retrieves external contours
+        //findContours(temp,contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE );// retrieves all contours
+        findContours(temp,contours,hierarchy,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE );// retrieves external contours
 
         //if contours vector is not empty, we have found some objects
         if(contours.size()>0)objectDetected=true;

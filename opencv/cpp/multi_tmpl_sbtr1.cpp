@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.21, 2018
 
-g++ -g -Wall -O2 -o multi_tmpl_sbtr1.out multi_tmpl_sbtr1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o multi_tmpl_sbtr1.out multi_tmpl_sbtr1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 ./multi_tmpl_sbtr1.out  "http://aypi11:8080/?action=stream?dummy=file.mjpg"
 */
@@ -224,8 +224,8 @@ int main(int argc, char**argv)
     {
       std::vector<std::vector<cv::Point> >  polygon;
       polygon.push_back(tmpl.polygon.back());
-      cv::fillPoly(disp_img, polygon, CV_RGB(128,0,128));
-      cv::polylines(disp_img, polygon, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+      cv::fillPoly(disp_img, polygon, cv::Scalar(128,0,128));
+      cv::polylines(disp_img, polygon, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
     }
 
     if(tmpl.tmpl_img.size()>1 && !tmpl.tmpl_img[1].empty())
@@ -277,12 +277,12 @@ int main(int argc, char**argv)
 
       cv::Mat diff;
       absdiff(frame, tmpl_img, diff, /*mask=*/mask/*, int dtype=-1*/);
-      // diff+= CV_RGB(128,128,128);
+      // diff+= cv::Scalar(128,128,128);
       // diff= cv::abs(diff);
       cv::imshow("diff", diff*5.0);
 
       cv::Mat diff_abs;
-      cv::cvtColor(diff, diff_abs, CV_BGR2GRAY);
+      cv::cvtColor(diff, diff_abs, cv::COLOR_BGR2GRAY);
       cv::Mat disp_img3[3];
       cv::split(disp_img, disp_img3);
       // disp_img3[0]+= 0.5*mask;
@@ -294,7 +294,7 @@ int main(int argc, char**argv)
     {
       cv::Mat diff;
       absdiff(frame, tmpl.tmpl_img[0], diff, /*mask=*/tmpl.mask[0]/*, int dtype=-1*/);
-      // diff+= CV_RGB(128,128,128);
+      // diff+= cv::Scalar(128,128,128);
       // diff= cv::abs(diff);
       cv::imshow("diff", diff*5.0);
     }

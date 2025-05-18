@@ -5,7 +5,7 @@
     \version 0.1
     \date    Mar.29, 2016
 
-g++ -g -Wall -O2 -o cv2-stereo1.out cv2-stereo1.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-stereo1.out cv2-stereo1.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -35,10 +35,10 @@ int main(int argc, char**argv)
   // int width(480), height(420);
   // int width(320), height(240);
   int width(640), height(360);
-  cap1.set(CV_CAP_PROP_FRAME_WIDTH, width);
-  cap1.set(CV_CAP_PROP_FRAME_HEIGHT, height);
-  cap2.set(CV_CAP_PROP_FRAME_WIDTH, width);
-  cap2.set(CV_CAP_PROP_FRAME_HEIGHT, height);
+  cap1.set(cv::CAP_PROP_FRAME_WIDTH, width);
+  cap1.set(cv::CAP_PROP_FRAME_HEIGHT, height);
+  cap2.set(cv::CAP_PROP_FRAME_WIDTH, width);
+  cap2.set(cv::CAP_PROP_FRAME_HEIGHT, height);
 
   cv::namedWindow("camera1",1);
   cv::namedWindow("camera2",1);
@@ -50,8 +50,8 @@ int main(int argc, char**argv)
   {
     cap1 >> frame1;
     cap2 >> frame2;
-    cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
-    cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
+    cv::cvtColor(frame1, gray1, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(frame2, gray2, cv::COLOR_BGR2GRAY);
     // stereo->compute(gray1, gray2, disparity);
     // disparity+= 16;
     stereo->compute(gray1, gray2, disparity);

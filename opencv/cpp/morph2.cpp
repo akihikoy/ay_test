@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.26, 2018
 
-g++ -g -Wall -O2 -o morph2.out morph2.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o morph2.out morph2.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 The idea is learned from:
 http://www.learnopencv.com/face-morph-using-opencv-cpp-python/
@@ -133,8 +133,8 @@ int main(int argc, char**argv)
 
     // if(polygon[0].size()>0)
     // {
-      // cv::fillPoly(frame, polygon, CV_RGB(128,0,128));
-      // cv::polylines(frame, polygon, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+      // cv::fillPoly(frame, polygon, cv::Scalar(128,0,128));
+      // cv::polylines(frame, polygon, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
     // }
 
     double alpha= double(mixrate)/100.0;
@@ -167,9 +167,9 @@ int main(int argc, char**argv)
     p[0].push_back(t[0]);
     p[0].push_back(t[1]);
     p[0].push_back(t[2]);
-    cv::polylines(morphed, p1, /*isClosed=*/true, CV_RGB(255,0,255), 2);
-    cv::polylines(morphed, p2, /*isClosed=*/true, CV_RGB(255,0,255), 2);
-    cv::polylines(morphed, p, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+    cv::polylines(morphed, p1, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
+    cv::polylines(morphed, p2, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
+    cv::polylines(morphed, p, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
 
     // cv::imshow("camera", frame);
     cv::imshow("morphed", morphed);

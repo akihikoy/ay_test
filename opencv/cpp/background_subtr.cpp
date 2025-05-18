@@ -9,7 +9,7 @@
 #include <cstdio>
 #include "cap_open.h"
 
-// g++ -I -Wall background_subtr.cpp -o background_subtr.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_photo -lopencv_highgui
+// g++ -I -Wall background_subtr.cpp -o background_subtr.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_photo -lopencv_highgui -I/usr/include/opencv4
 
 int main(int argc, char **argv)
 {
@@ -61,8 +61,8 @@ int main(int argc, char **argv)
       // cf. http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/find_contours/find_contours.html
       std::vector<std::vector<cv::Point> > contours;
       mask2= mask.clone();
-      cv::findContours(mask2,contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE);
-      cv::cvtColor(mask,mask,CV_GRAY2RGB);
+      cv::findContours(mask2,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
+      cv::cvtColor(mask,mask,cv::COLOR_GRAY2RGB);
       for( int i = 0; i< contours.size(); i++ )
       {
         double area= cv::contourArea(contours[i]);
@@ -72,10 +72,10 @@ int main(int argc, char **argv)
         {
           const cv::Point *pts= (const cv::Point*) cv::Mat(contours[i]).data;
           int npts= cv::Mat(contours[i]).rows;
-          cv::fillPoly(mask, &pts, &npts, /*ncontours=*/1, CV_RGB(0,0,128), /*lineType=*/8);
+          cv::fillPoly(mask, &pts, &npts, /*ncontours=*/1, cv::Scalar(0,0,128), /*lineType=*/8);
         }
         else
-          cv::drawContours(mask, contours, i, CV_RGB(255,0,0), /*thickness=*/1, /*linetype=*/8);
+          cv::drawContours(mask, contours, i, cv::Scalar(255,0,0), /*thickness=*/1, /*linetype=*/8);
       }
 
       cv::imshow("mask", mask);

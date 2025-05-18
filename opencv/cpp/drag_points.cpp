@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jun.06, 2019
 
-g++ -g -Wall -O2 -o drag_points.out drag_points.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
+g++ -g -Wall -O2 -o drag_points.out drag_points.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc -I/usr/include/opencv4
 
 */
 //-------------------------------------------------------------------------------------------

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Oct.24, 2022
 
-g++ -g -Wall -O2 -o cv2-print_elem.out cv2-print_elem.cpp -lopencv_core
+g++ -g -Wall -O2 -o cv2-print_elem.out cv2-print_elem.cpp -lopencv_core -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

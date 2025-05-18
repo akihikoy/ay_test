@@ -1,6 +1,6 @@
 // see http://stackoverflow.com/questions/14974453/how-to-get-cvcalcopticalflowsf-to-work
 
-// g++ -I -Wall optical-flow-sf.cpp -o optical-flow-sf.out -I/usr/include/opencv2 -lopencv_core -lopencv_optflow -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+// g++ -I -Wall optical-flow-sf.cpp -o optical-flow-sf.out -I/usr/include/opencv2 -lopencv_core -lopencv_optflow -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -29,12 +29,12 @@ int main(int argc, char**argv)
   cv::namedWindow("camera",1);
   cv::Mat frame_in, frame, frame_old;
   cap >> frame;
-  cv::cvtColor(frame,frame,CV_BGR2GRAY);
+  cv::cvtColor(frame,frame,cv::COLOR_BGR2GRAY);
   for(int i(0);;++i)
   {
     frame.copyTo(frame_old);
     cap >> frame_in;
-    cv::cvtColor(frame_in,frame,CV_BGR2GRAY);
+    cv::cvtColor(frame_in,frame,cv::COLOR_BGR2GRAY);
 
     // medianBlur(frame, frame, 9);
 
@@ -59,7 +59,7 @@ int main(int argc, char**argv)
           spd= std::sqrt(vx*vx+vy*vy);
           if(spd<4.0 || 1000.0<spd)  continue;
           angle= std::atan2(vy,vx);
-          col= CV_RGB(0.0,255.0*std::fabs(std::cos(angle)),255.0*std::fabs(std::sin(angle)));
+          col= cv::Scalar(0.0,255.0*std::fabs(std::cos(angle)),255.0*std::fabs(std::sin(angle)));
           cv::line(frame_in, cv::Point(i,j), cv::Point(i,j)+cv::Point(dt*vx,dt*vy), col, 1);
         }
       }

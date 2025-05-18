@@ -6,7 +6,7 @@
     \version 0.1
     \date    Jan.14, 2021
 
-g++ -O2 -g -W -Wall -o ros_plane_seg4.out ros_plane_seg4.cpp  -I../include -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+g++ -O2 -g -W -Wall -o ros_plane_seg4.out ros_plane_seg4.cpp  -I../include -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 
 */
 //-------------------------------------------------------------------------------------------
@@ -121,7 +121,7 @@ struct TClusterPatchSet
           cv::Mat points= DepthImgTo3DPoints<TImgDepth>(p.ROI, img(p.ROI), proj_mat, step);
           if(points.rows<3)  continue;
 
-          cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
+          cv::PCA pca(points, cv::Mat(), cv::PCA::DATA_AS_ROW);
           p.Normal= pca.eigenvectors.row(2);
           p.Mean= pca.mean;
           if(p.Normal.at<double>(0,2)<0)  p.Normal= -p.Normal;
@@ -176,7 +176,7 @@ public:
       cv::Mat ws= w1*f1 + (1.0-w1)*f2;
       double ws_norm= cv::norm(ws);
       if(ws_norm<1.0e-6)
-        CV_Error(CV_StsError, "TClusteringFeatNormal: Computing WSum for normals of opposite directions.");
+        cv::error(cv::Error::StsError, "TClusteringFeatNormal: Computing WSum for normals of opposite directions.",  __func__, __FILE__, __LINE__);
       return ws/ws_norm;
     }
 private:
@@ -317,7 +317,7 @@ void GetPlaneFromPatches(const TClusterPatchSet &patch_set, const std::vector<in
     }
   }//*/
 
-  cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
+  cv::PCA pca(points, cv::Mat(), cv::PCA::DATA_AS_ROW);
   out_normal= pca.eigenvectors.row(2);
   out_center= pca.mean;
   if(out_normal.at<double>(0,2)<0)  out_normal= -out_normal;
@@ -441,7 +441,7 @@ void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Poi
 
   // Contour detection
   contours.clear();
-  cv::findContours(img_depth2, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(img_depth2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
   if(convex && contours.size()>0)
   {
@@ -453,7 +453,7 @@ void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Poi
       cv::drawContours(img_depth2, hull, 0, /*fill_value=*/255, /*thickness=*/-1);
     }
     contours.clear();
-    cv::findContours(img_depth2, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    cv::findContours(img_depth2, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
   }
 
   if(contours.size()>0)
@@ -464,7 +464,7 @@ void DepthSegmentation(const cv::Mat &img_depth, std::vector<std::vector<cv::Poi
       cv::Rect roi= cv::boundingRect(contours[ic]);
 //       int bound_len= std::max(roi.width, roi.height);
 //       if(bound_len<rect_len_min || bound_len>rect_len_max)  continue;
-      cv::drawContours(img_depth2, contours, ic, CV_RGB(255,0,255), /*thickness=*/2, /*linetype=*/8);
+      cv::drawContours(img_depth2, contours, ic, cv::Scalar(255,0,255), /*thickness=*/2, /*linetype=*/8);
       cv::rectangle(img_depth2, roi, cv::Scalar(0,0,255), 2);
     }
   }
@@ -485,18 +485,18 @@ void DrawCylinder(cv::Mat &img_depth, const cv::Mat &proj_mat, const double &h, 
   // for(double theta(0.0); theta<2.0*MATH_PI; ++theta)
   // {
   // }
-  // // cv::fillPoly(img_depth, points1, CV_RGB(128,0,128));
-  // cv::polylines(img_depth, points1, /*isClosed=*/true, CV_RGB(255,0,255), 2);
-  // cv::polylines(img_depth, points2, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+  // // cv::fillPoly(img_depth, points1, cv::Scalar(128,0,128));
+  // cv::polylines(img_depth, points1, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
+  // cv::polylines(img_depth, points2, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
 
   cv::Point pb(Fx*center.at<double>(0,0)/center.at<double>(0,2) + Cx,
                Fy*center.at<double>(0,1)/center.at<double>(0,2) + Cy);
-  cv::circle(img_depth, pb, 3, CV_RGB(255,0,255), 1);
+  cv::circle(img_depth, pb, 3, cv::Scalar(255,0,255), 1);
 
   cv::Mat top= center+h*dir;
   cv::Point pt(Fx*top.at<double>(0,0)/top.at<double>(0,2) + Cx,
                Fy*top.at<double>(0,1)/top.at<double>(0,2) + Cy);
-  cv::circle(img_depth, pb, 3, CV_RGB(255,0,255), 1);
+  cv::circle(img_depth, pb, 3, cv::Scalar(255,0,255), 1);
 }
 //-------------------------------------------------------------------------------------------
 
@@ -504,7 +504,7 @@ void DepthFitCylinders(const cv::Mat &img_depth, const cv::Mat &proj_mat, const 
 {
   cv::Mat img_depth2(img_depth*0.3);
   img_depth2.convertTo(img_depth2, CV_8U);
-  cv::cvtColor(img_depth2, img_depth2, CV_GRAY2BGR);
+  cv::cvtColor(img_depth2, img_depth2, cv::COLOR_GRAY2BGR);
 
   if(contours.size()>0)
   {
@@ -530,7 +530,7 @@ cv::Mat DrawClusters(const cv::Mat &img, const TClusterPatchSet &patch_set, cons
 {
   cv::Mat img_viz(img*0.3);
   img_viz.convertTo(img_viz, CV_8U);
-  cv::cvtColor(img_viz, img_viz, CV_GRAY2BGR);
+  cv::cvtColor(img_viz, img_viz, cv::COLOR_GRAY2BGR);
 
   cv::Scalar col_set[]= {cv::Scalar(255,0,0),cv::Scalar(0,255,0),cv::Scalar(0,0,255),cv::Scalar(255,255,0),cv::Scalar(0,255,255),cv::Scalar(255,0,255)};
   if(disp_info)  std::cout<<"clusters:"<<std::endl;

@@ -7,7 +7,7 @@
 
 Reference: https://www.cs.rochester.edu/u/nelson/courses/csc_173/graphs/apsp.html
 
-g++ -g -Wall -O2 -o floyd_apsp.out floyd_apsp.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui
+g++ -g -Wall -O2 -o floyd_apsp.out floyd_apsp.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

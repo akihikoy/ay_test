@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.23, 2023
 
-g++ -g -Wall -O2 -o cv2-mean_stddev.out cv2-mean_stddev.cpp -lopencv_core
+g++ -g -Wall -O2 -o cv2-mean_stddev.out cv2-mean_stddev.cpp -lopencv_core -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

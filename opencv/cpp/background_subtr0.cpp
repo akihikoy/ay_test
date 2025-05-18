@@ -9,7 +9,7 @@
 #include <cstdio>
 #include "cap_open.h"
 
-// g++ -I -Wall background_subtr0.cpp -o background_subtr0.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_photo -lopencv_highgui
+// g++ -I -Wall background_subtr0.cpp -o background_subtr0.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_photo -lopencv_highgui -I/usr/include/opencv4
 
 int main(int argc, char **argv)
 {

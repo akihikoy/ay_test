@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.19, 2021
 
-g++ -I -Wall points_contour1.cpp -o points_contour1.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -I -Wall points_contour1.cpp -o points_contour1.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -100,7 +100,7 @@ void ConvexHull(const std::vector<cv::Point3d> &points, cv::Mat &hull_3d, int st
   }
 
   double scale(10000);
-  cv::PCA pca(data, cv::Mat(), CV_PCA_DATA_AS_ROW);
+  cv::PCA pca(data, cv::Mat(), cv::PCA::DATA_AS_ROW);
   //Project points
   cv::Mat projected= pca.project(data), projected_s, projected_i, hull_pj_i, tmp[2];
   projected_s= scale*projected(cv::Rect(0,0,2,projected.rows));
@@ -138,7 +138,7 @@ void ConvexHullIdx(const std::vector<cv::Point3d> &points, cv::Mat &hull_3d, int
   }
 
   double scale(10000);
-  cv::PCA pca(data, cv::Mat(), CV_PCA_DATA_AS_ROW);
+  cv::PCA pca(data, cv::Mat(), cv::PCA::DATA_AS_ROW);
   //Project points
   cv::Mat projected= pca.project(data), projected_s, projected_i, hull_idx;
   projected_s= scale*projected(cv::Rect(0,0,2,projected.rows));

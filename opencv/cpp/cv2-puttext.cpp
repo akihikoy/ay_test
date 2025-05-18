@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.24, 2017
 
-g++ -g -Wall -O2 -o cv2-puttext.out cv2-puttext.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
+g++ -g -Wall -O2 -o cv2-puttext.out cv2-puttext.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -29,7 +29,7 @@ inline double GetCurrentTime(void)
 
 int main(int argc, char**argv)
 {
-  cv::namedWindow("time", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("time", cv::WINDOW_AUTOSIZE);
   cv::Mat frame(cv::Size(320,50),CV_8UC3);
   while(true)
   {
@@ -39,7 +39,7 @@ int main(int argc, char**argv)
     frame.setTo(0);
     double font_scale(1.0);
     int thickness(1);
-    cv::putText(frame, ss.str(), cv::Point(10,35), cv::FONT_HERSHEY_SIMPLEX, font_scale, cv::Scalar(0,255,0), thickness, CV_AA);
+    cv::putText(frame, ss.str(), cv::Point(10,35), cv::FONT_HERSHEY_SIMPLEX, font_scale, cv::Scalar(0,255,0), thickness, cv::LINE_AA);
     cv::imshow("time", frame);
     char c(cv::waitKey(100));
     if(c=='\x1b'||c=='q') break;

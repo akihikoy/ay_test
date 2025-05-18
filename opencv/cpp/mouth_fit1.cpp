@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jun.27, 2016
 
-g++ -g -Wall -O2 -o mouth_fit1.out mouth_fit1.cpp -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o mouth_fit1.out mouth_fit1.cpp -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -239,7 +239,7 @@ int main(int argc, char**argv)
     // pose[1]= 0.5*std::sin((double)f/60.0);
 
     cv::Mat frame_gray, edges;
-    cv::cvtColor(frame, frame_gray, CV_BGR2GRAY);
+    cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
     cv::blur(frame_gray, edges, cv::Size(3,3));
     cv::Canny(edges, edges, /*lowThreshold=*/70, 210, /*kernel_size=*/3);
 
@@ -251,7 +251,7 @@ int main(int argc, char**argv)
     cv::blur(edges, edges, cv::Size(3,3));
     double eval= EvaluateEdgePoints<float>(edges, points2d);
     std::cerr<<"eval: "<<eval<<endl;
-    cv::cvtColor(edges, edges, CV_GRAY2BGR);
+    cv::cvtColor(edges, edges, cv::COLOR_GRAY2BGR);
     DrawPoints<float>(edges,points2d,cv::Scalar(255,255,0));
 
     cv::imshow("camera", frame);

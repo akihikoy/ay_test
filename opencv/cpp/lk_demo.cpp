@@ -9,7 +9,7 @@
 
 #include "cap_open.h"
 
-// g++ -I -Wall lk_demo.cpp -o lk_demo.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+// g++ -I -Wall lk_demo.cpp -o lk_demo.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 using namespace cv;
 using namespace std;
@@ -19,7 +19,7 @@ bool addRemovePt = false;
 
 void onMouse( int event, int x, int y, int flags, void* param )
 {
-    if( event == CV_EVENT_LBUTTONDOWN )
+    if( event == cv::EVENT_LBUTTONDOWN )
     {
         pt = Point2f((float)x,(float)y);
         addRemovePt = true;
@@ -32,7 +32,7 @@ int main( int argc, char** argv )
   if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
 
-    TermCriteria termcrit(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03);
+    TermCriteria termcrit(cv::TermCriteria::MAX_ITER|cv::TermCriteria::EPS,20,0.03);
     Size winSize(10,10);
 
     const int MAX_COUNT = 500;
@@ -63,7 +63,7 @@ int main( int argc, char** argv )
             break;
 
         frame.copyTo(image);
-        cvtColor(image, gray, CV_BGR2GRAY);
+        cvtColor(image, gray, cv::COLOR_BGR2GRAY);
 
         if( nightMode )
             image = Scalar::all(0);

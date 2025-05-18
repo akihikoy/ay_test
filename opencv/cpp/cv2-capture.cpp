@@ -1,4 +1,4 @@
-// g++ -g -Wall -O2 -o cv2-capture.out cv2-capture.cpp -lopencv_core -lopencv_highgui -lopencv_videoio
+// g++ -g -Wall -O2 -o cv2-capture.out cv2-capture.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 // #define OPENCV_LEGACY
 #ifdef OPENCV_LEGACY
   #include <cv.h>
@@ -68,24 +68,24 @@ int main(int argc, char **argv)
   }
   std::cerr<<"camera opened"<<std::endl;
 
-  // cap.set(CV_CAP_PROP_FOURCC,CV_FOURCC('M','J','P','G'));
-  // cap.set(CV_CAP_PROP_FOURCC,CV_FOURCC('Y','U','Y','V'));
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
-  // cap.set(CV_CAP_PROP_AUTO_EXPOSURE, 0);
-  // cap.set(CV_CAP_PROP_EXPOSURE, 0.0);
-  // cap.set(CV_CAP_PROP_GAIN, 0.0);
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 360);
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 800);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 600);
-  cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-  cap.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
-  // cap.set(CV_CAP_PROP_FPS, 10);
+  // cap.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('M','J','P','G'));
+  // cap.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('Y','U','Y','V'));
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
+  // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0);
+  // cap.set(cv::CAP_PROP_EXPOSURE, 0.0);
+  // cap.set(cv::CAP_PROP_GAIN, 0.0);
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 360);
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 1280);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 800);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 600);
+  cap.set(cv::CAP_PROP_FRAME_WIDTH, 320);
+  cap.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
+  // cap.set(cv::CAP_PROP_FPS, 10);
 
   TFPSEstimator fps;
   int show_fps(0);

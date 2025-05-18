@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.18, 2017
 
-g++ -g -Wall -O2 -o cv2-resize.out cv2-resize.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-resize.out cv2-resize.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -36,7 +36,7 @@ int main(int argc, char**argv)
   else         cap= CapOpen("0", /*width=*/0, /*height=*/0);
   if(!cap.isOpened())  return -1;
 
-  cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("camera", cv::WINDOW_AUTOSIZE);
 
   int type1(1), type2(1);
   // 0 INTER_NEAREST

@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.07, 2016
 
-g++ -g -Wall -O2 -o cv2-cap-stream.out cv2-cap-stream.cpp -lopencv_core -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-cap-stream.out cv2-cap-stream.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -76,15 +76,15 @@ int main(int argc, char**argv)
   std::cerr<<"cameras opened"<<std::endl;
 
   // set resolution
-  // cap1.set(CV_CAP_PROP_FOURCC,CV_FOURCC('M','J','P','G'));
-  // cap1.set(CV_CAP_PROP_FOURCC,CV_FOURCC('H','2','6','4'));
-  // cap1.set(CV_CAP_PROP_FOURCC,CV_FOURCC('Y','U','Y','V'));
-  // cap1.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-  // cap1.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
-  // cap1.set(CV_CAP_PROP_FRAME_WIDTH, 800);
-  // cap1.set(CV_CAP_PROP_FRAME_HEIGHT, 600);
-  // cap1.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-  // cap1.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
+  // cap1.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('M','J','P','G'));
+  // cap1.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('H','2','6','4'));
+  // cap1.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('Y','U','Y','V'));
+  // cap1.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+  // cap1.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+  // cap1.set(cv::CAP_PROP_FRAME_WIDTH, 800);
+  // cap1.set(cv::CAP_PROP_FRAME_HEIGHT, 600);
+  // cap1.set(cv::CAP_PROP_FRAME_WIDTH, 320);
+  // cap1.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
 
   TFPSEstimator fps;
   int show_fps(0);

@@ -1,4 +1,4 @@
-// g++ -g -Wall -O2 -o cv2-fitellipse.out cv2-fitellipse.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+// g++ -g -Wall -O2 -o cv2-fitellipse.out cv2-fitellipse.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 // http://docs.opencv.org/master/de/dc7/fitellipse_8cpp-example.html#gsc.tab=0
 
@@ -84,12 +84,12 @@ void processImage(int /*h*/, void*)
             continue;
         drawContours(cimage, contours, (int)i, Scalar::all(255), 1, 8);
 cerr<<"box="<<box.center<<", "<<box.size<<", "<<box.angle<<std::endl;
-        ellipse(cimage, box, Scalar(0,0,255), 1, CV_AA);
-        ellipse(cimage, box.center, box.size*0.5f, box.angle, 0, 360, Scalar(0,255,255), 1, CV_AA);
+        ellipse(cimage, box, Scalar(0,0,255), 1, cv::LINE_AA);
+        ellipse(cimage, box.center, box.size*0.5f, box.angle, 0, 360, Scalar(0,255,255), 1, cv::LINE_AA);
         Point2f vtx[4];
         box.points(vtx);
         for( int j = 0; j < 4; j++ )
-            line(cimage, vtx[j], vtx[(j+1)%4], Scalar(0,255,0), 1, CV_AA);
+            line(cimage, vtx[j], vtx[(j+1)%4], Scalar(0,255,0), 1, cv::LINE_AA);
     }
     imshow("result", cimage);
 }

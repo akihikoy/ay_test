@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.15, 2015
 
-    g++ -I -Wall emph_diff.cpp -o emph_diff.out -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+    g++ -I -Wall emph_diff.cpp -o emph_diff.out -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

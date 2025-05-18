@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.14, 2015
 
-    g++ -g -Wall -O2 -o draw_cross.out draw_cross.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
+    g++ -g -Wall -O2 -o draw_cross.out draw_cross.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <iostream>

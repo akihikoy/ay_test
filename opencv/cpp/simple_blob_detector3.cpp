@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.06, 2016
 
-g++ -g -Wall -O2 -o simple_blob_detector3.out simple_blob_detector3.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o simple_blob_detector3.out simple_blob_detector3.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -80,8 +80,8 @@ int main(int argc, char**argv)
   if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
   // set resolution
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 320);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
 
 
   // Setup SimpleBlobDetector parameters.
@@ -124,7 +124,7 @@ int main(int argc, char**argv)
       ParamChanged= false;
     }
 
-    cv::cvtColor(frame, frame, CV_BGR2GRAY);
+    cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
     cv::threshold(frame, frame, threshold_value, 255, cv::THRESH_BINARY_INV);
     // cv::dilate(frame,frame,cv::Mat(),cv::Point(-1,-1), 1);
     // cv::erode(frame,frame,cv::Mat(),cv::Point(-1,-1), 2);

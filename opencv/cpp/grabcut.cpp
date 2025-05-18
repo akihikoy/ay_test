@@ -5,7 +5,7 @@
     \version 0.1
     \date    Sep.26, 2018
 
-g++ -I -Wall grabcut.cpp -o grabcut.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+g++ -I -Wall grabcut.cpp -o grabcut.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 Src:
 https://docs.opencv.org/3.4.2/de/dd0/grabcut_8cpp-example.html
@@ -47,7 +47,7 @@ const int FGD_KEY = EVENT_FLAG_SHIFTKEY;
 static void getBinMask( const Mat& comMask, Mat& binMask )
 {
     if( comMask.empty() || comMask.type()!=CV_8UC1 )
-        CV_Error( CV_StsBadArg, "comMask is empty or has incorrect type (not CV_8UC1)" );
+        cv::error(cv::Error::StsBadArg, "comMask is empty or has incorrect type (not CV_8UC1)",  __func__, __FILE__, __LINE__);
     if( binMask.empty() || binMask.rows!=comMask.rows || binMask.cols!=comMask.cols )
         binMask.create( comMask.size(), CV_8UC1 );
     binMask = comMask & 1;

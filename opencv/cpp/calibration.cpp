@@ -1,5 +1,5 @@
 // From OpenCV sample.
-// g++ -g -Wall -O2 -o calibration.out calibration.cpp -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+// g++ -g -Wall -O2 -o calibration.out calibration.cpp -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 // ./calibration.out 1 -w 8 -h 6 -s 0.0247 -o camera.yml -op -oe
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -98,7 +98,7 @@ static double computeReprojectionErrors(
     {
         projectPoints(Mat(objectPoints[i]), rvecs[i], tvecs[i],
                       cameraMatrix, distCoeffs, imagePoints2);
-        err = norm(Mat(imagePoints[i]), Mat(imagePoints2), CV_L2);
+        err = norm(Mat(imagePoints[i]), Mat(imagePoints2), cv::NORM_L2);
         int n = (int)objectPoints[i].size();
         perViewErrors[i] = (float)std::sqrt(err*err/n);
         totalErr += err*err;
@@ -130,7 +130,7 @@ static void calcChessboardCorners(Size boardSize, float squareSize, vector<Point
         break;
 
       default:
-        CV_Error(CV_StsBadArg, "Unknown pattern type\n");
+        cv::error(cv::Error::StsBadArg, "Unknown pattern type\n",  __func__, __FILE__, __LINE__);
     }
 }
 
@@ -143,7 +143,7 @@ static bool runCalibration( vector<vector<Point2f> > imagePoints,
                     double& totalAvgErr)
 {
     cameraMatrix = Mat::eye(3, 3, CV_64F);
-    if( flags & CV_CALIB_FIX_ASPECT_RATIO )
+    if( flags & cv::CALIB_FIX_ASPECT_RATIO )
         cameraMatrix.at<double>(0,0) = aspectRatio;
 
     distCoeffs = Mat::zeros(8, 1, CV_64F);
@@ -154,8 +154,8 @@ static bool runCalibration( vector<vector<Point2f> > imagePoints,
     objectPoints.resize(imagePoints.size(),objectPoints[0]);
 
     double rms = calibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix,
-                    distCoeffs, rvecs, tvecs, flags|CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
-                    ///*|CV_CALIB_FIX_K3*/|CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
+                    distCoeffs, rvecs, tvecs, flags|cv::CALIB_FIX_K4|cv::CALIB_FIX_K5);
+                    ///*|cv::CALIB_FIX_K3*/|cv::CALIB_FIX_K4|cv::CALIB_FIX_K5);
     printf("RMS error reported by calibrateCamera: %g\n", rms);
 
     bool ok = checkRange(cameraMatrix) && checkRange(distCoeffs);
@@ -194,17 +194,17 @@ static void saveCameraParams( const string& filename,
     fs << "board_height" << boardSize.height;
     fs << "square_size" << squareSize;
 
-    if( flags & CV_CALIB_FIX_ASPECT_RATIO )
+    if( flags & cv::CALIB_FIX_ASPECT_RATIO )
         fs << "aspectRatio" << aspectRatio;
 
     if( flags != 0 )
     {
         sprintf( buf, "flags: %s%s%s%s",
-            flags & CV_CALIB_USE_INTRINSIC_GUESS ? "+use_intrinsic_guess" : "",
-            flags & CV_CALIB_FIX_ASPECT_RATIO ? "+fix_aspectRatio" : "",
-            flags & CV_CALIB_FIX_PRINCIPAL_POINT ? "+fix_principal_point" : "",
-            flags & CV_CALIB_ZERO_TANGENT_DIST ? "+zero_tangent_dist" : "" );
-        cvWriteComment( *fs, buf, 0 );
+            flags & cv::CALIB_USE_INTRINSIC_GUESS ? "+use_intrinsic_guess" : "",
+            flags & cv::CALIB_FIX_ASPECT_RATIO ? "+fix_aspectRatio" : "",
+            flags & cv::CALIB_FIX_PRINCIPAL_POINT ? "+fix_principal_point" : "",
+            flags & cv::CALIB_ZERO_TANGENT_DIST ? "+zero_tangent_dist" : "" );
+        fs << "# calibration flags" << buf;
     }
 
     fs << "flags" << flags;
@@ -231,7 +231,7 @@ static void saveCameraParams( const string& filename,
             r = rvecs[i].t();
             t = tvecs[i].t();
         }
-        cvWriteComment( *fs, "a set of 6-tuples (rotation vector + translation vector) for each view", 0 );
+        fs << "# a set of 6-tuples (rotation vector + translation vector) for each view";
         fs << "extrinsic_parameters" << bigmat;
     }
 
@@ -363,7 +363,7 @@ int main( int argc, char** argv )
         {
             if( sscanf( argv[++i], "%f", &aspectRatio ) != 1 || aspectRatio <= 0 )
                 return printf("Invalid aspect ratio\n" ), -1;
-            flags |= CV_CALIB_FIX_ASPECT_RATIO;
+            flags |= cv::CALIB_FIX_ASPECT_RATIO;
         }
         else if( strcmp( s, "-d" ) == 0 )
         {
@@ -380,11 +380,11 @@ int main( int argc, char** argv )
         }
         else if( strcmp( s, "-zt" ) == 0 )
         {
-            flags |= CV_CALIB_ZERO_TANGENT_DIST;
+            flags |= cv::CALIB_ZERO_TANGENT_DIST;
         }
         else if( strcmp( s, "-p" ) == 0 )
         {
-            flags |= CV_CALIB_FIX_PRINCIPAL_POINT;
+            flags |= cv::CALIB_FIX_PRINCIPAL_POINT;
         }
         else if( strcmp( s, "-v" ) == 0 )
         {
@@ -471,7 +471,7 @@ int main( int argc, char** argv )
         {
             case CHESSBOARD:
                 found = findChessboardCorners( view, boardSize, pointbuf,
-                    CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
+                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_NORMALIZE_IMAGE);
                 break;
             case CIRCLES_GRID:
                 found = findCirclesGrid( view, boardSize, pointbuf );
@@ -485,7 +485,7 @@ int main( int argc, char** argv )
 
        // improve the found corners' coordinate accuracy
         if( pattern == CHESSBOARD && found) cornerSubPix( viewGray, pointbuf, Size(11,11),
-            Size(-1,-1), TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1 ));
+            Size(-1,-1), TermCriteria( cv::TermCriteria::EPS+cv::TermCriteria::MAX_ITER, 30, 0.1 ));
 
         if( mode == CAPTURING && found &&
            (!capture.isOpened() || clock() - prevTimestamp > delay*1e-3*CLOCKS_PER_SEC) )

@@ -12,7 +12,7 @@
 #include <cstdio>
 
 // based on: http://stackoverflow.com/questions/10533233/opencv-c-obj-c-advanced-square-detection
-// compile: g++ -O2 -o cv2-squares2.out cv2-squares2.cpp -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio
+// compile: g++ -O2 -o cv2-squares2.out cv2-squares2.cpp -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio -I/usr/include/opencv4
 
 using namespace cv;
 using namespace std;
@@ -76,7 +76,7 @@ vector<Point2f> lineToPointPair(Vec2f line)
   // resize(occludedSquare, occludedSquare, Size(0, 0), 0.25, 0.25);
 
   // Mat occludedSquare8u;
-  // cvtColor(occludedSquare, occludedSquare8u, CV_BGR2GRAY);
+  // cvtColor(occludedSquare, occludedSquare8u, cv::COLOR_BGR2GRAY);
 
   // Mat thresh;
   // threshold(occludedSquare8u, thresh, 200.0, 255.0, THRESH_BINARY);
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
     // resize(occludedSquare, occludedSquare, Size(0, 0), 0.25, 0.25);
 
     Mat occludedSquare8u;
-    cvtColor(occludedSquare, occludedSquare8u, CV_BGR2GRAY);
+    cvtColor(occludedSquare, occludedSquare8u, cv::COLOR_BGR2GRAY);
 
     Mat thresh;
     threshold(occludedSquare8u, thresh, 200.0, 255.0, THRESH_BINARY);

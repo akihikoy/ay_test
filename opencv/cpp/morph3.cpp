@@ -5,7 +5,7 @@
     \version 0.1
     \date    May 14, 2019
 
-g++ -g -Wall -O2 -o morph3.out morph3.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o morph3.out morph3.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 */
 //-------------------------------------------------------------------------------------------
@@ -67,8 +67,8 @@ std::vector<std::vector<cv::Point> >  polygon(1);
 
 // if(polygon[0].size()>0)
 // {
-  // cv::fillPoly(frame, polygon, CV_RGB(128,0,128));
-  // cv::polylines(frame, polygon, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+  // cv::fillPoly(frame, polygon, cv::Scalar(128,0,128));
+  // cv::polylines(frame, polygon, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
 // }
 
     cv::Mat morphed(frame.size(),frame.type());

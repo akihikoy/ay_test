@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.22, 2016
 
-g++ -I -Wall -O2 optical-flow-farn1.cpp -o optical-flow-farn1.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui -lopencv_videoio
+g++ -I -Wall -O2 optical-flow-farn1.cpp -o optical-flow-farn1.out -lopencv_core -lopencv_imgproc -lopencv_video -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -60,7 +60,7 @@ int main(int argc, char**argv)
 
   cv::Mat frame_in, frame, frame_old;
   cap >> frame;
-  cv::cvtColor(frame,frame,CV_BGR2GRAY);
+  cv::cvtColor(frame,frame,cv::COLOR_BGR2GRAY);
   for(int i(0);;++i)
   {
     frame.copyTo(frame_old);
@@ -69,7 +69,7 @@ int main(int argc, char**argv)
       if(cap.WaitReopen()) {i=-1; continue;}
       else break;
     }
-    cv::cvtColor(frame_in,frame,CV_BGR2GRAY);
+    cv::cvtColor(frame_in,frame,cv::COLOR_BGR2GRAY);
 
     // medianBlur(frame, frame, 9);
 

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.13, 2021
 
-g++ -I -Wall pca2.cpp -o pca2.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -I -Wall pca2.cpp -o pca2.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -66,7 +66,7 @@ void SaveData(const std::string &filename, const cv::Mat &data)
 
 cv::Mat ReduceDimWithPCA(const cv::Mat &data)
 {
-  cv::PCA pca(data, cv::Mat(), CV_PCA_DATA_AS_ROW);
+  cv::PCA pca(data, cv::Mat(), cv::PCA::DATA_AS_ROW);
   cv::Vec3d mean(pca.mean.at<double>(0,0), pca.mean.at<double>(0,1), pca.mean.at<double>(0,2));
   cv::Vec3d evals;
   cv::Mat evecs(3,3,CV_64F);

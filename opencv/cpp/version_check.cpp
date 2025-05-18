@@ -5,8 +5,8 @@
     \version 0.1
     \date    Dec.07, 2017
 
-g++ -g -Wall -O2 -o version_check.out version_check.cpp -lopencv_core
-g++ -g -Wall -O2 -o version_check.out version_check.cpp -lopencv_core -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib
+g++ -g -Wall -O2 -o version_check.out version_check.cpp -lopencv_core -I/usr/include/opencv4
+g++ -g -Wall -O2 -o version_check.out version_check.cpp -lopencv_core -I$HOME/.local/include -L$HOME/.local/lib -Wl,-rpath=$HOME/.local/lib -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

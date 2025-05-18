@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.13, 2021
 
-g++ -I -Wall pca1.cpp -o pca1.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+g++ -I -Wall pca1.cpp -o pca1.out -I/usr/include/opencv2 -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -51,7 +51,7 @@ double getOrientation(const vector<Point> &pts, Mat &img)
         data_pts.at<double>(i, 1) = pts[i].y;
     }
     //Perform PCA analysis
-    PCA pca_analysis(data_pts, Mat(), CV_PCA_DATA_AS_ROW);
+    PCA pca_analysis(data_pts, Mat(), cv::PCA::DATA_AS_ROW);
     //Store the center of the object
     Point cntr = Point(static_cast<int>(pca_analysis.mean.at<double>(0, 0)),
                       static_cast<int>(pca_analysis.mean.at<double>(0, 1)));

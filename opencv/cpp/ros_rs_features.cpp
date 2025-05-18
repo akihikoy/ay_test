@@ -5,7 +5,7 @@
     \version 0.1
     \date    Nov.08, 2022
 
-$ g++ -O2 -g -W -Wall -o ros_rs_features.out ros_rs_features.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_video -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+$ g++ -O2 -g -W -Wall -o ros_rs_features.out ros_rs_features.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_video -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -30,7 +30,7 @@ void setMouseCallback(const std::string &winname, cv::MouseCallback onMouse, con
 }
 static void onMouse(int event, int x, int y, int /*flags*/, void* param)
 {
-  if(event == CV_EVENT_LBUTTONDOWN)
+  if(event == cv::EVENT_LBUTTONDOWN)
   {
     mouse_event_detected= true;
     x_mouse= x; y_mouse= y;
@@ -79,44 +79,44 @@ void CVCallback(const cv::Mat &frame_depth, const cv::Mat &frame_rgb)
 
   {
     cv::Mat gray;
-    cv::cvtColor(frame_rgb, gray, CV_BGR2GRAY);
+    cv::cvtColor(frame_rgb, gray, cv::COLOR_BGR2GRAY);
     if(using_feat_track_rgb)
-      cv::goodFeaturesToTrack(gray, points_rgb, max_count, quality_level_rgb, min_dist_rgb, cv::Mat(), block_size_rgb, 0, 0.04);
+      cv::goodFeaturesToTrack(gray, points_rgb, max_count, quality_level_rgb, min_dist_rgb, cv::Mat(), block_size_rgb, false, 0.04);
     if(using_corner_det_rgb)
     {
       cv::Size subpix_win_size(10,10);
-      cv::TermCriteria termcrit(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03);
+      cv::TermCriteria termcrit(cv::TermCriteria::MAX_ITER|cv::TermCriteria::EPS, 20, 0.03);
       cv::cornerSubPix(gray, points_rgb, subpix_win_size, cv::Size(-1,-1), termcrit);
     }
   }
-  cv::Mat canvas_points_rgb(frame_rgb.size(),frame_rgb.type(),CV_RGB(0,0,0));
+  cv::Mat canvas_points_rgb(frame_rgb.size(),frame_rgb.type(),cv::Scalar(0,0,0));
   for(std::vector<cv::Point2f>::const_iterator itr_pt(points_rgb.begin()),itr_pt_end(points_rgb.end());
       itr_pt!=itr_pt_end; ++itr_pt)
-    cv::circle(canvas_points_rgb, *itr_pt, 2, CV_RGB(255,0,255));
+    cv::circle(canvas_points_rgb, *itr_pt, 2, cv::Scalar(255,0,255));
 
   {
     cv::Mat gray;
     frame_depth.convertTo(gray, CV_32FC1);
     if(using_feat_track_depth)
-      cv::goodFeaturesToTrack(gray, points_depth, max_count, quality_level_depth, min_dist_depth, cv::Mat(), block_size_depth, 0, 0.04);
+      cv::goodFeaturesToTrack(gray, points_depth, max_count, quality_level_depth, min_dist_depth, cv::Mat(), block_size_depth, false, 0.04);
     if(using_corner_det_depth)
     {
       cv::Size subpix_win_size(10,10);
-      cv::TermCriteria termcrit(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03);
+      cv::TermCriteria termcrit(cv::TermCriteria::MAX_ITER|cv::TermCriteria::EPS, 20, 0.03);
       cv::cornerSubPix(gray, points_depth, subpix_win_size, cv::Size(-1,-1), termcrit);
     }
   }
-  cv::Mat canvas_points_depth(frame_depth.size(),frame_rgb.type(),CV_RGB(0,0,0));
+  cv::Mat canvas_points_depth(frame_depth.size(),frame_rgb.type(),cv::Scalar(0,0,0));
   for(std::vector<cv::Point2f>::const_iterator itr_pt(points_depth.begin()),itr_pt_end(points_depth.end());
       itr_pt!=itr_pt_end; ++itr_pt)
-    cv::circle(canvas_points_rgb, *itr_pt, 2, CV_RGB(255,0,255));
+    cv::circle(canvas_points_rgb, *itr_pt, 2, cv::Scalar(255,0,255));
 
   cv::Mat img_rgb_disp(frame_rgb*dim_rgb);
   img_rgb_disp+= dim_points_rgb*canvas_points_rgb;
 
   cv::Mat img_depth_disp(frame_depth*depth_scale);
   img_depth_disp.convertTo(img_depth_disp, CV_8U);
-  cv::cvtColor(img_depth_disp, img_depth_disp, CV_GRAY2BGR);
+  cv::cvtColor(img_depth_disp, img_depth_disp, cv::COLOR_GRAY2BGR);
   img_depth_disp*= dim_depth;
   img_depth_disp+= dim_points_depth*canvas_points_depth;
 

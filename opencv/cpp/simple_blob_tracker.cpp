@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.06, 2016
 
-g++ -g -Wall -O2 -o simple_blob_tracker.out simple_blob_tracker.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o simple_blob_tracker.out simple_blob_tracker.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -284,11 +284,11 @@ int main(int argc, char**argv)
   std::cerr<<"camera opened"<<std::endl;
 
   // set resolution
-  cap.set(CV_CAP_PROP_FOURCC,CV_FOURCC('M','J','P','G'));
-  cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-  cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
+  cap.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('M','J','P','G'));
+  cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+  cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
 
 
   // Setup SimpleBlobDetector parameters.

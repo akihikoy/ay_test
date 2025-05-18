@@ -7,7 +7,7 @@
 
 NOTE: Found that the approach of obj_det_track1.cpp is better.
 
-g++ -I -Wall obj_det_track2.cpp -o obj_det_track2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -I -Wall obj_det_track2.cpp -o obj_det_track2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

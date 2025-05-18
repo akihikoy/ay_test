@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jun.27, 2016
 
-g++ -g -Wall -O2 -o mouth_fit3.out mouth_fit3.cpp cma_es/cmaes.c cma_es/boundary_transformation.c -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lm -lopencv_videoio
+g++ -g -Wall -O2 -o mouth_fit3.out mouth_fit3.cpp cma_es/cmaes.c cma_es/boundary_transformation.c -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lm -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -356,7 +356,7 @@ double FObjEdgePoints(const cv::Mat &edges_x, const cv::Mat &edges_y, const cv::
 
   return -EvaluateEdgePoints<float>(edges_x, edges_y, points2d, grads2d, is_feasible);
   // std::cerr<<"eval: "<<eval<<endl;
-  // cv::cvtColor(edges, edges, CV_GRAY2BGR);
+  // cv::cvtColor(edges, edges, cv::COLOR_GRAY2BGR);
   // DrawPoints<float>(edges,points2d,cv::Scalar(255,255,0));
 }
 //-------------------------------------------------------------------------------------------
@@ -364,7 +364,7 @@ double FObjEdgePoints(const cv::Mat &edges_x, const cv::Mat &edges_y, const cv::
 void DetectEdges(const cv::Mat &frame, cv::Mat &edges_x, cv::Mat &edges_y)
 {
   cv::Mat frame_gray;
-  cv::cvtColor(frame, frame_gray, CV_BGR2GRAY);
+  cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
   cv::blur(frame_gray, frame_gray, cv::Size(3,3));
   int scale(1), delta(0), ddepth(CV_16S);
   // Gradient X

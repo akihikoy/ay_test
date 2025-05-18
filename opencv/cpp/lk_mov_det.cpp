@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.14, 2015
 
-    g++ -I -Wall lk_mov_det.cpp -o lk_mov_det.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+    g++ -I -Wall lk_mov_det.cpp -o lk_mov_det.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -42,7 +42,7 @@ private:
 
 TMovingObjectDetector::TMovingObjectDetector()
   :
-    term_criteria_(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03),
+    term_criteria_(cv::TermCriteria::MAX_ITER|cv::TermCriteria::EPS,20,0.03),
     win_size_(10,10),
     max_feat_count_(500),
     reset_count_(1),
@@ -53,7 +53,7 @@ TMovingObjectDetector::TMovingObjectDetector()
 
 void TMovingObjectDetector::Step(const cv::Mat &frame)
 {
-  cv::cvtColor(frame, gray_, CV_BGR2GRAY);
+  cv::cvtColor(frame, gray_, cv::COLOR_BGR2GRAY);
   if(prev_gray_.empty())  gray_.copyTo(prev_gray_);
 
   if(points_[0].empty() || count_==0)

@@ -5,8 +5,8 @@
     \version 0.1
     \date    Nov.12, 2021
 
-g++ -g -Wall -O2 -o cv2-file_storage-kp.out cv2-file_storage-kp.cpp -lopencv_core
-set HOME2=/home/ay2 && g++ -g -Wall -O2 -o cv2-file_storage-kp.out cv2-file_storage-kp.cpp -lopencv_core -I$HOME2/.local/include -L$HOME2/.local/lib -Wl,-rpath=$HOME2/.local/lib
+g++ -g -Wall -O2 -o cv2-file_storage-kp.out cv2-file_storage-kp.cpp -lopencv_core -I/usr/include/opencv4
+set HOME2=/home/ay2 && g++ -g -Wall -O2 -o cv2-file_storage-kp.out cv2-file_storage-kp.cpp -lopencv_core -I$HOME2/.local/include -L$HOME2/.local/lib -Wl,-rpath=$HOME2/.local/lib -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <iostream>

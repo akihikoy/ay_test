@@ -41,9 +41,9 @@ inline bool FileExists(const std::string &filename)
 
 bool OpenVideoOut(cv::VideoWriter &vout, const char *file_name, int fps, const cv::Size &size)
 {
-  // int codec= CV_FOURCC('P','I','M','1');  // mpeg1video
-  // int codec= CV_FOURCC('X','2','6','4');  // x264?
-  int codec= CV_FOURCC('m','p','4','v');  // mpeg4 (Simple Profile)
+  // int codec= cv::VideoWriter::fourcc('P','I','M','1');  // mpeg1video
+  // int codec= cv::VideoWriter::fourcc('X','2','6','4');  // x264?
+  int codec= cv::VideoWriter::fourcc('m','p','4','v');  // mpeg4 (Simple Profile)
   vout.open(file_name, codec, fps, size, true);
 
   if (!vout.isOpened())

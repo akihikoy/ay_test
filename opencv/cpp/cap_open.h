@@ -52,9 +52,9 @@ cv::VideoCapture CapOpen(const std::string &src, int width=0, int height=0, cons
     return cap;
   }
   std::cerr<<"Opened camera: "<<src<<std::endl;
-  if(fourcc.size()>0)  cap.set(CV_CAP_PROP_FOURCC,CV_FOURCC(fourcc[0],fourcc[1],fourcc[2],fourcc[3]));
-  if(width!=0)   cap.set(CV_CAP_PROP_FRAME_WIDTH, width);
-  if(height!=0)  cap.set(CV_CAP_PROP_FRAME_HEIGHT, height);
+  if(fourcc.size()>0)  cap.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc(fourcc[0],fourcc[1],fourcc[2],fourcc[3]));
+  if(width!=0)   cap.set(cv::CAP_PROP_FRAME_WIDTH, width);
+  if(height!=0)  cap.set(cv::CAP_PROP_FRAME_HEIGHT, height);
   return cap;
 }
 //-------------------------------------------------------------------------------------------

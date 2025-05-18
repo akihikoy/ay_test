@@ -1,5 +1,5 @@
 // From OpenCV sample.
-// g++ -g -Wall -O2 -o calib_stereo.out calib_stereo.cpp -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui
+// g++ -g -Wall -O2 -o calib_stereo.out calib_stereo.cpp -lopencv_core -lopencv_calib3d -lopencv_features2d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -I/usr/include/opencv4
 // cd data/usbcam4g1_tltr1 && ../../calib_stereo.out -w 8 -h 6 -s 0.0247 image_list.xml && cd -
 /* This is sample from the OpenCV book. The copyright notice is below */
 
@@ -106,7 +106,7 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
                 else
                     resize(img, timg, Size(), scale, scale);
                 found = findChessboardCorners(timg, boardSize, corners,
-                    CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
                 if( found )
                 {
                     if( scale > 1 )
@@ -135,7 +135,7 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
             if( !found )
                 break;
             cornerSubPix(img, corners, Size(11,11), Size(-1,-1),
-                         TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS,
+                         TermCriteria(cv::TermCriteria::MAX_ITER+cv::TermCriteria::EPS,
                                       30, 0.01));
         }
         if( k == 2 )
@@ -175,12 +175,12 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
                     cameraMatrix[0], distCoeffs[0],
                     cameraMatrix[1], distCoeffs[1],
                     imageSize, R, T, E, F,
-                    CV_CALIB_FIX_ASPECT_RATIO +
-                    CV_CALIB_ZERO_TANGENT_DIST +
-                    CV_CALIB_SAME_FOCAL_LENGTH +
-                    // CV_CALIB_RATIONAL_MODEL +
-                    CV_CALIB_FIX_K3 + CV_CALIB_FIX_K4 + CV_CALIB_FIX_K5,
-                    TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 100, 1e-5));
+                    cv::CALIB_FIX_ASPECT_RATIO +
+                    cv::CALIB_ZERO_TANGENT_DIST +
+                    cv::CALIB_SAME_FOCAL_LENGTH +
+                    // cv::CALIB_RATIONAL_MODEL +
+                    cv::CALIB_FIX_K3 + cv::CALIB_FIX_K4 + cv::CALIB_FIX_K5,
+                    TermCriteria(cv::TermCriteria::MAX_ITER+cv::TermCriteria::EPS, 100, 1e-5));
     cout << "done with RMS error=" << rms << endl;
 
 // CALIBRATION QUALITY CHECK
@@ -214,7 +214,7 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
     cout << "average reprojection err = " <<  err/npoints << endl;
 
     // save intrinsic parameters
-    FileStorage fs("intrinsics.yml", CV_STORAGE_WRITE);
+    FileStorage fs("intrinsics.yml", cv::FileStorage::WRITE);
     if( fs.isOpened() )
     {
         fs << "M1" << cameraMatrix[0] << "D1" << distCoeffs[0] <<
@@ -232,7 +232,7 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
                   imageSize, R, T, R1, R2, P1, P2, Q,
                   CALIB_ZERO_DISPARITY, 1, imageSize, &validRoi[0], &validRoi[1]);
 
-    fs.open("extrinsics.yml", CV_STORAGE_WRITE);
+    fs.open("extrinsics.yml", cv::FileStorage::WRITE);
     if( fs.isOpened() )
     {
         fs << "R" << R << "T" << T << "R1" << R1 << "R2" << R2 << "P1" << P1 << "P2" << P2 << "Q" << Q;
@@ -304,10 +304,10 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, float squareSize, b
         for( k = 0; k < 2; k++ )
         {
             Mat img = imread(goodImageList[i*2+k], 0), rimg, cimg;
-            remap(img, rimg, rmap[k][0], rmap[k][1], CV_INTER_LINEAR);
+            remap(img, rimg, rmap[k][0], rmap[k][1], cv::INTER_LINEAR);
             cvtColor(rimg, cimg, COLOR_GRAY2BGR);
             Mat canvasPart = !isVerticalStereo ? canvas(Rect(w*k, 0, w, h)) : canvas(Rect(0, h*k, w, h));
-            resize(cimg, canvasPart, canvasPart.size(), 0, 0, CV_INTER_AREA);
+            resize(cimg, canvasPart, canvasPart.size(), 0, 0, cv::INTER_AREA);
             if( useCalibrated )
             {
                 Rect vroi(cvRound(validRoi[k].x*sf), cvRound(validRoi[k].y*sf),

@@ -1,4 +1,4 @@
-// g++ -g -I -Wall calcBackProj4.cpp -o calcBackProj4.out -lopencv_core -lopencv_videoio -lopencv_imgproc -lopencv_highgui
+// g++ -g -I -Wall calcBackProj4.cpp -o calcBackProj4.out -lopencv_core -lopencv_videoio -lopencv_imgproc -lopencv_highgui -I/usr/include/opencv4
 
 // based on opencv/samples/cpp/tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp
 
@@ -93,7 +93,7 @@ int main( int argc, char** argv )
  */
 void pickPoint (int event, int x, int y, int, void* )
 {
-  if( event != CV_EVENT_LBUTTONDOWN )
+  if( event != cv::EVENT_LBUTTONDOWN )
     { return; }
 
   // Fill and get the mask

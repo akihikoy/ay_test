@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     vector <TransformParam> prev_to_cur_transform; // previous to current
 
     int k=1;
-    int max_frames = cap.get(CV_CAP_PROP_FRAME_COUNT);
+    int max_frames = cap.get(cv::CAP_PROP_FRAME_COUNT);
     Mat last_T;
 
     while(true) {
@@ -212,7 +212,7 @@ int main(int argc, char **argv)
     }
 
     // Step 5 - Apply the new transformation to the video
-    cap.set(CV_CAP_PROP_POS_FRAMES, 0);
+    cap.set(cv::CAP_PROP_POS_FRAMES, 0);
     Mat T(2,3,CV_64F);
 
     int vert_border = HORIZONTAL_BORDER_CROP * prev.rows / prev.cols; // get the aspect ratio correct

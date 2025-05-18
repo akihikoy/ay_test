@@ -5,7 +5,7 @@
     \version 0.1
     \date    Nov.08, 2022
 
-$ g++ -O2 -g -W -Wall -o ros_rs_stdfilt.out ros_rs_stdfilt.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+$ g++ -O2 -g -W -Wall -o ros_rs_stdfilt.out ros_rs_stdfilt.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 
 ref. https://stackoverflow.com/questions/7331105/stdfilt-in-opencv
 */
@@ -60,7 +60,7 @@ void setMouseCallback(const std::string &winname, cv::MouseCallback onMouse, con
 }
 static void onMouse(int event, int x, int y, int /*flags*/, void* param)
 {
-  if(event == CV_EVENT_LBUTTONDOWN)
+  if(event == cv::EVENT_LBUTTONDOWN)
   {
     mouse_event_detected= true;
     x_mouse= x; y_mouse= y;
@@ -97,14 +97,14 @@ void CVCallback(const cv::Mat &frame_depth, const cv::Mat &frame_rgb)
   cv::Mat stdfilt_rgb;
   {
     cv::Mat gray, grayn;
-    cv::cvtColor(frame_rgb, gray, CV_BGR2GRAY);
+    cv::cvtColor(frame_rgb, gray, cv::COLOR_BGR2GRAY);
     gray.convertTo(grayn, CV_32FC1);
     grayn/=255.0;
     StdFilt(grayn, stdfilt_rgb, kernel_size_rgb);
   }
   cv::Mat stdfilt_rgb_disp(scale_rgb*stdfilt_rgb*255.0);
   stdfilt_rgb_disp.convertTo(stdfilt_rgb_disp, CV_8U);
-  cv::cvtColor(stdfilt_rgb_disp, stdfilt_rgb_disp, CV_GRAY2BGR);
+  cv::cvtColor(stdfilt_rgb_disp, stdfilt_rgb_disp, cv::COLOR_GRAY2BGR);
 
   cv::Mat stdfilt_depth;
   {
@@ -115,11 +115,11 @@ void CVCallback(const cv::Mat &frame_depth, const cv::Mat &frame_rgb)
   }
   cv::Mat stdfilt_depth_disp(scale_depth*stdfilt_depth*255.0);
   stdfilt_depth_disp.convertTo(stdfilt_depth_disp, CV_8U);
-  cv::cvtColor(stdfilt_depth_disp, stdfilt_depth_disp, CV_GRAY2BGR);
+  cv::cvtColor(stdfilt_depth_disp, stdfilt_depth_disp, cv::COLOR_GRAY2BGR);
 
   cv::Mat img_depth_disp(frame_depth*depth_scale);
   img_depth_disp.convertTo(img_depth_disp, CV_8U);
-  cv::cvtColor(img_depth_disp, img_depth_disp, CV_GRAY2BGR);
+  cv::cvtColor(img_depth_disp, img_depth_disp, cv::COLOR_GRAY2BGR);
   cv::imshow("depth", img_depth_disp);
   ProcMouseEvent("depth", frame_depth);
 

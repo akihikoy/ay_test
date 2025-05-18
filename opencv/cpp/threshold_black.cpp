@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.16, 2017
 
-g++ -g -Wall -O2 -o threshold_black.out threshold_black.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o threshold_black.out threshold_black.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -37,8 +37,8 @@ int main(int argc, char **argv)
   else         cap= CapOpen("0", /*width=*/0, /*height=*/0);
   if(!cap.isOpened())  return -1;
 
-  cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
-  cv::namedWindow("detected", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("camera", cv::WINDOW_AUTOSIZE);
+  cv::namedWindow("detected", cv::WINDOW_AUTOSIZE);
 
   int thresh_h(180), thresh_s(255), thresh_v(13);
   cv::createTrackbar("thresh_h", "camera", &thresh_h, 255, NULL);

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.14, 2021
 
-g++ -g -Wall -O2 -o simple_blob_tracker4b.out simple_blob_tracker4b.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o simple_blob_tracker4b.out simple_blob_tracker4b.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 Run:
   $ ./simple_blob_tracker4b.out
@@ -317,7 +317,7 @@ void DrawPointMoves2(cv::Mat &img, const std::vector<TPointMove2> &move,
   {
     cv::circle(img, m->Po, std::max(0.0f,m->So), col1, 1/*std::max(0.0f,ds_emp*m->DS)*/);
     std::stringstream ss; ss<<i;
-    cv::putText(img, ss.str(), m->Po+cv::Point2f(3+std::max(0.0f,m->So),0), cv::FONT_HERSHEY_SIMPLEX, 0.3, col1, 1, CV_AA);
+    cv::putText(img, ss.str(), m->Po+cv::Point2f(3+std::max(0.0f,m->So),0), cv::FONT_HERSHEY_SIMPLEX, 0.3, col1, 1, cv::LINE_AA);
   }
   for(std::vector<TPointMove2>::const_iterator m(move.begin()),m_end(move.end()); m!=m_end; ++m)
     cv::line(img, m->Po, m->Po+dp_emp*m->DP, col2, 3);

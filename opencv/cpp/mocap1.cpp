@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.28, 2017
 
-g++ -g -Wall -O2 -o mocap1.out mocap1.cpp -lopencv_imgproc -lopencv_core -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o mocap1.out mocap1.cpp -lopencv_imgproc -lopencv_core -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -26,7 +26,7 @@ g++ -g -Wall -O2 -o mocap1.out mocap1.cpp -lopencv_imgproc -lopencv_core -lopenc
 cv::Moments FindLargestContour(const cv::Mat &bin_src)
 {
   std::vector<std::vector<cv::Point> > contours;
-  cv::findContours(bin_src,contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(bin_src,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
   if(contours.size()==0)  return cv::Moments();
   double a(0.0),a_max(0.0), i_max(0);
   for(int i(0),i_end(contours.size()); i<i_end; ++i)

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Nov.06, 2022
 
-g++ -g -Wall -O2 -o cv2-vec_point.out cv2-vec_point.cpp -lopencv_core
+g++ -g -Wall -O2 -o cv2-vec_point.out cv2-vec_point.cpp -lopencv_core -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

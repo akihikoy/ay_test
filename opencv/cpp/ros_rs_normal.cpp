@@ -5,7 +5,7 @@
     \version 0.1
     \date    Oct.31, 2022
 
-$ g++ -O2 -g -W -Wall -o ros_rs_normal.out ros_rs_normal.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+$ g++ -O2 -g -W -Wall -o ros_rs_normal.out ros_rs_normal.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -303,7 +303,7 @@ void setMouseCallback(const std::string &winname, cv::MouseCallback onMouse, con
 }
 static void onMouse(int event, int x, int y, int /*flags*/, void* param)
 {
-  if(event == CV_EVENT_LBUTTONDOWN)
+  if(event == cv::EVENT_LBUTTONDOWN)
   {
     mouse_event_detected= true;
     x_mouse= x; y_mouse= y;
@@ -349,7 +349,7 @@ void CVCallback(const cv::Mat &frame)
   {
     img_disp= frame*depth_scale;
     img_disp.convertTo(img_disp, CV_8U);
-    cv::cvtColor(img_disp, img_disp, CV_GRAY2BGR);
+    cv::cvtColor(img_disp, img_disp, cv::COLOR_GRAY2BGR);
   }
 
   cv::Mat normal_img, cloud_img;

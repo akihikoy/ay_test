@@ -1,4 +1,4 @@
-// g++ -I -Wall camshiftdemo.cpp -o camshiftdemo.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+// g++ -I -Wall camshiftdemo.cpp -o camshiftdemo.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 // src. opencv/samples/cpp/camshiftdemo.cpp
 
 #include "opencv2/video/tracking.hpp"
@@ -36,12 +36,12 @@ static void onMouse( int event, int x, int y, int, void* )
 
     switch( event )
     {
-    case CV_EVENT_LBUTTONDOWN:
+    case cv::EVENT_LBUTTONDOWN:
         origin = Point(x,y);
         selection = Rect(x,y,0,0);
         selectObject = true;
         break;
-    case CV_EVENT_LBUTTONUP:
+    case cv::EVENT_LBUTTONUP:
         selectObject = false;
         if( selection.width > 0 && selection.height > 0 )
             trackObject = -1;
@@ -137,7 +137,7 @@ int main( int argc, const char** argv )
                 {
                     Mat roi(hue, selection), maskroi(mask, selection);
                     calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
-                    normalize(hist, hist, 0, 255, CV_MINMAX);
+                    normalize(hist, hist, 0, 255, cv::NORM_MINMAX);
 
                     trackWindow = selection;
                     trackObject = 1;
@@ -147,7 +147,7 @@ int main( int argc, const char** argv )
                     Mat buf(1, hsize, CV_8UC3);
                     for( int i = 0; i < hsize; i++ )
                         buf.at<Vec3b>(i) = Vec3b(saturate_cast<uchar>(i*180./hsize), 255, 255);
-                    cvtColor(buf, buf, CV_HSV2BGR);
+                    cvtColor(buf, buf, cv::COLOR_HSV2BGR);
 
                     for( int i = 0; i < hsize; i++ )
                     {
@@ -161,7 +161,7 @@ int main( int argc, const char** argv )
                 calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
                 backproj &= mask;
                 RotatedRect trackBox = CamShift(backproj, trackWindow,
-                                    TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+                                    TermCriteria( cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 10, 1 ));
                 if( trackWindow.area() <= 1 )
                 {
                     int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5)/6;
@@ -172,7 +172,7 @@ int main( int argc, const char** argv )
 
                 if( backprojMode )
                     cvtColor( backproj, image, COLOR_GRAY2BGR );
-                ellipse( image, trackBox, Scalar(0,0,255), 3, CV_AA );
+                ellipse( image, trackBox, Scalar(0,0,255), 3, cv::LINE_AA );
                 // imshow( "Mask", mask );
             }
         }

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Aug.12, 2022
 
-g++ -g -Wall -O2 -o cv2-draw-revpoly.out cv2-draw-revpoly.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-draw-revpoly.out cv2-draw-revpoly.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <iostream>

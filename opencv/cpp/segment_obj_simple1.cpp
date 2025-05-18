@@ -7,7 +7,7 @@
     \version 0.1
     \date    May.17, 2017
 
-g++ -g -Wall -O2 -o segment_obj_simple1.out segment_obj_simple1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o segment_obj_simple1.out segment_obj_simple1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 Based on:
   find_white_contours.cpp
@@ -57,7 +57,7 @@ void FindWhiteContours(
   if(n_erode>0)   cv::erode(frame_white,frame_white,cv::Mat(),cv::Point(-1,-1), n_erode);
 
   // Contour detection
-  cv::findContours(frame_white, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(frame_white, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 }
 //-------------------------------------------------------------------------------------------
 
@@ -88,8 +88,8 @@ int main(int argc, char **argv)
   TCapture cap;
   if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
-  cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
-  cv::namedWindow("detected", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("camera", cv::WINDOW_AUTOSIZE);
+  cv::namedWindow("detected", cv::WINDOW_AUTOSIZE);
 
   // For white detector:
   int white_s_max(20), white_v_min(100);
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 
     // Find object contours
     std::vector<std::vector<cv::Point> > contours;
-    cv::findContours(mask_objects, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    cv::findContours(mask_objects, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
     if(contours.size()>0)
     {
       for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
         cv::Rect bound= cv::boundingRect(contours[ic]);
         int bound_len= std::max(bound.width, bound.height);
         if(bound_len<rect_len_min || bound_len>rect_len_max)  continue;
-        cv::drawContours(img_disp, contours, ic, CV_RGB(255,0,255), /*thickness=*/2, /*linetype=*/8);
+        cv::drawContours(img_disp, contours, ic, cv::Scalar(255,0,255), /*thickness=*/2, /*linetype=*/8);
 
         cv::rectangle(img_disp, bound, cv::Scalar(0,0,255), 2);
       }

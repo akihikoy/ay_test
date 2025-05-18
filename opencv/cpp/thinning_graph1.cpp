@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.16, 2021
 
-g++ -g -Wall -O2 -o thinning_graph1.out thinning_graph1.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o thinning_graph1.out thinning_graph1.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 $ ./thinning_graph1.out sample/binary1.png
 $ ./thinning_graph1.out sample/opencv-logo.png

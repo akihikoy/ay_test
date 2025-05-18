@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.15, 2017
 
-g++ -g -Wall -O2 -o capture.out capture.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs
+g++ -g -Wall -O2 -o capture.out capture.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

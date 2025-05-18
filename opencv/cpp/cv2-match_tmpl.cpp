@@ -7,7 +7,7 @@
 
 src. http://docs.opencv.org/2.4/doc/tutorials/imgproc/histograms/template_matching/template_matching.html
 
-g++ -g -Wall -O2 -o cv2-match_tmpl.out cv2-match_tmpl.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-match_tmpl.out cv2-match_tmpl.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.01, 2015
 
-    g++ -g -Wall -O2 -o find_biggest_cnt.out find_biggest_cnt.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+    g++ -g -Wall -O2 -o find_biggest_cnt.out find_biggest_cnt.cpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -34,7 +34,7 @@ bool FindLargestContour(const cv::Mat &bin_src,
     std::vector<cv::Point> *contour=NULL)
 {
   std::vector<std::vector<cv::Point> > contours;
-  cv::findContours(bin_src,contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(bin_src,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
   if(contours.size()==0)  return false;
   double a(0.0),a_max(0.0), i_max(0);
   for(int i(0),i_end(contours.size()); i<i_end; ++i)
@@ -75,7 +75,7 @@ int main(int argc, char**argv)
   std::vector<std::vector<cv::Point> > contours;
   contours.push_back(contour);
   std::cerr<<"area="<<area<<std::endl;
-  cv::drawContours(src, contours, 0, CV_RGB(0,255,0), /*thickness=*/2, /*linetype=*/8);
+  cv::drawContours(src, contours, 0, cv::Scalar(0,255,0), /*thickness=*/2, /*linetype=*/8);
   cv::rectangle(src, bound, cv::Scalar(0,128,255), 2);
   cv::circle(src, center, 5, cv::Scalar(255,0,128));
 

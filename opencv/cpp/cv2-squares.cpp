@@ -12,7 +12,7 @@
 #include <cstdio>
 
 // based on: https://code.ros.org/trac/opencv/browser/trunk/opencv/samples/cpp/squares.cpp?rev=4079
-// compile: g++ -O2 -o cv2-squares.out cv2-squares.cpp -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio
+// compile: g++ -O2 -o cv2-squares.out cv2-squares.cpp -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio -I/usr/include/opencv4
 
 // The "Square Detector" program.
 // It loads several images subsequentally and tries to find squares in
@@ -78,7 +78,7 @@ void findSquares( const Mat& image, vector<vector<Point> >& squares )
       }
 
       // find contours and store them all as a list
-      findContours(gray, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+      findContours(gray, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
       vector<Point> approx;
 
@@ -127,7 +127,7 @@ void drawSquares( Mat& image, const vector<vector<Point> >& squares )
   {
     const Point* p = &squares[i][0];
     int n = (int)squares[i].size();
-    polylines(image, &p, &n, 1, true, Scalar(0,255,0), 3, CV_AA);
+    polylines(image, &p, &n, 1, true, Scalar(0,255,0), 3, cv::LINE_AA);
   }
 
   imshow(wndname, image);

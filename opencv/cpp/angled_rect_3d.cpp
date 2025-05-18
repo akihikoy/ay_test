@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.11, 2023
 
-g++ -g -Wall -O2 -o angled_rect_3d.out angled_rect_3d.cpp -lopencv_core -lopencv_imgproc
+g++ -g -Wall -O2 -o angled_rect_3d.out angled_rect_3d.cpp -lopencv_core -lopencv_imgproc -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

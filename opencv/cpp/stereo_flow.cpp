@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.06, 2016
 
-g++ -g -Wall -O2 -o stereo_flow.out stereo_flow.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o stereo_flow.out stereo_flow.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -51,8 +51,8 @@ int main(int argc, char**argv)
     if(!res1 || !res2)
     {
       std::cerr<<"video reached the end (looped)"<<std::endl;
-      vin1.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
-      vin2.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
+      vin1.set(cv::CAP_PROP_POS_AVI_RATIO, 0);
+      vin2.set(cv::CAP_PROP_POS_AVI_RATIO, 0);
       continue;
     }
 
@@ -63,11 +63,11 @@ int main(int argc, char**argv)
     cv::dilate(frame2,frame2,cv::Mat(),cv::Point(-1,-1), wd);
 
     cv::Mat disparity;
-    cv::cvtColor(frame1, frame1, CV_BGR2GRAY);
-    cv::cvtColor(frame2, frame2, CV_BGR2GRAY);
+    cv::cvtColor(frame1, frame1, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(frame2, frame2, cv::COLOR_BGR2GRAY);
     stereo->compute(frame1, frame2, disparity);
     // /*TEST*/cv::erode(disparity,disparity,cv::Mat(),cv::Point(-1,-1), 2);
-    cv::normalize(disparity, disparity, 0, 255, CV_MINMAX, CV_8U);
+    cv::normalize(disparity, disparity, 0, 255, cv::NORM_MINMAX, CV_8U);
     cv::imshow("stereo_flow", disparity);
 
     cv::imshow("video1", frame1);

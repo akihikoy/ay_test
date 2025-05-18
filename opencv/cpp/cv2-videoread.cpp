@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.06, 2016
 
-g++ -g -Wall -O2 -o cv2-videoread.out cv2-videoread.cpp -lopencv_core -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-videoread.out cv2-videoread.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -49,7 +49,7 @@ int main(int argc, char**argv)
     if(!vin.read(frame))  // get a new frame from video and loop if necessary
     {
       std::cerr<<"video reached the end (looped)"<<std::endl;
-      vin.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
+      vin.set(cv::CAP_PROP_POS_AVI_RATIO, 0);
       continue;
     }
 

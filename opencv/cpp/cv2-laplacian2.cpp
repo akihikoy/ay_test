@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.08, 2017
 
-g++ -g -Wall -O2 -o cv2-laplacian2.out cv2-laplacian2.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-laplacian2.out cv2-laplacian2.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -44,7 +44,7 @@ void LaplacianThreshold(int,void*)
   GaussianBlur( src, src, Size(3,3), 0, 0, BORDER_DEFAULT );
 
   /// Convert the image to grayscale
-  cvtColor( src, src_gray, CV_BGR2GRAY );
+  cvtColor( src, src_gray, cv::COLOR_BGR2GRAY );
 
   /// Apply Laplace function
   Mat abs_dst;
@@ -65,10 +65,10 @@ int main( int argc, char** argv )
 
 
   /// Create window
-  namedWindow( window_name, CV_WINDOW_AUTOSIZE );
+  namedWindow( window_name, cv::WINDOW_AUTOSIZE );
   createTrackbar( "Threshold:", window_name, &lthreshold, 1000, LaplacianThreshold);
 
-  namedWindow( "cam", CV_WINDOW_AUTOSIZE );
+  namedWindow( "cam", cv::WINDOW_AUTOSIZE );
 
   for(;;)
   {

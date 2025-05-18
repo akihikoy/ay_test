@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.07, 2016
 
-g++ -g -Wall -O2 -o stereo_flow2.out stereo_flow2.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o stereo_flow2.out stereo_flow2.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -90,8 +90,8 @@ void FlowStereo2(int we, int wd, cv::Mat &frame1, cv::Mat &frame2)
   std::cerr<<std::endl;
 
   cv::Mat frame1c,frame2c;
-  cv::cvtColor(frame1, frame1c, CV_GRAY2BGR);
-  cv::cvtColor(frame2, frame2c, CV_GRAY2BGR);
+  cv::cvtColor(frame1, frame1c, cv::COLOR_GRAY2BGR);
+  cv::cvtColor(frame2, frame2c, cv::COLOR_GRAY2BGR);
   frame1c/=2;
   frame2c/=2;
   for(int y(0),y_end(matched.size()); y<y_end; ++y)
@@ -149,16 +149,16 @@ int main(int argc, char**argv)
       if(!res1 || !res2)
       {
         std::cerr<<"video reached the end (looped)"<<std::endl;
-        vin1.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
-        vin2.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
+        vin1.set(cv::CAP_PROP_POS_AVI_RATIO, 0);
+        vin2.set(cv::CAP_PROP_POS_AVI_RATIO, 0);
         continue;
       }
 
-      cv::cvtColor(frame1, frame1, CV_BGR2GRAY);
-      cv::cvtColor(frame2, frame2, CV_BGR2GRAY);
+      cv::cvtColor(frame1, frame1, cv::COLOR_BGR2GRAY);
+      cv::cvtColor(frame2, frame2, cv::COLOR_BGR2GRAY);
       // cv::Mat disparity= FlowStereo(/*we=*/2, /*wd=*/3, frame1, frame2, stereo);
       FlowStereo2(/*we=*/2, /*wd=*/3, frame1, frame2);
-      // cv::normalize(disparity, disparity, 0, 255, CV_MINMAX, CV_8U);
+      // cv::normalize(disparity, disparity, 0, 255, cv::NORM_MINMAX, CV_8U);
       // cv::imshow("stereo_flow", disparity);
 
       cv::imshow("video1", frame1);

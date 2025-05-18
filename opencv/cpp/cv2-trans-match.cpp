@@ -35,7 +35,7 @@ int main(int argc, char**argv)
 
   img3= cv::imread("marker.jpg",0);
   int tsize((img3.cols<=img3.rows) ? img3.cols : img3.rows);
-  cv::resize (img3, img3, cv::Size(tsize,tsize), 0,0, CV_INTER_LINEAR);
+  cv::resize (img3, img3, cv::Size(tsize,tsize), 0,0, cv::INTER_LINEAR);
   cv::threshold(img3,img3,0,1, cv::THRESH_BINARY|cv::THRESH_OTSU);
   cv::imshow("template",img3*255);
 
@@ -49,7 +49,7 @@ int main(int argc, char**argv)
   cv::Mat trans= cv::getPerspectiveTransform(src, dst);
   cv::warpPerspective(img1, img1, trans, cv::Size(img3.cols,img3.rows));
 
-  cv::cvtColor(img1,img1,CV_BGR2GRAY);
+  cv::cvtColor(img1,img1,cv::COLOR_BGR2GRAY);
   cv::threshold(img1,img1,0,1, cv::THRESH_BINARY|cv::THRESH_OTSU);
 
   cv::imshow("trans",img1*255);

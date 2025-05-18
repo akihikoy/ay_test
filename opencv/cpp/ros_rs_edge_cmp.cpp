@@ -5,7 +5,7 @@
     \version 0.1
     \date    Oct.21, 2022
 
-$ g++ -O2 -g -W -Wall -o ros_rs_edge_cmp.out ros_rs_edge_cmp.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+$ g++ -O2 -g -W -Wall -o ros_rs_edge_cmp.out ros_rs_edge_cmp.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -72,7 +72,7 @@ void CVCallback(const cv::Mat &frame)
   {
     cv::Mat img_disp(frame*depth_scale);
     img_disp.convertTo(img_disp, CV_8U);
-    cv::cvtColor(img_disp, img_disp, CV_GRAY2BGR);
+    cv::cvtColor(img_disp, img_disp, cv::COLOR_GRAY2BGR);
     cv::imshow("input", img_disp);
   }
   cv::imshow("canny", canny);

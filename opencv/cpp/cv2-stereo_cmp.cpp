@@ -4,7 +4,7 @@
     \author  Akihiko Yamaguchi, info@akihikoy.net
     \version 0.1
     \date    Jun.15, 2021
-g++ -g -Wall -O2 -o cv2-stereo_cmp.out cv2-stereo_cmp.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-stereo_cmp.out cv2-stereo_cmp.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 e.g.
 $ ./cv2-stereo_cmp.out sample/tsukuba_l.png sample/tsukuba_r.png
@@ -64,8 +64,8 @@ int main(int argc, char**argv)
     if(method==0)
     {
       cv::Ptr<cv::StereoBM> stereo= cv::StereoBM::create(/*ndisparities=*/n_disp, /*blockSize =*/w_size);
-      cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
-      cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
+      cv::cvtColor(frame1, gray1, cv::COLOR_BGR2GRAY);
+      cv::cvtColor(frame2, gray2, cv::COLOR_BGR2GRAY);
       stereo->compute(gray1, gray2, disparity);
     }
     else if(method==1)
@@ -79,7 +79,7 @@ int main(int argc, char**argv)
       stereo->compute(frame1, frame2, disparity);
     }
 
-    cv::normalize(disparity, disparity, 0, 255, CV_MINMAX, CV_8U);
+    cv::normalize(disparity, disparity, 0, 255, cv::NORM_MINMAX, CV_8U);
 
     cv::imshow("camera1", frame1);
     cv::imshow("camera2", frame2);

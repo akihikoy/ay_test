@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.11, 2023
 
-$ g++ -O2 -g -W -Wall -o ros_rs_diff.out ros_rs_diff.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+$ g++ -O2 -g -W -Wall -o ros_rs_diff.out ros_rs_diff.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -26,7 +26,7 @@ std::string win_mouse("");
 
 static void onMouse(int event, int x, int y, int /*flags*/, void* /*param*/)
 {
-  if(event == CV_EVENT_LBUTTONDOWN)
+  if(event == cv::EVENT_LBUTTONDOWN)
   {
     mouse_event_detected= true;
     x_mouse= x; y_mouse= y;
@@ -98,17 +98,17 @@ void CVCallback(const cv::Mat &frame_depth, const cv::Mat &frame_rgb)
 
   cv::Mat frame_depth_disp(frame_depth*depth_scale);
   frame_depth_disp.convertTo(frame_depth_disp, CV_8U);
-  cv::cvtColor(frame_depth_disp, frame_depth_disp, CV_GRAY2BGR);
+  cv::cvtColor(frame_depth_disp, frame_depth_disp, cv::COLOR_GRAY2BGR);
   cv::imshow("input_depth", frame_depth_disp);
 
   cv::Mat diff_depth_disp(diff_depth*depth_scale);
   diff_depth_disp.convertTo(diff_depth_disp, CV_8U);
-  cv::cvtColor(diff_depth_disp, diff_depth_disp, CV_GRAY2BGR);
+  cv::cvtColor(diff_depth_disp, diff_depth_disp, cv::COLOR_GRAY2BGR);
   cv::imshow("diff_depth", diff_depth_disp);
 
   cv::Mat mask_depth_disp(diff_depth*depth_scale);
   mask_depth_disp.convertTo(mask_depth_disp, CV_8U);
-  cv::cvtColor(mask_depth_disp, mask_depth_disp, CV_GRAY2BGR);
+  cv::cvtColor(mask_depth_disp, mask_depth_disp, cv::COLOR_GRAY2BGR);
   cv::imshow("mask_depth", mask_depth_disp);
 
   cv::imshow("input_rgb", frame_rgb);

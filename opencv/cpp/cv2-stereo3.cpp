@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.01, 2016
 
-g++ -g -Wall -O2 -o cv2-stereo3.out cv2-stereo3.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-stereo3.out cv2-stereo3.cpp -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -45,12 +45,12 @@ int main(int argc, char**argv)
   // int width(480), height(420);
   // int width(352), height(288);
   // int width(320), height(240);
-  cap1.set(CV_CAP_PROP_FOURCC,CV_FOURCC('M','J','P','G'));
-  cap1.set(CV_CAP_PROP_FRAME_WIDTH, width);
-  cap1.set(CV_CAP_PROP_FRAME_HEIGHT, height);
-  cap2.set(CV_CAP_PROP_FOURCC,CV_FOURCC('M','J','P','G'));
-  cap2.set(CV_CAP_PROP_FRAME_WIDTH, width);
-  cap2.set(CV_CAP_PROP_FRAME_HEIGHT, height);
+  cap1.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('M','J','P','G'));
+  cap1.set(cv::CAP_PROP_FRAME_WIDTH, width);
+  cap1.set(cv::CAP_PROP_FRAME_HEIGHT, height);
+  cap2.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('M','J','P','G'));
+  cap2.set(cv::CAP_PROP_FRAME_WIDTH, width);
+  cap2.set(cv::CAP_PROP_FRAME_HEIGHT, height);
 
   //From stereo camera calibration:
   // cv::FileStorage fs("data/ext_usbcam1_stereo3.yaml", cv::FileStorage::READ);
@@ -120,8 +120,8 @@ int main(int argc, char**argv)
       cap1 >> frame1;
       cap2 >> frame2;
 
-      cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
-      cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
+      cv::cvtColor(frame1, gray1, cv::COLOR_BGR2GRAY);
+      cv::cvtColor(frame2, gray2, cv::COLOR_BGR2GRAY);
       frame1= gray1;
       frame2= gray2;
 
@@ -134,17 +134,17 @@ int main(int argc, char**argv)
       // StereoSGBM:
       stereo->compute(frame1, frame2, disparity);
       // StereoSGBM (gray):
-      // cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
-      // cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
+      // cv::cvtColor(frame1, gray1, cv::COLOR_BGR2GRAY);
+      // cv::cvtColor(frame2, gray2, cv::COLOR_BGR2GRAY);
       // stereo->compute(gray1, gray2, disparity);
       // StereoBM:
-      // cv::cvtColor(frame1, gray1, CV_BGR2GRAY);
-      // cv::cvtColor(frame2, gray2, CV_BGR2GRAY);
+      // cv::cvtColor(frame1, gray1, cv::COLOR_BGR2GRAY);
+      // cv::cvtColor(frame2, gray2, cv::COLOR_BGR2GRAY);
       // stereo->compute(gray1, gray2, disparity);
 
       // cv::filterSpeckles(disparity, /*newVal=*/0, /*maxSpeckleSize=*/10, /*maxDiff=*/16, buf);
 
-      cv::normalize(disparity, disparity, 0, 255, CV_MINMAX, CV_8U);
+      cv::normalize(disparity, disparity, 0, 255, cv::NORM_MINMAX, CV_8U);
       cv::imshow("camera1", frame1);
       cv::imshow("camera2", frame2);
       cv::imshow("disparity", disparity);

@@ -3,7 +3,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include "cap_open.h"
-// g++ -g -Wall -O2 -o cv2-edge.out cv2-edge.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+// g++ -g -Wall -O2 -o cv2-edge.out cv2-edge.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 int main( int argc, char** argv )
 {
@@ -16,7 +16,7 @@ int main( int argc, char** argv )
     {
       cv::Mat frame;
       cap >> frame; // get a new frame from camera
-      cv::cvtColor(frame, edges, CV_BGR2GRAY);
+      cv::cvtColor(frame, edges, cv::COLOR_BGR2GRAY);
       cv::GaussianBlur(edges, edges, cv::Size(7,7), 1.5, 1.5);
       cv::Canny(edges, edges, 0, 30, 3);
       imshow("edges", edges);

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.21, 2018
 
-g++ -g -Wall -O2 -o mouse_poly.out mouse_poly.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
+g++ -g -Wall -O2 -o mouse_poly.out mouse_poly.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -64,8 +64,8 @@ int main(int argc, char**argv)
 
     if(polygon[0].size()>0)
     {
-      cv::fillPoly(frame, polygon, CV_RGB(128,0,128));
-      cv::polylines(frame, polygon, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+      cv::fillPoly(frame, polygon, cv::Scalar(128,0,128));
+      cv::polylines(frame, polygon, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
     }
 
     cv::imshow("camera", frame);

@@ -16,7 +16,7 @@ Blob detection gives a position and a size in float type, which looks very smoot
 Therefore we improved the robustness of blob-detection-based marker tracking.
 See simple_blob_tracker4.cpp
 
-g++ -g -Wall -O2 -o track_black_markers.out track_black_markers.cpp -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o track_black_markers.out track_black_markers.cpp -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 Based on:
   threshold_black.cpp
@@ -53,8 +53,8 @@ int main(int argc, char **argv)
   else         cap= CapOpen("0", /*width=*/0, /*height=*/0);
   if(!cap.isOpened())  return -1;
 
-  cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
-  cv::namedWindow("detected", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("camera", cv::WINDOW_AUTOSIZE);
+  cv::namedWindow("detected", cv::WINDOW_AUTOSIZE);
 
   int thresh_h(180), thresh_s(255), thresh_v(13);
   cv::createTrackbar("thresh_h", "detected", &thresh_h, 255, NULL);
@@ -95,8 +95,8 @@ int main(int argc, char **argv)
       bounds.clear();
       bounds_orig.clear();
       std::vector<std::vector<cv::Point> > contours;
-      cv::findContours(frame_black, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-      cv::drawContours(img_disp, contours, 0, CV_RGB(0,255,0), /*thickness=*/2, /*linetype=*/8);
+      cv::findContours(frame_black, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+      cv::drawContours(img_disp, contours, 0, cv::Scalar(0,255,0), /*thickness=*/2, /*linetype=*/8);
       if(contours.size()>0)
       {
         for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
           double area= cv::contourArea(contours[ic],false);
           if(area<area_min || area_max<area)  continue;
           cv::Rect bound= cv::boundingRect(contours[ic]);
-          //*TEST*/cv::meanShift(frame_black, bound, cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1));
+          //*TEST*/cv::meanShift(frame_black, bound, cv::TermCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 10, 1));
           bounds.push_back(bound);
           bounds_orig.push_back(bound);
           cv::rectangle(img_disp, bound, cv::Scalar(0,0,255), 2);
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     {
       for(int ib(0),ib_end(bounds.size()); ib<ib_end; ++ib)
       {
-        cv::meanShift(frame_black, bounds_orig[ib], cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1));
+        cv::meanShift(frame_black, bounds_orig[ib], cv::TermCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 10, 1));
         bounds[ib]= bounds_orig[ib];
       }
       ++calib_phase;
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     {
       for(int ib(0),ib_end(bounds.size()); ib<ib_end; ++ib)
       {
-        int nitr= cv::meanShift(frame_black, bounds[ib], cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1));
+        int nitr= cv::meanShift(frame_black, bounds[ib], cv::TermCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 10, 1));
         cv::rectangle(img_disp, bounds[ib], cv::Scalar(0,128,255), 2);
         cv::Point d(bounds[ib].x-bounds_orig[ib].x, bounds[ib].y-bounds_orig[ib].y);
         if(std::abs(d.x)<=1)  d.x= 0;

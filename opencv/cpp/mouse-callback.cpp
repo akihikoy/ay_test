@@ -1,4 +1,4 @@
-// g++ -O2 mouse-callback.cpp -o mouse-callback.out -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+// g++ -O2 mouse-callback.cpp -o mouse-callback.out -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 // NOTE: Click a point on the window, then the BGR and HSV color of the point is displayed.
 
 // #define OPENCV_LEGACY
@@ -24,7 +24,7 @@ void OnMouse(int event, int x, int y, int flags, void *vpimg)
   cv::Mat *pimg(reinterpret_cast<cv::Mat*>(vpimg));
   cv::Mat original(1,1,pimg->type()), converted;
   original.at<cv::Vec3b>(0,0)= pimg->at<cv::Vec3b>(y,x);  /* WARNING: be careful about the order of y and x WARNING */
-  cv::cvtColor(original, converted, CV_BGR2HSV);
+  cv::cvtColor(original, converted, cv::COLOR_BGR2HSV);
   std::cout<< "BGR: "<<original.at<cv::Vec3b>(0,0)<<"  HSV: "<<converted.at<cv::Vec3b>(0,0)<<std::endl;
 }
 

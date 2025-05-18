@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.08, 2016
 
-g++ -g -Wall -O2 -o cv2-filter2d.out cv2-filter2d.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-filter2d.out cv2-filter2d.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -44,8 +44,8 @@ int main(int argc, char**argv)
   std::cerr<<"camera opened"<<std::endl;
 
   // set resolution
-  // cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-  // cap.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
+  // cap.set(cv::CAP_PROP_FRAME_WIDTH, 320);
+  // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
 
   cv::Mat kernel(cv::Size(1,100),CV_32F);
   kernel= cv::Mat::ones(kernel.size(),CV_32F)/(float)(kernel.rows*kernel.cols);

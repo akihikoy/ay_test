@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.06, 2016
 
-g++ -g -Wall -O2 -o cv2-threshold.out cv2-threshold.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-threshold.out cv2-threshold.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -59,12 +59,12 @@ int main( int argc, char** argv )
   if(!cap.isOpened())  return -1;
 
   cap >> src;
-  cvtColor( src, src_gray, CV_BGR2GRAY );
+  cvtColor( src, src_gray, cv::COLOR_BGR2GRAY );
 
   /// Create a window to display results
-  namedWindow( window_name, CV_WINDOW_AUTOSIZE );
-  namedWindow( "camera", CV_WINDOW_AUTOSIZE );
-  namedWindow( "emphasized", CV_WINDOW_AUTOSIZE );
+  namedWindow( window_name, cv::WINDOW_AUTOSIZE );
+  namedWindow( "camera", cv::WINDOW_AUTOSIZE );
+  namedWindow( "emphasized", cv::WINDOW_AUTOSIZE );
 
   /// Create Trackbar to choose type of Threshold
   createTrackbar( trackbar_type,
@@ -79,7 +79,7 @@ int main( int argc, char** argv )
   while(true)
   {
     cap >> src;
-    cvtColor( src, src_gray, CV_BGR2GRAY );
+    cvtColor( src, src_gray, cv::COLOR_BGR2GRAY );
 
     /* 0: Binary
       1: Binary Inverted

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.14, 2021
 
-g++ -O2 -g -W -Wall -o ros_plane_seg2.out ros_plane_seg2.cpp  -I../include -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+g++ -O2 -g -W -Wall -o ros_plane_seg2.out ros_plane_seg2.cpp  -I../include -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 
 */
 //-------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ public:
       cv::Mat points= DepthImgToPoints<TImgDepth>(img_patch, d_scale_, step_);
       if(points.rows<3)  return cv::Mat();
 
-      cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
+      cv::PCA pca(points, cv::Mat(), cv::PCA::DATA_AS_ROW);
       cv::Mat normal= pca.eigenvectors.row(2);
       if(normal.at<double>(0,2)<0)  normal= -normal;
       if(pca.eigenvalues.at<double>(2) > th_plane_ * d_scale_)  return cv::Mat();
@@ -161,7 +161,7 @@ std::cerr<<points.rows<<" debug "<<img_patch.type()<<" "<<normal<<" pca.mean: "<
       cv::Mat ws= w1*f1 + (1.0-w1)*f2;
       double ws_norm= cv::norm(ws);
       if(ws_norm<1.0e-6)
-        CV_Error(CV_StsError, "TImgPatchFeatNormal: Computing WSum for normals of opposite directions.");
+        cv::error(cv::Error::StsError, "TImgPatchFeatNormal: Computing WSum for normals of opposite directions.",  __func__, __FILE__, __LINE__);
       return ws/ws_norm;
     }
 private:
@@ -257,7 +257,7 @@ struct TClusterPatchSet
           cv::Mat points= DepthImgToPoints<TImgDepth>(img(p.ROI), d_scale, step);
           if(points.rows<3)  continue;
 
-          cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
+          cv::PCA pca(points, cv::Mat(), cv::PCA::DATA_AS_ROW);
           p.Normal= pca.eigenvectors.row(2);
           p.Mean= pca.mean;
           p.Mean.at<double>(0,0)+= p.ROI.x;
@@ -314,7 +314,7 @@ public:
       cv::Mat ws= w1*f1 + (1.0-w1)*f2;
       double ws_norm= cv::norm(ws);
       if(ws_norm<1.0e-6)
-        CV_Error(CV_StsError, "TClusteringFeatNormal: Computing WSum for normals of opposite directions.");
+        cv::error(cv::Error::StsError, "TClusteringFeatNormal: Computing WSum for normals of opposite directions.",  __func__, __FILE__, __LINE__);
       return ws/ws_norm;
     }
 private:
@@ -485,7 +485,7 @@ void GetPlaneFromPatches(const TClusterPatchSet &patch_set, const std::vector<in
     }
   }//*/
 
-  cv::PCA pca(points, cv::Mat(), CV_PCA_DATA_AS_ROW);
+  cv::PCA pca(points, cv::Mat(), cv::PCA::DATA_AS_ROW);
   out_normal= pca.eigenvectors.row(2);
   out_center= pca.mean;
   if(out_normal.at<double>(0,2)<0)  out_normal= -out_normal;
@@ -520,7 +520,7 @@ cv::Mat DrawClusters(const cv::Mat &img, const TClusterPatchSet &patch_set, cons
 {
   cv::Mat img_viz(img*0.3);
   img_viz.convertTo(img_viz, CV_8U);
-  cv::cvtColor(img_viz, img_viz, CV_GRAY2BGR);
+  cv::cvtColor(img_viz, img_viz, cv::COLOR_GRAY2BGR);
 
   cv::Scalar col_set[]= {cv::Scalar(255,0,0),cv::Scalar(0,255,0),cv::Scalar(0,0,255),cv::Scalar(255,255,0),cv::Scalar(0,255,255),cv::Scalar(255,0,255)};
   if(disp_info)  std::cout<<"clusters:"<<std::endl;

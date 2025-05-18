@@ -8,7 +8,7 @@
 Very similar to simple_blob_tracker3.cpp
 but we use thresholding to detect black markers.
 
-g++ -g -Wall -O2 -o simple_blob_tracker3.out simple_blob_tracker3.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o simple_blob_tracker3.out simple_blob_tracker3.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 Run:
   $ ./simple_blob_tracker3.out
@@ -596,7 +596,7 @@ int main(int argc, char**argv)
 
     Rotate90N(frame,frame,n_rotate90);
 
-    // cv::cvtColor(frame, frame, CV_BGR2GRAY);
+    // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
     // cv::threshold(frame, frame, threshold_value1, 255, cv::THRESH_TRUNC);
     // frame= frame*(255/(threshold_value1+1));
     // cv::dilate(frame,frame,cv::Mat(),cv::Point(-1,-1), n_dilate1);
@@ -627,7 +627,7 @@ int main(int argc, char**argv)
         cap >> frame; // get a new frame from camera
         Rotate90N(frame,frame,n_rotate90);
 
-        // cv::cvtColor(frame, frame, CV_BGR2GRAY);
+        // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
         // cv::threshold(frame, frame, threshold_value1, 255, cv::THRESH_TRUNC);
         // frame= frame*(255/(threshold_value1+1));
         // cv::dilate(frame,frame,cv::Mat(),cv::Point(-1,-1), n_dilate1);

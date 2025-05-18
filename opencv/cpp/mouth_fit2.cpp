@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jun.27, 2016
 
-g++ -g -Wall -O2 -o mouth_fit2.out mouth_fit2.cpp cma_es/cmaes.c cma_es/boundary_transformation.c -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lm -lopencv_videoio
+g++ -g -Wall -O2 -o mouth_fit2.out mouth_fit2.cpp cma_es/cmaes.c cma_es/boundary_transformation.c -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lm -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -219,7 +219,7 @@ double FObjEdgePoints(const cv::Mat &edges, const cv::Mat &l_points3d, const dou
 
   return -EvaluateEdgePoints<float>(edges, points2d);
   // std::cerr<<"eval: "<<eval<<endl;
-  // cv::cvtColor(edges, edges, CV_GRAY2BGR);
+  // cv::cvtColor(edges, edges, cv::COLOR_GRAY2BGR);
   // DrawPoints<float>(edges,points2d,cv::Scalar(255,255,0));
 }
 //-------------------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ double FObjEdgePoints(const cv::Mat &edges, const cv::Mat &l_points3d, const dou
 void FitEdgePoints(const cv::Mat &frame, const cv::Mat &l_points3d, double *pose, const cv::Mat &P)
 {
   cv::Mat frame_gray, edges;
-  cv::cvtColor(frame, frame_gray, CV_BGR2GRAY);
+  cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
   cv::blur(frame_gray, frame_gray, cv::Size(3,3));
   // cv::Canny(frame_gray, edges, /*lowThreshold=*/80, 240, /*kernel_size=*/3);
   // cv::blur(edges, edges, cv::Size(9,9));
@@ -273,7 +273,7 @@ void FitEdgePoints(const cv::Mat &frame, const cv::Mat &l_points3d, double *pose
   cv::Mat points3d, points2d;
   TransformPoints(l_points3d, pose, points3d);
   ProjectPointsToRectifiedImg(points3d, P, points2d);
-  cv::cvtColor(edges, edges, CV_GRAY2BGR);
+  cv::cvtColor(edges, edges, cv::COLOR_GRAY2BGR);
   DrawPoints<float>(edges,points2d,cv::Scalar(255,255,0));
   cv::imshow("edges", edges);
 }

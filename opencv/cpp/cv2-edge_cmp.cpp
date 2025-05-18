@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.16, 2020
 
-g++ -g -Wall -O2 -o cv2-edge_cmp.out cv2-edge_cmp.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-edge_cmp.out cv2-edge_cmp.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -33,7 +33,7 @@ cv::Mat GetCanny(const cv::Mat &src,
   else
     gray= src;
   if(!is_depth)
-    cv::cvtColor(gray, gray, CV_BGR2GRAY);
+    cv::cvtColor(gray, gray, cv::COLOR_BGR2GRAY);
   else
   {
     gray= depth_scale*gray;
@@ -58,7 +58,7 @@ cv::Mat GetLaplacian(const cv::Mat &src,
     cv::GaussianBlur(src, gray, cv::Size(blur_size,blur_size), blur_std, blur_std);
   else
     gray= src;
-  if(!is_depth)  cv::cvtColor(gray, gray, CV_BGR2GRAY);
+  if(!is_depth)  cv::cvtColor(gray, gray, cv::COLOR_BGR2GRAY);
   cv::Laplacian(gray, edges, CV_16S, ksize, scale, delta, cv::BORDER_DEFAULT);
   cv::convertScaleAbs(edges, edges);
   return edges;
@@ -79,7 +79,7 @@ cv::Mat GetSobel(const cv::Mat &src,
     cv::GaussianBlur(src, gray, cv::Size(blur_size,blur_size), blur_std, blur_std);
   else
     gray= src;
-  if(!is_depth)  cv::cvtColor(gray, gray, CV_BGR2GRAY);
+  if(!is_depth)  cv::cvtColor(gray, gray, cv::COLOR_BGR2GRAY);
   cv::Mat grad_x, grad_y;
   // Gradient X
   // if(ksize==3)

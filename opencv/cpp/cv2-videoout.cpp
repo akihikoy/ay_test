@@ -1,4 +1,4 @@
-// g++ -g -Wall -O2 -o cv2-videoout.out cv2-videoout.cpp -lopencv_core -lopencv_highgui -lopencv_videoio
+// g++ -g -Wall -O2 -o cv2-videoout.out cv2-videoout.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 // #define OPENCV_LEGACY
 #ifdef OPENCV_LEGACY
@@ -22,9 +22,9 @@ inline double GetCurrentTime(void)
 
 bool OpenVideoOut(cv::VideoWriter &vout, const char *file_name, int fps, const cv::Size &size)
 {
-  // int codec= CV_FOURCC('P','I','M','1');  // mpeg1video
-  // int codec= CV_FOURCC('X','2','6','4');  // x264?
-  int codec= CV_FOURCC('m','p','4','v');  // mpeg4 (Simple Profile)
+  // int codec= cv::VideoWriter::fourcc('P','I','M','1');  // mpeg1video
+  // int codec= cv::VideoWriter::fourcc('X','2','6','4');  // x264?
+  int codec= cv::VideoWriter::fourcc('m','p','4','v');  // mpeg4 (Simple Profile)
   vout.open(file_name, codec, fps, size, true);
 
   if (!vout.isOpened())

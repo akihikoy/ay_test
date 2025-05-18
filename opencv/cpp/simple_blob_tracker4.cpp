@@ -19,7 +19,7 @@ We apply blob detection to the ROI per blob, and update the blob position.
 If multiple blobs or no blob are detected, it is considered as tracking failure.
 This approach enables more robustness.
 
-g++ -g -Wall -O2 -o simple_blob_tracker4.out simple_blob_tracker4.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o simple_blob_tracker4.out simple_blob_tracker4.cpp -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 Run:
   $ ./simple_blob_tracker4.out

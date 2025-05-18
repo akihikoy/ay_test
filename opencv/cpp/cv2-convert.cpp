@@ -8,7 +8,7 @@
   #include <opencv2/imgproc/imgproc.hpp>
 #endif
 #include <iostream>
-// g++ -I -Wall cv2-convert.cpp -o cv2-convert -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+// g++ -I -Wall cv2-convert.cpp -o cv2-convert.out -I/usr/include/opencv2 -lopencv_core -lopencv_ml -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 
 #define print(var) std::cout<<#var"= "<<(var)<<std::endl
 
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
   {
     cap >> frame; // get a new frame from camera
     frame.convertTo(converted,converted.type());
-    cv::cvtColor(frame,gray,CV_BGR2GRAY);
+    cv::cvtColor(frame,gray,cv::COLOR_BGR2GRAY);
     cv::imshow("camera", frame);
     cv::imshow("converted", converted/255.0);
     cv::imshow("gray", gray);
@@ -56,8 +56,8 @@ int main(int argc, char **argv)
   IplImage *frame = 0;
   IplImage *converted = 0;
   capture= cvCreateCameraCapture (0);
-  cvNamedWindow ("camera", CV_WINDOW_AUTOSIZE);
-  cvNamedWindow ("converted", CV_WINDOW_AUTOSIZE);
+  cvNamedWindow ("camera", cv::WINDOW_AUTOSIZE);
+  cvNamedWindow ("converted", cv::WINDOW_AUTOSIZE);
 
   for(;;)
   {

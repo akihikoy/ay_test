@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jun.27, 2016
 
-g++ -g -Wall -O2 -o cv2-mat5.out cv2-mat5.cpp -lopencv_core
+g++ -g -Wall -O2 -o cv2-mat5.out cv2-mat5.cpp -lopencv_core -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

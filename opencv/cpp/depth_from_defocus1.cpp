@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.08, 2017
 
-g++ -g -Wall -O2 -o depth_from_defocus1.out depth_from_defocus1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o depth_from_defocus1.out depth_from_defocus1.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
   {
     cv::Mat frame, frame_gray, frame_edge, frame_blur1, frame_blur2;
     cap >> frame;
-    cv::cvtColor(frame, frame_gray, CV_BGR2GRAY);
+    cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
 
     float std= 1.0;
     float std1= std;
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 
     // cv::threshold(sparse_dmap2, sparse_dmap2, dthreshold/500.0, 255.0, cv::THRESH_BINARY);
 
-    // cv::normalize(sparse_dmap2, sparse_dmap2, 0, 255, CV_MINMAX, CV_8U);
+    // cv::normalize(sparse_dmap2, sparse_dmap2, 0, 255, cv::NORM_MINMAX, CV_8U);
 
     imshow("cam", frame_gray);
     imshow("test", sparse_dmap2);

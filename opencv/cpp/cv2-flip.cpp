@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.01, 2016
 
-g++ -g -Wall -O2 -o cv2-flip.out cv2-flip.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-flip.out cv2-flip.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

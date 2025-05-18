@@ -5,7 +5,7 @@
     \version 0.1
     \date    Oct.25, 2022
 
-$ g++ -O2 -g -W -Wall -o ros_rs_edge_contour.out ros_rs_edge_contour.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+$ g++ -O2 -g -W -Wall -o ros_rs_edge_contour.out ros_rs_edge_contour.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -80,7 +80,7 @@ void CVCallback(const cv::Mat &frame)
   else if(edge_kind==2)
   {
     cv::Mat gray;
-    cv::cvtColor(sobel, gray, CV_BGR2GRAY);
+    cv::cvtColor(sobel, gray, cv::COLOR_BGR2GRAY);
     cv::threshold(gray,edge_binary,edge_threshold,255,cv::THRESH_BINARY);
   }
 
@@ -91,18 +91,18 @@ void CVCallback(const cv::Mat &frame)
   {
     img_disp= frame*depth_scale;
     img_disp.convertTo(img_disp, CV_8U);
-    cv::cvtColor(img_disp, img_disp, CV_GRAY2BGR);
+    cv::cvtColor(img_disp, img_disp, cv::COLOR_GRAY2BGR);
   }
 
   std::vector<std::vector<cv::Point> > contours;
-  cv::findContours(edge_binary, contours, /*CV_RETR_EXTERNAL*/CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(edge_binary, contours, /*cv::RETR_EXTERNAL*/cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
   cv::Mat edge_contour,edge_bin_col;
   edge_contour= dim_image*img_disp;
   cv::Mat edge_bin_col_decom[3]= {128.0*edge_binary,128.0*edge_binary,128.0*edge_binary+128.0*edge_binary};
   cv::merge(edge_bin_col_decom,3,edge_bin_col);
   edge_contour+= dim_edge_bin*edge_bin_col;
   for(int ic(0),ic_end(contours.size()); ic<ic_end; ++ic)
-    cv::drawContours(edge_contour, contours, ic, CV_RGB(255,0,255), /*thickness=*/1, /*linetype=*/8);
+    cv::drawContours(edge_contour, contours, ic, cv::Scalar(255,0,255), /*thickness=*/1, /*linetype=*/8);
 
   cv::imshow("input", img_disp);
 

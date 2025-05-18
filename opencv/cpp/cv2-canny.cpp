@@ -7,7 +7,7 @@
 
 http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
 
-g++ -g -Wall -O2 -o cv2-canny.out cv2-canny.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-canny.out cv2-canny.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -70,7 +70,7 @@ int main( int argc, char** argv )
   if(!cap.Open(((argc>1)?(argv[1]):"0"), /*width=*/((argc>2)?atoi(argv[2]):0), /*height=*/((argc>3)?atoi(argv[3]):0)))  return -1;
 
   /// Create a window
-  namedWindow( window_name, CV_WINDOW_AUTOSIZE );
+  namedWindow( window_name, cv::WINDOW_AUTOSIZE );
 
   /// Create a Trackbar for user to enter threshold
   createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );
@@ -83,7 +83,7 @@ int main( int argc, char** argv )
     dst.create( src.size(), src.type() );
 
     /// Convert the image to grayscale
-    cvtColor( src, src_gray, CV_BGR2GRAY );
+    cvtColor( src, src_gray, cv::COLOR_BGR2GRAY );
 
     /// Show the image
     CannyThreshold(0, 0);

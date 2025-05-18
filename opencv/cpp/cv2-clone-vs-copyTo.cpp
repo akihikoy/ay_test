@@ -5,7 +5,7 @@
     \version 0.1
     \date    Mar.24, 2023
 
-g++ -g -Wall -O2 -o cv2-clone-vs-copyTo.out cv2-clone-vs-copyTo.cpp -lopencv_core
+g++ -g -Wall -O2 -o cv2-clone-vs-copyTo.out cv2-clone-vs-copyTo.cpp -lopencv_core -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

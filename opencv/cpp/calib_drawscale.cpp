@@ -5,7 +5,7 @@
     \version 0.1
     \date    Apr.10, 2020
 
-g++ -g -Wall -O2 -o calib_drawscale.out calib_drawscale.cpp -lopencv_core -lopencv_imgproc -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs
+g++ -g -Wall -O2 -o calib_drawscale.out calib_drawscale.cpp -lopencv_core -lopencv_imgproc -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -95,7 +95,7 @@ void DrawScale(cv::Mat &img, const cv::Mat &P,
   {
     std::stringstream ss;
     ss<<label0+label_step*i;
-    cv::putText(img, ss.str(), pointat(tics_points2d,i)+cv::Point(-10,-2*len_tics), cv::FONT_HERSHEY_SIMPLEX, 0.8, col, 1, CV_AA);
+    cv::putText(img, ss.str(), pointat(tics_points2d,i)+cv::Point(-10,-2*len_tics), cv::FONT_HERSHEY_SIMPLEX, 0.8, col, 1, cv::LINE_AA);
   }
   #undef pointat
 }
@@ -159,10 +159,10 @@ int main(int argc, char**argv)
   if(record!="")
   {
     std::string file_name= record;
-    // int codec= CV_FOURCC('P','I','M','1');  // mpeg1video
-    // int codec= CV_FOURCC('X','2','6','4');  // x264?
-    int codec= CV_FOURCC('m','p','4','v');  // mpeg4 (Simple Profile)
-    // int codec= CV_FOURCC('X','V','I','D');
+    // int codec= cv::VideoWriter::fourcc('P','I','M','1');  // mpeg1video
+    // int codec= cv::VideoWriter::fourcc('X','2','6','4');  // x264?
+    int codec= cv::VideoWriter::fourcc('m','p','4','v');  // mpeg4 (Simple Profile)
+    // int codec= cv::VideoWriter::fourcc('X','V','I','D');
     vout.open(file_name, codec, record_fps, cv::Size(width, height), true);
     if (!vout.isOpened())
     {

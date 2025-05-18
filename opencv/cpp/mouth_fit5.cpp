@@ -7,7 +7,7 @@
 
 Added EvaluateStereoMatching into the criteria.
 
-g++ -g -Wall -O2 -o mouth_fit5.out mouth_fit5.cpp cma_es/cmaes.c cma_es/boundary_transformation.c -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lm -lopencv_videoio
+g++ -g -Wall -O2 -o mouth_fit5.out mouth_fit5.cpp cma_es/cmaes.c cma_es/boundary_transformation.c -I/usr/include/eigen3 -lopencv_core -lopencv_calib3d -lopencv_imgproc -lopencv_highgui -lm -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

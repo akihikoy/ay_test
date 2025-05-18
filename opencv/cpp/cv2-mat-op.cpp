@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jan.13, 2021
 
-g++ -g -Wall -O2 -o cv2-mat-op.out cv2-mat-op.cpp -lopencv_core && ./cv2-mat-op.out
+g++ -g -Wall -O2 -o cv2-mat-op.out cv2-mat-op.cpp -lopencv_core -I/usr/include/opencv4 && ./cv2-mat-op.out
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

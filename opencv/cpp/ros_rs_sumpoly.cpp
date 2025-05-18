@@ -5,7 +5,7 @@
     \version 0.1
     \date    Feb.22, 2023
 
-$ g++ -O2 -g -W -Wall -o ros_rs_sumpoly.out ros_rs_sumpoly.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib
+$ g++ -O2 -g -W -Wall -o ros_rs_sumpoly.out ros_rs_sumpoly.cpp -I/opt/ros/$ROS_DISTR/include -pthread -llog4cxx -lpthread -L/opt/ros/$ROS_DISTR/lib -rdynamic -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lcv_bridge -lopencv_highgui -lopencv_imgproc -lopencv_core -lopencv_videoio -Wl,-rpath,/opt/ros/$ROS_DISTR/lib -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -258,14 +258,14 @@ void CVCallback(const cv::Mat &frame_depth, const cv::Mat &frame_rgb)
     std::cout<<"  avr_normal:"<<avr_normal<<" num_pixels:"<<num_pixels<<std::endl;
   }
 
-  cv::polylines(frame_rgb, polygon, /*isClosed=*/true, CV_RGB(255,0,255), 2);
+  cv::polylines(frame_rgb, polygon, /*isClosed=*/true, cv::Scalar(255,0,255), 2);
   cv::polylines(frame_depth, polygon, /*isClosed=*/true, 800, 2);
   cv::polylines(normal_img, polygon, /*isClosed=*/true, cv::Vec3f(1,0,1), 2);
   cv::polylines(cloud_img, polygon, /*isClosed=*/true, cv::Vec3f(1,0,1), 2);
 
   cv::Mat img_depth_disp(frame_depth*depth_scale);
   img_depth_disp.convertTo(img_depth_disp, CV_8U);
-  cv::cvtColor(img_depth_disp, img_depth_disp, CV_GRAY2BGR);
+  cv::cvtColor(img_depth_disp, img_depth_disp, cv::COLOR_GRAY2BGR);
   cv::imshow("input_depth", img_depth_disp);
 
   cv::imshow("input_rgb", frame_rgb);

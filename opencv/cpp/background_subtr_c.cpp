@@ -6,7 +6,7 @@
     \version 0.1
     \date    Feb.23, 2017
 
-g++ -I -Wall background_subtr_c.cpp -o background_subtr_c.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_highgui
+g++ -I -Wall background_subtr_c.cpp -o background_subtr_c.out -lopencv_core -lopencv_ml -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_highgui -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

@@ -5,7 +5,7 @@
     \version 0.1
     \date    Jul.17, 2015
 
-    g++ -g -Wall -O2 -o cv2-videoout2.out cv2-videoout2.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc
+    g++ -g -Wall -O2 -o cv2-videoout2.out cv2-videoout2.cpp -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>

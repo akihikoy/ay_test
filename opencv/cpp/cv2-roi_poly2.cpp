@@ -5,7 +5,7 @@
     \version 0.1
     \date    May.02, 2016
 
-g++ -g -Wall -O2 -o cv2-roi_poly2.out cv2-roi_poly2.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-roi_poly2.out cv2-roi_poly2.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -44,8 +44,8 @@ int main(int argc, char**argv)
   std::cerr<<"camera opened"<<std::endl;
 
   // set resolution
-  cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-  cap.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
+  cap.set(cv::CAP_PROP_FRAME_WIDTH, 320);
+  cap.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
 
   cv::RNG rng(cv::getTickCount());
   cv::Mat points(6,2,CV_32S), hull;

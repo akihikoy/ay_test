@@ -7,7 +7,7 @@
 
 http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/sobel_derivatives/sobel_derivatives.html
 
-g++ -g -Wall -O2 -o cv2-sobel.out cv2-sobel.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -g -Wall -O2 -o cv2-sobel.out cv2-sobel.cpp -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -51,10 +51,10 @@ int main( int argc, char** argv )
     cv::blur(src, src, cv::Size(3,3));
 
     /// Convert it to gray
-    cvtColor( src, src_gray, CV_BGR2GRAY );
+    cvtColor( src, src_gray, cv::COLOR_BGR2GRAY );
 
     /// Create window
-    namedWindow( window_name, CV_WINDOW_AUTOSIZE );
+    namedWindow( window_name, cv::WINDOW_AUTOSIZE );
 
     /// Generate grad_x and grad_y
     Mat grad_x, grad_y;

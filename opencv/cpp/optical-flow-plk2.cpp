@@ -5,7 +5,7 @@
     \version 0.1
     \date    Dec.23, 2020
 
-g++ -I -Wall -O2 optical-flow-plk2.cpp -o optical-flow-plk2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio
+g++ -I -Wall -O2 optical-flow-plk2.cpp -o optical-flow-plk2.out -lopencv_core -lopencv_video -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
@@ -44,7 +44,7 @@ int main(int argc, char**argv)
   CreateTrackbar<float>("v_min", window, &v_min, 0.0f, 100.0f, 0.1f,  &TrackbarPrintOnTrack);
   CreateTrackbar<float>("v_max", window, &v_max, 0.0f, 1000.0f, 0.01f,  &TrackbarPrintOnTrack);
 
-  cv::TermCriteria term_criteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03);
+  cv::TermCriteria term_criteria(cv::TermCriteria::MAX_ITER|cv::TermCriteria::EPS,20,0.03);
   int max_feat_count(500);
   double quality_level(0.001);
   double min_distance(10);
@@ -80,7 +80,7 @@ int main(int argc, char**argv)
       else break;
     }
     int N=100;
-    cv::cvtColor(frame_in,frame,CV_BGR2GRAY);
+    cv::cvtColor(frame_in,frame,cv::COLOR_BGR2GRAY);
     frame.copyTo(history[f]);
     if(f>N)  history.erase(f-N-1);
     frame_old= history[((f-ni)>=0?(f-ni):0)];
