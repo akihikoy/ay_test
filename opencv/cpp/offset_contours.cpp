@@ -22,7 +22,7 @@ namespace loco_rabbits
 {
 
 // Calculate normal for OffsetContours.
-cv::Point2f CalculateNormal(const cv::Point &p1, const cv::Point &p2)
+inline cv::Point2f CalculateNormal(const cv::Point &p1, const cv::Point &p2)
 {
   float dx = p2.x - p1.x;
   float dy = p2.y - p1.y;
@@ -41,30 +41,41 @@ void OffsetContours(
 {
   contours_out.clear();
 
-  for(const auto& contour : contours_in)
+  for(const auto& contour_in : contours_in)
   {
-    std::vector<cv::Point> offsetContour;
-    int n= contour.size();
+    std::vector<cv::Point> contour_out;
+    int n= contour_in.size();
+    if(n<4)
+    {
+      contours_out.push_back(contour_in);
+      continue;
+    }
 
     for(int i(0); i < n; ++i)
     {
       // Computing a normal from surrounding points.
-      cv::Point p1= contour[i];
-      cv::Point p2= contour[(i + 1) % n];
-      cv::Point p0= contour[(i - 1 + n) % n];
+      cv::Point p1= contour_in[i];
+      cv::Point p2= contour_in[(i + 1) % n];
+      cv::Point p0= contour_in[(i - 1 + n) % n];
 
       cv::Point2f normal1= CalculateNormal(p0, p1);
       cv::Point2f normal2= CalculateNormal(p1, p2);
       cv::Point2f normal = (normal1 + normal2);
       float length= std::sqrt(normal.x * normal.x + normal.y * normal.y);
 
-      normal*= offset / length;
-
-      // Offset a point.
-      cv::Point newPoint(static_cast<int>(p1.x + normal.x), static_cast<int>(p1.y + normal.y));
-      offsetContour.push_back(newPoint);
+      if(length>1.0e-3)
+      {
+        normal*= offset / length;
+        // Offset a point.
+        cv::Point p_new(static_cast<int>(p1.x + normal.x), static_cast<int>(p1.y + normal.y));
+        contour_out.push_back(p_new);
+      }
+      else
+      {
+        contour_out.push_back(p1);
+      }
     }
-    contours_out.push_back(offsetContour);
+    contours_out.push_back(contour_out);
   }
 }
 //------------------------------------------------------------------------------------------
