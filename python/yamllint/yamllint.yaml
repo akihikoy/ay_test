@@ -1,0 +1,13 @@
+extends: default
+
+rules:
+  line-length: disable
+  empty-lines: disable
+  comments: disable
+  comments-indentation: disable
+  colons: disable
+  commas: disable
+  brackets: disable
+  indentation: disable
+  trailing-spaces: disable
+  document-start: disable
