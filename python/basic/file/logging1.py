@@ -5,13 +5,16 @@
 #\version 0.1
 #\date    Jun.23, 2025
 import logging
+import os
 from kbhit2 import *
 from time_str2 import TimeStr
 import datetime, time, random
 
 def Main():
-  log_filename= f'''/tmp/log_{TimeStr('normal_ms')}.txt'''
-  logger= logging.getLogger('pp_repeat')
+  log_dir= '/tmp/log/'
+  os.makedirs(log_dir, exist_ok=True)
+  log_filename= os.path.join(log_dir, f'''log_{TimeStr('normal_ms')}.txt''')
+  logger= logging.getLogger(__file__)
   logger.setLevel(logging.INFO)
 
   if logger.hasHandlers():
