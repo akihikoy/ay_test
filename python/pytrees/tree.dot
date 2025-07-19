@@ -1,0 +1,21 @@
+digraph pastafarianism {
+ordering=out;
+graph [fontname="times-roman"];
+node [fontname="times-roman"];
+edge [fontname="times-roman"];
+Root [fillcolor=cyan, fontcolor=black, fontsize=9, label=Root, shape=octagon, style=filled];
+BatteryCheck [fillcolor=orange, fontcolor=black, fontsize=9, label=BatteryCheck, shape=box, style=filled];
+Root -> BatteryCheck;
+BatteryLow [fillcolor=gray, fontcolor=black, fontsize=9, label=BatteryLow, shape=ellipse, style=filled];
+BatteryCheck -> BatteryLow;
+Recharge [fillcolor=gray, fontcolor=black, fontsize=9, label=Recharge, shape=ellipse, style=filled];
+BatteryCheck -> Recharge;
+SafetyCheck [fillcolor=orange, fontcolor=black, fontsize=9, label=SafetyCheck, shape=box, style=filled];
+Root -> SafetyCheck;
+DetectPerson [fillcolor=gray, fontcolor=black, fontsize=9, label=DetectPerson, shape=ellipse, style=filled];
+SafetyCheck -> DetectPerson;
+Stop [fillcolor=gray, fontcolor=black, fontsize=9, label=Stop, shape=ellipse, style=filled];
+SafetyCheck -> Stop;
+PatrolRooms [fillcolor=gray, fontcolor=black, fontsize=9, label=PatrolRooms, shape=ellipse, style=filled];
+Root -> PatrolRooms;
+}
