@@ -16,6 +16,12 @@ DetectPerson [fillcolor=gray, fontcolor=black, fontsize=9, label=DetectPerson, s
 SafetyCheck -> DetectPerson;
 Stop [fillcolor=gray, fontcolor=black, fontsize=9, label=Stop, shape=ellipse, style=filled];
 SafetyCheck -> Stop;
+OtherRobotCheck [fillcolor=orange, fontcolor=black, fontsize=9, label=OtherRobotCheck, shape=box, style=filled];
+Root -> OtherRobotCheck;
+DetectOtherRobot [fillcolor=gray, fontcolor=black, fontsize=9, label=DetectOtherRobot, shape=ellipse, style=filled];
+OtherRobotCheck -> DetectOtherRobot;
+Yield [fillcolor=gray, fontcolor=black, fontsize=9, label=Yield, shape=ellipse, style=filled];
+OtherRobotCheck -> Yield;
 PatrolRooms [fillcolor=gray, fontcolor=black, fontsize=9, label=PatrolRooms, shape=ellipse, style=filled];
 Root -> PatrolRooms;
 }

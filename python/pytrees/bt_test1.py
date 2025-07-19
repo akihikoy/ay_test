@@ -11,6 +11,7 @@ import py_trees
 # Blackboard keys
 BATTERY_LEVEL_KEY = "battery_level"
 PERSON_NEAR_KEY = "person_near"
+OTHERROBOT_NEAR_KEY = "otherrobot_near"
 ROOM_LIST_KEY = "rooms"
 CURRENT_ROOM_KEY = "current_room"
 
@@ -27,6 +28,8 @@ class UpdateSensors(py_trees.behaviour.Behaviour):
     bb.set(BATTERY_LEVEL_KEY, new_level)
     # randomly decide if a person is near
     bb.set(PERSON_NEAR_KEY, random.random() < 0.2)
+    # randomly decide if another robot is near
+    bb.set(OTHERROBOT_NEAR_KEY, random.random() < 0.2)
     return py_trees.common.Status.SUCCESS
 
 class BatteryLow(py_trees.behaviour.Behaviour):
@@ -65,6 +68,21 @@ class SafeStop(py_trees.behaviour.Behaviour):
     self.feedback_message = "Person detected, stopping"
     return py_trees.common.Status.SUCCESS
 
+class OtherRobotNear(py_trees.behaviour.Behaviour):
+  """Check if another robot is near the robot."""
+  def __init__(self, name="OtherRobotNear"):
+    super().__init__(name)
+  def update(self):
+    return py_trees.common.Status.SUCCESS if py_trees.blackboard.Blackboard().get(OTHERROBOT_NEAR_KEY) else py_trees.common.Status.FAILURE
+
+class YieldToRobot(py_trees.behaviour.Behaviour):
+  """Take an action to yield to the robot when another robot is near."""
+  def __init__(self, name="YieldToRobot"):
+    super().__init__(name)
+  def update(self):
+    self.feedback_message = "Another robot detected, yielding"
+    return py_trees.common.Status.SUCCESS
+
 class PatrolRooms(py_trees.behaviour.Behaviour):
   """Move to the next room in the list."""
   def __init__(self, name="PatrolRooms"):
@@ -92,10 +110,13 @@ def create_tree():
   # Safety subtree
   safety_sequence = py_trees.composites.Sequence(name="SafetyCheck", memory=False)
   safety_sequence.add_children([PersonNear(name="DetectPerson"), SafeStop(name="Stop")])
+  # Yield subtree
+  yield_sequence = py_trees.composites.Sequence(name="OtherRobotCheck", memory=False)
+  yield_sequence.add_children([OtherRobotNear(name="DetectOtherRobot"), YieldToRobot(name="Yield")])
   # Patrol subtree
   patrol = PatrolRooms(name="PatrolRooms")
   # Add subtrees in priority order
-  root.add_children([battery_sequence, safety_sequence, patrol])
+  root.add_children([battery_sequence, safety_sequence, yield_sequence, patrol])
   # Create the behaviour tree and register a pre-tick sensor updater
   tree = py_trees.trees.BehaviourTree(root)
   updater = UpdateSensors()
