@@ -35,6 +35,9 @@
 #\version 0.11
 #\date    Mar.21, 2025
 #         Added XW540-T260, XW430-T333.
+#\version 0.11
+#\date    Aug.02, 2025
+#         Added XH430-W350.
 
 #cf. DynamixelSDK/python/tests/protocol2_0/read_write.py
 #DynamixelSDK: https://github.com/ROBOTIS-GIT/DynamixelSDK
@@ -239,7 +242,7 @@ DxlPortHandler= TDynamixelPortHandler.new()
 class TDynamixel1(object):
   def __init__(self, type, dev='/dev/ttyUSB0'):
     # For Dynamixel XM430-W350
-    if type in ('XM430-W350','XH430-V350','XH540-W270','MX-64AR','XD540-T270', 'XW540-T260', 'XW430-T333'):
+    if type in ('XM430-W350','XH430-V350','XH430-W350','XH540-W270','MX-64AR','XD540-T270', 'XW540-T260', 'XW430-T333'):
       #ADDR[NAME]=(ADDRESS,SIZE)
       self.ADDR={
         'MODEL_NUMBER'        : (0,2),
@@ -493,6 +496,7 @@ class TDynamixel1(object):
       self.MAX_POSITION = 251173
     if type=='XM430-W350':    self.MAX_CURRENT = 1193   # == Current Limit(38)
     elif type=='XH430-V350':  self.MAX_CURRENT = 689   # == Current Limit(38)
+    elif type=='XH430-W350':  self.MAX_CURRENT = 648   # == Current Limit(38)
     elif type in ('XH540-W270','XD540-T270','XW540-T260','XW430-T333'):  self.MAX_CURRENT = 2047   # == Current Limit(38)
     elif type=='MX-64AR':     self.MAX_CURRENT = 1941   # == Current Limit(38)
     elif type=='MX-12W':      self.MAX_CURRENT = None
@@ -525,6 +529,9 @@ class TDynamixel1(object):
       self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
     elif type=='XH430-V350':
       self.CURRENT_UNIT= 1.34
+      self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
+    elif type=='XH430-W350':
+      self.CURRENT_UNIT= 2.69
       self.VELOCITY_UNIT= 0.229*(2.0*math.pi)/60.0
     elif type in ('XH540-W270','XD540-T270','XW540-T260','XW430-T333'):
       self.CURRENT_UNIT= 2.69
