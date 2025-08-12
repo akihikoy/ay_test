@@ -3,12 +3,6 @@
 #NOTE: Run before this script: rosrun ay_util fix_usb_latency.sh
 #NOTE: Run before this script: ../fix_usb_latency.sh
 
-'''
-Keyboard interface:
-  'q':  Quit.
-  'd','a','w','s': Right turn, left turn, up, down.
-  'C','B': Move to Center (of rotation), Base (height).
-'''
 
 from dxl_util import *
 from _config import *
