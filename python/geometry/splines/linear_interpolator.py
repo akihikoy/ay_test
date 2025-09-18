@@ -6,7 +6,9 @@
 #\date    Sep.18, 2025
 from cubic_hermite_spline import Mod
 
-# Linear interpolator class with the same interface as TCubicHermiteSpline.
+#Generate a linear interpolator from a list of key points.
+#Key points: [[t0,x0],[t1,x1],[t2,x2],...].
+#This class has the same interface as TCubicHermiteSpline.
 class TLinearInterpolator:
   class TKeyPoint:
     T= 0.0  #Input
