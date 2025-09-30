@@ -51,6 +51,10 @@ while True:
   if c is not None:
     if c=='q':  break
     elif c in ('z','x','c','v'):  mov= {'z':-d[1],'x':-d[0],'c':d[0],'v':d[1]}[c]
+    elif c=='d':
+      dxl.DisableTorque()
+    elif c=='e':
+      dxl.EnableTorque()
     elif c=='r':
       dxl.Reboot();
       time.sleep(0.1);
@@ -63,11 +67,8 @@ while True:
     trg= dxl.Position()+mov
     print(c,mov,trg)
     dxl.MoveTo(int(trg), blocking=False)
-    time.sleep(0.002)
-    print('Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature()))
-  else:
-    #time.sleep(0.0025)
-    pass
+  time.sleep(0.002)
+  print('Pos: {0} \t Vel: {1} \t Curr: {2} \t PWM: {3} \t TEMP: {4}'.format(dxl.Position(),dxl.Velocity(),dxl.Current(),dxl.PWM(),dxl.Temperature()))
 
 is_running[0]= False
 t1.join()
