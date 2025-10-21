@@ -49,23 +49,23 @@ if __name__=='__main__':
     To2d(Gen3d_13()),
     ]
 
-  polygon= np.random.choice(polygons)
-
-  fig= plt.figure()
-  markers= ['.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
-  ax= fig.add_subplot(1,1,1)
-  def plotpoly(poly, **kwargs):
-    poly= list(poly)
-    poly= poly+[poly[0]]
-    return ax.plot(np.array(poly)[:,0], np.array(poly)[:,1], **kwargs)
-  plotpoly(polygon, color='blue',  label='polygon')
-  for method in ('Mean','Median','MinAreaRect','PCA','CoM'):
-    t0= time.time()
-    center= eval('PolygonCenter_{}(polygon)'.format(method))
-    print('Time: {}: {} ms'.format(method,(time.time()-t0)*1e3))
-    ax.scatter(*center, label=method, marker=markers[sum(ord(s) for s in method)%len(markers)], s=64)
-  ax.set_xlabel('x')
-  ax.set_ylabel('y')
-  ax.grid(True)
-  ax.legend(loc='lower left')
-  plt.show()
+  #polygon= polygons[np.random.choice(range(len(polygons)))]
+  for i, polygon in enumerate(polygons):
+    fig= plt.figure()
+    markers= ['.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
+    ax= fig.add_subplot(1,1,1)
+    def plotpoly(poly, **kwargs):
+      poly= list(poly)
+      poly= poly+[poly[0]]
+      return ax.plot(np.array(poly)[:,0], np.array(poly)[:,1], **kwargs)
+    plotpoly(polygon, color='blue',  label='polygon')
+    for method in ('Mean','Median','MinAreaRect','PCA','CoM'):
+      t0= time.time()
+      center= eval('PolygonCenter_{}(polygon)'.format(method))
+      print('Time: {}: {} ms'.format(method,(time.time()-t0)*1e3))
+      ax.scatter(*center, label=method, marker=markers[sum(ord(s) for s in method)%len(markers)], s=64)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.grid(True)
+    ax.legend(loc='lower left')
+    plt.show()
