@@ -7,19 +7,29 @@
 import numpy as np
 #from polygon_com_2d import PolygonCentroid2D
 from scipy.spatial import ConvexHull
+from polygon_min_area_rect import AngleModHalf
 
-# Oriented bounding box whose long edge is parallel to the ellipse major axis.
-#   Expect XY: (N,2) float-like.
-def BoundingBoxWithEllipseAxis(XY, trim_p=0.0, ridge=1e-3):
+'''
+Oriented bounding box whose long edge is parallel to the ellipse major axis.
+  XY: (N,2) float-like.
+  trim_p: Percentile trimming to remove the outliers (should be in [0.0, 100.0]).
+  ridge: Ridge parameter for numerical stability.
+  angle_mode: Angle normalization mode ('positive': [0,pi], 'symmetric': [-pi/2,pi/2], None).
+  Return: center, size, angle
+    center = (cx_w, cy_w)
+    size = (w, h): w >= h
+    angle : Angle direction is always the major (longer) axis direction. Normalized with angle_mode.
+'''
+def BoundingBoxWithEllipseAxis(XY, trim_p=0.0, ridge=1e-3, angle_mode='symmetric'):
   XY = np.asarray(XY, dtype=float)
   n = XY.shape[0]
   if n == 0:
-    raise ValueError("Empty input")
+    raise ValueError('BoundingBoxWithEllipseAxis: Empty input')
   if n == 1:
     cx, cy = float(XY[0,0]), float(XY[0,1])
     return (cx, cy), (0.0, 0.0), 0.0
 
-  # -- 1) Center (use simple mean for speed; polygon centroid is heavier) --
+  # -- 1) Center (use simple mean for speed) --
   centroid = XY.mean(axis=0)
   dx = (XY[:,0] - centroid[0]).reshape(-1, 1)
   dy = (XY[:,1] - centroid[1]).reshape(-1, 1)
@@ -43,18 +53,16 @@ def BoundingBoxWithEllipseAxis(XY, trim_p=0.0, ridge=1e-3):
       angle = 0.5 * np.arctan(2.0 * b_half / denom)
     else:
       angle = np.pi * 0.5 + 0.5 * np.arctan(2.0 * b_half / denom)
-  # Normalize to [-pi/2, pi/2)
-  angle = (angle + np.pi/2.0) % np.pi - np.pi/2.0
 
   # -- 5) Project points to the (angle)-aligned axes (no rotation matrix) --
   ca, sa = np.cos(angle), np.sin(angle)
   pdx = XY[:,0] - centroid[0]
   pdy = XY[:,1] - centroid[1]
-  proj_x = pdx * ca + pdy * sa        # along major axis
+  proj_x = pdx * ca + pdy * sa        # along "candidate " major axis
   proj_y = -pdx * sa + pdy * ca       # along minor axis
 
   # -- 6) Percentile trimming (optional) --
-  if trim_p > 0.0:
+  if 0.0 < trim_p < 100.0:
     x_lo = np.percentile(proj_x, trim_p)
     x_hi = np.percentile(proj_x, 100.0 - trim_p)
     y_lo = np.percentile(proj_y, trim_p)
@@ -71,6 +79,13 @@ def BoundingBoxWithEllipseAxis(XY, trim_p=0.0, ridge=1e-3):
   mid_y = 0.5 * (y_lo + y_hi)
   cx_w = float(centroid[0] + mid_x * ca - mid_y * sa)
   cy_w = float(centroid[1] + mid_x * sa + mid_y * ca)
+
+  # -- 8) Enforce "angle = long-edge direction"
+  if h > w:
+    angle = (angle + np.pi/2.0)
+    w, h = h, w
+
+  angle = AngleModHalf(angle, angle_mode)
 
   return (cx_w, cy_w), (w, h), float(angle)
 

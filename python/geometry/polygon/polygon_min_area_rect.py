@@ -8,17 +8,35 @@
 from cv2 import minAreaRect as cv2_minAreaRect
 import numpy as np
 
+#Convert angle (radian) to the range according to mode:
+#  mode='positive': [0,pi]
+#  mode='symmetric': [-pi/2,pi/2]
+#  mode='' or None: No modification.
+def AngleModHalf(q, mode='symmetric'):
+  if mode=='symmetric':
+    # Normalize to [-pi/2, pi/2)
+    return (q + np.pi/2.0) % np.pi - np.pi/2.0
+  elif mode=='positive':
+    # Normalize to [0, π)
+    return q % np.pi
+  elif mode in (None, ''):
+    return q
+  else:
+    raise Exception(f'AngleModHalf: Invalid mode={angle_mode}')
+
 #Get a rectangle of minimum area.
+#  angle_mode: Angle normalization mode ('positive': [0,pi], 'symmetric': [-pi/2,pi/2], None).
 #Return: center,size,angle.
-#  angle is in radian.
+#  angle is in radian.  angle direction is always the longer side direction.
 #  size[0] is always greater than size[1].
 #ref. https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points
-def MinAreaRect(points):
+def MinAreaRect(points, angle_mode='symmetric'):
   center,size,angle= cv2_minAreaRect(np.array(points,np.float32))
   angle*= np.pi/180.0
   if size[0]<size[1]:
     size= (size[1],size[0])
-    angle= angle+np.pi*0.5 if angle<0 else angle-np.pi*0.5
+    angle+= np.pi/2.0
+  angle= AngleModHalf(angle, angle_mode)
   return center,size,angle
 
 def Main():

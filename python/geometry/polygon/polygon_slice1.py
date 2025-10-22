@@ -174,7 +174,7 @@ if __name__=='__main__':
   ax= plt.gca()
   ax.set_aspect('equal', adjustable='box')
 
-  plt.title(f'BoundingBoxWithEllipseAxis')
+  plt.title(f'SlicePolygon (BoundingBoxWithEllipseAxis)')
   plt.xlabel('x')
   plt.ylabel('y')
   plt.grid(True)
