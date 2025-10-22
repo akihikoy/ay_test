@@ -17,11 +17,13 @@
 namespace trick
 {
 
-// Slice a polygon with vertical scanlines x=s along [xmin, xmax] with step.
-// For each scanline, return only the outer (min_y, max_y) intersections.
-// Notes:
-//  - Works as silhouette for convex polygons.
-//  - For concave polygons, min/max may bridge concavities.
+/*
+Slice a polygon for scanlines (x_range, step) along the x-axis.
+  - For each scanline, only the outer two intersections are returned.
+    - Works as silhouette for convex polygons.
+    - For concave polygons, min/max may bridge concavities.
+  NOTE: This function is instantiated only for CN = 2, 3.
+*/
 template<int CN>
 SliceResult SlicePolygon(
   const std::vector<cv::Vec<float,CN> > &contour_xy,
@@ -31,20 +33,20 @@ SliceResult SlicePolygon(
   float neighbor_eps)
 {
   const int N = static_cast<int>(contour_xy.size());
-  if (N < 3) {
+  if (N < 3)
     throw std::runtime_error("SlicePolygon: contour must have at least 3 points");
-  }
-  if (!(step > 0.0f)) {
+  if (!(step > 0.0f))
     throw std::runtime_error("SlicePolygon: step must be positive");
-  }
 
   // Determine scan range [xmin, xmax]
   float xmin = x_range.first;
   float xmax = x_range.second;
-  if (std::isnan(xmin) || std::isnan(xmax)) {
+  if (std::isnan(xmin) || std::isnan(xmax))
+  {
     xmin = contour_xy[0][0];
     xmax = contour_xy[0][0];
-    for (const auto &p : contour_xy) {
+    for (const auto &p : contour_xy)
+    {
       xmin = std::min(xmin, p[0]);
       xmax = std::max(xmax, p[0]);
     }
@@ -52,15 +54,15 @@ SliceResult SlicePolygon(
 
   // Number of scanlines (inclusive with tolerance)
   const int K = static_cast<int>(std::floor((xmax - xmin) / step + eps)) + 1;
-  if (K <= 0) {
+  if (K <= 0)
     return SliceResult{};
-  }
 
   // Buckets of intersections per scanline: store (x, y)
   std::vector<std::vector<cv::Vec2f> > inters(K);
 
   // Iterate edges
-  for (int i = 0; i < N; ++i) {
+  for (int i = 0; i < N; ++i)
+  {
     const float x0 = contour_xy[i][0];
     const float y0 = contour_xy[i][1];
     const float x1 = contour_xy[(i + 1) % N][0];
@@ -82,7 +84,8 @@ SliceResult SlicePolygon(
     k0 = std::max(k0, 0);
     k1 = std::min(k1, K - 1);
 
-    for (int k = k0; k <= k1; ++k) {
+    for (int k = k0; k <= k1; ++k)
+    {
       const float sx = xmin + k * step;     // scanline x
       const float t = (sx - x0) / dx;       // parameter on the edge
       if (t < -eps || t > 1.0f + eps) continue;
@@ -96,14 +99,16 @@ SliceResult SlicePolygon(
   out.pts1.reserve(K);
   out.pts2.reserve(K);
 
-  for (int k = 0; k < K; ++k) {
+  for (int k = 0; k < K; ++k)
+  {
     const auto &v = inters[k];
     if (v.size() < 2) continue;
 
     // Find min_y and max_y (no full sort needed)
     int i_min = 0, i_max = 0;
     float y_min = v[0][1], y_max = v[0][1];
-    for (int i = 1; i < static_cast<int>(v.size()); ++i) {
+    for (int i = 1; i < static_cast<int>(v.size()); ++i)
+    {
       const float y = v[i][1];
       if (y < y_min) { y_min = y; i_min = i; }
       if (y > y_max) { y_max = y; i_max = i; }

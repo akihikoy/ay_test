@@ -7,6 +7,9 @@
 
 #Compile with cv::solve:
 g++ -std=c++17 -O3 -o polygon_bb2.out polygon_bb2.cpp `pkg-config --cflags --libs opencv4`
+
+#Test (same as polygon_bb4):
+./polygon_bb4_test.py
 */
 //-------------------------------------------------------------------------------------------
 // #include <algorithm>
@@ -30,7 +33,8 @@ int main(int argc, char**argv)
 {
   std::vector<cv::Vec2f> pts;
   std::string line;
-  while (std::getline(std::cin, line)) {
+  while (std::getline(std::cin, line))
+  {
     if (line.empty() || line[0] == '#') continue;
     std::istringstream ss(line);
     float x, y, z = 0.0f;
@@ -39,13 +43,14 @@ int main(int argc, char**argv)
     pts.emplace_back(x, y);
   }
 
-  if (pts.empty()) {
+  if (pts.empty())
+  {
     std::cerr << "No valid points received.\n";
     return 1;
   }
 
   auto t0 = std::chrono::high_resolution_clock::now();
-  auto r = MinAreaRect(pts, AngleMode::Symmetric);
+  auto r = MinAreaRect(pts, TAngleMode::amSymmetric);
   auto t1 = std::chrono::high_resolution_clock::now();
   double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
 

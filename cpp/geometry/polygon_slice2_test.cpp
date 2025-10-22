@@ -6,7 +6,10 @@
     \date    Oct.22, 2025
 
 #Compile:
-g++ -std=c++17 -O3 -o polygon_slice2_test.out polygon_slice2_test.cpp polygon_slice2.cpp polygon_bb4.cpp `pkg-config --cflags --libs opencv4`
+g++ -std=c++17 -O3 -o polygon_slice2_test.out polygon_slice2_test.cpp polygon_slice2.cpp polygon_bb4.cpp -I/usr/include/eigen3 `pkg-config --cflags --libs opencv4`
+
+#Test:
+./polygon_slice2_test.py
 */
 //-------------------------------------------------------------------------------------------
 #include <opencv2/core.hpp>
@@ -16,15 +19,16 @@ g++ -std=c++17 -O3 -o polygon_slice2_test.out polygon_slice2_test.cpp polygon_sl
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include "polygon_bb4.h"     // OBBResult, AngleMode, BoundingBoxWithEllipseAxis
-#include "polygon_bb2.h"     // MinAreaRect (OBBResult)
+#include "polygon_bb4.h"     // TOrientedBB, TAngleMode, BoundingBoxWithEllipseAxis
+#include "polygon_bb2.h"     // MinAreaRect (TOrientedBB)
 #include "polygon_slice2.h"  // SlicePolygon (returns SliceResult)
 //-------------------------------------------------------------------------------------------
 namespace trick
 {
 
 // Rotation matrix for angle (radian): [[c, -s],[s, c]]
-inline cv::Matx<float,2,2> RotXY(float angle_rad) {
+inline cv::Matx<float,2,2> RotXY(float angle_rad)
+{
   float c = std::cos(angle_rad);
   float s = std::sin(angle_rad);
   return cv::Matx<float,2,2>(c, -s,
@@ -32,82 +36,71 @@ inline cv::Matx<float,2,2> RotXY(float angle_rad) {
 }
 //-------------------------------------------------------------------------------------------
 
+// Rotate a vector of points by R (2x2).
+// In case a point has 3 or more dimensions, using only XY.
+template<int CN>
+inline std::vector<cv::Vec2f> RotatePoints2D(
+  const std::vector<cv::Vec<float,CN> > &pts,
+  const cv::Matx<float,2,2> &R)
+{
+  std::vector<cv::Vec2f> out;
+  out.reserve(pts.size());
+  for (const auto &p : pts)
+  {
+    float x = p[0], y = p[1];
+    float xr = R(0,0)*x + R(0,1)*y;
+    float yr = R(1,0)*x + R(1,1)*y;
+    out.emplace_back(xr, yr);
+  }
+  return out;
+}
+//-------------------------------------------------------------------------------------------
+
+// Convert Vec3f → Vec2f (use only XY)
+inline std::vector<cv::Vec2f> ToVec2f(const std::vector<cv::Vec3f> &src)
+{
+  std::vector<cv::Vec2f> dst;
+  dst.reserve(src.size());
+  for (const auto &p : src)
+    dst.emplace_back(p[0], p[1]);  // keep only XY
+  return dst;
+}
+//-------------------------------------------------------------------------------------------
 
 struct SlicePipelineResult
 {
-  OBBResult obb;                 // center, size, angle
+  TOrientedBB obb;               // center, size, angle
   std::string title;             // title string
   std::vector<cv::Vec2f> pts1;   // mapped back to original XY
   std::vector<cv::Vec2f> pts2;   // mapped back to original XY
 };
 
-// Rotate a list of points by R (2x2), using only XY
-template<int CN>
-inline std::vector<cv::Vec2f> RotatePoints(
-  const std::vector<cv::Vec<float,CN>> &pts,
-  const cv::Matx<float,2,2> &R)
-{
-  std::vector<cv::Vec2f> out;
-  out.reserve(pts.size());
-  for (const auto &p : pts) {
-    float x = p[0], y = p[1];
-    float xr = R(0,0)*x + R(0,1)*y;
-    float yr = R(1,0)*x + R(1,1)*y;
-    out.emplace_back(xr, yr);
-  }
-  return out;
-}
-
-// Map 2D points by R (2x2)
-inline std::vector<cv::Vec2f> MapPoints(
-  const std::vector<cv::Vec2f> &pts,
-  const cv::Matx<float,2,2> &R)
-{
-  std::vector<cv::Vec2f> out;
-  out.reserve(pts.size());
-  for (const auto &p : pts) {
-    float x = p[0], y = p[1];
-    float xr = R(0,0)*x + R(0,1)*y;
-    float yr = R(1,0)*x + R(1,1)*y;
-    out.emplace_back(xr, yr);
-  }
-  return out;
-}
-
-// Convert Vec3f → Vec2f (use only XY)
-inline std::vector<cv::Vec2f> ToVec2f(const std::vector<cv::Vec3f> &src) {
-  std::vector<cv::Vec2f> dst;
-  dst.reserve(src.size());
-  for (const auto &p : src) {
-    dst.emplace_back(p[0], p[1]);  // keep only XY
-  }
-  return dst;
-}
-
 // Main pipeline: choose OBB method, rotate, slice, map back
 template<int CN>
 inline SlicePipelineResult RunSlicePipeline(
-  const std::vector<cv::Vec<float,CN>> &points,
+  const std::vector<cv::Vec<float,CN> > &points,
   char choice_bb = '1',  // '1' -> MinAreaRect, otherwise BoundingBoxWithEllipseAxis
-  AngleMode angle_mode = AngleMode::Symmetric,
+  TAngleMode angle_mode = TAngleMode::amSymmetric,
   std::pair<float,float> s_range_p = {0.f, 1.f}) // percent range on the rotated x
 {
-  if (points.size() < 3) {
+  if (points.size() < 3)
     throw std::runtime_error("RunSlicePipeline: need at least 3 points");
-  }
 
   // Choose OBB
-  OBBResult obb;
+  TOrientedBB obb;
   std::string title;
-  if (choice_bb == '1') {
+  if (choice_bb == '1')
+  {
     // MinAreaRect(points)
     if constexpr (CN == 2) obb = MinAreaRect(reinterpret_cast<const std::vector<cv::Vec2f>&>(points), angle_mode);
     else                   obb = MinAreaRect(ToVec2f(points), angle_mode);
     title = "SlicePolygon (MinAreaRect)";
-  } else {
+  }
+  else
+  {
     // BoundingBoxWithEllipseAxis(points)
-    if constexpr (CN == 2) obb = BoundingBoxWithEllipseAxis(reinterpret_cast<const std::vector<cv::Vec2f>&>(points), 0.0f, 1e-3, angle_mode);
-    else                   obb = BoundingBoxWithEllipseAxis(reinterpret_cast<const std::vector<cv::Vec3f>&>(points), 0.0f, 1e-3, angle_mode);
+    if constexpr (CN == 2) obb = BoundingBoxWithEllipseAxis(reinterpret_cast<const std::vector<cv::Vec2f>&>(points), 0.0f, 1e-3f, angle_mode);
+    else                   obb = BoundingBoxWithEllipseAxis(reinterpret_cast<const std::vector<cv::Vec3f>&>(points), 0.0f, 1e-3f, angle_mode);
     title = "SlicePolygon (BoundingBoxWithEllipseAxis)";
   }
 
@@ -116,11 +109,12 @@ inline SlicePipelineResult RunSlicePipeline(
   cv::Matx<float,2,2> Rpos = RotXY( obb.angle);  // to map back (transpose of Rneg)
 
   // Rotate all points
-  std::vector<cv::Vec2f> points_rot = RotatePoints(points, Rneg);
+  std::vector<cv::Vec2f> points_rot = RotatePoints2D(points, Rneg);
 
   // Determine scan range in rotated X
   float xmin = points_rot[0][0], xmax = points_rot[0][0];
-  for (const auto &p : points_rot) {
+  for (const auto &p : points_rot)
+  {
     xmin = std::min(xmin, p[0]);
     xmax = std::max(xmax, p[0]);
   }
@@ -139,8 +133,8 @@ inline SlicePipelineResult RunSlicePipeline(
   SlicePipelineResult res;
   res.obb = obb;
   res.title = title;
-  res.pts1 = MapPoints(sr.pts1, Rpos);
-  res.pts2 = MapPoints(sr.pts2, Rpos);
+  res.pts1 = RotatePoints2D(sr.pts1, Rpos);
+  res.pts2 = RotatePoints2D(sr.pts2, Rpos);
   return res;
 }
 //-------------------------------------------------------------------------------------------
@@ -170,7 +164,8 @@ void PrintResultAsJSON(const SlicePipelineResult &r)
 
   // pts1
   std::cout << "\"pts1\":[";
-  for (size_t i = 0; i < r.pts1.size(); ++i) {
+  for (size_t i = 0; i < r.pts1.size(); ++i)
+  {
     if (i) std::cout << ",";
     std::cout << "[" << r.pts1[i][0] << "," << r.pts1[i][1] << "]";
   }
@@ -178,7 +173,8 @@ void PrintResultAsJSON(const SlicePipelineResult &r)
 
   // pts2
   std::cout << "\"pts2\":[";
-  for (size_t i = 0; i < r.pts2.size(); ++i) {
+  for (size_t i = 0; i < r.pts2.size(); ++i)
+  {
     if (i) std::cout << ",";
     std::cout << "[" << r.pts2[i][0] << "," << r.pts2[i][1] << "]";
   }
@@ -196,7 +192,8 @@ int main(int argc, char**argv)
 
   std::vector<cv::Vec3f> pts;
   std::string line;
-  while (std::getline(std::cin, line)) {
+  while (std::getline(std::cin, line))
+  {
     if (line.empty() || line[0] == '#') continue;
     std::istringstream ss(line);
     float x, y, z = 0.0f;
@@ -205,14 +202,15 @@ int main(int argc, char**argv)
     pts.emplace_back(x, y, z);
   }
 
-  if (pts.empty()) {
+  if (pts.empty())
+  {
     std::cerr << "No valid points received.\n";
     return 1;
   }
 
   auto t0 = std::chrono::high_resolution_clock::now();
   // '1' -> MinAreaRect, otherwise BoundingBoxWithEllipseAxis
-  auto r = RunSlicePipeline(pts, choice_bb, AngleMode::Symmetric, s_range_p);
+  auto r = RunSlicePipeline(pts, choice_bb, TAngleMode::amSymmetric, s_range_p);
   auto t1 = std::chrono::high_resolution_clock::now();
   double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
 

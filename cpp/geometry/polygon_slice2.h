@@ -16,12 +16,20 @@ namespace trick
 {
 //-------------------------------------------------------------------------------------------
 
+// Return type of SlicePolygon.
 struct SliceResult
 {
   std::vector<cv::Vec2f> pts1;  // lower y (min)
   std::vector<cv::Vec2f> pts2;  // upper y (max)
 };
 
+/*
+Slice a polygon for scanlines (x_range, step) along the x-axis.
+  - For each scanline, only the outer two intersections are returned.
+    - Works as silhouette for convex polygons.
+    - For concave polygons, min/max may bridge concavities.
+  NOTE: This function is instantiated only for CN = 2, 3.
+*/
 template<int CN>
 SliceResult SlicePolygon(
   const std::vector<cv::Vec<float,CN> > &contour_xy,

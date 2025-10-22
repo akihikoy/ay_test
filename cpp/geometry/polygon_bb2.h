@@ -24,23 +24,17 @@ Return: center,size,angle.
   angle is in radian.  angle direction is always the longer side direction.
   size[0] is always greater than size[1].
 */
-inline OBBResult MinAreaRect(
+inline TOrientedBB MinAreaRect(
   const std::vector<cv::Vec2f> &pts,
-  AngleMode angle_mode = AngleMode::Symmetric)
+  TAngleMode angle_mode = TAngleMode::amSymmetric)
 {
-  if (pts.empty()) {
+  if (pts.empty())
     throw std::runtime_error("MinAreaRect: Empty input");
-  }
-  if (pts.size() == 1) {
-    return OBBResult{cv::Point2f(pts[0][0], pts[0][1]), cv::Size2f(0.f, 0.f), 0.f};
-  }
-
-  // Wrap as Mat without copy (N x 1, CV_32FC2). const_cast is safe here: minAreaRect won't modify data.
-  cv::Mat pts_view(static_cast<int>(pts.size()), 1, CV_32FC2,
-                   const_cast<cv::Vec2f*>(pts.data()));
+  if (pts.size() == 1)
+    return TOrientedBB(cv::Point2f(pts[0][0], pts[0][1]), cv::Size2f(0.f, 0.f), 0.f);
 
   // Compute minimum-area rectangle
-  cv::RotatedRect rr = cv::minAreaRect(pts_view);
+  cv::RotatedRect rr = cv::minAreaRect(pts);
 
   // OpenCV angle is in degrees, range [-90, 0)
   float angle = rr.angle * static_cast<float>(CV_PI / 180.0f);
@@ -54,7 +48,7 @@ inline OBBResult MinAreaRect(
   // Normalize angle
   angle = AngleModHalf(angle, angle_mode);
 
-  OBBResult out;
+  TOrientedBB out;
   out.center = rr.center;
   out.size   = cv::Size2f(w, h);
   out.angle  = angle;
