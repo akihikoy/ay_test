@@ -14,11 +14,11 @@ def To2d2(points):
 
 
 def Gen3d_01():
-  points= yaml.load(open('../data/polygon.yaml').read(),Loader=yaml.SafeLoader)['polygon']
+  points= yaml.load(open('data/polygon.yaml').read(),Loader=yaml.SafeLoader)['polygon']
   return points
 
 def Gen3d_02():
-  points= yaml.load(open('../data/polygon2.yaml').read(),Loader=yaml.SafeLoader)['polygon']
+  points= yaml.load(open('data/polygon2.yaml').read(),Loader=yaml.SafeLoader)['polygon']
   return points
 
 def Gen3d_11(dense=0.05, seed=None):

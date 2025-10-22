@@ -4,6 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Oct.22, 2025
+import numpy as np
 
 # Get rotation matrices for angle_rad.
 def RotXY(angle_rad):
@@ -140,8 +141,8 @@ if __name__=='__main__':
     #xy_samples = SlicePolygon(points, -angle+np.pi/2., step=0.05, x_range=[-0.4, 0.1])
 
     # Range in percent (1=100%)
-    s_range_p = [0., 1.]
-    #s_range_p = [0.1, 0.5]
+    #s_range_p = [0., 1.]
+    s_range_p = [0.1, 0.5]
     R = RotXY(-angle)
     # Rotate all points
     points_rot = (R @ np.asarray(points, dtype=float).T).T  # (N,2)
