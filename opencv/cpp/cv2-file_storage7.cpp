@@ -25,12 +25,17 @@ void PrintContainer(const t_vec &v)
 #define printv(var) std::cout<<#var"= ";PrintContainer(var);std::cout<<std::endl
 //-------------------------------------------------------------------------------------------
 
+enum TCameraKind {ckRGB=0, ckMono, ckDepth};
+
 struct TCameraInfo
 {
   std::string DevID;
   int Width, Height;
   std::string PixelFormat;
   int Rotate90n;
+  TCameraKind Kind;
+  std::vector<cv::Vec2f> ROI{{0.1f, 0.2}, {0.7f, 0.8f}};  // NOTE: vector<Vec2f> is serialized in YAML.
+  std::vector<std::vector<float>> ROI2{{0.1f, 0.2}, {0.7f, 0.8f}};  // NOTE: vector<vector> is not serialized in YAML.
 };
 
 void WriteToYAML(const std::vector<TCameraInfo> &cam_info, const std::string &file_name, cv::FileStorage *pfs=NULL)
@@ -48,11 +53,36 @@ void WriteToYAML(const std::vector<TCameraInfo> &cam_info, const std::string &fi
     PROC_VAR(Height      );
     PROC_VAR(PixelFormat );
     PROC_VAR(Rotate90n   );
+    PROC_VAR(Kind        );
+    PROC_VAR(ROI         );
+    PROC_VAR(ROI2        );
     fs<<"}";
     #undef PROC_VAR
   }
   fs<<"]";
   if(pfs==NULL)  fs.release();
+}
+void ReadFromYAML(std::vector<TCameraInfo> &cam_info, const std::string &file_name)
+{
+  cam_info.clear();
+  cv::FileStorage fs(file_name, cv::FileStorage::READ);
+  cv::FileNode data= fs["CameraInfo"];
+  for(cv::FileNodeIterator itr(data.begin()),itr_end(data.end()); itr!=itr_end; ++itr)
+  {
+    TCameraInfo cf;
+    #define PROC_VAR(x)  (*itr)[#x]>>cf.x;
+    PROC_VAR(DevID       );
+    PROC_VAR(Width       );
+    PROC_VAR(Height      );
+    PROC_VAR(PixelFormat );
+    PROC_VAR(Rotate90n   );
+    PROC_VAR(Kind        );
+    PROC_VAR(ROI         );
+    PROC_VAR(ROI2        );
+    #undef PROC_VAR
+    cam_info.push_back(cf);
+  }
+  fs.release();
 }
 
 
@@ -90,12 +120,15 @@ int main(int argc, char**argv)
   cf.Height= 480;
   cf.PixelFormat= "MJPG";
   cf.Rotate90n= 0;
+  cf.Kind= ckRGB;
   cam_info.push_back(cf);
   cf.DevID= "2";
+  cf.Kind= ckMono;
   cam_info.push_back(cf);
 
   TConfig config;
-  ReadFromYAML(config, "cv2-file_storage5.yaml");
+  ReadFromYAML(config, "cv2-file_storage7.yaml");
+  ReadFromYAML(cam_info, "cv2-file_storage7.yaml");
 
   std::cout<<"-------------------------"<<std::endl;
   WriteToYAML(cam_info, "/dev/stdout");

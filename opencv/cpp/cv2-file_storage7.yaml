@@ -1,0 +1,24 @@
+%YAML:1.0
+Config:
+  pkg_dir: "/tmp"
+  cam_config: "hoge/hoge.yaml"
+  target_fps: 90
+  camera_auto_reopen: 0
+
+CameraInfo:
+  -
+    DevID: "1"
+    Width: 640
+    Height: 480
+    PixelFormat: MJPG
+    Rotate90n: 0
+    Kind: 2
+    ROI: [0.1, 0.8, 0.4, 0.5]
+    ROI2: [[0.1, 0.8], [0.4, 0.5]]
+  -
+    DevID: "2"
+    Width: 640
+    Height: 480
+    PixelFormat: MJPG
+    Rotate90n: 0
+    Kind: 1
