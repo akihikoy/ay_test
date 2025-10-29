@@ -201,6 +201,7 @@ int main(int argc, char**argv)
   float b(1.0),g(1.0),r(1.0);
   int ksize(3);
   size_t step(10);
+  enum TEnumTest : int {etA=0, etB, etC} enum_test(etA);
   bool negative(false);
   std::string channel("bgr");
   std::vector<std::string> channel_list;
@@ -213,6 +214,7 @@ int main(int argc, char**argv)
   CreateTrackbar<float>("r", "camera", &r, 0.0, 2.0, 0.001, &OnTrack);
   CreateTrackbar<int>("ksize", "camera", &ksize, 1, 15, 2, &TrackbarPrintOnTrack);
   CreateTrackbar<size_t>("step", "camera", &step, 1, 15, 1, &TrackbarPrintOnTrack);
+  CreateTrackbar<int>("enum_test", "camera", reinterpret_cast<int*>(&enum_test), 0, 2, 1, &TrackbarPrintOnTrack);
   CreateTrackbar<bool>("negative", "camera", &negative, &TrackbarPrintOnTrack);
   CreateTrackbar<std::string>("channel", "camera", &channel, channel_list, &TrackbarPrintOnTrack);
   std::cerr<<"# of trackbars(int/float/double/bool/string): "<<ExtendedTrackbarInfo<int>().size()<<", "<<ExtendedTrackbarInfo<float>().size()<<", "<<ExtendedTrackbarInfo<double>().size()<<", "<<ExtendedTrackbarInfo<bool>().size()<<", "<<ExtendedTrackbarInfo<std::string>().size()<<std::endl;
