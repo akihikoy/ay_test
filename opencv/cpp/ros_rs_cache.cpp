@@ -114,6 +114,7 @@ int main(int argc, char**argv)
   cache2.connectInput(sub2);
   cache2.setCacheSize(60);
 
+  ros::Rate rate(30);
   while(ros::ok())
   {
     ros::spinOnce();
@@ -138,6 +139,7 @@ int main(int argc, char**argv)
 
     char c(cv::waitKey(1));
     if(c=='\x1b'||c=='q')  ros::shutdown();
+    rate.sleep();
   }
 
   return 0;
