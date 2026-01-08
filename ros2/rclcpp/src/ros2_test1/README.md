@@ -120,3 +120,70 @@ $ ros2 run ros2_test1 cpp_listener_exec
   [INFO] [1767447594.962873479] [cpp_listener_node]: Received: [Counting...], count: 6
   ...
 ```
+
+
+Test service client.
+```bash
+$ ros2 run ros2_test1 cpp_talker_exec
+  [INFO] [1767199302.980013585] [cpp_talker_node]: cpp_talker_node: Initialized
+  [INFO] [1767199303.980426799] [cpp_talker_node]: cpp_talker_node: on_time: 0
+  ...
+  [INFO] [1767855865.889772180] [cpp_talker_node]: cpp_talker_node: on_time: 61
+  [INFO] [1767855866.877067563] [cpp_talker_node]: cpp_talker_node: handle_service: 100
+  [INFO] [1767855866.889488570] [cpp_talker_node]: cpp_talker_node: on_time: 100
+  ...
+  [INFO] [1767856280.889629599] [cpp_talker_node]: cpp_talker_node: on_time: 456
+  [INFO] [1767856281.209730192] [cpp_talker_node]: cpp_talker_node: handle_service: 200
+  [INFO] [1767856281.889768338] [cpp_talker_node]: cpp_talker_node: on_time: 200
+  ...
+
+$ ros2 run ros2_test1 cpp_srvc_exec
+  [INFO] [1767855895.419605001] [cpp_srvc_node]: Service Result: Counter updated to 100 via service
+
+$ ros2 run ros2_test1 cpp_srvc_exec --ros-args -p target_value:=200
+  [INFO] [1767856281.210766548] [cpp_srvc_node]: Service Result: Counter updated to 200 via service
+```
+
+We cal also set the parameter externally (test this with commenting out `timer_->cancel()` in cpp_srv_client.cpp).
+```bash
+$ ros2 param set /cpp_srvc_node target_value 300
+  Set parameter successful
+```
+
+
+Test action client.
+```bash
+$ ros2 run ros2_test1 cpp_talker_exec
+  [INFO] [1767199302.980013585] [cpp_talker_node]: cpp_talker_node: Initialized
+  [INFO] [1767199303.980426799] [cpp_talker_node]: cpp_talker_node: on_time: 0
+  ...
+  [INFO] [1767886092.223811097] [cpp_talker_node]: cpp_talker_node: on_time: 16
+  [INFO] [1767886092.384431388] [cpp_talker_node]: Action Goal received: 5
+  [INFO] [1767886092.385652342] [cpp_talker_node]: Action Execution started
+  [INFO] [1767886092.386348871] [cpp_talker_node]: Action Feedback: 1
+  [INFO] [1767886093.223779603] [cpp_talker_node]: cpp_talker_node: on_time: 17
+  [INFO] [1767886093.386525228] [cpp_talker_node]: Action Feedback: 2
+  [INFO] [1767886094.223794226] [cpp_talker_node]: cpp_talker_node: on_time: 18
+  [INFO] [1767886094.386501309] [cpp_talker_node]: Action Feedback: 3
+  [INFO] [1767886095.223812517] [cpp_talker_node]: cpp_talker_node: on_time: 19
+  [INFO] [1767886095.386421537] [cpp_talker_node]: Action Feedback: 4
+  [INFO] [1767886096.223840756] [cpp_talker_node]: cpp_talker_node: on_time: 20
+  [INFO] [1767886096.386432748] [cpp_talker_node]: Action Feedback: 5
+  [INFO] [1767886097.223898259] [cpp_talker_node]: cpp_talker_node: on_time: 21
+  [INFO] [1767886097.386917834] [cpp_talker_node]: Action Succeeded
+  [INFO] [1767886098.223890571] [cpp_talker_node]: cpp_talker_node: on_time: 22
+  ...
+
+$ ros2 run ros2_test1 cpp_actionc_exec
+  [INFO] [1767886092.382907069] [cpp_actionc_node]: Sending goal; 5
+  [INFO] [1767886092.385838285] [cpp_actionc_node]: Goal accepted by server, waiting for result
+  [INFO] [1767886092.386707167] [cpp_actionc_node]: Feedback received: 1
+  [INFO] [1767886093.387014637] [cpp_actionc_node]: Feedback received: 2
+  [INFO] [1767886094.386931566] [cpp_actionc_node]: Feedback received: 3
+  [INFO] [1767886095.386837717] [cpp_actionc_node]: Feedback received: 4
+  [INFO] [1767886096.386946023] [cpp_actionc_node]: Feedback received: 5
+  [INFO] [1767886097.387599758] [cpp_actionc_node]: Result received: 5
+  ^C[INFO] [1767886100.718247271] [rclcpp]: signal_handler(signum=2)
+```
+
+
