@@ -5,8 +5,11 @@
 #\version 0.1
 #\date    Dec.27, 2024
 
-cnt_name_prefix="${1:-fvinstalltest}"
-user_name="${2:-fv}"
+cnt_name_prefix="${1:-testenv}"
+# user_name="${2:-fv}"
+
+read -p "Enter username to setup [default: fv]: " input_user_name
+user_name="${input_user_name:-fv}"
 
 for i in $(seq 1 100); do
   cnt_name="${cnt_name_prefix}${i}"
