@@ -1,0 +1,146 @@
+#!/usr/bin/python3
+#\file    test_gp7_move.py
+#\brief   certain python script
+#\author  Akihiko Yamaguchi, info@akihikoy.net
+#\version 0.1
+#\date    Jan.19, 2026
+import rclpy
+from rclpy.node import Node
+from rclpy.action import ActionClient
+from rclpy.qos import qos_profile_sensor_data
+from rclpy.executors import MultiThreadedExecutor
+from sensor_msgs.msg import JointState
+from control_msgs.action import FollowJointTrajectory
+from trajectory_msgs.msg import JointTrajectoryPoint
+from rclpy.duration import Duration
+import time
+import copy
+import threading
+
+class GP7RoundTrip(Node):
+    def __init__(self):
+        super().__init__('gp7_roundtrip')
+
+        # 関節名定義 (実機の設定に合わせてください)
+        self.joint_names = [
+            'joint_1_s', 'joint_2_l', 'joint_3_u',
+            'joint_4_r', 'joint_5_b', 'joint_6_t'
+        ]
+
+        # Subscriber (Best Effort)
+        self.current_joint_state = None
+        self.sub_joint_state = self.create_subscription(
+            JointState,
+            '/joint_states',
+            self.joint_state_callback,
+            qos_profile_sensor_data
+        )
+
+        # Action Client
+        self.traj_client = ActionClient(
+            self,
+            FollowJointTrajectory,
+            '/follow_joint_trajectory'
+        )
+
+        self.get_logger().info('初期化完了。/joint_states を待機中...')
+
+    def joint_state_callback(self, msg):
+        try:
+            name_map = {n: p for n, p in zip(msg.name, msg.position)}
+            positions = [name_map[n] for n in self.joint_names]
+            self.current_joint_state = positions
+        except KeyError:
+            pass
+
+    def send_trajectory(self):
+        # 1. Server接続確認
+        if not self.traj_client.wait_for_server(timeout_sec=5.0):
+            self.get_logger().error('Action Serverが見つかりません。')
+            return
+
+        # 2. 現在値取得待ち
+        while self.current_joint_state is None and rclpy.ok():
+            time.sleep(0.1)
+
+        if self.current_joint_state is None:
+            return
+
+        start_pos = list(self.current_joint_state)
+        self.get_logger().info(f'現在値: {start_pos}')
+
+        # 3. ゴール作成 (往復動作)
+        goal_msg = FollowJointTrajectory.Goal()
+        goal_msg.trajectory.joint_names = self.joint_names
+
+        # --- 点1: スタート地点 (t=0, 現在位置, 速度0) ---
+        point_start = JointTrajectoryPoint()
+        point_start.positions = copy.deepcopy(start_pos)
+        point_start.velocities = [0.0] * len(start_pos)
+        point_start.time_from_start = Duration(seconds=0.0).to_msg()
+
+        # --- 点2: 中間地点 (t=5s, S軸+0.1rad, 速度0) ---
+        # ※ ここで一旦速度0を指定することで、一時停止してから折り返します（安全策）
+        point_mid = JointTrajectoryPoint()
+        mid_pos = copy.deepcopy(start_pos)
+        mid_pos[0] += 0.1 # S軸を動かす
+
+        point_mid.positions = mid_pos
+        point_mid.velocities = [0.0] * len(mid_pos)
+        point_mid.time_from_start = Duration(seconds=5.0).to_msg()
+
+        # --- 点3: 終了地点 (t=10s, 元の位置, 速度0) ---
+        point_end = JointTrajectoryPoint()
+        end_pos = copy.deepcopy(start_pos) # 元の位置に戻る
+
+        point_end.positions = end_pos
+        point_end.velocities = [0.0] * len(end_pos)
+        point_end.time_from_start = Duration(seconds=10.0).to_msg()
+
+        # 3点を含む軌道を登録
+        goal_msg.trajectory.points = [point_start, point_mid, point_end]
+
+        # 4. 送信
+        self.get_logger().info('往復軌道 (計10秒) を送信開始...')
+        send_goal_future = self.traj_client.send_goal_async(goal_msg)
+
+        while rclpy.ok():
+            if send_goal_future.done():
+                goal_handle = send_goal_future.result()
+                if not goal_handle.accepted:
+                    self.get_logger().error('ゴールが拒否されました')
+                    return
+
+                self.get_logger().info('実行中...')
+                res_future = goal_handle.get_result_async()
+
+                while rclpy.ok():
+                    if res_future.done():
+                        result = res_future.result()
+                        if result.result.error_code == 0:
+                            self.get_logger().info('完了! 往復成功しました (SUCCESS)')
+                        else:
+                            self.get_logger().error(f'エラー終了。コード: {result.result.error_code}')
+                        return
+                    time.sleep(0.1)
+                return
+            time.sleep(0.1)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = GP7RoundTrip()
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+    thread = threading.Thread(target=executor.spin, daemon=True)
+    thread.start()
+
+    try:
+        node.send_trajectory()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
