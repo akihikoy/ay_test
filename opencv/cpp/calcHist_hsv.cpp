@@ -1,4 +1,4 @@
-// g++ -I -Wall calcHist_hsv.cpp -o calcHist_hsv.out -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio -I/usr/include/opencv4
+// g++ -I -Wall calcHist_hsv.cpp -o calcHist_hsv.out $(pkg-config --cflags --libs opencv4)
 
 // src. opencv/samples/cpp/tutorial_code/Histograms_Matching/calcHist_Demo.cpp
 
@@ -12,6 +12,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 #include <stdio.h>
+#include <fstream>
+#include <sstream>
 #include "cap_open.h"
 
 using namespace std;
@@ -90,6 +92,31 @@ v_hist*= 0.02;
     imshow("calcHist Demo", histImage );
     char c(cv::waitKey(10));
     if(c=='\x1b'||c=='q') break;
+
+    if (c == ' ') {
+        static int save_count = 0;
+        stringstream ss_img, ss_csv;
+
+        ss_img << "image_" << save_count << ".png";
+        ss_csv << "hist_" << save_count << ".csv";
+
+        imwrite(ss_img.str(), src);
+
+        ofstream ofs(ss_csv.str());
+        if (ofs.is_open()) {
+            ofs << "bin,h,s,v" << endl;
+            for (int i = 0; i < histSize; i++) {
+                ofs << i << ","
+                    << h_hist.at<float>(i) << ","
+                    << s_hist.at<float>(i) << ","
+                    << v_hist.at<float>(i) << endl;
+            }
+            cout << "[Saved] " << ss_img.str() << ", " << ss_csv.str() << endl;
+            save_count++;
+        } else {
+            cerr << "File open error." << endl;
+        }
+    }
   }
 
   return 0;
