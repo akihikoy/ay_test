@@ -1,58 +1,42 @@
 #!/usr/bin/python3
-#\file    rqt_graph_gml.py
-#\brief   Generate a GML file of ROS node graph with rqt_graph and pydot.
+#\file    dot2graphml.py
+#\brief   Convert a DOT file to a yEd-compatible GML file using Graphviz plain text output.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
-#\date    Aug.13, 2025
+#\date    Feb.21, 2026
 
+import sys
+import os
 import subprocess
 import shlex
-import rosgraph.impl.graph
-from rqt_graph.dotcode import RosGraphDotcodeGenerator
-from qt_dotgraph.pydotfactory import PydotFactory
 
 def gml_escape(s: str) -> str:
   # Escape quotes for GML strings
   return s.replace('"', '\\"')
 
 def main():
-  # Build graph snapshot from ROS master
-  g = rosgraph.impl.graph.Graph()
-  g.set_master_stale(5.0)
-  g.set_node_stale(5.0)
-  g.update()
+  creator = "dot2yed_gml"
 
-  # Generate DOT (same as rqt_graph)
-  gen = RosGraphDotcodeGenerator()
-  dot = gen.generate_dotcode(
-    rosgraphinst=g,
-    ns_filter='/',                 # include all
-    topic_filter='/',              # include all
-    graph_mode='node_topic_all',   # 'node_topic', 'node_topic_all', 'node_node'
-    dotcode_factory=PydotFactory(),
-    # Group
-    cluster_namespaces_level=5,
-    group_image_nodes=True,
-    group_tf_nodes=True,
-    # Hide
-    quiet=True,                    # Hide Debug (rviz, rosout, etc.)
-    hide_tf_nodes=True,
-    hide_single_connection_topics=False,
-    hide_dead_end_topics=False,
-    hide_dynamic_reconfigure=False,
-    # Others keep default behavior of rqt_graph
-    accumulate_actions=True,
-    orientation='LR',
-    rank='same',
-    simplify=True,
-    unreachable=False,
-  )
+  if len(sys.argv) < 2:
+    print("Usage: python3 dot2yed_gml.py <input_file.dot>")
+    sys.exit(1)
+
+  input_dot = sys.argv[1]
+  output_gml = os.path.splitext(input_dot)[0] + ".gml"
+
+  # 1. Read the DOT file
+  try:
+    with open(input_dot, 'r', encoding='utf-8') as f:
+      dot_content = f.read()
+  except Exception as e:
+    print(f"Error reading {input_dot}: {e}")
+    return
 
   # Run Graphviz to compute geometry and resolved labels ('plain' format)
   try:
     proc = subprocess.run(
       ['dot', '-Tplain'],
-      input=dot.encode('utf-8'),
+      input=dot_content.encode('utf-8'),
       stdout=subprocess.PIPE,
       stderr=subprocess.PIPE,
       check=True
@@ -60,6 +44,10 @@ def main():
   except FileNotFoundError:
     print("Error: Graphviz 'dot' not found. Please install graphviz.")
     return
+  except subprocess.CalledProcessError as e:
+    print(f"Graphviz error:\n{e.stderr.decode('utf-8')}")
+    return
+
   plain = proc.stdout.decode('utf-8')
 
   # Parse 'plain' output
@@ -90,11 +78,15 @@ def main():
       shape_gv = parts[8].lower()
       if shape_gv in ('box', 'rectangle', 'square'):
         gml_shape = 'rectangle'
+        ros_type = 'topic'
       elif shape_gv in ('ellipse', 'circle', 'oval'):
         gml_shape = 'ellipse'
+        ros_type = 'node'
       else:
         gml_shape = 'roundrectangle'
-      nodes[name] = {'x': x, 'y': y, 'w': w, 'h': h, 'shape': gml_shape, 'label': label}
+        ros_type = 'unknown'
+      informative_description = f"{ros_type}:{label}"
+      nodes[name] = {'x': x, 'y': y, 'w': w, 'h': h, 'shape': gml_shape, 'label': label, 'description': informative_description}
     elif tag == 'edge' and len(parts) >= 5:
       # edge <tail> <head> <n> x1 y1 ... xn yn ...
       tail, head = parts[1], parts[2]
@@ -119,7 +111,7 @@ def main():
   include_edge_bends = False  # keep False to allow dynamic routing in yEd
 
   out = []
-  out.append('Creator "rqt_graph_to_gml"')
+  out.append(f'Creator "{creator}"')
   out.append('Version 2.2')
   out.append('graph')
   out.append('[')
@@ -132,6 +124,7 @@ def main():
     out.append('  [')
     out.append(f'    id {nid}')
     out.append(f'    label "{gml_escape(nd["label"])}"')
+    out.append(f'    description "{gml_escape(nd["description"])}"')
     out.append('    graphics')
     out.append('    [')
     out.append(f'      x {nd["x"]}')
@@ -173,9 +166,13 @@ def main():
 
   out.append(']')
 
-  with open('rosgraph.gml', 'w', encoding='utf-8') as f:
-    f.write('\n'.join(out))
-  print('Wrote rosgraph.gml')
+  # Write to output file
+  try:
+    with open(output_gml, 'w', encoding='utf-8') as f:
+      f.write('\n'.join(out))
+    print(f'Success! Wrote to {output_gml}')
+  except Exception as e:
+    print(f"Error writing to {output_gml}: {e}")
 
 if __name__ == '__main__':
   main()
