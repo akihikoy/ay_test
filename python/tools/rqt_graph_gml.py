@@ -13,8 +13,9 @@ def gml_escape(s: str) -> str:
   # Escape quotes for GML strings
   return s.replace('"', '\\"')
 
-
 def DotToGML(dot):
+  creator = "rqt_graph_to_gml"
+  
   # Run Graphviz to compute geometry and resolved labels ('plain' format)
   try:
     proc = subprocess.run(
@@ -26,13 +27,17 @@ def DotToGML(dot):
     )
   except FileNotFoundError:
     print("Error: Graphviz 'dot' not found. Please install graphviz.")
-    return
+    return []
+  except subprocess.CalledProcessError as e:
+    print(f"Graphviz error:\n{e.stderr.decode('utf-8')}")
+    return []
+
   plain = proc.stdout.decode('utf-8')
 
   # Parse 'plain' output
   scale_in = 72.0  # inches -> points (tweak if needed)
   graph_h_in = 0.0
-  nodes = {}   # name -> {x,y,w,h,shape,label}
+  nodes = {}   # name -> {x,y,w,h,shape,label,description}
   edges = []   # (tail, head, [(x,y), ...])
 
   for raw in plain.splitlines():
@@ -54,21 +59,26 @@ def DotToGML(dot):
       w = float(parts[4]) * scale_in
       h = float(parts[5]) * scale_in
       label = parts[6]
-      # NEW: detect Graphviz-reported style/shape and our service id
+      
       shape_gv = parts[8].lower()
       is_service = name.startswith('srv:')  # our service nodes are named "srv:/...".
 
-      # CHANGED: map shapes so topics vs services are visually distinct in yEd
       if is_service:
         gml_shape = 'roundrectangle'        # services: rounded box
+        ros_type = 'service'
       elif shape_gv in ('box', 'rectangle', 'square', 'box3d'):
         gml_shape = 'rectangle'             # topics: plain box
+        ros_type = 'topic'
       elif shape_gv in ('ellipse', 'circle', 'oval'):
         gml_shape = 'ellipse'               # ROS nodes: ellipse
+        ros_type = 'node'
       else:
         gml_shape = 'rectangle'
-
-      nodes[name] = {'x': x, 'y': y, 'w': w, 'h': h, 'shape': gml_shape, 'label': label}
+        ros_type = 'unknown'
+        
+      informative_description = f"{ros_type}:{label}"
+      nodes[name] = {'x': x, 'y': y, 'w': w, 'h': h, 'shape': gml_shape, 'label': label, 'description': informative_description}
+      
     elif tag == 'edge' and len(parts) >= 5:
       # edge <tail> <head> <n> x1 y1 ... xn yn ...
       tail, head = parts[1], parts[2]
@@ -96,7 +106,7 @@ def DotToGML(dot):
   include_edge_bends = False  # keep False to allow dynamic routing in yEd
 
   out = []
-  out.append('Creator "rqt_graph_to_gml"')
+  out.append(f'Creator "{creator}"')
   out.append('Version 2.2')
   out.append('graph')
   out.append('[')
@@ -109,6 +119,7 @@ def DotToGML(dot):
     out.append('  [')
     out.append(f'    id {nid}')
     out.append(f'    label "{gml_escape(nd["label"])}"')
+    out.append(f'    description "{gml_escape(nd["description"])}"')
     out.append('    graphics')
     out.append('    [')
     out.append(f'      x {nd["x"]}')
