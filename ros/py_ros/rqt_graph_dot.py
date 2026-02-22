@@ -9,7 +9,7 @@ import rosgraph.impl.graph
 from rqt_graph.dotcode import RosGraphDotcodeGenerator
 from qt_dotgraph.pydotfactory import PydotFactory
 
-def main():
+def GenerateRosDot(graph_mode='node_topic_all'):
   # Build graph snapshot from ROS master
   g = rosgraph.impl.graph.Graph()
   g.set_master_stale(5.0)
@@ -41,10 +41,15 @@ def main():
     simplify=True,
     unreachable=False,
   )
+  return dot
 
-  with open('rosgraph.dot', 'w', encoding='utf-8') as f:
+def main():
+  graph_mode='node_topic_all'  # 'node_topic', 'node_topic_all', 'node_node'
+  dot = GenerateRosDot(graph_mode=graph_mode)
+
+  with open(f'rosgraph-{graph_mode}.dot', 'w', encoding='utf-8') as f:
     f.write(dot)
-  print('Wrote rosgraph.dot')
+  print(f'Wrote: rosgraph-{graph_mode}.dot')
 
 if __name__ == '__main__':
   main()

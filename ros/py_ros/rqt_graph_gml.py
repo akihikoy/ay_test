@@ -5,49 +5,16 @@
 #\version 0.1
 #\date    Aug.13, 2025
 
+from rqt_graph_dot import *
 import subprocess
 import shlex
-import rosgraph.impl.graph
-from rqt_graph.dotcode import RosGraphDotcodeGenerator
-from qt_dotgraph.pydotfactory import PydotFactory
 
 def gml_escape(s: str) -> str:
   # Escape quotes for GML strings
   return s.replace('"', '\\"')
 
-def main():
-  # Build graph snapshot from ROS master
-  g = rosgraph.impl.graph.Graph()
-  g.set_master_stale(5.0)
-  g.set_node_stale(5.0)
-  g.update()
 
-  # Generate DOT (same as rqt_graph)
-  gen = RosGraphDotcodeGenerator()
-  dot = gen.generate_dotcode(
-    rosgraphinst=g,
-    ns_filter='/',                 # include all
-    topic_filter='/',              # include all
-    graph_mode='node_topic_all',   # 'node_topic', 'node_topic_all', 'node_node'
-    dotcode_factory=PydotFactory(),
-    # Group
-    cluster_namespaces_level=5,
-    group_image_nodes=True,
-    group_tf_nodes=True,
-    # Hide
-    quiet=True,                    # Hide Debug (rviz, rosout, etc.)
-    hide_tf_nodes=True,
-    hide_single_connection_topics=False,
-    hide_dead_end_topics=False,
-    hide_dynamic_reconfigure=False,
-    # Others keep default behavior of rqt_graph
-    accumulate_actions=True,
-    orientation='LR',
-    rank='same',
-    simplify=True,
-    unreachable=False,
-  )
-
+def DotToGML(dot):
   # Run Graphviz to compute geometry and resolved labels ('plain' format)
   try:
     proc = subprocess.run(
@@ -86,14 +53,21 @@ def main():
       y = float(parts[3]) * scale_in
       w = float(parts[4]) * scale_in
       h = float(parts[5]) * scale_in
-      label = parts[6]  # <-- resolved label from Graphviz (e.g., "/ctrl_panel")
+      label = parts[6]
+      # NEW: detect Graphviz-reported style/shape and our service id
       shape_gv = parts[8].lower()
-      if shape_gv in ('box', 'rectangle', 'square'):
-        gml_shape = 'rectangle'
+      is_service = name.startswith('srv:')  # our service nodes are named "srv:/...".
+
+      # CHANGED: map shapes so topics vs services are visually distinct in yEd
+      if is_service:
+        gml_shape = 'roundrectangle'        # services: rounded box
+      elif shape_gv in ('box', 'rectangle', 'square', 'box3d'):
+        gml_shape = 'rectangle'             # topics: plain box
       elif shape_gv in ('ellipse', 'circle', 'oval'):
-        gml_shape = 'ellipse'
+        gml_shape = 'ellipse'               # ROS nodes: ellipse
       else:
-        gml_shape = 'roundrectangle'
+        gml_shape = 'rectangle'
+
       nodes[name] = {'x': x, 'y': y, 'w': w, 'h': h, 'shape': gml_shape, 'label': label}
     elif tag == 'edge' and len(parts) >= 5:
       # edge <tail> <head> <n> x1 y1 ... xn yn ...
@@ -111,6 +85,9 @@ def main():
   for nd in nodes.values():
     nd['y'] = max_y - nd['y']
   edges = [(t, h, [(x, max_y - y) for (x, y) in pts]) for (t, h, pts) in edges]
+
+  # NEW: collect service node names (our DOT ids start with 'srv:')
+  service_names = {name for name in nodes.keys() if name.startswith('srv:')}
 
   # Assign integer IDs for yFiles GML
   name_to_id = {name: idx for idx, name in enumerate(nodes.keys())}
@@ -139,6 +116,9 @@ def main():
     out.append(f'      w {nd["w"]}')
     out.append(f'      h {nd["h"]}')
     out.append(f'      type "{nd["shape"]}"')
+    # NEW: make service node borders dashed
+    if name in service_names:
+      out.append('      outlineStyle "dashed"')  # dashed border for services
     out.append('    ]')
     out.append('    LabelGraphics')
     out.append('    [')
@@ -156,6 +136,9 @@ def main():
     out.append(f'    target {name_to_id[head]}')
     out.append('    graphics')
     out.append('    [')
+    # NEW: dashed edges if the edge touches a service node
+    if tail in service_names or head in service_names:
+      out.append('      style "dashed"')  # dashed line for service edges
     if include_edge_bends and pts:
       out.append('      Line')
       out.append('      [')
@@ -172,10 +155,19 @@ def main():
     out.append('  ]')
 
   out.append(']')
+  return out
 
-  with open('rosgraph.gml', 'w', encoding='utf-8') as f:
+
+def main():
+  graph_mode='node_topic_all'  # 'node_topic', 'node_topic_all', 'node_node'
+  dot = GenerateRosDot(graph_mode=graph_mode)
+
+  out = DotToGML(dot)
+
+  with open(f'rosgraph-{graph_mode}.gml', 'w', encoding='utf-8') as f:
     f.write('\n'.join(out))
-  print('Wrote rosgraph.gml')
+  print(f'Wrote: rosgraph-{graph_mode}.gml')
+
 
 if __name__ == '__main__':
   main()
