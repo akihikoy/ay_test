@@ -52,6 +52,10 @@ def generate_report():
   master = rosgraph.Master('/system_reporter')
 
   node_names = rosnode.get_node_names()
+
+  # Sort node names alphabetically to ensure consistent output for diffs
+  node_names.sort()
+
   rp = rospkg.RosPack()
 
   # Build a dictionary of all packages and their absolute paths
@@ -137,5 +141,3 @@ def generate_report():
 
 if __name__ == '__main__':
   generate_report()
-
-
