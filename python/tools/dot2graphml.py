@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 #\file    dot2graphml.py
-#\brief   Convert a DOT file to a yEd-compatible GraphML file using Graphviz plain text output.
+#\brief   Convert a DOT graph string/file to a yEd-compatible GraphML file.
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Feb.21, 2026
+#\version 0.2
+#\date    Feb.23, 2026
 
 import sys
 import os
+import argparse
 import subprocess
 import shlex
 
@@ -14,24 +17,7 @@ def xml_escape(s: str) -> str:
   # Escape characters for XML attributes
   return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;')
 
-def main():
-  creator = "dot2yed_graphml"
-
-  if len(sys.argv) < 2:
-    print("Usage: python3 dot2yed_graphml.py <input_file.dot>")
-    sys.exit(1)
-
-  input_dot = sys.argv[1]
-  output_graphml = os.path.splitext(input_dot)[0] + ".graphml"
-
-  # 1. Read the DOT file
-  try:
-    with open(input_dot, 'r', encoding='utf-8') as f:
-      dot_content = f.read()
-  except Exception as e:
-    print(f"Error reading {input_dot}: {e}")
-    return
-
+def DotToGraphML(dot_content: str) -> str:
   # Run Graphviz to compute geometry and resolved labels ('plain' format)
   try:
     proc = subprocess.run(
@@ -43,17 +29,17 @@ def main():
     )
   except FileNotFoundError:
     print("Error: Graphviz 'dot' not found. Please install graphviz.")
-    return
+    return ""
   except subprocess.CalledProcessError as e:
     print(f"Graphviz error:\n{e.stderr.decode('utf-8')}")
-    return
+    return ""
 
   plain = proc.stdout.decode('utf-8')
 
   # Parse 'plain' output
-  scale_in = 72.0  # inches -> points (tweak if needed)
+  scale_in = 72.0  # inches -> points
   graph_h_in = 0.0
-  nodes = {}   # name -> {x,y,w,h,shape,label,description}
+  nodes = {}   # name -> {...}
   edges = []   # (tail, head, [(x,y), ...])
 
   for raw in plain.splitlines():
@@ -62,33 +48,62 @@ def main():
       continue
     tag = parts[0]
     if tag == 'graph':
-      # graph <scale> <width> <height>
       if len(parts) >= 4:
         graph_h_in = float(parts[3])
       elif len(parts) == 3:
         graph_h_in = float(parts[2])
     elif tag == 'node' and len(parts) >= 11:
-      # node <name> <x> <y> <w> <h> <label> <style> <shape> <color> <fillcolor>
       name = parts[1]
       x = float(parts[2]) * scale_in
       y = float(parts[3]) * scale_in
       w = float(parts[4]) * scale_in
       h = float(parts[5]) * scale_in
-      label = parts[6]  # <-- resolved label from Graphviz (e.g., "/ctrl_panel")
+      label = parts[6]
       shape_gv = parts[8].lower()
-      if shape_gv in ('box', 'rectangle', 'square'):
-        gml_shape = 'rectangle'
-        ros_type = 'topic'
+
+      is_service = name.startswith('srv:')
+
+      # Determine styles based on node type
+      if is_service:
+        gml_shape = 'roundrectangle'
+        ros_type = 'service'
+        fill_color = "#eeeeff"
+        font_size = "12"
+        font_style = "plain"
+        target_h = 18.0
+        border_style = "dashed"
       elif shape_gv in ('ellipse', 'circle', 'oval'):
         gml_shape = 'ellipse'
         ros_type = 'node'
+        fill_color = "#ffff99"
+        font_size = "16"
+        font_style = "bold"
+        target_h = 36.0
+        border_style = "line"
+      elif shape_gv in ('box', 'rectangle', 'square', 'box3d'):
+        gml_shape = 'rectangle'
+        ros_type = 'topic'
+        fill_color = "#ccccff"
+        font_size = "12"
+        font_style = "plain"
+        target_h = 18.0
+        border_style = "line"
       else:
-        gml_shape = 'roundrectangle'
+        gml_shape = 'rectangle'
         ros_type = 'unknown'
-      informative_description = f"{ros_type}:{label}"
-      nodes[name] = {'x': x, 'y': y, 'w': w, 'h': h, 'shape': gml_shape, 'label': label, 'description': informative_description}
+        fill_color = "#EEEEEE"
+        font_size = "12"
+        font_style = "plain"
+        target_h = h
+        border_style = "line"
+
+      informative_desc = f"{ros_type}:{label}"
+      nodes[name] = {
+        'x': x, 'y': y, 'w': w, 'h': target_h, 'shape': gml_shape,
+        'label': label, 'description': informative_desc,
+        'fill': fill_color, 'fsize': font_size, 'fstyle': font_style, 'border': border_style
+      }
     elif tag == 'edge' and len(parts) >= 5:
-      # edge <tail> <head> <n> x1 y1 ... xn yn ...
       tail, head = parts[1], parts[2]
       n = int(parts[3])
       pts = []
@@ -104,11 +119,8 @@ def main():
     nd['y'] = max_y - nd['y']
   edges = [(t, h, [(x, max_y - y) for (x, y) in pts]) for (t, h, pts) in edges]
 
-  # Assign integer IDs for yFiles GraphML
   name_to_id = {name: idx for idx, name in enumerate(nodes.keys())}
-
-  # Build yFiles GraphML text
-  include_edge_bends = False  # keep False to allow dynamic routing in yEd
+  include_edge_bends = False
 
   out = []
   out.append('<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
@@ -116,51 +128,25 @@ def main():
   out.append('         xmlns:y="http://www.yworks.com/xml/graphml"')
   out.append('         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
   out.append('         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">')
-
-  # Define keys for yEd properties
   out.append('  <key id="d_desc" for="node" attr.name="description" attr.type="string"/>')
   out.append('  <key id="d_nodegraphics" for="node" yfiles.type="nodegraphics"/>')
   out.append('  <key id="d_edgegraphics" for="edge" yfiles.type="edgegraphics"/>')
-
   out.append('  <graph id="G" edgedefault="directed">')
 
-  # Nodes with fixed positions and correct labels
+  # Nodes
   for name, nid in name_to_id.items():
     nd = nodes[name]
-
-    # Determine styles and target height based on shape type
-    if nd["shape"] == 'ellipse':
-      fill_color = "#ffff99"
-      font_size = "16"
-      font_style = "bold"
-      target_h = 36.0
-    elif nd["shape"] == 'rectangle':
-      fill_color = "#ccccff"
-      font_size = "12"
-      font_style = "plain"
-      target_h = 18.0
-    else:
-      # default / unknown
-      fill_color = "#EEEEEE"
-      font_size = "12"
-      font_style = "plain"
-      target_h = nd["h"]
-
-    # yEd GraphML Geometry x,y represent the top-left corner, while Graphviz plain outputs the center.
     x_topleft = nd["x"] - nd["w"] / 2.0
-    y_topleft = nd["y"] - target_h / 2.0
+    y_topleft = nd["y"] - nd["h"] / 2.0
 
     out.append(f'    <node id="n{nid}">')
-    # Use CDATA for description to safely handle arbitrary text
     out.append(f'      <data key="d_desc"><![CDATA[{nd["description"]}]]></data>')
     out.append('      <data key="d_nodegraphics">')
     out.append('        <y:ShapeNode>')
-    # Apply the target height
-    out.append(f'          <y:Geometry x="{x_topleft}" y="{y_topleft}" width="{nd["w"]}" height="{target_h}"/>')
-    out.append(f'          <y:Fill color="{fill_color}" transparent="false"/>')
-    out.append('          <y:BorderStyle type="line" width="1.0" color="#000000"/>')
-    # Use CDATA for label, and add font styling attributes
-    out.append(f'          <y:NodeLabel textColor="#000000" fontSize="{font_size}" fontStyle="{font_style}"><![CDATA[{nd["label"]}]]></y:NodeLabel>')
+    out.append(f'          <y:Geometry x="{x_topleft}" y="{y_topleft}" width="{nd["w"]}" height="{nd["h"]}"/>')
+    out.append(f'          <y:Fill color="{nd["fill"]}" transparent="false"/>')
+    out.append(f'          <y:BorderStyle type="{nd["border"]}" width="1.0" color="#000000"/>')
+    out.append(f'          <y:NodeLabel textColor="#000000" fontSize="{nd["fsize"]}" fontStyle="{nd["fstyle"]}"><![CDATA[{nd["label"]}]]></y:NodeLabel>')
     out.append(f'          <y:Shape type="{nd["shape"]}"/>')
     out.append('        </y:ShapeNode>')
     out.append('      </data>')
@@ -171,6 +157,11 @@ def main():
   for tail, head, pts in edges:
     if tail not in name_to_id or head not in name_to_id:
       continue
+
+    # Make edge dashed if it connects to a service
+    is_srv_edge = tail.startswith('srv:') or head.startswith('srv:')
+    edge_style = "dashed" if is_srv_edge else "line"
+
     out.append(f'    <edge id="e{edge_id}" source="n{name_to_id[tail]}" target="n{name_to_id[head]}">')
     out.append('      <data key="d_edgegraphics">')
     out.append('        <y:PolyLineEdge>')
@@ -179,7 +170,7 @@ def main():
       for (x, y) in pts:
         out.append(f'            <y:Point x="{x}" y="{y}"/>')
     out.append('          </y:Path>')
-    out.append('          <y:LineStyle type="line" width="1.0" color="#000000"/>')
+    out.append(f'          <y:LineStyle type="{edge_style}" width="1.0" color="#000000"/>')
     out.append('          <y:Arrows source="none" target="standard"/>')
     out.append('        </y:PolyLineEdge>')
     out.append('      </data>')
@@ -189,13 +180,31 @@ def main():
   out.append('  </graph>')
   out.append('</graphml>')
 
-  # Write to output file
+  return '\n'.join(out)
+
+def main():
+  parser = argparse.ArgumentParser(description='Convert a DOT file to a GraphML file.')
+  parser.add_argument('input_dot', type=str, help='Input DOT file')
+  args = parser.parse_args()
+
+  input_dot = args.input_dot
+  output_graphml = os.path.splitext(input_dot)[0] + ".graphml"
+
   try:
-    with open(output_graphml, 'w', encoding='utf-8') as f:
-      f.write('\n'.join(out))
-    print(f'Success! Wrote to {output_graphml}')
+    with open(input_dot, 'r', encoding='utf-8') as f:
+      dot_content = f.read()
   except Exception as e:
-    print(f"Error writing to {output_graphml}: {e}")
+    print(f"Error reading {input_dot}: {e}")
+    sys.exit(1)
+
+  graphml_str = DotToGraphML(dot_content)
+  if graphml_str:
+    try:
+      with open(output_graphml, 'w', encoding='utf-8') as f:
+        f.write(graphml_str)
+      print(f'Success! Wrote to {output_graphml}')
+    except Exception as e:
+      print(f"Error writing to {output_graphml}: {e}")
 
 if __name__ == '__main__':
   main()
