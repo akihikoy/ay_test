@@ -1,3 +1,5 @@
+# DEPRECATED
+
 #!/usr/bin/python3
 #\file    rqt_graph_srv_gml.py
 #\brief   Generate a GML file of ROS node graph including services with rqt_graph.

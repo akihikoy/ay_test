@@ -1,3 +1,6 @@
+# DEPRECATED
+
+
 #!/usr/bin/python3
 #\file    rqt_graph_srv_dot.py
 #\brief   Generate a DOT file of ROS node graph including services with rqt_graph.
