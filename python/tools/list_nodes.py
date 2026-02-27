@@ -13,8 +13,16 @@ import csv
 import subprocess
 import os
 import xmlrpc.client
+import urllib.parse
 
 OUTPUT_FILE = "ros_system_report.csv"
+
+# Mapping of remote IPs to SSH usernames
+REMOTE_USERS = {
+  '10.10.6.205': 'jetson',
+  # Add other IPs if necessary
+}
+
 
 def get_repo_url(package_path):
   """
@@ -32,19 +40,25 @@ def get_repo_url(package_path):
 def get_package_from_path(file_path, packages):
   """
   Determine which ROS package contains the given file path.
+  Tolerates different workspace base paths (e.g., local vs remote over SSH).
   """
-  best_match = "-"
-  max_len = 0
-  file_path = os.path.abspath(file_path)
+  parts = file_path.split('/')
 
-  for pkg, pkg_path in packages.items():
-    if file_path.startswith(pkg_path):
-      # Find the most specific match (longest path)
-      if len(pkg_path) > max_len:
-        max_len = len(pkg_path)
-        best_match = pkg
+  # 1. Fallback for compiled nodes in /devel/lib/<pkg>/ or /opt/ros/*/lib/<pkg>/
+  if 'lib' in parts:
+    idx = parts.index('lib')
+    if idx + 1 < len(parts):
+      pkg = parts[idx + 1]
+      if pkg in packages:
+        return pkg
 
-  return best_match
+  # 2. Check for script files inside packages (e.g., /src/my_pkg/scripts/...)
+  # Search from the deepest directory upwards to find the package name
+  for part in reversed(parts[:-1]):
+    if part in packages:
+      return part
+
+  return "-"
 
 def generate_report():
   # Initialize node to communicate with ROS Master
@@ -75,13 +89,14 @@ def generate_report():
     writer = csv.writer(f)
     # Write header
     writer.writerow([
-      "Node Name", "Package", "Repository URL",
+      "Node Name", "Package", "Repository URL", "Executable",
       "Publications", "Subscriptions", "Services Offered"
     ])
 
     for node in node_names:
       package_name = "-"
       repo_url = "-"
+      executable_name = "-"
 
       try:
         # 1. Identify package by querying the node's PID and inspecting /proc
@@ -91,12 +106,33 @@ def generate_report():
 
         # Read the command line arguments used to launch the node
         try:
-          with open(f'/proc/{pid}/cmdline', 'rb') as cmd_f:
+          hostname = urllib.parse.urlparse(uri).hostname
+          cmdline_bytes = b''
+
+          if hostname in REMOTE_USERS:
+            # Fetch process info via SSH for remote nodes
+            ssh_user = REMOTE_USERS[hostname]
+            cmd = ["ssh", f"{ssh_user}@{hostname}", f"cat /proc/{pid}/cmdline"]
+            cmdline_bytes = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+          else:
+            # Fetch process info locally
+            if os.path.exists(f'/proc/{pid}/cmdline'):
+              with open(f'/proc/{pid}/cmdline', 'rb') as cmd_f:
+                cmdline_bytes = cmd_f.read()
+
+          if cmdline_bytes:
             # cmdline items are null-byte separated
-            cmdline = cmd_f.read().split(b'\x00')[:-1]
+            cmdline = cmdline_bytes.split(b'\x00')[:-1]
             cmd_args = [arg.decode('utf-8') for arg in cmdline]
 
-            # Heuristic: Find the first absolute path in arguments
+            # Extract executable name
+            if cmd_args:
+              exec_path = cmd_args[0]
+              if 'python' in os.path.basename(exec_path).lower() and len(cmd_args) > 1:
+                exec_path = cmd_args[1]
+              executable_name = os.path.basename(exec_path)
+
+            # Find the package name using the execution path
             for arg in cmd_args:
               if arg.startswith('/'):
                 pkg = get_package_from_path(arg, packages)
@@ -104,18 +140,8 @@ def generate_report():
                   package_name = pkg
                   repo_url = get_repo_url(packages[pkg])
                   break
-
-                # Fallback for compiled nodes in /opt/ros/.../lib/<pkg>/<node>
-                if "/lib/" in arg:
-                  parts = arg.split("/lib/")
-                  if len(parts) == 2:
-                    potential_pkg = parts[1].split("/")[0]
-                    if potential_pkg in packages:
-                      package_name = potential_pkg
-                      repo_url = get_repo_url(packages[potential_pkg])
-                      break
         except Exception:
-          pass # /proc not accessible or parsing failed
+          pass # /proc not accessible, SSH failed, or parsing failed
       except Exception:
         pass # XMLRPC call failed
 
@@ -132,6 +158,7 @@ def generate_report():
         node,
         package_name,
         repo_url,
+        executable_name,
         ", ".join(pubs),
         ", ".join(subs),
         ", ".join(srvs)
